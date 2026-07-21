@@ -8,7 +8,7 @@ import type { UserSessionSummary } from '@/lib/api-client';
 import { ApiClientError } from '@/lib/api-client';
 
 export default function SessionsPage() {
-  const { getAccessToken, logout, status, user } = useAuth();
+  const { getAccessToken, logout, status } = useAuth();
   const router = useRouter();
   const [sessions, setSessions] = useState<UserSessionSummary[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,9 +41,14 @@ export default function SessionsPage() {
   }, [getAccessToken, logout, router]);
 
   useEffect(() => {
-    if (status === 'authenticated') {
-      void fetchSessions();
-    }
+    let mounted = true;
+    const init = async () => {
+      if (mounted && status === 'authenticated') {
+        await fetchSessions();
+      }
+    };
+    void init();
+    return () => { mounted = false; };
   }, [status, fetchSessions]);
 
   async function handleRevoke() {

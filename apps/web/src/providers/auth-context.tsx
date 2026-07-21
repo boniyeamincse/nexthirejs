@@ -57,8 +57,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const bootstrap = useCallback(async () => {
-    setState((prev) => ({ ...prev, status: 'loading' }));
-
     try {
       const result = await refreshSession();
       const token = result.accessToken;
@@ -81,7 +79,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [setAccessToken]);
 
   useEffect(() => {
-    void bootstrap();
+    let mounted = true;
+    const init = async () => {
+      if (mounted) {
+        await bootstrap();
+      }
+    };
+    void init();
+    return () => { mounted = false; };
   }, [bootstrap]);
 
   const login = useCallback(

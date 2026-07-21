@@ -442,10 +442,11 @@ export interface GetCountriesResult {
   countries: Country[];
 }
 
-export async function listSupportedCountries(): Promise<GetCountriesResult> {
-  const response = await fetch(`${API_BASE_URL}/v1/config/countries`, {
+export async function listSupportedCountries(accessToken: string): Promise<GetCountriesResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/config/countries`, {
     method: 'GET',
     headers: {
+      Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
     },
   });
@@ -468,17 +469,243 @@ export interface GetCandidatePreferenceResult {
   };
 }
 
-export async function getMyCandidatePreferences(): Promise<GetCandidatePreferenceResult> {
-  return await fetchWithAuth(`${API_BASE_URL}/v1/candidates/me/preferences`, {
+export async function getMyCandidatePreferences(accessToken: string): Promise<GetCandidatePreferenceResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/preferences`, {
     method: 'GET',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
   });
+  
+  if (response.ok) {
+    return response.json();
+  }
+  
+  throw new Error(`Failed to get preferences: ${response.status}`);
 }
 
 export async function updateMyCandidatePreferences(
+  accessToken: string,
   data: CandidatePreferenceInput
 ): Promise<CandidatePreferenceResult> {
-  return await fetchWithAuth(`${API_BASE_URL}/v1/candidates/me/preferences`, {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/preferences`, {
     method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify(data),
   });
+  
+  if (response.ok) {
+    return response.json();
+  }
+  
+  throw new Error(`Failed to update preferences: ${response.status}`);
+}
+
+import type { CreateEducationRecordInput, UpdateEducationRecordInput, ReorderEducationRecordsInput } from '@nexthire/validation';
+import type { EducationRecordResult } from '@nexthire/types';
+
+export interface GetEducationRecordsResult {
+  records: EducationRecordResult[];
+  completion: CandidateProfileCompletion;
+}
+
+export interface CreateEducationRecordResult {
+  record: EducationRecordResult;
+  completion: CandidateProfileCompletion;
+}
+
+export interface UpdateEducationRecordResult {
+  record: EducationRecordResult;
+  completion: CandidateProfileCompletion;
+}
+
+export async function listMyEducationRecords(accessToken: string): Promise<GetEducationRecordsResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/education`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+  });
+  
+  if (response.ok) {
+    return response.json();
+  }
+  
+  throw new Error(`Failed to list education records: ${response.status}`);
+}
+
+export async function createEducationRecord(
+  accessToken: string,
+  data: CreateEducationRecordInput
+): Promise<CreateEducationRecordResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/education`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  
+  if (response.ok) {
+    return response.json();
+  }
+  
+  throw new Error(`Failed to create education record: ${response.status}`);
+}
+
+export async function updateEducationRecord(
+  accessToken: string,
+  id: string,
+  data: UpdateEducationRecordInput
+): Promise<UpdateEducationRecordResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/education/${id}`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  
+  if (response.ok) {
+    return response.json();
+  }
+  
+  throw new Error(`Failed to update education record: ${response.status}`);
+}
+
+export async function deleteEducationRecord(
+  accessToken: string,
+  id: string
+): Promise<void> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/education/${id}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+  
+  if (response.ok) {
+    return;
+  }
+  
+  throw new Error(`Failed to delete education record: ${response.status}`);
+}
+
+export async function reorderEducationRecords(
+  accessToken: string,
+  data: ReorderEducationRecordsInput
+): Promise<void> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/education/reorder`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  
+  if (response.ok) {
+    return;
+  }
+  
+  throw new Error(`Failed to reorder education records: ${response.status}`);
+}
+
+import type {
+  CreateWorkExperienceRecordInput,
+  UpdateWorkExperienceRecordInput,
+  ReorderWorkExperienceRecordsInput,
+} from '@nexthire/validation';
+import type { WorkExperienceRecordResult } from '@nexthire/types';
+
+export interface GetWorkExperienceRecordsResult {
+  records: WorkExperienceRecordResult[];
+  completion: CandidateProfileCompletion;
+}
+
+export interface CreateWorkExperienceRecordResult {
+  record: WorkExperienceRecordResult;
+  completion: CandidateProfileCompletion;
+}
+
+export interface UpdateWorkExperienceRecordResult {
+  record: WorkExperienceRecordResult;
+  completion: CandidateProfileCompletion;
+}
+
+export async function listMyWorkExperienceRecords(accessToken: string): Promise<GetWorkExperienceRecordsResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/experience`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to list work experience records: ${response.status}`);
+}
+
+export async function createWorkExperienceRecord(
+  accessToken: string,
+  data: CreateWorkExperienceRecordInput
+): Promise<CreateWorkExperienceRecordResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/experience`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to create work experience record: ${response.status}`);
+}
+
+export async function updateWorkExperienceRecord(
+  accessToken: string,
+  id: string,
+  data: UpdateWorkExperienceRecordInput
+): Promise<UpdateWorkExperienceRecordResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/experience/${id}`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to update work experience record: ${response.status}`);
+}
+
+export async function deleteWorkExperienceRecord(accessToken: string, id: string): Promise<void> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/experience/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (response.ok) return;
+  throw new Error(`Failed to delete work experience record: ${response.status}`);
+}
+
+export async function reorderWorkExperienceRecords(
+  accessToken: string,
+  data: ReorderWorkExperienceRecordsInput
+): Promise<void> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/experience/reorder`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  if (response.ok) return;
+  throw new Error(`Failed to reorder work experience records: ${response.status}`);
 }

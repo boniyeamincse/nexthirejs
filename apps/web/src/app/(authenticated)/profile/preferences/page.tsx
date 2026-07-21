@@ -3,21 +3,19 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/providers/auth-context';
 import { getMyCandidatePreferences, updateMyCandidatePreferences, listSupportedCountries } from '@/lib/api-client';
-import type { CandidatePreferenceResult, Country } from '@nexthire/types';
+import type { Country, CandidateProfileCompletion } from '@nexthire/types';
 import type { CandidatePreferenceInput } from '@nexthire/validation';
 import styles from '../../../(auth)/auth.module.css';
-import { useRouter } from 'next/navigation';
 
 export default function PreferencesPage() {
-  const { getAccessToken, user } = useAuth();
-  const router = useRouter();
+  const { getAccessToken } = useAuth();
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
   const [countries, setCountries] = useState<Country[]>([]);
-  const [completion, setCompletion] = useState<any>(null);
+  const [completion, setCompletion] = useState<CandidateProfileCompletion | null>(null);
 
   const [formData, setFormData] = useState<CandidatePreferenceInput>({
     countryCode: '',
@@ -35,8 +33,8 @@ export default function PreferencesPage() {
       
       try {
         const [prefsResult, countriesResult] = await Promise.all([
-          getMyCandidatePreferences(),
-          listSupportedCountries(),
+          getMyCandidatePreferences(token),
+          listSupportedCountries(token),
         ]);
         
         setCountries(countriesResult.countries);
@@ -52,12 +50,13 @@ export default function PreferencesPage() {
           });
         } else {
           // pre-select first country if available
-          if (countriesResult.countries.length > 0) {
-            setFormData(prev => ({ ...prev, countryCode: countriesResult.countries[0].code }));
+          const firstCountry = countriesResult.countries[0];
+          if (firstCountry) {
+            setFormData(prev => ({ ...prev, countryCode: firstCountry.code }));
           }
         }
-      } catch (err: any) {
-        setErrorMsg(err.message || 'Failed to load preferences');
+      } catch (err: unknown) {
+        setErrorMsg(err instanceof Error ? err.message : 'Failed to load preferences');
       } finally {
         setLoading(false);
       }
@@ -78,9 +77,9 @@ export default function PreferencesPage() {
   const handleCheckboxChange = (name: 'preferredWorkModes' | 'preferredEmploymentTypes', value: string) => {
     setFormData(prev => {
       const current = prev[name] as string[];
-      const updated = current.includes(value as any) 
+      const updated = current.includes(value) 
         ? current.filter(v => v !== value) 
-        : [...current, value as any];
+        : [...current, value];
       
       return { ...prev, [name]: updated };
     });
@@ -129,11 +128,14 @@ export default function PreferencesPage() {
     setErrorMsg('');
 
     try {
-      const result = await updateMyCandidatePreferences(formData);
+      const token = getAccessToken();
+      if (!token) throw new Error('Not authenticated');
+      
+      const result = await updateMyCandidatePreferences(token, formData);
       setCompletion(result.completion);
       setSaveStatus('success');
-    } catch (err: any) {
-      setErrorMsg(err.message || 'Failed to update preferences');
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : 'Failed to update preferences');
       setSaveStatus('error');
     } finally {
       setSaving(false);
@@ -196,7 +198,7 @@ export default function PreferencesPage() {
                 required
                 className={styles.input}
                 value={formData.countryCode}
-                onChange={handleChange as any}
+                onChange={handleChange as React.ChangeEventHandler<HTMLSelectElement>}
                 style={{ appearance: 'auto' }}
               >
                 <option value="" disabled>Select Country</option>
@@ -265,7 +267,7 @@ export default function PreferencesPage() {
                   <label key={mode} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#cbd5e1', cursor: 'pointer', fontSize: '0.9rem' }}>
                     <input 
                       type="checkbox" 
-                      checked={formData.preferredWorkModes.includes(mode as any)}
+                      checked={(formData.preferredWorkModes as string[]).includes(mode)}
                       onChange={() => handleCheckboxChange('preferredWorkModes', mode)}
                       style={{ width: '1rem', height: '1rem', accentColor: '#6366f1' }}
                     />
@@ -282,7 +284,7 @@ export default function PreferencesPage() {
                   <label key={type} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#cbd5e1', cursor: 'pointer', fontSize: '0.9rem' }}>
                     <input 
                       type="checkbox" 
-                      checked={formData.preferredEmploymentTypes.includes(type as any)}
+                      checked={(formData.preferredEmploymentTypes as string[]).includes(type)}
                       onChange={() => handleCheckboxChange('preferredEmploymentTypes', type)}
                       style={{ width: '1rem', height: '1rem', accentColor: '#6366f1' }}
                     />

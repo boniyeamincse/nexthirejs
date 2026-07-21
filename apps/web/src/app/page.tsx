@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { siteConfig } from '@/lib/site-config';
 import styles from './page.module.css';
 
 export default function Home() {

@@ -40,8 +40,8 @@ export default function ProfilePage() {
             dateOfBirth: data.profile.dateOfBirth ? data.profile.dateOfBirth.split('T')[0] : '',
           });
         }
-      } catch (err: any) {
-        setErrorMsg(err.message || 'Failed to load profile');
+      } catch (err: unknown) {
+        setErrorMsg(err instanceof Error ? err.message : 'Failed to load profile');
       } finally {
         setLoading(false);
       }
@@ -72,8 +72,8 @@ export default function ProfilePage() {
       const result = await updateMyCandidateProfile(token, formData);
       setCompletion(result.completion);
       setSaveStatus('success');
-    } catch (err: any) {
-      setErrorMsg(err.message || 'Failed to update profile');
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : 'Failed to update profile');
       setSaveStatus('error');
     } finally {
       setSaving(false);

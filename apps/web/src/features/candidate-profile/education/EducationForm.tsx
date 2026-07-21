@@ -59,10 +59,10 @@ export function EducationForm({ initialData, onSave, onCancel }: EducationFormPr
       
       // For API it might want full ISO dates, but YYYY-MM-DD should be parsed well by Zod.
       if (payload.startDate) {
-        payload.startDate = new Date(payload.startDate).toISOString();
+        payload.startDate = new Date(payload.startDate as string).toISOString();
       }
       if (payload.endDate && !payload.currentlyStudying) {
-        payload.endDate = new Date(payload.endDate).toISOString();
+        payload.endDate = new Date(payload.endDate as string).toISOString();
       } else {
         payload.endDate = undefined;
       }

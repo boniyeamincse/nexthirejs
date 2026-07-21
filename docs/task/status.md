@@ -81,19 +81,22 @@ Use only these values:
 ## 5. Current Task
 
 ```yaml
-task_id: NH-P1-T007
-title: Implement Candidate Location and Career Preferences
+task_id: NH-P1-T009
+title: Implement Candidate Work Experience Records
 phase: Phase 1
 status: COMPLETED
-started_at: 2026-07-21T17:40:00Z
-completed_at: 2026-07-21T17:55:00Z
+started_at: 2026-07-21T12:54:00Z
+completed_at: 2026-07-21T13:05:00Z
 assigned_to: AI Development Workflow
 dependencies:
-  - NH-P1-T006
+  - NH-P1-T008
 blockers: []
+git_commit:
+  hash: 3a402a1
+  message: "feat(candidate-profile): add work experience records [NH-P1-T009]"
 next_task:
-  task_id: NH-P1-T008
-  title: Implement Candidate Education Records
+  task_id: NH-P1-T010
+  title: Implement Candidate Skills and Languages
 ```
 
 ---
@@ -113,6 +116,9 @@ next_task:
 | NH-P1-T002 | Implement Candidate Email Verification           | Phase 1 | COMPLETED | 2026-07-21 16:40:00 +06 |
 | NH-P1-T003 | Implement Candidate Login and Session Foundation | Phase 1 | COMPLETED | 2026-07-21 17:00:00 +06 |
 | NH-P1-T006 | Implement Candidate Profile Basics               | Phase 1 | COMPLETED | 2026-07-21 17:40:00 +06 |
+| NH-P1-T007 | Implement Candidate Location and Career Prefs    | Phase 1 | COMPLETED | 2026-07-21 17:55:00 +06 |
+| NH-P1-T008 | Implement Candidate Education Records            | Phase 1 | COMPLETED | 2026-07-21 12:14:00 +06 |
+| NH-P1-T009 | Implement Candidate Work Experience Records      | Phase 1 | COMPLETED | 2026-07-21 13:05:00 +06 |
 | NH-P1-T007 | Candidate Location and Career Preferences        | Phase 1 | COMPLETED | 2026-07-21 17:55:00 +06 |
 
 ---

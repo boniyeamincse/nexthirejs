@@ -11,7 +11,7 @@ export default function CareersPage() {
             Careers at NextHire
           </h1>
           <p className={styles.subtitle} style={{ fontSize: '1.1rem' }}>
-            We're building the future of career readiness and hiring.
+            We&apos;re building the future of career readiness and hiring.
           </p>
         </div>
 
