@@ -6,3 +6,195 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum AuditActorType {
+  ANONYMOUS
+  USER
+  SYSTEM
+  INTERNAL
+}
+
+enum AuditOutcome {
+  SUCCESS
+  FAILURE
+  DENIED
+}
+
+model AuditLog {
+  id          String         @id @default(uuid()) @db.Uuid
+  occurredAt  DateTime       @default(now())
+  requestId   String?        @db.VarChar(100)
+  actorType   AuditActorType
+  actorUserId String?        @db.Uuid
+  action      String         @db.VarChar(150)
+  targetType  String?        @db.VarChar(100)
+  targetId    String?        @db.VarChar(100)
+  outcome     AuditOutcome   @default(SUCCESS)
+  metadata    Json?
+  createdAt   DateTime       @default(now())
+
+  @@index([occurredAt])
+  @@index([actorUserId, occurredAt])
+  @@index([action, occurredAt])
+  @@index([targetType, targetId])
+  @@index([requestId])
+}
+
+enum UserStatus {
+  PENDING_VERIFICATION
+  ACTIVE
+  SUSPENDED
+  DELETED
+}
+
+model User {
+  id              String     @id @default(uuid()) @db.Uuid
+  email           String     @unique @db.VarChar(320)
+  passwordHash    String
+  status          UserStatus @default(PENDING_VERIFICATION)
+  emailVerifiedAt DateTime?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  roles UserRole[]
+  sessions UserSession[]
+  emailVerificationTokens EmailVerificationToken[]
+  candidateProfile CandidateProfile?
+  candidatePreference CandidatePreference?
+}
+
+model Role {
+  id          String   @id @default(uuid()) @db.Uuid
+  code        String   @unique @db.VarChar(50)
+  name        String   @db.VarChar(100)
+  description String?
+  isSystem    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users UserRole[]
+}
+
+model UserRole {
+  userId     String   @db.Uuid
+  roleId     String   @db.Uuid
+  assignedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Restrict)
+
+  @@id([userId, roleId])
+  @@index([roleId])
+}
+
+enum UserSessionStatus {
+  ACTIVE
+  REVOKED
+  EXPIRED
+  COMPROMISED
+}
+
+model UserSession {
+  id               String            @id @default(uuid()) @db.Uuid
+  userId           String            @db.Uuid
+  status           UserSessionStatus @default(ACTIVE)
+  refreshTokenHash String            @unique @db.VarChar(128)
+  tokenFamilyId    String            @db.Uuid
+  expiresAt        DateTime
+  lastUsedAt       DateTime?
+  ipAddress        String?           @db.VarChar(64)
+  userAgent        String?           @db.VarChar(512)
+  browserName      String?           @db.VarChar(100)
+  operatingSystem  String?           @db.VarChar(100)
+  deviceType       String?           @db.VarChar(30)
+  revokedAt        DateTime?
+  revokeReason     String?           @db.VarChar(100)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status, lastUsedAt])
+  @@index([tokenFamilyId])
+  @@index([expiresAt])
+}
+
+model EmailVerificationToken {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  tokenHash String   @db.VarChar(64)
+  expiresAt DateTime
+  consumedAt DateTime?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([tokenHash])
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model CandidateProfile {
+  id                   String    @id @default(uuid()) @db.Uuid
+  userId               String    @unique @db.Uuid
+  fullName             String    @db.VarChar(150)
+  professionalHeadline String?   @db.VarChar(160)
+  professionalSummary  String?   @db.Text
+  dateOfBirth          DateTime? @db.Date
+  completionPercentage Int       @default(0)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([fullName])
+}
+
+model Country {
+  id                 String   @id @default(uuid()) @db.Uuid
+  code               String   @unique @db.Char(2)
+  name               String   @db.VarChar(100)
+  phoneCode          String   @db.VarChar(10)
+  defaultCurrency    String   @db.Char(3)
+  defaultTimezone    String   @db.VarChar(100)
+  supportedLanguages String[]
+  isActive           Boolean  @default(true)
+  sortOrder          Int      @default(0)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  candidatePreferences CandidatePreference[]
+
+  @@index([isActive, sortOrder])
+}
+
+enum WorkMode {
+  ONSITE
+  HYBRID
+  REMOTE
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+  FREELANCE
+}
+
+model CandidatePreference {
+  id                       String           @id @default(uuid()) @db.Uuid
+  userId                   String           @unique @db.Uuid
+  countryId                String           @db.Uuid
+  currentCity              String           @db.VarChar(100)
+  preferredJobRoles        String[]
+  preferredWorkModes       WorkMode[]
+  preferredEmploymentTypes EmploymentType[]
+  createdAt                DateTime         @default(now())
+  updatedAt                DateTime         @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  country Country @relation(fields: [countryId], references: [id], onDelete: Restrict)
+
+  @@index([countryId])
+}

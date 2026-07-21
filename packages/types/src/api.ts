@@ -43,5 +43,4 @@ export interface ApiErrorResponse {
  * Union type for all API responses.
  */
 export type ApiResponse<TData, TMeta = undefined> =
-  | ApiSuccessResponse<TData, TMeta>
-  | ApiErrorResponse;
+  ApiSuccessResponse<TData, TMeta> | ApiErrorResponse;

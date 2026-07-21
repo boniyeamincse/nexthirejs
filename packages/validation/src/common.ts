@@ -42,22 +42,16 @@ export const nonEmptyTrimmedStringSchema = z
  * Country code validation schema.
  * Derives from shared constants.
  */
-export const countryCodeSchema = z.enum(
-  [...SUPPORTED_COUNTRIES] as [string, ...string[]]
-);
+export const countryCodeSchema = z.enum([...SUPPORTED_COUNTRIES] as [string, ...string[]]);
 
 /**
  * Currency code validation schema.
  * Derives from shared constants.
  */
-export const currencyCodeSchema = z.enum(
-  [...SUPPORTED_CURRENCIES] as [string, ...string[]]
-);
+export const currencyCodeSchema = z.enum([...SUPPORTED_CURRENCIES] as [string, ...string[]]);
 
 /**
  * Language code validation schema.
  * Derives from shared constants.
  */
-export const languageCodeSchema = z.enum(
-  [...SUPPORTED_LANGUAGES] as [string, ...string[]]
-);
+export const languageCodeSchema = z.enum([...SUPPORTED_LANGUAGES] as [string, ...string[]]);

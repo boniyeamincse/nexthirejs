@@ -36,17 +36,13 @@ describe('SystemHealthProcessor', () => {
     it('should throw for unknown job name', async () => {
       const job = createJob('unknown-job', {});
 
-      await expect(processor.process(job)).rejects.toThrow(
-        'Unknown job name: unknown-job',
-      );
+      await expect(processor.process(job)).rejects.toThrow('Unknown job name: unknown-job');
     });
 
     it('should throw for null payload', async () => {
       const job = createJob(SYSTEM_HEALTH_PING_JOB, null);
 
-      await expect(processor.process(job)).rejects.toThrow(
-        'Invalid ping job payload',
-      );
+      await expect(processor.process(job)).rejects.toThrow('Invalid ping job payload');
     });
 
     it('should throw for missing source field', async () => {
@@ -54,9 +50,7 @@ describe('SystemHealthProcessor', () => {
         requestedAt: '2024-01-01T00:00:00.000Z',
       });
 
-      await expect(processor.process(job)).rejects.toThrow(
-        'Invalid ping job payload',
-      );
+      await expect(processor.process(job)).rejects.toThrow('Invalid ping job payload');
     });
 
     it('should throw for non-string source', async () => {
@@ -65,9 +59,7 @@ describe('SystemHealthProcessor', () => {
         requestedAt: '2024-01-01T00:00:00.000Z',
       });
 
-      await expect(processor.process(job)).rejects.toThrow(
-        'Invalid ping job payload',
-      );
+      await expect(processor.process(job)).rejects.toThrow('Invalid ping job payload');
     });
 
     it('should return valid ISO timestamp in processedAt', async () => {
@@ -77,9 +69,7 @@ describe('SystemHealthProcessor', () => {
       });
 
       const result = await processor.process(job);
-      expect(result.processedAt).toMatch(
-        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/,
-      );
+      expect(result.processedAt).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
     });
   });
 });

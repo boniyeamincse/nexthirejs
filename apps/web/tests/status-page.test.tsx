@@ -4,9 +4,7 @@ import StatusPage from '@/app/status/page';
 describe('Status Page', () => {
   it('shows the current phase', () => {
     render(<StatusPage />);
-    expect(
-      screen.getByText(/Phase 0 — Foundation/i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Phase 0 — Foundation/i)).toBeInTheDocument();
   });
 
   it('marks database as not connected', () => {

@@ -15,14 +15,16 @@
     "clean": "rimraf .next coverage test-results playwright-report"
   },
   "dependencies": {
+    "@nexthire/constants": "workspace:*",
+    "@nexthire/tsconfig": "workspace:*",
+    "@nexthire/types": "workspace:*",
+    "@nexthire/validation": "workspace:*",
     "next": "16.2.10",
     "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "@nexthire/types": "workspace:*",
-    "@nexthire/constants": "workspace:*",
-    "@nexthire/tsconfig": "workspace:*"
+    "react-dom": "19.2.4"
   },
   "devDependencies": {
+    "@nexthire/eslint-config": "workspace:*",
     "@playwright/test": "^1.61.1",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.9.1",
@@ -32,7 +34,6 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^6.0.3",
-    "@nexthire/eslint-config": "workspace:*",
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
     "jsdom": "^29.1.1",

@@ -33,12 +33,8 @@ export const cursorPaginationQuerySchema = z.object({
       }
       return val;
     })
-    .pipe(
-      z.number().int().min(1).max(MAX_PAGE_SIZE)
-    ),
+    .pipe(z.number().int().min(1).max(MAX_PAGE_SIZE)),
 });
 
 // Inferred types from schemas
-export type CursorPaginationInput = z.infer<
-  typeof cursorPaginationQuerySchema
->;
+export type CursorPaginationInput = z.infer<typeof cursorPaginationQuerySchema>;

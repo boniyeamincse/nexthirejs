@@ -63,17 +63,17 @@ describe('SystemController', () => {
     it('should throw NotFoundException when disabled', async () => {
       mockConfigService.get.mockReturnValue('false');
 
-      await expect(
-        controller.enqueuePing({ source: 'manual-test' }),
-      ).rejects.toThrow(NotFoundException);
+      await expect(controller.enqueuePing({ source: 'manual-test' })).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('should throw ServiceUnavailableException when redis is not ready', async () => {
       mockRedisService.isReady.mockReturnValue(false);
 
-      await expect(
-        controller.enqueuePing({ source: 'manual-test' }),
-      ).rejects.toThrow(ServiceUnavailableException);
+      await expect(controller.enqueuePing({ source: 'manual-test' })).rejects.toThrow(
+        ServiceUnavailableException,
+      );
     });
 
     it('should call queueService with correct payload', async () => {

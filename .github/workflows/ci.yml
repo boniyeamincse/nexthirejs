@@ -1,0 +1,102 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-and-tests:
+    name: Code Quality and Tests
+    runs-on: ubuntu-latest
+
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: nexthire
+          POSTGRES_PASSWORD: nexthire_test_password
+          POSTGRES_DB: nexthire_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U nexthire -d nexthire_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://nexthire:nexthire_test_password@localhost:5432/nexthire_test?schema=public
+      REDIS_HOST: 127.0.0.1
+      REDIS_PORT: 6379
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:3001/api/v1
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Prisma Format and Validate
+        run: |
+          pnpm --filter @nexthire/api db:format
+          pnpm --filter @nexthire/api db:validate
+          pnpm --filter @nexthire/api db:generate
+
+      - name: Format Check
+        run: pnpm format:check
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Type Check
+        run: pnpm typecheck
+
+      - name: Unit Tests
+        run: pnpm test
+
+      - name: API E2E Tests
+        run: pnpm --filter @nexthire/api test:e2e
+
+      - name: Install Playwright Browsers
+        run: pnpm --filter @nexthire/web exec playwright install --with-deps chromium
+
+      - name: Web E2E Tests
+        run: pnpm --filter @nexthire/web test:e2e
+
+      - name: Production Builds
+        run: pnpm build
+
+      - name: Validate Docker Compose Configuration
+        run: docker compose --env-file .env.example -f infrastructure/docker/compose.dev.yml config --quiet

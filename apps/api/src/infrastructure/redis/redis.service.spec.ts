@@ -6,9 +6,7 @@ import { RedisService } from './redis.service';
 
 describe('RedisService', () => {
   let redisService: RedisService;
-  let mockClient: jest.Mocked<
-    Pick<Redis, 'ping' | 'quit' | 'connect' | 'status'>
-  >;
+  let mockClient: jest.Mocked<Pick<Redis, 'ping' | 'quit' | 'connect' | 'status'>>;
 
   const mockConfigService = {
     get: jest.fn(),
@@ -76,9 +74,7 @@ describe('RedisService', () => {
     it('should throw when ping fails', async () => {
       mockClient.ping.mockRejectedValue(new Error('Connection lost'));
 
-      await expect(redisService.checkConnection()).rejects.toThrow(
-        'Connection lost',
-      );
+      await expect(redisService.checkConnection()).rejects.toThrow('Connection lost');
     });
   });
 });

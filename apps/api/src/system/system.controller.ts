@@ -8,11 +8,13 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { Public } from '../modules/auth/decorators/public.decorator';
 import { QueueService } from '../infrastructure/queue/queue.service';
 import { EnqueueSystemPingDto } from './dto/enqueue-system-ping.dto';
 import { RedisService } from '../infrastructure/redis/redis.service';
 
 @Controller('system')
+@Public()
 export class SystemController {
   constructor(
     private readonly queueService: QueueService,
@@ -35,9 +37,7 @@ export class SystemController {
     job: string;
     jobId: string | number | undefined;
   }> {
-    const enabled =
-      this.configService.get<string>('SYSTEM_QUEUE_TEST_ENABLED', 'true') ===
-      'true';
+    const enabled = this.configService.get<string>('SYSTEM_QUEUE_TEST_ENABLED', 'true') === 'true';
     if (!enabled) {
       throw new NotFoundException('This endpoint is not available');
     }

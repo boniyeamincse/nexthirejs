@@ -54,6 +54,7 @@ This package only provides TypeScript compiler configurations. It does not inclu
 ## Maintainer Notes
 
 When updating these configurations:
+
 - Do not weaken strictness settings
 - Ensure compatibility with current Node.js LTS
 - Test both NestJS and Next.js applications after changes

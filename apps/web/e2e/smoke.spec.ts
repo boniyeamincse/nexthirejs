@@ -8,7 +8,10 @@ test('home page loads and main heading is visible', async ({ page }) => {
 
 test('navigate to status page', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: 'Status' }).click();
+  await page
+    .getByRole('navigation', { name: 'Main navigation' })
+    .getByRole('link', { name: 'Status' })
+    .click();
   await expect(page).toHaveURL('/status');
   const heading = page.getByRole('heading', { level: 1, name: /Platform Status/i });
   await expect(heading).toBeVisible();

@@ -14,9 +14,7 @@ describe('PrismaService', () => {
       mockConfigService.get.mockReturnValue(undefined);
 
       expect(() => {
-        const service = new PrismaService(
-          mockConfigService as unknown as ConfigService,
-        );
+        const service = new PrismaService(mockConfigService as unknown as ConfigService);
         void service;
       }).toThrow('DATABASE_URL environment variable is not set');
     });
@@ -26,15 +24,10 @@ describe('PrismaService', () => {
     let module: TestingModule;
 
     beforeEach(async () => {
-      mockConfigService.get.mockReturnValue(
-        'postgresql://user:pass@localhost:5432/db',
-      );
+      mockConfigService.get.mockReturnValue('postgresql://user:pass@localhost:5432/db');
 
       module = await Test.createTestingModule({
-        providers: [
-          PrismaService,
-          { provide: ConfigService, useValue: mockConfigService },
-        ],
+        providers: [PrismaService, { provide: ConfigService, useValue: mockConfigService }],
       }).compile();
 
       prismaService = module.get<PrismaService>(PrismaService);
@@ -50,9 +43,7 @@ describe('PrismaService', () => {
     });
 
     it('checkConnection should return { status: "up" } when query succeeds', async () => {
-      jest
-        .spyOn(prismaService, '$queryRawUnsafe' as any)
-        .mockResolvedValue([{ '?column?': 1 }]);
+      jest.spyOn(prismaService, '$queryRawUnsafe' as any).mockResolvedValue([{ '?column?': 1 }]);
 
       const result = await prismaService.checkConnection();
       expect(result).toEqual({ status: 'up' });
@@ -63,9 +54,7 @@ describe('PrismaService', () => {
         .spyOn(prismaService, '$queryRawUnsafe' as any)
         .mockRejectedValue(new Error('Connection failed'));
 
-      await expect(prismaService.checkConnection()).rejects.toThrow(
-        'Connection failed',
-      );
+      await expect(prismaService.checkConnection()).rejects.toThrow('Connection failed');
     });
 
     it('onModuleDestroy should call $disconnect', async () => {

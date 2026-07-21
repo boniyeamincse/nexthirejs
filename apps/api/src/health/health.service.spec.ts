@@ -63,29 +63,21 @@ describe('HealthService', () => {
     });
 
     it('should throw ServiceUnavailableException when database fails', async () => {
-      mockPrismaService.checkConnection.mockRejectedValue(
-        new Error('Connection refused'),
-      );
+      mockPrismaService.checkConnection.mockRejectedValue(new Error('Connection refused'));
       mockRedisService.ping.mockResolvedValue('PONG');
 
-      await expect(healthService.getReadiness()).rejects.toThrow(
-        ServiceUnavailableException,
-      );
+      await expect(healthService.getReadiness()).rejects.toThrow(ServiceUnavailableException);
     });
 
     it('should throw ServiceUnavailableException when redis fails', async () => {
       mockPrismaService.checkConnection.mockResolvedValue({ status: 'up' });
       mockRedisService.ping.mockRejectedValue(new Error('Redis down'));
 
-      await expect(healthService.getReadiness()).rejects.toThrow(
-        ServiceUnavailableException,
-      );
+      await expect(healthService.getReadiness()).rejects.toThrow(ServiceUnavailableException);
     });
 
     it('should not expose raw error text in the exception response', async () => {
-      mockPrismaService.checkConnection.mockRejectedValue(
-        new Error('Connection refused'),
-      );
+      mockPrismaService.checkConnection.mockRejectedValue(new Error('Connection refused'));
       mockRedisService.ping.mockResolvedValue('PONG');
 
       try {

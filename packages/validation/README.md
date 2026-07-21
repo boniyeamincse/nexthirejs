@@ -62,6 +62,7 @@ This package does NOT include:
 ## Framework Independence
 
 This package is portable TypeScript and does not import:
+
 - NestJS
 - Next.js
 - Prisma

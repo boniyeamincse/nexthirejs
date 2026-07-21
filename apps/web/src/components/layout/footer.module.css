@@ -1,0 +1,120 @@
+/* apps/web/src/components/layout/footer.module.css */
+
+.footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  background: #0f172a;
+  padding: 4rem 2rem;
+  font-family: var(--font-outfit), sans-serif;
+}
+
+.container {
+  margin: 0 auto;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.topSection {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2.5rem;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.columnTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #f8fafc;
+  margin: 0;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.navItem {
+  color: #94a3b8;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.navItem:hover {
+  color: #a5b4fc;
+}
+
+.appBadges {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.badge {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  color: #f8fafc;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.badge:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+.bottomSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+@media (min-width: 768px) {
+  .bottomSection {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #f8fafc;
+  margin: 0;
+}
+
+.copyright {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin: 0;
+}

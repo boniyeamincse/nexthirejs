@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 export default function Error({
   error,
@@ -7,7 +7,7 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  console.error("Application error:", error);
+  console.error('Application error:', error);
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col items-center px-4 py-32 text-center">

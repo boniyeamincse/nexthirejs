@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  Logger,
-  ServiceUnavailableException,
-} from '@nestjs/common';
+import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../database/prisma.service';
 import { RedisService } from '../infrastructure/redis/redis.service';
@@ -33,43 +29,31 @@ export class HealthService {
       redis: string;
     };
   }> {
-    const timeoutMs = this.configService.get<number>(
-      'DATABASE_HEALTH_TIMEOUT_MS',
-      5000,
-    );
+    const timeoutMs = this.configService.get<number>('DATABASE_HEALTH_TIMEOUT_MS', 5000);
     const errors: string[] = [];
 
     try {
       const timeout = new Promise<never>((_, reject) =>
-        setTimeout(
-          () => reject(new Error('Database health check timed out')),
-          timeoutMs,
-        ),
+        setTimeout(() => reject(new Error('Database health check timed out')), timeoutMs),
       );
 
       const check = this.prismaService.checkConnection();
 
       await Promise.race([check, timeout]);
     } catch (error) {
-      this.logger.error(
-        `Database readiness check failed: ${(error as Error).message}`,
-      );
+      this.logger.error(`Database readiness check failed: ${(error as Error).message}`);
       errors.push('database');
     }
 
     try {
       await this.redisService.ping();
     } catch (error) {
-      this.logger.error(
-        `Redis readiness check failed: ${(error as Error).message}`,
-      );
+      this.logger.error(`Redis readiness check failed: ${(error as Error).message}`);
       errors.push('redis');
     }
 
     if (errors.length > 0) {
-      throw new ServiceUnavailableException(
-        `Service is not ready: ${errors.join(', ')}`,
-      );
+      throw new ServiceUnavailableException(`Service is not ready: ${errors.join(', ')}`);
     }
 
     return {

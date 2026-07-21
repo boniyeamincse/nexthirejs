@@ -5,6 +5,7 @@ Shared constants for NextHire monorepo.
 ## Purpose
 
 Provides immutable foundational constants for the NextHire platform including:
+
 - Country information
 - Currency information
 - Language information

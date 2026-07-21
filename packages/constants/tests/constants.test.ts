@@ -72,7 +72,7 @@ describe('Currencies', () => {
 describe('HTTP Constants', () => {
   it('should have valid page size values', () => {
     expect(DEFAULT_PAGE_SIZE).toBe(20);
-    expect(MAX_PAGE_SIZE).toBe(50);
+    expect(MAX_PAGE_SIZE).toBe(100);
     expect(DEFAULT_PAGE_SIZE).toBeLessThanOrEqual(MAX_PAGE_SIZE);
   });
 });

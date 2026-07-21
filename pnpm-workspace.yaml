@@ -6,3 +6,5 @@ ignoredBuiltDependencies:
   - '@scarf/scarf'
   - sharp
   - unrs-resolver
+
+onlyBuiltDependencies: '@prisma/engines'

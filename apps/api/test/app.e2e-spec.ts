@@ -1,9 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-  INestApplication,
-  ValidationPipe,
-  VersioningType,
-} from '@nestjs/common';
+import { INestApplication, ValidationPipe, VersioningType } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import request from 'supertest';
 import { App } from 'supertest/types';
@@ -64,14 +60,11 @@ describe('App (e2e)', () => {
 
   describe('GET /api/v1/health', () => {
     it('should return 200 and the health status', () => {
-      return request(app.getHttpServer())
-        .get('/api/v1/health')
-        .expect(200)
-        .expect({
-          status: 'ok',
-          service: 'nexthire-api',
-          version: '1.0',
-        });
+      return request(app.getHttpServer()).get('/api/v1/health').expect(200).expect({
+        status: 'ok',
+        service: 'nexthire-api',
+        version: '1.0',
+      });
     });
   });
 
@@ -94,18 +87,13 @@ describe('App (e2e)', () => {
     });
 
     it('should return 400 when source is missing', () => {
-      return request(app.getHttpServer())
-        .post('/api/v1/system/queue/ping')
-        .send({})
-        .expect(400);
+      return request(app.getHttpServer()).post('/api/v1/system/queue/ping').send({}).expect(400);
     });
   });
 
   describe('Unknown route', () => {
     it('should return 404', () => {
-      return request(app.getHttpServer())
-        .get('/api/v1/does-not-exist')
-        .expect(404);
+      return request(app.getHttpServer()).get('/api/v1/does-not-exist').expect(404);
     });
   });
 

@@ -5,11 +5,11 @@ export type NavItem = {
 
 export const siteConfig = {
   name: 'NextHire',
-  description:
-    'Career readiness, learning, interview practice, and hiring platform.',
+  description: 'Career readiness, learning, interview practice, and hiring platform.',
   primaryNav: [
     { label: 'Home', href: '/' },
-    { label: 'Status', href: '/status' },
+    { label: 'Feed', href: '/feed' },
+    { label: 'Find Expert', href: '/find-expert' },
   ] satisfies NavItem[],
   footerNav: [
     { label: 'Home', href: '/' },

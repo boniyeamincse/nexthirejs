@@ -1768,12 +1768,14 @@ PostgreSQL remains the source of truth.
 ## 33.2 Administration Menus
 
 ### Dashboard
+
 - Overview
 - Growth
 - Activity
 - System health
 
 ### Users
+
 - All users
 - Candidates
 - Trainers
@@ -1785,6 +1787,7 @@ PostgreSQL remains the source of truth.
 - Account recovery
 
 ### Roles and Permissions
+
 - Roles
 - Permissions
 - Role assignment
@@ -1792,6 +1795,7 @@ PostgreSQL remains the source of truth.
 - Internal access audit
 
 ### Trainer Management
+
 - Applications
 - Verification
 - Packages
@@ -1802,6 +1806,7 @@ PostgreSQL remains the source of truth.
 - Payout accounts
 
 ### Company Management
+
 - Companies
 - KYC review
 - Company members
@@ -1811,6 +1816,7 @@ PostgreSQL remains the source of truth.
 - Verification expiry
 
 ### Jobs
+
 - All jobs
 - Pending review
 - Published
@@ -1824,6 +1830,7 @@ PostgreSQL remains the source of truth.
 - Locations
 
 ### Candidates and Career Passport
+
 - Candidate profiles
 - CV reports
 - Project reports
@@ -1832,6 +1839,7 @@ PostgreSQL remains the source of truth.
 - Privacy complaints
 
 ### Learning
+
 - Career tracks
 - Learning paths
 - Courses
@@ -1844,6 +1852,7 @@ PostgreSQL remains the source of truth.
 - Instructor approvals
 
 ### Interview and Sessions
+
 - Bookings
 - Sessions
 - Video events
@@ -1853,6 +1862,7 @@ PostgreSQL remains the source of truth.
 - Recordings where permitted
 
 ### Hiring
+
 - Campaigns
 - Applications
 - Pipeline analytics
@@ -1861,6 +1871,7 @@ PostgreSQL remains the source of truth.
 - Hires
 
 ### Payments
+
 - Orders
 - Transactions
 - Webhooks
@@ -1870,6 +1881,7 @@ PostgreSQL remains the source of truth.
 - Failed payments
 
 ### Wallets and Payouts
+
 - Trainer wallets
 - Ledger
 - Pending earnings
@@ -1878,6 +1890,7 @@ PostgreSQL remains the source of truth.
 - Commission rules
 
 ### Gamification
+
 - XP rules
 - Levels
 - Badges
@@ -1886,6 +1899,7 @@ PostgreSQL remains the source of truth.
 - Abuse review
 
 ### Communication
+
 - Notifications
 - Templates
 - Broadcasts
@@ -1895,6 +1909,7 @@ PostgreSQL remains the source of truth.
 - Reported messages
 
 ### Moderation
+
 - Reported profiles
 - Reported projects
 - Reported jobs
@@ -1904,6 +1919,7 @@ PostgreSQL remains the source of truth.
 - Appeals
 
 ### Support
+
 - Tickets
 - Categories
 - Service levels
@@ -1912,6 +1928,7 @@ PostgreSQL remains the source of truth.
 - Satisfaction
 
 ### Reports
+
 - Revenue
 - User growth
 - Course performance
@@ -1923,6 +1940,7 @@ PostgreSQL remains the source of truth.
 - Security reports
 
 ### Configuration
+
 - Countries
 - Currencies
 - Languages
@@ -1938,6 +1956,7 @@ PostgreSQL remains the source of truth.
 - Maintenance mode
 
 ### Audit and Security
+
 - Audit logs
 - Admin activities
 - Authentication events
@@ -3100,10 +3119,10 @@ Production: Containerized applications + production-grade managed services
 
 # 55. Revision History
 
-| Version | Date | Description |
-|---|---|---|
-| 1.0.0 | 2026-05-23 | Initial NextHire mock interview and career development documentation |
-| 2.0.0 | 2026-07-18 | Expanded into complete career-readiness, CV, portfolio, learning, job marketplace, talent discovery, and hiring platform |
+| Version | Date       | Description                                                                                                              |
+| ------- | ---------- | ------------------------------------------------------------------------------------------------------------------------ |
+| 1.0.0   | 2026-05-23 | Initial NextHire mock interview and career development documentation                                                     |
+| 2.0.0   | 2026-07-18 | Expanded into complete career-readiness, CV, portfolio, learning, job marketplace, talent discovery, and hiring platform |
 
 ---
 

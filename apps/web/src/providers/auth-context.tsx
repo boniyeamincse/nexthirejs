@@ -1,0 +1,139 @@
+'use client';
+
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  type ReactNode,
+} from 'react';
+import { loginCandidate, getCurrentUser, refreshSession, logoutCandidate } from '@/lib/api-client';
+import type { LoginCandidatePayload, AuthenticatedUserData } from '@/lib/api-client';
+import { candidateLoginSchema } from '@nexthire/validation';
+
+interface AuthState {
+  status: 'unknown' | 'loading' | 'authenticated' | 'unauthenticated';
+  user: AuthenticatedUserData | null;
+  accessToken: string | null;
+}
+
+interface AuthContextValue extends AuthState {
+  login: (payload: LoginCandidatePayload) => Promise<void>;
+  logout: () => Promise<void>;
+  getAccessToken: () => string | null;
+}
+
+const AuthContext = createContext<AuthContextValue | null>(null);
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [state, setState] = useState<AuthState>({
+    status: 'unknown',
+    user: null,
+    accessToken: null,
+  });
+  const accessTokenRef = useRef<string | null>(null);
+
+  const setAccessToken = useCallback((token: string | null) => {
+    accessTokenRef.current = token;
+    if (token) {
+      try {
+        sessionStorage.setItem('nexthire_at', token);
+      } catch {
+        // sessionStorage may be unavailable
+      }
+    } else {
+      try {
+        sessionStorage.removeItem('nexthire_at');
+      } catch {
+        // ignore
+      }
+    }
+  }, []);
+
+  const getAccessToken = useCallback(() => {
+    return accessTokenRef.current;
+  }, []);
+
+  const bootstrap = useCallback(async () => {
+    setState((prev) => ({ ...prev, status: 'loading' }));
+
+    try {
+      const result = await refreshSession();
+      const token = result.accessToken;
+      setAccessToken(token);
+
+      const user = await getCurrentUser(token);
+      setState({
+        status: 'authenticated',
+        user,
+        accessToken: token,
+      });
+    } catch {
+      setAccessToken(null);
+      setState({
+        status: 'unauthenticated',
+        user: null,
+        accessToken: null,
+      });
+    }
+  }, [setAccessToken]);
+
+  useEffect(() => {
+    void bootstrap();
+  }, [bootstrap]);
+
+  const login = useCallback(
+    async (payload: LoginCandidatePayload) => {
+      const validation = candidateLoginSchema.safeParse(payload);
+      if (!validation.success) {
+        const err = validation.error.flatten().fieldErrors;
+        throw new Error(err.email?.[0] ?? err.password?.[0] ?? 'Validation failed');
+      }
+
+      setState((prev) => ({ ...prev, status: 'loading' }));
+
+      const result = await loginCandidate(payload);
+      setAccessToken(result.accessToken);
+
+      setState({
+        status: 'authenticated',
+        user: result.user,
+        accessToken: result.accessToken,
+      });
+    },
+    [setAccessToken],
+  );
+
+  const logout = useCallback(async () => {
+    const token = accessTokenRef.current;
+    if (token) {
+      try {
+        await logoutCandidate(token);
+      } catch {
+        // Logout best-effort; clear local state regardless
+      }
+    }
+    setAccessToken(null);
+    setState({
+      status: 'unauthenticated',
+      user: null,
+      accessToken: null,
+    });
+  }, [setAccessToken]);
+
+  return (
+    <AuthContext.Provider value={{ ...state, login, logout, getAccessToken }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth(): AuthContextValue {
+  const ctx = useContext(AuthContext);
+  if (!ctx) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return ctx;
+}

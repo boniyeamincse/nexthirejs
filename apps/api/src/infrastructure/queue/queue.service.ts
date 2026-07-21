@@ -5,9 +5,7 @@ import { SYSTEM_HEALTH_QUEUE, SYSTEM_HEALTH_PING_JOB } from './queue.constants';
 
 @Injectable()
 export class QueueService {
-  constructor(
-    @InjectQueue(SYSTEM_HEALTH_QUEUE) private readonly healthQueue: Queue,
-  ) {}
+  constructor(@InjectQueue(SYSTEM_HEALTH_QUEUE) private readonly healthQueue: Queue) {}
 
   async enqueuePing(input: { requestedAt: string; source: string }): Promise<{
     jobId: string | number | undefined;

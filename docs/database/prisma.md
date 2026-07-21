@@ -21,10 +21,10 @@ The generated client is excluded from version control (`.gitignore`) and must be
 
 ### Environment Variables
 
-| Variable | Default | Description |
-|---|---|---|
-| `DATABASE_URL` | `postgresql://nexthire:nexthire@localhost:5432/nexthire?schema=public` | PostgreSQL connection string |
-| `DATABASE_HEALTH_TIMEOUT_MS` | `5000` | Timeout (ms) for the database readiness check |
+| Variable                     | Default                                                                | Description                                   |
+| ---------------------------- | ---------------------------------------------------------------------- | --------------------------------------------- |
+| `DATABASE_URL`               | `postgresql://nexthire:nexthire@localhost:5432/nexthire?schema=public` | PostgreSQL connection string                  |
+| `DATABASE_HEALTH_TIMEOUT_MS` | `5000`                                                                 | Timeout (ms) for the database readiness check |
 
 ### Prisma Config (`apps/api/prisma.config.ts`)
 
@@ -48,15 +48,15 @@ The schema file lives at `apps/api/prisma/schema.prisma`. The initial schema con
 
 ## Scripts
 
-| Script | Description |
-|---|---|
-| `db:format` | Format the Prisma schema file |
-| `db:validate` | Validate the Prisma schema |
-| `db:generate` | Generate the Prisma Client |
-| `db:migrate:dev` | Create a new migration from schema changes |
-| `db:migrate:deploy` | Apply pending migrations to the database |
-| `db:migrate:status` | Check migration status |
-| `db:studio` | Open Prisma Studio to browse data |
+| Script              | Description                                |
+| ------------------- | ------------------------------------------ |
+| `db:format`         | Format the Prisma schema file              |
+| `db:validate`       | Validate the Prisma schema                 |
+| `db:generate`       | Generate the Prisma Client                 |
+| `db:migrate:dev`    | Create a new migration from schema changes |
+| `db:migrate:deploy` | Apply pending migrations to the database   |
+| `db:migrate:status` | Check migration status                     |
+| `db:studio`         | Open Prisma Studio to browse data          |
 
 Prisma Client is automatically generated via the `postinstall` script and before `build`.
 

@@ -1,5 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { Public } from './modules/auth/decorators/public.decorator';
 import { AppService } from './app.service';
 
 interface ApiRootData {
@@ -9,6 +10,7 @@ interface ApiRootData {
 }
 
 @Controller()
+@Public()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 

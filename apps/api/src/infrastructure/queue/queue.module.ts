@@ -1,10 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { BullModule } from '@nestjs/bullmq';
-import {
-  buildRedisOptions,
-  toBullMQConnectionOptions,
-} from '../redis/redis.options';
+import { buildRedisOptions, toBullMQConnectionOptions } from '../redis/redis.options';
 import { QueueService } from './queue.service';
 import { SystemHealthProcessor } from './system-health.processor';
 import { SYSTEM_HEALTH_QUEUE } from './queue.constants';
@@ -22,16 +19,10 @@ import { SYSTEM_HEALTH_QUEUE } from './queue.constants';
             attempts: configService.get<number>('BULLMQ_DEFAULT_ATTEMPTS', 3),
             backoff: {
               type: 'exponential',
-              delay: configService.get<number>(
-                'BULLMQ_DEFAULT_BACKOFF_MS',
-                1000,
-              ),
+              delay: configService.get<number>('BULLMQ_DEFAULT_BACKOFF_MS', 1000),
             },
             removeOnComplete: {
-              count: configService.get<number>(
-                'BULLMQ_REMOVE_ON_COMPLETE',
-                100,
-              ),
+              count: configService.get<number>('BULLMQ_REMOVE_ON_COMPLETE', 100),
             },
             removeOnFail: {
               count: configService.get<number>('BULLMQ_REMOVE_ON_FAIL', 500),

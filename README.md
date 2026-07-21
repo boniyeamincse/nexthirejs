@@ -76,6 +76,7 @@ pnpm format:check
 pnpm test
 pnpm typecheck
 pnpm clean
+pnpm ci:check
 ```
 
 Application-specific commands:
@@ -108,7 +109,7 @@ pnpm --filter @nexthire/web typecheck
 
 Planning and implementation documents live under `docs/`, with task tracking in `docs/task/`.
 
-Code quality standards (ESLint, Prettier, commit conventions, hooks) are documented in [docs/development/code-quality.md](docs/development/code-quality.md).
+Code quality standards (ESLint, Prettier, commit conventions, hooks) and the CI pipeline are documented in [docs/development/code-quality.md](docs/development/code-quality.md).
 
 ## Security Rule
 

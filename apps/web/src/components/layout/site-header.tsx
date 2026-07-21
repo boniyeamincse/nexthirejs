@@ -1,31 +1,37 @@
 import Link from 'next/link';
 import { siteConfig } from '@/lib/site-config';
+import styles from './header.module.css';
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-40 border-b bg-white">
+    <header className={styles.header}>
       <nav
-        className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3"
+        className={styles.nav}
         aria-label="Main navigation"
       >
-        <Link
-          href="/"
-          className="text-lg font-bold tracking-tight text-zinc-900"
-        >
+        <Link href="/" className={styles.logo}>
           {siteConfig.name}
         </Link>
-        <ul className="flex items-center gap-6">
+        <ul className={styles.navList}>
           {siteConfig.primaryNav.map((item) => (
             <li key={item.href}>
               <Link
                 href={item.href}
-                className="text-sm font-medium text-zinc-600 transition-colors hover:text-zinc-900 focus:outline-2 focus:outline-offset-2 focus:outline-blue-600 rounded"
+                className={styles.navItem}
               >
                 {item.label}
               </Link>
             </li>
           ))}
         </ul>
+        <div className={styles.authGroup}>
+          <Link href="/login" className={styles.loginBtn}>
+            Log In
+          </Link>
+          <Link href="/register" className={styles.registerBtn}>
+            Register
+          </Link>
+        </div>
       </nav>
     </header>
   );

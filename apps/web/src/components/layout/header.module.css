@@ -1,0 +1,97 @@
+/* apps/web/src/components/layout/header.module.css */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  width: 100%;
+  backdrop-filter: blur(12px);
+  background: rgba(15, 23, 42, 0.7);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.nav {
+  margin: 0 auto;
+  max-width: 1200px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #f8fafc;
+  text-decoration: none;
+  background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.navList {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navItem {
+  color: #94a3b8;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.navItem:hover {
+  color: #f8fafc;
+}
+
+.authGroup {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.loginBtn {
+  color: #e2e8f0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.loginBtn:hover {
+  color: #ffffff;
+}
+
+.registerBtn {
+  background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
+  color: white;
+  padding: 0.5rem 1.25rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 14px 0 rgba(99, 102, 241, 0.3);
+}
+
+.registerBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+  background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+}
+
+@media (max-width: 768px) {
+  .nav {
+    padding: 1rem;
+  }
+  .navList {
+    display: none;
+  }
+}

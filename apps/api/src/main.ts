@@ -4,6 +4,7 @@ import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -35,6 +36,7 @@ async function bootstrap() {
   );
 
   app.use(helmet());
+  app.use(cookieParser());
 
   const bodyLimit = configService.get<string>('API_BODY_LIMIT', '1mb');
   app.useBodyParser('json', { limit: bodyLimit });
@@ -67,18 +69,12 @@ async function bootstrap() {
     },
     credentials: true,
     methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: [
-      'Content-Type',
-      'Authorization',
-      'X-Request-ID',
-      'Idempotency-Key',
-    ],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID', 'Idempotency-Key'],
   });
 
   app.enableShutdownHooks();
 
-  const swaggerEnabled =
-    configService.get<string>('API_DOCS_ENABLED', 'true') === 'true';
+  const swaggerEnabled = configService.get<string>('API_DOCS_ENABLED', 'true') === 'true';
   if (swaggerEnabled) {
     const config = new DocumentBuilder()
       .setTitle('NextHire API')
@@ -98,10 +94,7 @@ async function bootstrap() {
     'Bootstrap',
   );
   if (swaggerEnabled) {
-    Logger.log(
-      `Swagger documentation: http://${host}:${port}/api/docs`,
-      'Bootstrap',
-    );
+    Logger.log(`Swagger documentation: http://${host}:${port}/api/docs`, 'Bootstrap');
   }
 }
 void bootstrap();

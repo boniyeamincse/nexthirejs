@@ -169,3 +169,39 @@ Run `pnpm exec husky` to reinitialize hooks.
 3. Add `lint` and `lint:fix` scripts to `package.json`.
 4. Generated files must not be manually reformatted.
 5. Lint rules must not be disabled without a narrow code-level reason.
+
+## Continuous Integration
+
+The repository uses GitHub Actions (`.github/workflows/ci.yml`) to enforce code quality gates.
+The CI pipeline runs on every pull request and push to the `main` branch.
+
+### Triggers
+
+- `pull_request` against `main`
+- `push` to `main`
+- `workflow_dispatch` (manual)
+
+### Quality Gates Checked
+
+- Dependency Installation (with `pnpm install --frozen-lockfile`)
+- Prisma formatting, validation, and client generation
+- Code Formatting (`pnpm format:check`)
+- ESLint (`pnpm lint`)
+- TypeScript Compilation (`pnpm typecheck`)
+- Unit Tests (`pnpm test`)
+- API E2E Tests (`pnpm --filter @nexthire/api test:e2e`)
+- Web E2E Tests (`pnpm --filter @nexthire/web test:e2e`)
+- Production Builds (`pnpm build`)
+- Docker Compose validity (`docker compose config --quiet`)
+
+### Local Verification
+
+You can execute all primary CI checks locally by running the `ci:check` script from the repository root:
+
+```bash
+pnpm ci:check
+```
+
+### Services Used
+
+The CI pipeline spins up service containers for PostgreSQL and Redis to support the API E2E tests safely without using production or staging environment credentials.
