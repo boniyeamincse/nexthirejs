@@ -64,7 +64,7 @@ describe('CandidatePreferencesController (e2e)', () => {
         id: sessionId,
         userId: user.id,
         tokenFamilyId,
-        refreshTokenHash: 'hash',
+        refreshTokenHash: crypto.randomUUID(),
         ipAddress: '127.0.0.1',
         userAgent: 'test-agent',
         expiresAt: new Date(Date.now() + 3600000),
@@ -137,7 +137,7 @@ describe('CandidatePreferencesController (e2e)', () => {
       expect(response.body.country.code).toBe('BD');
       expect(response.body.preferredJobRoles).toContain('Engineer');
       expect(response.body.completion.percentage).toBeGreaterThan(0);
-      expect(response.body.completion.version).toBe('candidate-profile-v2');
+      expect(response.body.completion.version).toBe('candidate-profile-v3');
       
       // Update modifying the same row
       const updateResponse = await request(app.getHttpServer())

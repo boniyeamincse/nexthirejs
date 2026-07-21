@@ -1,10 +1,11 @@
 export * from './candidate-preferences.js';
+export * from './candidate-education.js';
 
 export interface CandidateProfileCompletion {
   percentage: number;
   completedFields: string[];
   missingFields: string[];
-  version: 'candidate-profile-basic-v1' | 'candidate-profile-v2';
+  version: 'candidate-profile-basic-v1' | 'candidate-profile-v2' | 'candidate-profile-v3';
 }
 
 export interface CandidateProfileBasics {

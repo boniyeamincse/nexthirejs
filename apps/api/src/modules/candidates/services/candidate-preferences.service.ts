@@ -33,7 +33,14 @@ export class CandidatePreferencesService {
       };
     }
 
-    const completion = this.completionService.calculateCompletion(profile, {
+    const profileInput = profile ? {
+      fullName: profile.fullName,
+      professionalHeadline: profile.professionalHeadline,
+      professionalSummary: profile.professionalSummary,
+      dateOfBirth: profile.dateOfBirth ? profile.dateOfBirth.toISOString() : undefined,
+    } : null;
+
+    const completion = this.completionService.calculateCompletion(profileInput, {
       countryCode: record.country.code,
       currentCity: record.currentCity,
       preferredJobRoles: record.preferredJobRoles,
@@ -75,8 +82,15 @@ export class CandidatePreferencesService {
     const existingProfile = await this.profileRepository.findByUserId(userId);
     const existingPreferences = await this.repository.findByUserId(userId);
 
+    const profileInput = existingProfile ? {
+      fullName: existingProfile.fullName,
+      professionalHeadline: existingProfile.professionalHeadline,
+      professionalSummary: existingProfile.professionalSummary,
+      dateOfBirth: existingProfile.dateOfBirth ? existingProfile.dateOfBirth.toISOString() : undefined,
+    } : null;
+
     const completionBefore = this.completionService.calculateCompletion(
-      existingProfile, 
+      profileInput, 
       existingPreferences ? {
         countryCode: existingPreferences.country.code,
         currentCity: existingPreferences.currentCity,
@@ -86,7 +100,7 @@ export class CandidatePreferencesService {
       } : null
     );
 
-    const completionAfter = this.completionService.calculateCompletion(existingProfile, validatedData);
+    const completionAfter = this.completionService.calculateCompletion(profileInput, validatedData);
 
     const result = await this.repository.upsertPreferences(userId, validatedData, country.id);
 

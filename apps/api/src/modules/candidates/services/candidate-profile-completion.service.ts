@@ -5,7 +5,7 @@ import { CandidateProfileCompletion } from '@nexthire/types';
 @Injectable()
 export class CandidateProfileCompletionService {
   private readonly basicWeights = {
-    fullName: 30,
+    fullName: 20,
     professionalHeadline: 10,
     professionalSummary: 15,
     dateOfBirth: 5,
@@ -14,14 +14,15 @@ export class CandidateProfileCompletionService {
   private readonly preferenceWeights = {
     countryCode: 10,
     currentCity: 10,
-    preferredJobRoles: 10,
+    preferredJobRoles: 5,
     preferredWorkModes: 5,
     preferredEmploymentTypes: 5,
   };
 
   calculateCompletion(
     profile: Partial<CandidateProfileBasicsInput> | null,
-    preferences?: Partial<CandidatePreferenceInput> | null
+    preferences?: Partial<CandidatePreferenceInput> | null,
+    educationRecords?: any[] | null
   ): CandidateProfileCompletion {
     let percentage = 0;
     const completedFields: string[] = [];
@@ -64,11 +65,40 @@ export class CandidateProfileCompletionService {
       }
     }
 
+    // Education fields
+    if (educationRecords && educationRecords.length > 0) {
+      percentage += 10;
+      completedFields.push('education');
+      
+      const hasFieldOfStudy = educationRecords.some(r => r.fieldOfStudy !== null && r.fieldOfStudy !== undefined && String(r.fieldOfStudy).trim() !== '');
+      if (hasFieldOfStudy) {
+        percentage += 3;
+        completedFields.push('educationFieldOfStudy');
+      } else {
+        missingFields.push('educationFieldOfStudy');
+      }
+
+      const hasGradeOrDescription = educationRecords.some(r => 
+        (r.grade !== null && r.grade !== undefined && String(r.grade).trim() !== '') || 
+        (r.description !== null && r.description !== undefined && String(r.description).trim() !== '')
+      );
+      if (hasGradeOrDescription) {
+        percentage += 2;
+        completedFields.push('educationGradeOrDescription');
+      } else {
+        missingFields.push('educationGradeOrDescription');
+      }
+    } else {
+      missingFields.push('education');
+      missingFields.push('educationFieldOfStudy');
+      missingFields.push('educationGradeOrDescription');
+    }
+
     return {
       percentage,
       completedFields,
       missingFields,
-      version: 'candidate-profile-v2',
+      version: 'candidate-profile-v3',
     };
   }
 }

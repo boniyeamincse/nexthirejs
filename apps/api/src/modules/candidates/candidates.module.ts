@@ -6,6 +6,9 @@ import { CandidatePreferencesService } from './services/candidate-preferences.se
 import { CandidateProfileCompletionService } from './services/candidate-profile-completion.service';
 import { CandidateProfileRepository } from './repositories/candidate-profile.repository';
 import { CandidatePreferencesRepository } from './repositories/candidate-preferences.repository';
+import { CandidateEducationController } from './controllers/candidate-education.controller';
+import { CandidateEducationService } from './services/candidate-education.service';
+import { CandidateEducationRepository } from './repositories/candidate-education.repository';
 import { AuthModule } from '../auth/auth.module';
 import { AuditModule } from '../audit/audit.module';
 import { DatabaseModule } from '../../database/database.module';
@@ -15,13 +18,19 @@ import { RequestContextModule } from '../../common/request-context/request-conte
 
 @Module({
   imports: [DatabaseModule, AuthModule, AuditModule, RequestContextModule],
-  controllers: [CandidateProfileController, CandidatePreferencesController],
+  controllers: [
+    CandidateProfileController, 
+    CandidatePreferencesController,
+    CandidateEducationController
+  ],
   providers: [
     CandidateProfileService,
     CandidatePreferencesService,
     CandidateProfileCompletionService,
     CandidateProfileRepository,
     CandidatePreferencesRepository,
+    CandidateEducationService,
+    CandidateEducationRepository,
     TokenService,
     SessionService,
   ],
