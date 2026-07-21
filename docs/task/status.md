@@ -12,10 +12,10 @@
 - Overall Status: Planning Complete
 - Development Status: In Progress
 - Current Phase: Phase 1 — Identity and Candidate Foundation
-- Current Task: NH-P1-T014 — Implement Candidate Public Profile Preview
-- Last Completed Task: NH-P1-T012 — Implement Candidate Achievements and Professional Links
+- Current Task: NH-P1-T015 — Implement Candidate Profile Completion Dashboard
+- Last Completed Task: NH-P1-T014 — Implement Candidate Public Profile Preview
 - Blockers: None
-- Next Planned Task: NH-P1-T014 — Implement Candidate Public Profile Preview
+- Next Planned Task: NH-P1-T015 — Implement Candidate Profile Completion Dashboard
 
 ---
 
@@ -81,21 +81,19 @@ Use only these values:
 ## 5. Current Task
 
 ```yaml
-task_id: NH-P1-T013
-title: Implement Candidate Profile Privacy Settings
+task_id: NH-P1-T014
+title: Implement Candidate Public Profile Preview
 phase: Phase 1
 status: COMPLETED
-started_at: 2026-07-22T01:05:00Z
-completed_at: 2026-07-22T01:15:00Z
+started_at: 2026-07-21T19:25:12Z
+completed_at: 2026-07-21T19:50:00Z
 assigned_to: AI Development Workflow
 dependencies:
-  - NH-P1-T012
+  - NH-P1-T013
 blockers: []
-git_commit:
-  message: "feat(candidate-profile): add profile privacy settings [NH-P1-T013]"
 next_task:
-  task_id: NH-P1-T014
-  title: Implement Candidate Public Profile Preview
+  task_id: NH-P1-T015
+  title: Implement Candidate Profile Completion Dashboard
 ```
 
 ---
@@ -121,6 +119,7 @@ next_task:
 | NH-P1-T007 | Candidate Location and Career Preferences        | Phase 1 | COMPLETED | 2026-07-21 17:55:00 +06 |
 | NH-P1-T011 | Candidate Certifications and Training            | Phase 1 | COMPLETED | 2026-07-22T00:30:00Z |
 | NH-P1-T012 | Candidate Achievements and Professional Links    | Phase 1 | COMPLETED | 2026-07-22T01:01:00Z |
+| NH-P1-T014 | Implement Candidate Public Profile Preview       | Phase 1 | COMPLETED | 2026-07-21T19:50:00Z |
 
 ---
 
@@ -398,6 +397,84 @@ The system should:
   - Field-level privacy
   - Consent history
 - Next Task: NH-P1-T014 — Implement Candidate Public Profile Preview
+
+## Task Update — NH-P1-T014
+
+- Status: COMPLETED
+- Started At: 2026-07-21T19:25:12Z
+- Completed At: 2026-07-21T19:50:00Z
+- Summary: Added Candidate Profile Public Preview feature. Implemented privacy-aware profile assembler, share token infrastructure (32-byte random tokens, SHA-256 hashed), owner preview endpoint, public discoverable and link-only endpoints, share link rotate/enable/disable endpoints, public NestJS module, typed frontend API client, authenticated preview page with mode selector and share controls, public profile routes, and comprehensive test suite.
+- Files Added:
+  - Shared: `packages/types/src/candidates/candidate-public-profile.ts`
+  - Database: `apps/api/prisma/migrations/20260721192554_add_candidate_profile_share_token/`
+  - API: `apps/api/src/modules/candidates/share-token/candidate-share-token.service.ts`, `candidate-share-token.repository.ts`, `candidate-share-token.controller.ts`
+  - API: `apps/api/src/modules/candidates/profile-preview/candidate-profile-preview.service.ts`, `candidate-profile-preview.controller.ts`
+  - API: `apps/api/src/modules/public/public.module.ts`, `candidate-profile/public-candidate-profile.service.ts`, `candidate-profile/public-candidate-profile.controller.ts`
+  - E2E: `apps/api/test/candidate-profile-preview.e2e-spec.ts`
+  - Web: `apps/web/src/app/(authenticated)/profile/preview/page.tsx`, `apps/web/src/features/candidate-profile/preview/ProfilePreview.tsx`, `apps/web/src/features/candidate-profile/preview/__tests__/preview.test.tsx`
+  - Web: `apps/web/src/app/(public)/p/[publicId]/page.tsx`, `apps/web/src/app/(public)/shared-profile/[token]/page.tsx`
+  - Docs: `docs/security/public-profile-rendering.md`
+- Files Modified:
+  - `apps/api/prisma/schema.prisma` — added CandidateProfileShareToken model and User relation
+  - `packages/types/src/candidates/index.ts` — added public profile exports
+  - `apps/api/src/modules/candidates/candidates.module.ts` — added preview/share controllers/services/repository
+  - `apps/api/src/app.module.ts` — added PublicModule
+  - `apps/web/src/lib/api-client.ts` — added 6 new preview and share methods
+  - `docs/api/candidate-profile.md` — added public preview API section
+  - `docs/security/candidate-profile-privacy.md` — updated overview
+  - `docs/task/status.md`
+- Database Changes:
+  - Migration: `20260721192554_add_candidate_profile_share_token` — adds CandidateProfileShareToken table with tokenHash (unique, VarChar 128), enabled flag, rotatedAt timestamp, user FK cascade
+  - Result: Migration applied, Prisma Client generated
+- API Changes:
+  - Routes:
+    - `GET /api/v1/candidates/me/profile-preview` — authenticated owner preview (returns profile + privacy summary + completion)
+    - `GET /api/v1/public/candidates/:publicId` — public discoverable profile (returns PublicCandidateProfile or 404)
+    - `GET /api/v1/public/candidate-profile?token=` — public link-only profile (returns PublicCandidateProfile or 404)
+    - `POST /api/v1/candidates/me/profile-share-link/rotate` — rotate share token (returns { shareUrl, rotatedAt })
+    - `PUT /api/v1/candidates/me/profile-share-link` — enable/disable share link
+    - `GET /api/v1/candidates/me/profile-share-link/status` — get share link status
+  - Authorization: Owner endpoints use AuthGuard + RolesGuard (candidate). Public endpoints use @Public() decorator.
+  - Privacy filtering: Backend assembler filters sections using CandidatePrivacyDecisionService with appropriate ViewerContext (OWNER, LINK_HOLDER, PLATFORM_AUTHENTICATED)
+  - Audit events: candidate.profile_preview.viewed, candidate.public_profile.viewed, candidate.profile_share_link.rotated, candidate.profile_share_link.enabled/disabled
+  - Swagger: All new endpoints documented with tags, operations, responses, bearer auth for protected routes
+  - Share token security: 32-byte random hex tokens, SHA-256 hashed, atomic rotation, disable support
+- Frontend Changes:
+  - Route: `/profile/preview` — authenticated owner preview with privacy summary, mode selector, share controls
+  - Public routes: `/p/[publicId]` (discoverable), `/shared-profile/[token]` (link-only)
+  - Component: ProfilePreview — mode selector, conditional section rendering, hidden indicators, share link copy/rotate/disable
+  - States: loading, error, not-found, private/unavailable, invalid-link, copy success/failure
+  - Accessibility: semantic sections, keyboard-accessible mode selector, accessible dialogs, aria-live announcements, safe external-link attributes
+  - Metadata: noindex for private and link-only pages, no private data in page metadata
+- Tests Added:
+  - API E2E: 26 tests (owner preview, discoverable, link-only, share management, audit events)
+  - Frontend: 20 tests (loading, privacy summary, mode switching, hidden indicators, share controls, accessibility)
+- Test Result:
+  - Prisma: format ✅, validate ✅, generate ✅, migrate ✅
+  - API: typecheck ✅, test 80/80 ✅, test:e2e 26/26 (profile preview) ✅
+  - Web: typecheck ✅ (pre-existing errors unchanged), test 20/20 preview tests pass ✅ (pre-existing failures unchanged)
+  - Types: build ✅
+- Blockers: None
+- Decisions:
+  - Created CandidateProfileShareToken model for share links using crypto 32-byte random tokens with SHA-256 hashing
+  - Used user ID (UUID) as public identifier for platform-discoverable profiles (avoids additional schema fields)
+  - Created separate PublicModule for public routes to maintain clean separation from auth-gated modules
+  - Preview mode selector is frontend-only (does not mutate privacy settings); backend is authoritative
+  - Mapped 7 privacy sections to 11 display sections for visibleSenses response
+  - Used query parameter for link-only token sharing (GET /api/v1/public/candidate-profile?token=) instead of path param to avoid token exposure in server logs via path-based logging
+  - Audit records use best-effort for external views; required for share link mutations
+- Pre-existing Issues:
+  - API lint: 22 pre-existing errors in audit service (unchanged)
+  - Web tests: pre-existing failures in login-page, home-page, profile-preferences, skills, languages tests (unchanged)
+  - Web typecheck: pre-existing errors in achievements and professional-links tests (unchanged)
+- Deferred Work:
+  - Profile completion dashboard (NH-P1-T015)
+  - Recruiter search
+  - Candidate directory
+  - Public SEO
+  - Profile analytics
+  - Career Passport
+- Next Task: NH-P1-T015 — Implement Candidate Profile Completion Dashboard
 
 **End of Status File**
 

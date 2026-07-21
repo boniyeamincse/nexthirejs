@@ -7,7 +7,8 @@ Candidate profile privacy is managed through a dedicated `CandidateProfilePrivac
 1. **Overall Discoverability** — three-mode control over who can find the candidate
 2. **Section Visibility** — per-section control over what external viewers can read
 3. **Policy Versioning** — versioned defaults for safe future migrations
-4. **Reusable Decision Service** — backend logic that future public/recruiter features must use
+4. **Reusable Decision Service** — backend logic that public profile preview and share-link features use
+5. **Public Profile Preview** — authenticated owner preview and external discoverable/link-only profile rendering
 
 ## Data Flow
 

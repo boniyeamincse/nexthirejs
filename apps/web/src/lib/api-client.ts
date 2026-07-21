@@ -20,6 +20,16 @@ export interface RegisterCandidatePayload {
   acceptTerms: true;
 }
 
+export interface CandidateForgotPasswordPayload {
+  email: string;
+}
+
+export interface CandidateResetPasswordPayload {
+  token: string;
+  password: string;
+  confirmPassword: string;
+}
+
 export interface RegisterCandidateResult {
   userId: string;
   email: string;
@@ -106,6 +116,58 @@ export async function loginCandidate(
 
   throw new ApiClientError(
     errorBody?.message ?? `Login failed (${response.status})`,
+    response.status,
+    errorBody?.errors,
+    errorBody?.requestId,
+  );
+}
+
+export async function requestPasswordReset(payload: CandidateForgotPasswordPayload): Promise<{ message: string }> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/auth/forgot-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  if (response.ok) {
+    return response.json() as Promise<{ message: string }>;
+  }
+
+  let errorBody: ApiErrorResponse | null = null;
+  try {
+    errorBody = (await response.json()) as ApiErrorResponse;
+  } catch {
+    // ignore parse errors
+  }
+
+  throw new ApiClientError(
+    errorBody?.message ?? `Request failed (${response.status})`,
+    response.status,
+    errorBody?.errors,
+    errorBody?.requestId,
+  );
+}
+
+export async function resetPassword(payload: CandidateResetPasswordPayload): Promise<{ message: string }> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/auth/reset-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  if (response.ok) {
+    return response.json() as Promise<{ message: string }>;
+  }
+
+  let errorBody: ApiErrorResponse | null = null;
+  try {
+    errorBody = (await response.json()) as ApiErrorResponse;
+  } catch {
+    // ignore parse errors
+  }
+
+  throw new ApiClientError(
+    errorBody?.message ?? `Reset failed (${response.status})`,
     response.status,
     errorBody?.errors,
     errorBody?.requestId,
@@ -1271,4 +1333,76 @@ export async function updateMyProfilePrivacy(
   });
   if (response.ok) return response.json();
   throw new Error(`Failed to update privacy settings: ${response.status}`);
+}
+
+import type { OwnerProfilePreview, PublicCandidateProfile, ShareLinkResult } from '@nexthire/types';
+
+export async function getMyProfilePreview(accessToken: string): Promise<OwnerProfilePreview> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/profile/preview`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to get profile preview: ${response.status}`);
+}
+
+export async function getPublicProfileById(publicId: string): Promise<PublicCandidateProfile | null> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/public/${publicId}`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  if (response.ok) return response.json();
+  if (response.status === 404) return null;
+  throw new Error(`Failed to get public profile: ${response.status}`);
+}
+
+export async function getSharedProfile(token: string): Promise<PublicCandidateProfile | null> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/shared/${token}`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  if (response.ok) return response.json();
+  if (response.status === 404) return null;
+  throw new Error(`Failed to get shared profile: ${response.status}`);
+}
+
+export async function rotateProfileShareLink(accessToken: string): Promise<ShareLinkResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/profile/share-link/rotate`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to rotate share link: ${response.status}`);
+}
+
+export async function setProfileShareLinkEnabled(accessToken: string, enabled: boolean): Promise<{ enabled: boolean }> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/profile/share-link`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ enabled }),
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to update share link: ${response.status}`);
+}
+
+export async function getProfileShareLinkStatus(accessToken: string): Promise<{ enabled: boolean; rotatedAt: string | null } | null> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/profile/share-link`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+  });
+  if (response.ok) return response.json();
+  if (response.status === 404) return null;
+  throw new Error(`Failed to get share link status: ${response.status}`);
 }

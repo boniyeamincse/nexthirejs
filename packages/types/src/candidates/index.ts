@@ -8,6 +8,7 @@ export * from './candidate-training.js';
 export * from './candidate-achievements.js';
 export * from './candidate-professional-links.js';
 export * from './candidate-profile-privacy.js';
+export * from './candidate-public-profile.js';
 
 export interface CandidateProfileCompletion {
   percentage: number;

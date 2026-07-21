@@ -78,3 +78,47 @@ Creates or updates privacy settings for the authenticated candidate.
 - `SKILLS_AND_LANGUAGES`
 - `CERTIFICATIONS_AND_TRAINING`
 - `ACHIEVEMENTS_AND_LINKS`
+
+## 4. Candidate Public Profile Preview
+
+### 4.1 Owner Preview
+
+```
+GET /api/v1/candidates/me/profile-preview
+```
+
+Authenticated candidate only. Returns full profile with privacy summary and completion.
+
+Response: `200 OK` with `OwnerProfilePreview` shape.
+
+### 4.2 Public Discoverable Profile
+
+```
+GET /api/v1/public/candidates/:publicId
+```
+
+Public. Returns platform-discoverable profile or 404.
+
+### 4.3 Link-Only Profile
+
+```
+GET /api/v1/public/candidate-profile?token=<raw-token>
+```
+
+Public. Returns profile accessible via share link or 404.
+
+### 4.4 Share Link Management
+
+```
+POST /api/v1/candidates/me/profile-share-link/rotate
+PUT /api/v1/candidates/me/profile-share-link
+GET /api/v1/candidates/me/profile-share-link/status
+```
+
+### 4.5 Error Codes
+
+All external public profile endpoints return `404 PUBLIC_CANDIDATE_PROFILE_NOT_FOUND` for private, suspended, deleted, undiscoverable, or invalid-token profiles.
+
+### 4.6 Privacy Filtering
+
+The backend profile assembler applies section-level privacy filtering based on the viewer context (OWNER, LINK_HOLDER, PLATFORM_AUTHENTICATED). Hidden sections are omitted entirely from API responses. Sensitive fields (email, dateOfBirth, completion score, user ID, auth tokens) are never exposed externally.

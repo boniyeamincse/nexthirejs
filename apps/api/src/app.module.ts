@@ -15,6 +15,7 @@ import { AuthModule } from './modules/auth';
 import { AuditModule } from './modules/audit';
 import { CandidatesModule } from './modules/candidates/candidates.module';
 import { ConfigurationModule } from './modules/configuration/configuration.module';
+import { PublicModule } from './modules/public/public.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { ConfigurationModule } from './modules/configuration/configuration.modul
     AuditModule,
     ConfigurationModule,
     CandidatesModule,
+    PublicModule,
   ],
   controllers: [AppController],
   providers: [

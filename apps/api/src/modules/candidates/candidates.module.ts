@@ -24,7 +24,12 @@ import { CandidateProfessionalLinkService } from './services/candidate-professio
 import { CandidateProfilePrivacyService } from './privacy/candidate-profile-privacy.service';
 import { CandidatePrivacyPolicyService } from './privacy/candidate-privacy-policy.service';
 import { CandidatePrivacyDecisionService } from './privacy/candidate-privacy-decision.service';
+import { CandidateProfilePreviewService } from './profile-preview/candidate-profile-preview.service';
+import { CandidateProfilePreviewController } from './profile-preview/candidate-profile-preview.controller';
+import { CandidateShareTokenService } from './share-token/candidate-share-token.service';
 import { CandidateProfilePrivacyRepository } from './privacy/candidate-profile-privacy.repository';
+import { CandidateShareTokenRepository } from './share-token/candidate-share-token.repository';
+import { CandidateShareTokenController } from './share-token/candidate-share-token.controller';
 import { CandidateProfileRepository } from './repositories/candidate-profile.repository';
 import { CandidatePreferencesRepository } from './repositories/candidate-preferences.repository';
 import { CandidateEducationRepository } from './repositories/candidate-education.repository';
@@ -56,6 +61,8 @@ import { RequestContextModule } from '../../common/request-context/request-conte
     CandidateAchievementController,
     CandidateProfessionalLinkController,
     CandidateProfilePrivacyController,
+    CandidateProfilePreviewController,
+    CandidateShareTokenController,
   ],
   providers: [
     CandidateProfileService,
@@ -83,11 +90,16 @@ import { RequestContextModule } from '../../common/request-context/request-conte
     CandidatePrivacyPolicyService,
     CandidatePrivacyDecisionService,
     CandidateProfilePrivacyRepository,
+    CandidateProfilePreviewService,
+    CandidateShareTokenService,
+    CandidateShareTokenRepository,
     TokenService,
     SessionService,
   ],
   exports: [
     CandidateProfileCompletionService,
+    CandidateProfilePreviewService,
+    CandidateShareTokenService,
     CandidateSkillService,
     CandidateLanguageService,
     CandidateCertificationService,
