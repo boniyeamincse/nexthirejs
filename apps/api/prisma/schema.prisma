@@ -69,6 +69,7 @@ model User {
   training                CandidateTraining[]
   achievements            CandidateAchievement[]
   professionalLinks       CandidateProfessionalLink[]
+  profilePrivacy          CandidateProfilePrivacy?
 }
 
 model Role {
@@ -350,6 +351,36 @@ model CandidateTraining {
 
   @@index([userId, sortOrder])
   @@index([userId, completionDate])
+}
+
+enum CandidateDiscoverability {
+  PRIVATE
+  LINK_ONLY
+  PLATFORM_DISCOVERABLE
+}
+
+enum CandidateSectionVisibility {
+  HIDDEN
+  PLATFORM_ONLY
+  PUBLIC
+}
+
+model CandidateProfilePrivacy {
+  id                        String                     @id @default(uuid()) @db.Uuid
+  userId                    String                     @unique @db.Uuid
+  overallDiscoverability    CandidateDiscoverability   @default(PRIVATE)
+  basicProfile              CandidateSectionVisibility @default(PLATFORM_ONLY)
+  locationAndPreferences    CandidateSectionVisibility @default(HIDDEN)
+  education                 CandidateSectionVisibility @default(PLATFORM_ONLY)
+  workExperience            CandidateSectionVisibility @default(PLATFORM_ONLY)
+  skillsAndLanguages        CandidateSectionVisibility @default(PLATFORM_ONLY)
+  certificationsAndTraining CandidateSectionVisibility @default(PLATFORM_ONLY)
+  achievementsAndLinks      CandidateSectionVisibility @default(PLATFORM_ONLY)
+  policyVersion             String                     @db.VarChar(50)
+  createdAt                 DateTime                   @default(now())
+  updatedAt                 DateTime                   @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum ProfessionalLinkType {

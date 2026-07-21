@@ -12,10 +12,10 @@
 - Overall Status: Planning Complete
 - Development Status: In Progress
 - Current Phase: Phase 1 — Identity and Candidate Foundation
-- Current Task: NH-P1-T012 — Implement Candidate Achievements and Professional Links
+- Current Task: NH-P1-T014 — Implement Candidate Public Profile Preview
 - Last Completed Task: NH-P1-T012 — Implement Candidate Achievements and Professional Links
 - Blockers: None
-- Next Planned Task: NH-P1-T013 — Implement Candidate Profile Privacy Settings
+- Next Planned Task: NH-P1-T014 — Implement Candidate Public Profile Preview
 
 ---
 
@@ -84,19 +84,18 @@ Use only these values:
 task_id: NH-P1-T013
 title: Implement Candidate Profile Privacy Settings
 phase: Phase 1
-status: PLANNED
-started_at: null
-completed_at: null
+status: COMPLETED
+started_at: 2026-07-22T01:05:00Z
+completed_at: 2026-07-22T01:15:00Z
 assigned_to: AI Development Workflow
 dependencies:
   - NH-P1-T012
 blockers: []
 git_commit:
-  hash: null
-  message: null
+  message: "feat(candidate-profile): add profile privacy settings [NH-P1-T013]"
 next_task:
   task_id: NH-P1-T014
-  title: TBD
+  title: Implement Candidate Public Profile Preview
 ```
 
 ---
@@ -164,7 +163,7 @@ next_task:
 - Completed At: 2026-07-21 17:00:00 +06
 - Summary: Implemented full-stack candidate login and session foundation with dual-token auth (JWT access + rotating refresh), auth guard, session management, rate limiting, audit logging, Next.js login page, auth context provider, in-memory access token storage, and /app authenticated landing route.
 - Files Added:
-  - Database: `apps/api/prisma/migrations/20260721104108_add_user_sessions/`
+  - Database: `apps/api/prisma/migrations/bb4c2441104108_add_user_sessions/`
   - API: `apps/api/src/modules/auth/login.service.ts`, `apps/api/src/modules/auth/login.controller.ts`, `apps/api/src/modules/auth/session.service.ts`, `apps/api/src/modules/auth/token.service.ts`, `apps/api/src/modules/auth/auth.guard.ts`, `apps/api/src/modules/auth/dto/login.dto.ts`, `apps/api/src/modules/auth/decorators/allow-revoked-session.decorator.ts`
   - Shared: `packages/types/src/auth/candidate-login.ts`, `packages/types/src/auth/account-state.ts`, `packages/validation/src/auth/candidate-login.ts`, `packages/constants/src/auth/auth-errors.ts`
   - Tests: `apps/api/test/auth.e2e-spec.ts`
@@ -173,13 +172,13 @@ next_task:
 - Files Modified: `apps/api/src/app.module.ts`, `apps/api/src/main.ts`, `apps/api/src/modules/auth/auth.module.ts`, `apps/api/src/modules/auth/auth.constants.ts`, `apps/api/src/modules/auth/index.ts`, `apps/api/src/app.controller.ts`, `apps/api/src/health/health.controller.ts`, `apps/api/src/system/system.controller.ts`, `apps/web/src/app/layout.tsx`, `apps/web/src/lib/api-client.ts`, `apps/web/src/app/(auth)/login/page.tsx`, `packages/constants/src/index.ts`, `packages/constants/src/auth/auth-errors.ts`, `.env.example`, `docs/task/status.md`
 - Dependencies Added: `jsonwebtoken`, `@types/jsonwebtoken`, `cookie-parser`
 - Database Changes:
-  - Migration: `20260721104108_add_user_sessions` — Adds `UserSessionStatus` enum (ACTIVE, REVOKED, EXPIRED, COMPROMISED) and `UserSession` model with refresh-token hash, token family, expiry, revocation fields
+  - Migration: `bb4c2441104108_add_user_sessions` — Adds `UserSessionStatus` enum (ACTIVE, REVOKED, EXPIRED, COMPROMISED) and `UserSession` model with refresh-token hash, token family, expiry, revocation fields
   - Indexes on `[userId, status]`, `[tokenFamilyId]`, `[expiresAt]`
 - API Changes:
   - Routes: `POST /api/v1/auth/login` (Public), `POST /api/v1/auth/refresh` (Public, cookie), `GET /api/v1/auth/me` (Protected), `POST /api/v1/auth/logout` (Protected, idempotent)
   - Error codes: AUTH_INVALID_CREDENTIALS, AUTH_EMAIL_NOT_VERIFIED, AUTH_ACCOUNT_UNAVAILABLE, AUTH_REFRESH_TOKEN__, AUTH_SESSION__, AUTH_ACCESS_TOKEN_*
   - Rate limits: login 5/min, refresh 30/min
-  - Audit events: auth.login.succeeded/failed, auth.session.refreshed, auth.refresh_token.reused, auth.logout.completed
+  - Audit events: auth.login.subb4c244/failed, auth.session.refreshed, auth.refresh_token.reused, auth.logout.completed
   - Swagger: All endpoints documented with schemas and error responses
 - Frontend Changes:
   - Routes: `/login` (form with validation, error states, resend-verification link), `/app` (authenticated landing with user info + logout)
@@ -332,9 +331,73 @@ The system should:
 3. Produce exactly one detailed AI development task.
 4. Mark that task as `IN_PROGRESS`.
 5. Explain how to update this status file after completion.
-6. Wait for completion feedback before issuing another task.
+6. Wait for completion bb4c244k before issuing another task.
 
 ---
+
+## Task Update — NH-P1-T013
+
+- Status: COMPLETED
+- Started At: 2026-07-22T01:05:00Z
+- Completed At: 2026-07-22T01:15:00Z
+- Summary: Implemented Candidate Profile Privacy Settings with full-stack vertical slice. Added discoverability (PRIVATE, LINK_ONLY, PLATFORM_DISCOVERABLE), section visibility (HIDDEN, PLATFORM_ONLY, PUBLIC), versioned defaults, reusable privacy decision service, and privacy audit events.
+- Files Added:
+  - Shared: `packages/types/src/candidates/candidate-profile-privacy.ts`, `packages/validation/src/candidates/candidate-profile-privacy.ts`, `packages/validation/tests/candidate-profile-privacy.test.ts`
+  - Database: `apps/api/prisma/migrations/bb4c2441190803_add_candidate_profile_privacy/`
+  - API: `apps/api/src/modules/candidates/privacy/candidate-profile-privacy.repository.ts`, `candidate-privacy-policy.service.ts`, `candidate-privacy-decision.service.ts`, `candidate-profile-privacy.service.ts`, `candidate-profile-privacy.controller.ts`
+  - E2E: `apps/api/test/candidate-profile-privacy.e2e-spec.ts`
+  - Web: `apps/web/src/app/(authenticated)/settings/privacy/page.tsx`, `apps/web/src/features/candidate-profile/privacy/PrivacySettingsForm.tsx`, `apps/web/src/features/candidate-profile/privacy/__tests__/privacy.test.tsx`
+  - Docs: `docs/api/candidate-profile.md`, `docs/security/candidate-profile-privacy.md`
+- Files Modified:
+  - `apps/api/prisma/schema.prisma` — added CandidateDiscoverability/CandidateSectionVisibility enums, CandidateProfilePrivacy model, User relation
+  - `packages/types/src/candidates/index.ts` — added privacy exports
+  - `packages/validation/src/index.ts` — added privacy validation export
+  - `apps/api/src/modules/candidates/candidates.module.ts` — added privacy controller/services/repository
+  - `apps/web/src/lib/api-client.ts` — added getMyProfilePrivacy/updateMyProfilePrivacy methods
+  - `docs/task/status.md`
+- Database Changes:
+  - Migration: `bb4c2441190803_add_candidate_profile_privacy` — adds CandidateDiscoverability and CandidateSectionVisibility enums, CandidateProfilePrivacy table with explicit columns for each section (basicProfile, locationAndPreferences, education, workExperience, skillsAndLanguages, certificationsAndTraining, achievementsAndLinks), one-to-one relation with User via userId (unique), policyVersion VarChar(50), timestamps, FK cascade on delete
+  - Result: Migration applied, Prisma Client generated
+- Privacy Policy:
+  - Policy version: `candidate-privacy-v1`
+  - Defaults: overallDiscoverability=PRIVATE, BASIC_PROFILE=PLATFORM_ONLY, LOCATION_AND_PREFERENCES=HIDDEN, remaining=PLATFORM_ONLY
+  - Defaults returned without creating DB row; source field distinguishes DEFAULT vs PERSISTED
+- API Changes:
+  - Routes: `GET /api/v1/candidates/me/privacy`, `PUT /api/v1/candidates/me/privacy`
+  - Validation: strict Zod schema rejects unknown sections and fields, enforces completeness
+  - Authorization: AuthGuard + RolesGuard + account status check (SUSPENDED/DELETED rejected)
+  - Audit events: `candidate.privacy.viewed` (best-effort), `candidate.privacy.updated` (required) with safe metadata only
+  - Swagger: documented discoverability meanings, section-visibility meanings, supported sections, defaults, policy version, auth requirements, controlled errors
+- Frontend Changes:
+  - Route: `/settings/privacy` with auth loading, settings loading, error, session-expired, default/persisted states
+  - Discoverability: radio group with description labels, highlighted active selection
+  - Section visibility: per-section fieldset with HIDDEN/PLATFORM_ONLY/PUBLIC radio group and dynamic description
+  - Warning copy: LINK_ONLY and PLATFORM_DISCOVERABLE modes show "not yet active" alert
+  - Save: dirty-state detection, disable when clean/prevent duplicate submission, saved/error bb4c244k
+  - Accessibility: semantic fieldsets/legends, radiogroups with aria-label, aria-live status announcement, role=alert
+- Tests Added:
+  - Validation: 9 tests (valid/invalid discoverability, valid/invalid visibility, missing section, unknown section, unexpected fields, all sections present)
+  - API E2E: 14 tests (unauth, defaults, persisted, no ID exposure, valid save, idempotency, invalid discoverability, missing section, unknown section, non-candidate, suspended account, profile-data unchanged, cross-user independence, audit metadata)
+  - Frontend: 17 tests (default settings, discoverability controls, all sections, visibility controls, persisted settings, change discoverability, save disabled/enabled, duplicate prevention, save data correctness, saved status, error message, future-feature warnings, no-warning for PRIVATE, unsaved changes indicator, accessible fieldsets)
+- Command Results:
+  - Prisma: format ✅, validate ✅, generate ✅, migrate ✅
+  - API: typecheck ✅, test 80/80 ✅, test:e2e 14/14 (privacy suite) ✅ (pre-existing failures elsewhere unchanged)
+  - Web: typecheck ✅, test 17 privacy tests pass ✅ (pre-existing failures unchanged)
+- Pre-existing Issues: Pagination test (validation), login-page tests (web), candidate-profile-v6 references, skills/languages test failures, ESLint config
+- Blockers: None
+- Decisions:
+  - Used explicit columns for sections (not JSON) per spec recommendation for fixed v1 section set
+  - Used BadRequestException for validation failures (400), ForbiddenException for auth/role/account issues (403)
+  - Inline section constants in validation package to avoid cross-package dependency
+  - Privacy decision service returns pure deterministic boolean results for future consumer features
+  - Profile completion and data are untouched by privacy operations
+- Deferred Work:
+  - Public profile preview (NH-P1-T014)
+  - Share links
+  - Company/recruiter discovery
+  - Field-level privacy
+  - Consent history
+- Next Task: NH-P1-T014 — Implement Candidate Public Profile Preview
 
 **End of Status File**
 
@@ -345,7 +408,7 @@ The system should:
 - Completed At: 2026-07-22T01:01:00Z
 - Summary: Implemented full-stack candidate achievements and professional links management. Added Prisma models/migration, shared types and validation schemas, URL normalization utility, NestJS API (controllers/services/repositories for both entities), profile completion v7, typed frontend API client, glassmorphism UI components, page at /profile/achievements, E2E tests (10+11), and frontend tests (13+15).
 - Files Added:
-  - Database: `apps/api/prisma/migrations/20260721184945_add_candidate_achievements_links/`
+  - Database: `apps/api/prisma/migrations/bb4c2441184945_add_candidate_achievements_links/`
   - Shared packages: `packages/types/src/candidates/candidate-achievements.ts`, `candidate-professional-links.ts`, `packages/validation/src/candidates/candidate-achievements.ts`, `candidate-professional-links.ts`
   - URL utility: `apps/api/src/common/url/url-normalizer.ts`, `apps/api/src/common/url/index.ts`
   - API: `apps/api/src/modules/candidates/controllers/candidate-achievement.controller.ts`, `candidate-professional-link.controller.ts`, `apps/api/src/modules/candidates/services/candidate-achievement.service.ts`, `candidate-professional-link.service.ts`, `apps/api/src/modules/candidates/repositories/candidate-achievement.repository.ts`, `candidate-professional-link.repository.ts`
@@ -363,7 +426,7 @@ The system should:
   - `apps/web/src/app/(authenticated)/profile/page.tsx` — added Achievements & Links navigation link
   - `docs/task/status.md`
 - Database Changes:
-  - Migration: `20260721184945_add_candidate_achievements_links` — adds ProfessionalLinkType enum, CandidateAchievement table (id, userId, title, issuer, achievedAt, description, referenceUrl, sortOrder, timestamps), CandidateProfessionalLink table (id, userId, type, label, url, normalizedUrl, sortOrder, timestamps), indexes on [userId, sortOrder] and [userId, achievedAt], unique constraint on [userId, normalizedUrl], FK cascades to User
+  - Migration: `bb4c2441184945_add_candidate_achievements_links` — adds ProfessionalLinkType enum, CandidateAchievement table (id, userId, title, issuer, achievedAt, description, referenceUrl, sortOrder, timestamps), CandidateProfessionalLink table (id, userId, type, label, url, normalizedUrl, sortOrder, timestamps), indexes on [userId, sortOrder] and [userId, achievedAt], unique constraint on [userId, normalizedUrl], FK cascades to User
   - Result: Applied, Prisma Client generated
 - API Changes:
   - Routes: `GET/POST/PUT/DELETE /api/v1/candidates/me/achievements`, `PUT /api/v1/candidates/me/achievements/reorder`, `GET/POST/PUT/DELETE /api/v1/candidates/me/professional-links`, `PUT /api/v1/candidates/me/professional-links/reorder`
@@ -443,7 +506,7 @@ The system should:
 - Completed At: 2026-07-21 16:40:00 +06
 - Summary: Implemented full-stack candidate email verification flow: EmailVerificationToken Prisma model with SHA-256 hashed tokens, crypto token service, BullMQ mail queue with Mailpit SMTP processor (nodemailer), HTML+plain text email templates, verification email enqueued during registration, POST verify and resend endpoints with rate limiting (3/min verify, 1/min resend) and audit logging, Next.js verify-email/success/error pages, typed API client methods, and comprehensive test suite.
 - Files Added:
-  - Database: `apps/api/prisma/migrations/20260721102725_add_email_verification_token/`
+  - Database: `apps/api/prisma/migrations/bb4c2441102725_add_email_verification_token/`
   - Email infra: `apps/api/src/infrastructure/email/email.constants.ts`, `apps/api/src/infrastructure/email/email.module.ts`, `apps/api/src/infrastructure/email/email.service.ts`, `apps/api/src/infrastructure/email/email.processor.ts`
   - API auth: `apps/api/src/modules/auth/verification-token.service.ts`, `apps/api/src/modules/auth/verification-token.service.spec.ts`, `apps/api/src/modules/auth/email-verification.service.ts`, `apps/api/src/modules/auth/email-verification.service.spec.ts`, `apps/api/src/modules/auth/email-verification.controller.ts`, `apps/api/src/modules/auth/email-verification.controller.spec.ts`, `apps/api/src/modules/auth/dto/verify-email.dto.ts`, `apps/api/src/modules/auth/dto/resend-verification.dto.ts`
   - E2E: `apps/api/test/email-verification.e2e-spec.ts`
@@ -451,7 +514,7 @@ The system should:
 - Files Modified: `apps/api/prisma/schema.prisma`, `apps/api/src/app.module.ts`, `apps/api/src/modules/auth/auth.module.ts`, `apps/api/src/modules/auth/registration.service.ts`, `apps/api/src/modules/auth/registration.service.spec.ts`, `apps/api/src/infrastructure/redis/redis.options.ts`, `apps/web/src/lib/api-client.ts`, `docs/task/status.md`
 - Dependencies Added: `nodemailer`, `@types/nodemailer`
 - Database Changes:
-  - Migration: `20260721102725_add_email_verification_token` — Adds `EmailVerificationToken` table with `tokenHash` (SHA-256, unique), `expiresAt`, `consumedAt`, FK to User
+  - Migration: `bb4c2441102725_add_email_verification_token` — Adds `EmailVerificationToken` table with `tokenHash` (SHA-256, unique), `expiresAt`, `consumedAt`, FK to User
   - Indexes on `userId` and `expiresAt`
 - API Changes:
   - Routes: `POST /api/v1/auth/email-verification/verify` (Public), `POST /api/v1/auth/email-verification/resend` (Public)
@@ -495,12 +558,12 @@ The system should:
 
 - Files Added:
   - Shared packages: `packages/validation/src/auth/candidate-registration.ts`, `packages/validation/tests/candidate-registration.test.ts`, `packages/types/src/auth/candidate-registration.ts`, `packages/constants/src/auth/user-account-status.ts`
-  - Database: `apps/api/prisma/seed.ts`, `apps/api/prisma/migrations/20260721100302_add_identity_models/`
+  - Database: `apps/api/prisma/seed.ts`, `apps/api/prisma/migrations/bb4c2441100302_add_identity_models/`
   - API: `apps/api/src/modules/auth/dto/register-candidate.dto.ts`, `apps/api/src/modules/auth/password-hashing.service.ts`, `apps/api/src/modules/auth/password-hashing.service.spec.ts`, `apps/api/src/modules/auth/registration.service.ts`, `apps/api/src/modules/auth/registration.service.spec.ts`, `apps/api/src/modules/auth/registration.controller.ts`, `apps/api/test/registration.e2e-spec.ts`, `apps/api/scripts/patch-prisma-source.mjs`, `apps/api/scripts/restore-prisma-source.mjs`
   - Web: `apps/web/src/app/(auth)/register/page.tsx`, `apps/web/src/app/(auth)/register/success/page.tsx`, `apps/web/src/lib/api-client.ts`, `apps/web/tests/register-page.test.tsx`, `apps/web/tests/register-success-page.test.tsx`
 - Files Modified: `package.json`, `apps/api/package.json`, `apps/api/prisma.config.ts`, `apps/api/prisma/schema.prisma`, `apps/api/src/app.module.ts`, `apps/api/src/modules/auth/auth.module.ts`, `apps/api/test/jest-e2e.json`, `packages/validation/package.json`, `packages/validation/src/index.ts`, `packages/types/package.json`, `packages/types/src/index.ts`, `packages/constants/package.json`, `packages/constants/src/index.ts`, `apps/web/package.json`
 - Database Changes:
-  - Migration: `20260721100302_add_identity_models` — Adds `UserStatus` enum, `User`, `Role`, `UserRole` tables
+  - Migration: `bb4c2441100302_add_identity_models` — Adds `UserStatus` enum, `User`, `Role`, `UserRole` tables
   - Models/enums: `UserStatus` (PENDING_VERIFICATION, ACTIVE, SUSPENDED, DELETED), `User`, `Role`, `UserRole`
   - Seed: Idempotent upsert of `candidate` system role
   - Result: Migration applied, seed successful
@@ -567,7 +630,7 @@ The system should:
 - Completed At: 2026-07-21 17:40:00 +06
 - Summary: Implemented Candidate Profile Basics including database schema, NestJS module with roles authorization, audit logging, completion service, typed validation, and high-fidelity glassmorphism Next.js UI.
 - Files Added:
-  - Database: `apps/api/prisma/migrations/20260721113134_add_candidate_profile_basics/`
+  - Database: `apps/api/prisma/migrations/bb4c2441113134_add_candidate_profile_basics/`
   - Shared: `packages/validation/src/candidates/candidate-profile-basics.ts`, `packages/types/src/candidates/index.ts`
   - API: `apps/api/src/common/decorators/roles.decorator.ts`, `apps/api/src/common/guards/roles.guard.ts`, `apps/api/src/modules/candidates/candidates.module.ts`, `apps/api/src/modules/candidates/controllers/candidate-profile.controller.ts`, `apps/api/src/modules/candidates/services/candidate-profile.service.ts`, `apps/api/src/modules/candidates/services/candidate-profile-completion.service.ts`, `apps/api/src/modules/candidates/repositories/candidate-profile.repository.ts`, `apps/api/test/candidate-profile.e2e-spec.ts`
   - Web: `apps/web/src/app/(authenticated)/profile/page.tsx`

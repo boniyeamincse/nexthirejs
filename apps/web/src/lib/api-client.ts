@@ -1230,3 +1230,45 @@ export async function reorderProfessionalLinkRecords(
   if (response.ok) return;
   throw new Error(`Failed to reorder professional links: ${response.status}`);
 }
+
+export interface GetProfilePrivacyResult {
+  overallDiscoverability: string;
+  sections: Record<string, string>;
+  policyVersion: string;
+  source: 'DEFAULT' | 'PERSISTED';
+  createdAt: string | null;
+  updatedAt: string | null;
+}
+
+export interface UpdateProfilePrivacyInput {
+  overallDiscoverability: string;
+  sections: Record<string, string>;
+}
+
+export async function getMyProfilePrivacy(accessToken: string): Promise<GetProfilePrivacyResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/privacy`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to get privacy settings: ${response.status}`);
+}
+
+export async function updateMyProfilePrivacy(
+  accessToken: string,
+  data: UpdateProfilePrivacyInput
+): Promise<GetProfilePrivacyResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/privacy`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to update privacy settings: ${response.status}`);
+}

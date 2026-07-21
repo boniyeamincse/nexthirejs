@@ -7,6 +7,7 @@ import { CandidateSkillController } from './controllers/candidate-skill.controll
 import { CandidateLanguageController } from './controllers/candidate-language.controller';
 import { CandidateAchievementController } from './controllers/candidate-achievement.controller';
 import { CandidateProfessionalLinkController } from './controllers/candidate-professional-link.controller';
+import { CandidateProfilePrivacyController } from './privacy/candidate-profile-privacy.controller';
 import { CandidateCertificationController } from './controllers/candidate-certification.controller';
 import { CandidateTrainingController } from './controllers/candidate-training.controller';
 import { CandidateProfileService } from './services/candidate-profile.service';
@@ -20,6 +21,10 @@ import { CandidateCertificationService } from './services/candidate-certificatio
 import { CandidateTrainingService } from './services/candidate-training.service';
 import { CandidateAchievementService } from './services/candidate-achievement.service';
 import { CandidateProfessionalLinkService } from './services/candidate-professional-link.service';
+import { CandidateProfilePrivacyService } from './privacy/candidate-profile-privacy.service';
+import { CandidatePrivacyPolicyService } from './privacy/candidate-privacy-policy.service';
+import { CandidatePrivacyDecisionService } from './privacy/candidate-privacy-decision.service';
+import { CandidateProfilePrivacyRepository } from './privacy/candidate-profile-privacy.repository';
 import { CandidateProfileRepository } from './repositories/candidate-profile.repository';
 import { CandidatePreferencesRepository } from './repositories/candidate-preferences.repository';
 import { CandidateEducationRepository } from './repositories/candidate-education.repository';
@@ -50,6 +55,7 @@ import { RequestContextModule } from '../../common/request-context/request-conte
     CandidateTrainingController,
     CandidateAchievementController,
     CandidateProfessionalLinkController,
+    CandidateProfilePrivacyController,
   ],
   providers: [
     CandidateProfileService,
@@ -73,6 +79,10 @@ import { RequestContextModule } from '../../common/request-context/request-conte
     CandidateProfessionalLinkRepository,
     CandidateAchievementService,
     CandidateProfessionalLinkService,
+    CandidateProfilePrivacyService,
+    CandidatePrivacyPolicyService,
+    CandidatePrivacyDecisionService,
+    CandidateProfilePrivacyRepository,
     TokenService,
     SessionService,
   ],

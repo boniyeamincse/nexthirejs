@@ -19,3 +19,4 @@ export * from './candidates/candidate-certifications.js';
 export * from './candidates/candidate-training.js';
 export * from './candidates/candidate-achievements.js';
 export * from './candidates/candidate-professional-links.js';
+export * from './candidates/candidate-profile-privacy.js';
