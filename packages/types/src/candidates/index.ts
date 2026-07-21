@@ -3,12 +3,16 @@ export * from './candidate-education.js';
 export * from './candidate-work-experience.js';
 export * from './candidate-skills.js';
 export * from './candidate-languages.js';
+export * from './candidate-certifications.js';
+export * from './candidate-training.js';
+export * from './candidate-achievements.js';
+export * from './candidate-professional-links.js';
 
 export interface CandidateProfileCompletion {
   percentage: number;
   completedFields: string[];
   missingFields: string[];
-  version: 'candidate-profile-basic-v1' | 'candidate-profile-v2' | 'candidate-profile-v3' | 'candidate-profile-v4' | 'candidate-profile-v5';
+  version: 'candidate-profile-basic-v1' | 'candidate-profile-v2' | 'candidate-profile-v3' | 'candidate-profile-v4' | 'candidate-profile-v5' | 'candidate-profile-v6' | 'candidate-profile-v7';
 }
 
 export interface CandidateProfileBasics {

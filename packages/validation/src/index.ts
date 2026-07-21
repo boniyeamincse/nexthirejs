@@ -15,3 +15,7 @@ export * from './candidates/candidate-education.js';
 export * from './candidates/candidate-work-experience.js';
 export * from './candidates/candidate-skills.js';
 export * from './candidates/candidate-languages.js';
+export * from './candidates/candidate-certifications.js';
+export * from './candidates/candidate-training.js';
+export * from './candidates/candidate-achievements.js';
+export * from './candidates/candidate-professional-links.js';

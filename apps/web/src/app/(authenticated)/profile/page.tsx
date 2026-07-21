@@ -111,6 +111,12 @@ export default function ProfilePage() {
             <a href="/profile/languages" style={{ padding: '0.5rem 1rem', background: 'rgba(99, 102, 241, 0.2)', color: '#a5b4fc', textDecoration: 'none', borderRadius: '0.5rem', fontSize: '0.9rem', border: '1px solid rgba(99, 102, 241, 0.3)' }}>
               Languages →
             </a>
+            <a href="/profile/certifications" style={{ padding: '0.5rem 1rem', background: 'rgba(99, 102, 241, 0.2)', color: '#a5b4fc', textDecoration: 'none', borderRadius: '0.5rem', fontSize: '0.9rem', border: '1px solid rgba(99, 102, 241, 0.3)' }}>
+              Certs &amp; Training →
+            </a>
+            <a href="/profile/achievements" style={{ padding: '0.5rem 1rem', background: 'rgba(99, 102, 241, 0.2)', color: '#a5b4fc', textDecoration: 'none', borderRadius: '0.5rem', fontSize: '0.9rem', border: '1px solid rgba(99, 102, 241, 0.3)' }}>
+              Achievements &amp; Links →
+            </a>
           </div>
         </div>
 

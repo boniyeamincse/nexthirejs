@@ -799,7 +799,12 @@ export async function reorderSkillRecords(
 }
 
 import type { CreateCandidateLanguageInput, UpdateCandidateLanguageInput, ReorderCandidateLanguagesInput } from '@nexthire/validation';
+import type { CreateCandidateCertificationInput, UpdateCandidateCertificationInput, ReorderCandidateCertificationsInput } from '@nexthire/validation';
+import type { CreateCandidateTrainingInput, UpdateCandidateTrainingInput, ReorderCandidateTrainingInput } from '@nexthire/validation';
+import type { CreateCandidateAchievementInput, UpdateCandidateAchievementInput, ReorderCandidateAchievementsInput } from '@nexthire/validation';
+import type { CreateCandidateProfessionalLinkInput, UpdateCandidateProfessionalLinkInput, ReorderCandidateProfessionalLinksInput } from '@nexthire/validation';
 import type { CandidateLanguageResult } from '@nexthire/types';
+import type { CandidateCertificationResult, CandidateTrainingResult, CandidateAchievementResult, CandidateProfessionalLinkResult } from '@nexthire/types';
 
 export interface GetCandidateLanguagesResult {
   records: CandidateLanguageResult[];
@@ -884,4 +889,344 @@ export async function reorderLanguageRecords(
   });
   if (response.ok) return;
   throw new Error(`Failed to reorder languages: ${response.status}`);
+}
+
+export interface GetCandidateCertificationsResult {
+  records: CandidateCertificationResult[];
+  completion: CandidateProfileCompletion;
+}
+
+export interface CreateCandidateCertificationResult {
+  record: CandidateCertificationResult;
+  completion: CandidateProfileCompletion;
+}
+
+export interface UpdateCandidateCertificationResult {
+  record: CandidateCertificationResult;
+  completion: CandidateProfileCompletion;
+}
+
+export async function listMyCertificationRecords(accessToken: string): Promise<GetCandidateCertificationsResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/certifications`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to list certifications: ${response.status}`);
+}
+
+export async function createCertificationRecord(
+  accessToken: string,
+  data: CreateCandidateCertificationInput
+): Promise<CreateCandidateCertificationResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/certifications`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to create certification: ${response.status}`);
+}
+
+export async function updateCertificationRecord(
+  accessToken: string,
+  id: string,
+  data: UpdateCandidateCertificationInput
+): Promise<UpdateCandidateCertificationResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/certifications/${id}`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to update certification: ${response.status}`);
+}
+
+export async function deleteCertificationRecord(accessToken: string, id: string): Promise<void> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/certifications/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (response.ok) return;
+  throw new Error(`Failed to delete certification: ${response.status}`);
+}
+
+export async function reorderCertificationRecords(
+  accessToken: string,
+  data: ReorderCandidateCertificationsInput
+): Promise<void> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/certifications/reorder`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  if (response.ok) return;
+  throw new Error(`Failed to reorder certifications: ${response.status}`);
+}
+
+export interface GetCandidateTrainingResult {
+  records: CandidateTrainingResult[];
+  completion: CandidateProfileCompletion;
+}
+
+export interface CreateCandidateTrainingResult {
+  record: CandidateTrainingResult;
+  completion: CandidateProfileCompletion;
+}
+
+export interface UpdateCandidateTrainingResult {
+  record: CandidateTrainingResult;
+  completion: CandidateProfileCompletion;
+}
+
+export async function listMyTrainingRecords(accessToken: string): Promise<GetCandidateTrainingResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/training`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to list training: ${response.status}`);
+}
+
+export async function createTrainingRecord(
+  accessToken: string,
+  data: CreateCandidateTrainingInput
+): Promise<CreateCandidateTrainingResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/training`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to create training: ${response.status}`);
+}
+
+export async function updateTrainingRecord(
+  accessToken: string,
+  id: string,
+  data: UpdateCandidateTrainingInput
+): Promise<UpdateCandidateTrainingResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/training/${id}`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to update training: ${response.status}`);
+}
+
+export async function deleteTrainingRecord(accessToken: string, id: string): Promise<void> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/training/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (response.ok) return;
+  throw new Error(`Failed to delete training: ${response.status}`);
+}
+
+export async function reorderTrainingRecords(
+  accessToken: string,
+  data: ReorderCandidateTrainingInput
+): Promise<void> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/training/reorder`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  if (response.ok) return;
+  throw new Error(`Failed to reorder training: ${response.status}`);
+}
+
+export interface GetCandidateAchievementsResult {
+  records: CandidateAchievementResult[];
+  completion: CandidateProfileCompletion;
+}
+
+export interface CreateCandidateAchievementResult {
+  record: CandidateAchievementResult;
+  completion: CandidateProfileCompletion;
+}
+
+export interface UpdateCandidateAchievementResult {
+  record: CandidateAchievementResult;
+  completion: CandidateProfileCompletion;
+}
+
+export async function listMyAchievementRecords(accessToken: string): Promise<GetCandidateAchievementsResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/achievements`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to list achievements: ${response.status}`);
+}
+
+export async function createAchievementRecord(
+  accessToken: string,
+  data: CreateCandidateAchievementInput
+): Promise<CreateCandidateAchievementResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/achievements`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to create achievement: ${response.status}`);
+}
+
+export async function updateAchievementRecord(
+  accessToken: string,
+  id: string,
+  data: UpdateCandidateAchievementInput
+): Promise<UpdateCandidateAchievementResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/achievements/${id}`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to update achievement: ${response.status}`);
+}
+
+export async function deleteAchievementRecord(accessToken: string, id: string): Promise<void> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/achievements/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (response.ok) return;
+  throw new Error(`Failed to delete achievement: ${response.status}`);
+}
+
+export async function reorderAchievementRecords(
+  accessToken: string,
+  data: ReorderCandidateAchievementsInput
+): Promise<void> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/achievements/reorder`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  if (response.ok) return;
+  throw new Error(`Failed to reorder achievements: ${response.status}`);
+}
+
+export interface GetCandidateProfessionalLinksResult {
+  records: CandidateProfessionalLinkResult[];
+  completion: CandidateProfileCompletion;
+}
+
+export interface CreateCandidateProfessionalLinkResult {
+  record: CandidateProfessionalLinkResult;
+  completion: CandidateProfileCompletion;
+}
+
+export interface UpdateCandidateProfessionalLinkResult {
+  record: CandidateProfessionalLinkResult;
+  completion: CandidateProfileCompletion;
+}
+
+export async function listMyProfessionalLinkRecords(accessToken: string): Promise<GetCandidateProfessionalLinksResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/professional-links`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to list professional links: ${response.status}`);
+}
+
+export async function createProfessionalLinkRecord(
+  accessToken: string,
+  data: CreateCandidateProfessionalLinkInput
+): Promise<CreateCandidateProfessionalLinkResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/professional-links`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to create professional link: ${response.status}`);
+}
+
+export async function updateProfessionalLinkRecord(
+  accessToken: string,
+  id: string,
+  data: UpdateCandidateProfessionalLinkInput
+): Promise<UpdateCandidateProfessionalLinkResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/professional-links/${id}`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to update professional link: ${response.status}`);
+}
+
+export async function deleteProfessionalLinkRecord(accessToken: string, id: string): Promise<void> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/professional-links/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (response.ok) return;
+  throw new Error(`Failed to delete professional link: ${response.status}`);
+}
+
+export async function reorderProfessionalLinkRecords(
+  accessToken: string,
+  data: ReorderCandidateProfessionalLinksInput
+): Promise<void> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/professional-links/reorder`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  if (response.ok) return;
+  throw new Error(`Failed to reorder professional links: ${response.status}`);
 }

@@ -12,10 +12,10 @@
 - Overall Status: Planning Complete
 - Development Status: In Progress
 - Current Phase: Phase 1 — Identity and Candidate Foundation
-- Current Task: NH-P1-T011 — Implement Candidate Certifications and Training
-- Last Completed Task: NH-P1-T010 — Implement Candidate Skills and Languages
+- Current Task: NH-P1-T012 — Implement Candidate Achievements and Professional Links
+- Last Completed Task: NH-P1-T012 — Implement Candidate Achievements and Professional Links
 - Blockers: None
-- Next Planned Task: NH-P1-T012 — Implement Candidate Achievements and Professional Links
+- Next Planned Task: NH-P1-T013 — Implement Candidate Profile Privacy Settings
 
 ---
 
@@ -65,7 +65,7 @@ Use only these values:
 | Phase    | Name                              |      Status | Progress |
 | -------- | --------------------------------- | ----------: | -------: |
 | Phase 0  | Foundation                        | IN_PROGRESS |      70% |
-| Phase 1  | Identity and Candidate Foundation | IN_PROGRESS |      30% |
+| Phase 1  | Identity and Candidate Foundation | IN_PROGRESS |      40% |
 | Phase 2  | CV and Project Portfolio          |     PLANNED |       0% |
 | Phase 3  | Trainer Marketplace               |     PLANNED |       0% |
 | Phase 4  | Learning and Assessment           |     PLANNED |       0% |
@@ -81,22 +81,22 @@ Use only these values:
 ## 5. Current Task
 
 ```yaml
-task_id: NH-P1-T010
-title: Implement Candidate Skills and Languages
+task_id: NH-P1-T013
+title: Implement Candidate Profile Privacy Settings
 phase: Phase 1
-status: COMPLETED
-started_at: 2026-07-21T16:56:00Z
-completed_at: 2026-07-21T18:03:00Z
+status: PLANNED
+started_at: null
+completed_at: null
 assigned_to: AI Development Workflow
 dependencies:
-  - NH-P1-T009
+  - NH-P1-T012
 blockers: []
 git_commit:
-  hash: 2c6d961
-  message: "feat(candidate-profile): add skills and languages [NH-P1-T010]"
+  hash: null
+  message: null
 next_task:
-  task_id: NH-P1-T012
-  title: Implement Candidate Achievements and Professional Links
+  task_id: NH-P1-T014
+  title: TBD
 ```
 
 ---
@@ -120,6 +120,8 @@ next_task:
 | NH-P1-T008 | Implement Candidate Education Records            | Phase 1 | COMPLETED | 2026-07-21 12:14:00 +06 |
 | NH-P1-T009 | Implement Candidate Work Experience Records      | Phase 1 | COMPLETED | 2026-07-21 13:05:00 +06 |
 | NH-P1-T007 | Candidate Location and Career Preferences        | Phase 1 | COMPLETED | 2026-07-21 17:55:00 +06 |
+| NH-P1-T011 | Candidate Certifications and Training            | Phase 1 | COMPLETED | 2026-07-22T00:30:00Z |
+| NH-P1-T012 | Candidate Achievements and Professional Links    | Phase 1 | COMPLETED | 2026-07-22T01:01:00Z |
 
 ---
 
@@ -212,8 +214,10 @@ next_task:
 
 ## 8. Blocked Tasks
 
-No blocked task.
-
+| Task ID    | Task Title                                       | Phase   | Blocker |
+| ---------- | ------------------------------------------------ | ------- | ------- |
+| None | | | |
+ 
 ---
 
 ## 9. Planned Task Queue
@@ -333,6 +337,56 @@ The system should:
 ---
 
 **End of Status File**
+
+## Task Update — NH-P1-T012
+
+- Status: COMPLETED
+- Started At: 2026-07-22T00:12:00Z
+- Completed At: 2026-07-22T01:01:00Z
+- Summary: Implemented full-stack candidate achievements and professional links management. Added Prisma models/migration, shared types and validation schemas, URL normalization utility, NestJS API (controllers/services/repositories for both entities), profile completion v7, typed frontend API client, glassmorphism UI components, page at /profile/achievements, E2E tests (10+11), and frontend tests (13+15).
+- Files Added:
+  - Database: `apps/api/prisma/migrations/20260721184945_add_candidate_achievements_links/`
+  - Shared packages: `packages/types/src/candidates/candidate-achievements.ts`, `candidate-professional-links.ts`, `packages/validation/src/candidates/candidate-achievements.ts`, `candidate-professional-links.ts`
+  - URL utility: `apps/api/src/common/url/url-normalizer.ts`, `apps/api/src/common/url/index.ts`
+  - API: `apps/api/src/modules/candidates/controllers/candidate-achievement.controller.ts`, `candidate-professional-link.controller.ts`, `apps/api/src/modules/candidates/services/candidate-achievement.service.ts`, `candidate-professional-link.service.ts`, `apps/api/src/modules/candidates/repositories/candidate-achievement.repository.ts`, `candidate-professional-link.repository.ts`
+  - E2E: `apps/api/test/candidate-achievements.e2e-spec.ts`, `candidate-professional-links.e2e-spec.ts`
+  - Web: `apps/web/src/app/(authenticated)/profile/achievements/page.tsx`, `apps/web/src/features/candidate-profile/achievements/AchievementForm.tsx`, `AchievementList.tsx`, `apps/web/src/features/candidate-profile/achievements/__tests__/achievements.test.tsx`, `apps/web/src/features/candidate-profile/professional-links/ProfessionalLinkForm.tsx`, `ProfessionalLinkList.tsx`, `apps/web/src/features/candidate-profile/professional-links/__tests__/professional-links.test.tsx`
+- Files Modified:
+  - `apps/api/prisma/schema.prisma` — added ProfessionalLinkType enum, CandidateAchievement, CandidateProfessionalLink models, User relations
+  - `packages/types/src/candidates/index.ts` — exports + CandidateProfileCompletion v7 union
+  - `packages/validation/src/index.ts` — re-exports for new schemas
+  - `apps/api/src/modules/candidates/candidates.module.ts` — new controllers, services, repositories
+  - `apps/api/src/modules/candidates/services/candidate-profile-completion.service.ts` — v7 with achievements/links section (10 pts), rebalanced weights to sum 100
+  - `apps/api/src/modules/candidates/services/candidate-certification.service.ts` — achievements/links repos for full recalculation
+  - `apps/api/src/modules/candidates/services/candidate-training.service.ts` — achievements/links repos for full recalculation
+  - `apps/web/src/lib/api-client.ts` — achievement + professional link API methods
+  - `apps/web/src/app/(authenticated)/profile/page.tsx` — added Achievements & Links navigation link
+  - `docs/task/status.md`
+- Database Changes:
+  - Migration: `20260721184945_add_candidate_achievements_links` — adds ProfessionalLinkType enum, CandidateAchievement table (id, userId, title, issuer, achievedAt, description, referenceUrl, sortOrder, timestamps), CandidateProfessionalLink table (id, userId, type, label, url, normalizedUrl, sortOrder, timestamps), indexes on [userId, sortOrder] and [userId, achievedAt], unique constraint on [userId, normalizedUrl], FK cascades to User
+  - Result: Applied, Prisma Client generated
+- API Changes:
+  - Routes: `GET/POST/PUT/DELETE /api/v1/candidates/me/achievements`, `PUT /api/v1/candidates/me/achievements/reorder`, `GET/POST/PUT/DELETE /api/v1/candidates/me/professional-links`, `PUT /api/v1/candidates/me/professional-links/reorder`
+  - URL normalization: UrlNormalizer utility rejects non-http/https, credentials, malformed URLs; normalizes hostname/protocol casing, removes default ports, normalizes trailing slashes
+  - Completion v7: Achievements & Links section worth 10pts, total stays 100
+  - Audit events: achievement/link created/updated/deleted/reordered/viewed with safe metadata (no titles, URLs, or descriptions)
+  - Duplicate link detection: normalized URL uniqueness per candidate
+  - Limits: 30 achievements, 10 professional links per candidate
+- Tests Added:
+  - E2E: 10 achievement tests, 11 professional link tests (list, create, validation, URL safety, duplicate blocking, update, delete, delete-404, cross-user isolation)
+  - Frontend: 13 achievement tests + 15 professional link tests (form add/edit/validation/URL safety/cancel, list empty/saving/loaded/duplicate warning/delete/reorder/safe external link attributes)
+- Test Result:
+  - Validation package: build ✅
+  - Types package: build ✅
+  - API: typecheck ✅, test 80/80 ✅, test:e2e 21/21 ✅
+  - Web: typecheck ✅, test 28/28 ✅ (pre-existing failures unchanged)
+- Blockers: None
+- Decisions:
+  - Achievements description field uses Text type (1500 char limit) vs certification 1000 char — matches spec
+  - URL validation uses starts-with protocol check in shared schemas (ES2022 lib doesn't include URL constructor); actual URL parsing/normalization happens in backend UrlNormalizer
+  - Professional links limited to 10 (vs 30 for achievements) per spec
+  - Complete v7 weights: Basics 30, Preferences 18, Education 11, Work Exp 10, Skills 8, Languages 5, Certifications 5, Training 3, Achievements & Links 10 = 100
+- Next Task: NH-P1-T013 — Implement Candidate Profile Privacy Settings
 
 ## Task Update — NH-P0-T001
 

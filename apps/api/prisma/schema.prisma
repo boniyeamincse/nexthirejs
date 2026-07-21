@@ -65,6 +65,10 @@ model User {
   workExperienceRecords   WorkExperienceRecord[]
   skills                  CandidateSkill[]
   languages               CandidateLanguage[]
+  certifications          CandidateCertification[]
+  training                CandidateTraining[]
+  achievements            CandidateAchievement[]
+  professionalLinks       CandidateProfessionalLink[]
 }
 
 model Role {
@@ -308,4 +312,90 @@ model WorkExperienceRecord {
 
   @@index([userId, sortOrder])
   @@index([userId, startDate])
+}
+
+model CandidateCertification {
+  id            String    @id @default(uuid()) @db.Uuid
+  userId        String    @db.Uuid
+  name          String    @db.VarChar(200)
+  issuer        String    @db.VarChar(200)
+  issueDate     DateTime  @db.Date
+  expiryDate    DateTime? @db.Date
+  doesNotExpire Boolean   @default(false)
+  credentialId  String?   @db.VarChar(150)
+  credentialUrl String?   @db.VarChar(500)
+  sortOrder     Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, sortOrder])
+  @@index([userId, issueDate])
+}
+
+model CandidateTraining {
+  id             String   @id @default(uuid()) @db.Uuid
+  userId         String   @db.Uuid
+  title          String   @db.VarChar(200)
+  provider       String   @db.VarChar(200)
+  completionDate DateTime @db.Date
+  durationHours  Decimal? @db.Decimal(7, 1)
+  description    String?  @db.Text
+  sortOrder      Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, sortOrder])
+  @@index([userId, completionDate])
+}
+
+enum ProfessionalLinkType {
+  LINKEDIN
+  GITHUB
+  PORTFOLIO
+  PERSONAL_WEBSITE
+  BEHANCE
+  DRIBBBLE
+  STACK_OVERFLOW
+  MEDIUM
+  YOUTUBE
+  OTHER
+}
+
+model CandidateAchievement {
+  id           String    @id @default(uuid()) @db.Uuid
+  userId       String    @db.Uuid
+  title        String    @db.VarChar(200)
+  issuer       String?   @db.VarChar(200)
+  achievedAt   DateTime? @db.Date
+  description  String?   @db.Text
+  referenceUrl String?   @db.VarChar(500)
+  sortOrder    Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, sortOrder])
+  @@index([userId, achievedAt])
+}
+
+model CandidateProfessionalLink {
+  id            String               @id @default(uuid()) @db.Uuid
+  userId        String               @db.Uuid
+  type          ProfessionalLinkType
+  label         String?              @db.VarChar(100)
+  url           String               @db.VarChar(500)
+  normalizedUrl String               @db.VarChar(500)
+  sortOrder     Int                  @default(0)
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, normalizedUrl])
+  @@index([userId, sortOrder])
 }
