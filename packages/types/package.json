@@ -1,0 +1,55 @@
+{
+  "name": "@nexthire/types",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Shared TypeScript types for NextHire",
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.mjs"
+    },
+    "./api": {
+      "types": "./dist/api.d.mts",
+      "import": "./dist/api.mjs",
+      "require": "./dist/api.mjs"
+    },
+    "./pagination": {
+      "types": "./dist/pagination.d.mts",
+      "import": "./dist/pagination.mjs",
+      "require": "./dist/pagination.mjs"
+    },
+    "./utility": {
+      "types": "./dist/utility.d.mts",
+      "import": "./dist/utility.mjs",
+      "require": "./dist/utility.mjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --sourcemap --clean",
+    "dev": "tsup src/index.ts --format esm --dts --sourcemap --watch",
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf dist coverage",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "keywords": [
+    "typescript",
+    "types",
+    "shared"
+  ],
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@nexthire/eslint-config": "workspace:*",
+    "eslint": "^9.18.0",
+    "typescript": "^5.7.3",
+    "tsup": "^8.3.0",
+    "rimraf": "^6.1.3"
+  }
+}

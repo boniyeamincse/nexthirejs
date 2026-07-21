@@ -1,0 +1,35 @@
+{
+  "name": "@nexthire/eslint-config",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "description": "Shared ESLint flat configuration for NextHire",
+  "exports": {
+    "./base": "./base.mjs",
+    "./node": "./node.mjs",
+    "./next": "./next.mjs"
+  },
+  "files": [
+    "base.mjs",
+    "node.mjs",
+    "next.mjs",
+    "README.md"
+  ],
+  "scripts": {
+    "lint": "eslint ."
+  },
+  "keywords": [
+    "eslint",
+    "config",
+    "shared"
+  ],
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@eslint/js": "^9.18.0",
+    "eslint": "^9.18.0",
+    "eslint-config-next": "^16.2.10",
+    "eslint-config-prettier": "^10.0.1",
+    "globals": "^14.0.0",
+    "typescript-eslint": "^8.20.0"
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "name": "nexthire",
+  "private": true,
+  "packageManager": "pnpm@10.30.1",
+  "engines": {
+    "node": ">=22 <23"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint:staged": "lint-staged",
+    "commitlint": "commitlint",
+    "prepare": "husky",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck",
+    "clean": "turbo run clean && rm -rf node_modules .turbo",
+    "infra:config": "docker compose --env-file .env -f infrastructure/docker/compose.dev.yml config",
+    "infra:up": "docker compose --env-file .env -f infrastructure/docker/compose.dev.yml up -d",
+    "infra:down": "docker compose --env-file .env -f infrastructure/docker/compose.dev.yml down",
+    "infra:restart": "docker compose --env-file .env -f infrastructure/docker/compose.dev.yml restart",
+    "infra:ps": "docker compose --env-file .env -f infrastructure/docker/compose.dev.yml ps",
+    "infra:logs": "docker compose --env-file .env -f infrastructure/docker/compose.dev.yml logs -f",
+    "db:format": "pnpm --filter @nexthire/api db:format",
+    "db:validate": "pnpm --filter @nexthire/api db:validate",
+    "db:generate": "pnpm --filter @nexthire/api db:generate",
+    "db:migrate:dev": "pnpm --filter @nexthire/api db:migrate:dev",
+    "db:migrate:deploy": "pnpm --filter @nexthire/api db:migrate:deploy",
+    "db:migrate:status": "pnpm --filter @nexthire/api db:migrate:status",
+    "db:studio": "pnpm --filter @nexthire/api db:studio"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^21.2.1",
+    "@commitlint/config-conventional": "^21.2.0",
+    "eslint": "^9.39.5",
+    "globals": "^17.7.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.1.0",
+    "prettier": "^3.9.5",
+    "turbo": "2.10.5"
+  }
+}

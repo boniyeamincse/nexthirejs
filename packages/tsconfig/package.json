@@ -1,0 +1,21 @@
+{
+  "name": "@nexthire/tsconfig",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Shared TypeScript configurations for NextHire",
+  "main": "base.json",
+  "files": [
+    "base.json",
+    "nestjs.json",
+    "nextjs.json"
+  ],
+  "scripts": {
+    "typecheck": "echo 'no source files to typecheck'"
+  },
+  "keywords": [
+    "typescript",
+    "config",
+    "shared"
+  ],
+  "license": "UNLICENSED"
+}

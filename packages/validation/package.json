@@ -1,0 +1,57 @@
+{
+  "name": "@nexthire/validation",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Shared validation schemas for NextHire",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    },
+    "./common": {
+      "types": "./dist/common.d.ts",
+      "import": "./dist/common.js",
+      "require": "./dist/common.js"
+    },
+    "./pagination": {
+      "types": "./dist/pagination.d.ts",
+      "import": "./dist/pagination.js",
+      "require": "./dist/pagination.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --sourcemap --clean",
+    "dev": "tsup src/index.ts --format esm --dts --sourcemap --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rimraf dist coverage",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "keywords": [
+    "validation",
+    "zod",
+    "shared"
+  ],
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@nexthire/constants": "workspace:*",
+    "rimraf": "^6.1.3",
+    "tsup": "^8.5.1",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@nexthire/eslint-config": "workspace:*",
+    "eslint": "^9.18.0",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.0"
+  }
+}
