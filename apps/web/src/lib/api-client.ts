@@ -709,3 +709,179 @@ export async function reorderWorkExperienceRecords(
   if (response.ok) return;
   throw new Error(`Failed to reorder work experience records: ${response.status}`);
 }
+
+import type { CreateCandidateSkillInput, UpdateCandidateSkillInput, ReorderCandidateSkillsInput } from '@nexthire/validation';
+import type { CandidateSkillResult } from '@nexthire/types';
+
+export interface GetCandidateSkillsResult {
+  records: CandidateSkillResult[];
+  completion: CandidateProfileCompletion;
+}
+
+export interface CreateCandidateSkillResult {
+  record: CandidateSkillResult;
+  completion: CandidateProfileCompletion;
+}
+
+export interface UpdateCandidateSkillResult {
+  record: CandidateSkillResult;
+  completion: CandidateProfileCompletion;
+}
+
+export async function listMySkillRecords(accessToken: string): Promise<GetCandidateSkillsResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/skills`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to list skills: ${response.status}`);
+}
+
+export async function createSkillRecord(
+  accessToken: string,
+  data: CreateCandidateSkillInput
+): Promise<CreateCandidateSkillResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/skills`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to create skill: ${response.status}`);
+}
+
+export async function updateSkillRecord(
+  accessToken: string,
+  id: string,
+  data: UpdateCandidateSkillInput
+): Promise<UpdateCandidateSkillResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/skills/${id}`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to update skill: ${response.status}`);
+}
+
+export async function deleteSkillRecord(accessToken: string, id: string): Promise<void> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/skills/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (response.ok) return;
+  throw new Error(`Failed to delete skill: ${response.status}`);
+}
+
+export async function reorderSkillRecords(
+  accessToken: string,
+  data: ReorderCandidateSkillsInput
+): Promise<void> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/skills/reorder`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  if (response.ok) return;
+  throw new Error(`Failed to reorder skills: ${response.status}`);
+}
+
+import type { CreateCandidateLanguageInput, UpdateCandidateLanguageInput, ReorderCandidateLanguagesInput } from '@nexthire/validation';
+import type { CandidateLanguageResult } from '@nexthire/types';
+
+export interface GetCandidateLanguagesResult {
+  records: CandidateLanguageResult[];
+  completion: CandidateProfileCompletion;
+}
+
+export interface CreateCandidateLanguageResult {
+  record: CandidateLanguageResult;
+  completion: CandidateProfileCompletion;
+}
+
+export interface UpdateCandidateLanguageResult {
+  record: CandidateLanguageResult;
+  completion: CandidateProfileCompletion;
+}
+
+export async function listMyLanguageRecords(accessToken: string): Promise<GetCandidateLanguagesResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/languages`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to list languages: ${response.status}`);
+}
+
+export async function createLanguageRecord(
+  accessToken: string,
+  data: CreateCandidateLanguageInput
+): Promise<CreateCandidateLanguageResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/languages`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to create language: ${response.status}`);
+}
+
+export async function updateLanguageRecord(
+  accessToken: string,
+  id: string,
+  data: UpdateCandidateLanguageInput
+): Promise<UpdateCandidateLanguageResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/languages/${id}`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to update language: ${response.status}`);
+}
+
+export async function deleteLanguageRecord(accessToken: string, id: string): Promise<void> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/languages/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (response.ok) return;
+  throw new Error(`Failed to delete language: ${response.status}`);
+}
+
+export async function reorderLanguageRecords(
+  accessToken: string,
+  data: ReorderCandidateLanguagesInput
+): Promise<void> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/languages/reorder`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  if (response.ok) return;
+  throw new Error(`Failed to reorder languages: ${response.status}`);
+}

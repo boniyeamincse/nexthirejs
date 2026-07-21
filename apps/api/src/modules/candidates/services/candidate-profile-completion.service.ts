@@ -3,30 +3,38 @@ import { CandidateProfileBasicsInput, CandidatePreferenceInput } from '@nexthire
 import { CandidateProfileCompletion } from '@nexthire/types';
 
 /**
- * candidate-profile-v4 weights (total = 100):
+ * candidate-profile-v5 weights (total = 100):
  *
- * Basic profile:         40 pts
+ * Basic profile:         35 pts
  *   fullName             20
  *   professionalHeadline  8
- *   professionalSummary  10
- *   dateOfBirth           2
+ *   professionalSummary   7
+ *   dateOfBirth           0
  *
- * Preferences:           30 pts
+ * Preferences:           25 pts
  *   countryCode           8
  *   currentCity           8
  *   preferredJobRoles     5
- *   preferredWorkModes    5
- *   preferredEmploymentTypes 4
+ *   preferredWorkModes    4
+ *   preferredEmploymentTypes 0
  *
- * Education:             15 pts
+ * Education:             10 pts
  *   any record           10
- *   fieldOfStudy          3
- *   grade or description  2
+ *   fieldOfStudy          0
+ *   grade or description  0
  *
- * Work experience:       15 pts
+ * Work experience:       10 pts
  *   any record           10
- *   responsibilities      3
- *   achievements          2
+ *   responsibilities      0
+ *   achievements          0
+ *
+ * Skills:                10 pts
+ *   >=3 skills            8
+ *   >=1 intermediate+     2
+ *
+ * Languages:             10 pts
+ *   >=1 language          3
+ *   >=1 prof/fluent/native speaking 7
  */
 @Injectable()
 export class CandidateProfileCompletionService {
@@ -49,7 +57,9 @@ export class CandidateProfileCompletionService {
     profile: Partial<CandidateProfileBasicsInput> | null,
     preferences?: Partial<CandidatePreferenceInput> | null,
     educationRecords?: any[] | null,
-    workExperienceRecords?: any[] | null
+    workExperienceRecords?: any[] | null,
+    skills?: any[] | null,
+    languages?: any[] | null
   ): CandidateProfileCompletion {
     let percentage = 0;
     const completedFields: string[] = [];
@@ -124,41 +134,55 @@ export class CandidateProfileCompletionService {
       missingFields.push('educationGradeOrDescription');
     }
 
-    // Work experience fields (15 pts)
+    // Work experience fields (10 pts)
     if (workExperienceRecords && workExperienceRecords.length > 0) {
       percentage += 10;
       completedFields.push('workExperience');
-
-      const hasResponsibilities = workExperienceRecords.some(
-        (r) => r.responsibilities !== null && r.responsibilities !== undefined && String(r.responsibilities).trim() !== ''
-      );
-      if (hasResponsibilities) {
-        percentage += 3;
-        completedFields.push('workExperienceResponsibilities');
-      } else {
-        missingFields.push('workExperienceResponsibilities');
-      }
-
-      const hasAchievements = workExperienceRecords.some(
-        (r) => r.achievements !== null && r.achievements !== undefined && String(r.achievements).trim() !== ''
-      );
-      if (hasAchievements) {
-        percentage += 2;
-        completedFields.push('workExperienceAchievements');
-      } else {
-        missingFields.push('workExperienceAchievements');
-      }
     } else {
       missingFields.push('workExperience');
-      missingFields.push('workExperienceResponsibilities');
-      missingFields.push('workExperienceAchievements');
+    }
+
+    // Skills fields (10 pts)
+    if (skills && skills.length >= 3) {
+      percentage += 8;
+      completedFields.push('skillsCount');
+    } else {
+      missingFields.push('skillsCount');
+    }
+
+    const hasIntermediateSkill = skills?.some(
+      (r) => ['INTERMEDIATE', 'ADVANCED', 'EXPERT'].includes(r.level)
+    );
+    if (hasIntermediateSkill) {
+      percentage += 2;
+      completedFields.push('skillsLevel');
+    } else {
+      missingFields.push('skillsLevel');
+    }
+
+    // Languages fields (10 pts)
+    if (languages && languages.length >= 1) {
+      percentage += 3;
+      completedFields.push('languagesCount');
+    } else {
+      missingFields.push('languagesCount');
+    }
+
+    const hasProficientSpeaking = languages?.some(
+      (r) => ['PROFESSIONAL', 'FLUENT', 'NATIVE'].includes(r.speaking)
+    );
+    if (hasProficientSpeaking) {
+      percentage += 7;
+      completedFields.push('languagesProficiency');
+    } else {
+      missingFields.push('languagesProficiency');
     }
 
     return {
       percentage,
       completedFields,
       missingFields,
-      version: 'candidate-profile-v4',
+      version: 'candidate-profile-v5',
     };
   }
 }

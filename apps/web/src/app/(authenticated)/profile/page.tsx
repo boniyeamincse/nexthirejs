@@ -52,7 +52,7 @@ export default function ProfilePage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData((prev: CandidateProfileBasicsInput) => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: value === '' ? null : value
     }));
@@ -101,9 +101,17 @@ export default function ProfilePage() {
             <h1 className={styles.title} style={{ fontSize: '2rem' }}>Candidate Profile</h1>
             <p className={styles.subtitle}>Update your basic information to complete your Career Passport.</p>
           </div>
-          <a href="/profile/preferences" style={{ padding: '0.5rem 1rem', background: 'rgba(255,255,255,0.1)', color: '#fff', textDecoration: 'none', borderRadius: '0.5rem', fontSize: '0.9rem', border: '1px solid rgba(255,255,255,0.2)' }}>
-            Edit Preferences →
-          </a>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <a href="/profile/preferences" style={{ padding: '0.5rem 1rem', background: 'rgba(255,255,255,0.1)', color: '#fff', textDecoration: 'none', borderRadius: '0.5rem', fontSize: '0.9rem', border: '1px solid rgba(255,255,255,0.2)' }}>
+              Edit Preferences →
+            </a>
+            <a href="/profile/skills" style={{ padding: '0.5rem 1rem', background: 'rgba(99, 102, 241, 0.2)', color: '#a5b4fc', textDecoration: 'none', borderRadius: '0.5rem', fontSize: '0.9rem', border: '1px solid rgba(99, 102, 241, 0.3)' }}>
+              Skills →
+            </a>
+            <a href="/profile/languages" style={{ padding: '0.5rem 1rem', background: 'rgba(99, 102, 241, 0.2)', color: '#a5b4fc', textDecoration: 'none', borderRadius: '0.5rem', fontSize: '0.9rem', border: '1px solid rgba(99, 102, 241, 0.3)' }}>
+              Languages →
+            </a>
+          </div>
         </div>
 
         {completion && (
