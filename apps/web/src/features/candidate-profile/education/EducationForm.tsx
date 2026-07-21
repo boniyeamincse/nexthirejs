@@ -67,7 +67,7 @@ export function EducationForm({ initialData, onSave, onCancel }: EducationFormPr
         payload.endDate = undefined;
       }
       
-      await onSave(payload as unknown as CreateEducationRecordInput | UpdateEducationRecordInput);
+      await onSave(payload as CreateEducationRecordInput & UpdateEducationRecordInput);
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : 'Failed to save education record');
     } finally {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/providers/auth-context';
 import { 
   listMyEducationRecords, 
@@ -26,62 +26,53 @@ export default function EducationPage() {
   const [editingRecord, setEditingRecord] = useState<EducationRecordResult | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
 
-  const loadRecords = async () => {
+  const fetchRecords = useCallback(async (signal?: AbortSignal) => {
     const token = getAccessToken();
     if (!token) return;
     
     try {
-      setLoading(true);
       const data = await listMyEducationRecords(token);
-      setRecords(data.records);
-      setCompletion(data.completion);
-      setErrorMsg('');
-    } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'Failed to load education records');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    let mounted = true;
-    const init = async () => {
-      const token = getAccessToken();
-      if (!token) return;
-      try {
-        const data = await listMyEducationRecords(token);
-        if (mounted) {
-          setRecords(data.records);
-          setCompletion(data.completion);
-          setErrorMsg('');
-        }
-      } catch (err: unknown) {
-        if (mounted) {
-          setErrorMsg(err instanceof Error ? err.message : 'Failed to load education records');
-        }
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
+      if (!signal?.aborted) {
+        setRecords(data.records);
+        setCompletion(data.completion);
+        setErrorMsg('');
       }
-    };
-    void init();
-    return () => { mounted = false; };
+    } catch (err: unknown) {
+      if (!signal?.aborted) {
+        setErrorMsg(err instanceof Error ? err.message : 'Failed to load education records');
+      }
+    }
   }, [getAccessToken]);
 
-  const handleAdd = () => {
+  useEffect(() => {
+    const abortController = new AbortController();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void fetchRecords(abortController.signal).finally(() => {
+      if (!abortController.signal.aborted) {
+        setLoading(false);
+      }
+    });
+    return () => abortController.abort();
+  }, [fetchRecords]);
+
+  const handleAdd = useCallback(() => {
     setEditingRecord(null);
     setIsFormOpen(true);
     setErrorMsg('');
-  };
+  }, []);
 
-  const handleEdit = (record: EducationRecordResult) => {
+  const handleEdit = useCallback((record: EducationRecordResult) => {
     setEditingRecord(record);
     setIsFormOpen(true);
     setErrorMsg('');
-  };
+  }, []);
 
-  const handleSave = async (data: CreateEducationRecordInput | UpdateEducationRecordInput) => {
+  const handleCancel = useCallback(() => {
+    setIsFormOpen(false);
+    setEditingRecord(null);
+  }, []);
+
+  const handleSave = useCallback(async (data: CreateEducationRecordInput | UpdateEducationRecordInput) => {
     const token = getAccessToken();
     if (!token) throw new Error('Not authenticated');
 
@@ -97,9 +88,9 @@ export default function EducationPage() {
     
     setIsFormOpen(false);
     setEditingRecord(null);
-  };
+  }, [getAccessToken, editingRecord]);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = useCallback(async (id: string) => {
     const token = getAccessToken();
     if (!token) return;
     
@@ -113,9 +104,9 @@ export default function EducationPage() {
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : 'Failed to delete record');
     }
-  };
+  }, [getAccessToken]);
 
-  const handleReorder = async (startIndex: number, endIndex: number) => {
+  const handleReorder = useCallback(async (startIndex: number, endIndex: number) => {
     const token = getAccessToken();
     if (!token) return;
     
@@ -133,9 +124,9 @@ export default function EducationPage() {
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : 'Failed to reorder records');
       // Revert on failure
-      void loadRecords();
+      void fetchRecords();
     }
-  };
+  }, [getAccessToken, records, fetchRecords]);
 
   if (loading && records.length === 0) {
     return (
@@ -200,10 +191,7 @@ export default function EducationPage() {
           <EducationForm 
             initialData={editingRecord}
             onSave={handleSave}
-            onCancel={() => {
-              setIsFormOpen(false);
-              setEditingRecord(null);
-            }}
+            onCancel={handleCancel}
           />
         ) : (
           <EducationList 

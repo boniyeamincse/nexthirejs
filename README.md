@@ -105,6 +105,14 @@ pnpm --filter @nexthire/web typecheck
 - Redis: `localhost:6379`
 - Queue test (development only): `POST http://localhost:3001/api/v1/system/queue/ping`
 
+## Test Accounts
+
+The following test accounts are available for local development and testing. You must run `pnpm --filter @nexthire/api db:seed` to create them in your local database.
+
+| Role      | Email                   | Password      | Notes                          |
+| --------- | ----------------------- | ------------- | ------------------------------ |
+| Candidate | `candidate@example.com` | `Password123!`| Standard candidate account     |
+
 ## Documentation
 
 Planning and implementation documents live under `docs/`, with task tracking in `docs/task/`.

@@ -63,6 +63,8 @@ model User {
   candidatePreference     CandidatePreference?
   educationRecords        EducationRecord[]
   workExperienceRecords   WorkExperienceRecord[]
+  skills                  CandidateSkill[]
+  languages               CandidateLanguage[]
 }
 
 model Role {
@@ -232,6 +234,57 @@ model EducationRecord {
 
   @@index([userId, sortOrder])
   @@index([userId, startDate])
+}
+
+enum SkillLevel {
+  BEGINNER
+  DEVELOPING
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+enum LanguageProficiency {
+  BASIC
+  CONVERSATIONAL
+  PROFESSIONAL
+  FLUENT
+  NATIVE
+}
+
+model CandidateSkill {
+  id                String     @id @default(uuid()) @db.Uuid
+  userId            String     @db.Uuid
+  name              String     @db.VarChar(100)
+  normalizedName    String     @db.VarChar(100)
+  level             SkillLevel
+  yearsOfExperience Decimal?   @db.Decimal(4, 1)
+  sortOrder         Int        @default(0)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, normalizedName])
+  @@index([userId, sortOrder])
+}
+
+model CandidateLanguage {
+  id             String              @id @default(uuid()) @db.Uuid
+  userId         String              @db.Uuid
+  name           String              @db.VarChar(100)
+  normalizedName String              @db.VarChar(100)
+  speaking       LanguageProficiency
+  reading        LanguageProficiency
+  writing        LanguageProficiency
+  sortOrder      Int                 @default(0)
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, normalizedName])
+  @@index([userId, sortOrder])
 }
 
 model WorkExperienceRecord {

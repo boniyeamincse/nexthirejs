@@ -1,0 +1,134 @@
+
+> @nexthire/web@0.1.0 lint /home/boni/Desktop/nexthirefinal/apps/web
+> eslint . --format stylish
+
+
+/home/boni/Desktop/nexthirefinal/apps/web/src/app/(auth)/login/page.tsx
+  189:14  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+/home/boni/Desktop/nexthirefinal/apps/web/src/app/(authenticated)/profile/education/page.tsx
+   39:19  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-explicit-any
+   47:10  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/boni/Desktop/nexthirefinal/apps/web/src/app/(authenticated)/profile/education/page.tsx:47:10
+  45 |
+  46 |   useEffect(() => {
+> 47 |     void loadRecords();
+     |          ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  48 |     // eslint-disable-next-line react-hooks/exhaustive-deps
+  49 |   }, [getAccessToken]);
+  50 |  react-hooks/set-state-in-effect
+   92:19  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-explicit-any
+  112:19  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-explicit-any
+
+/home/boni/Desktop/nexthirefinal/apps/web/src/app/(authenticated)/profile/experience/page.tsx
+   39:19  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         @typescript-eslint/no-explicit-any
+   47:10  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/boni/Desktop/nexthirefinal/apps/web/src/app/(authenticated)/profile/experience/page.tsx:47:10
+  45 |
+  46 |   useEffect(() => {
+> 47 |     void loadRecords();
+     |          ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  48 |     // eslint-disable-next-line react-hooks/exhaustive-deps
+  49 |   }, [getAccessToken]);
+  50 |  react-hooks/set-state-in-effect
+   91:19  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         @typescript-eslint/no-explicit-any
+  111:19  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         @typescript-eslint/no-explicit-any
+
+/home/boni/Desktop/nexthirefinal/apps/web/src/app/(authenticated)/profile/page.tsx
+  43:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  75:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/boni/Desktop/nexthirefinal/apps/web/src/app/(authenticated)/profile/preferences/page.tsx
+    6:15  warning  'CandidatePreferenceResult' is defined but never used  @typescript-eslint/no-unused-vars
+   12:27  warning  'user' is assigned a value but never used              @typescript-eslint/no-unused-vars
+   13:9   warning  'router' is assigned a value but never used            @typescript-eslint/no-unused-vars
+   20:48  error    Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+   60:21  error    Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+   82:49  error    Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+   84:33  error    Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+  139:19  error    Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+  203:43  error    Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+  272:77  error    Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+  289:83  error    Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+
+/home/boni/Desktop/nexthirefinal/apps/web/src/app/(authenticated)/settings/security/sessions/page.tsx
+  11:43  warning  'user' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               @typescript-eslint/no-unused-vars
+  45:12  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/boni/Desktop/nexthirefinal/apps/web/src/app/(authenticated)/settings/security/sessions/page.tsx:45:12
+  43 |   useEffect(() => {
+  44 |     if (status === 'authenticated') {
+> 45 |       void fetchSessions();
+     |            ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  46 |     }
+  47 |   }, [status, fetchSessions]);
+  48 |  react-hooks/set-state-in-effect
+
+/home/boni/Desktop/nexthirefinal/apps/web/src/app/careers/page.tsx
+  14:15  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+/home/boni/Desktop/nexthirefinal/apps/web/src/app/page.tsx
+  3:10  warning  'siteConfig' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/boni/Desktop/nexthirefinal/apps/web/src/features/candidate-profile/education/EducationForm.tsx
+  31:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  56:70  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  57:56  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  58:68  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  67:40  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  71:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/boni/Desktop/nexthirefinal/apps/web/src/features/candidate-profile/education/EducationFormModal.tsx
+  1:41  warning  'ReactNode' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/boni/Desktop/nexthirefinal/apps/web/src/features/candidate-profile/education/__tests__/education.test.tsx
+  50:7  warning  'mockCompletion' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/boni/Desktop/nexthirefinal/apps/web/src/features/candidate-profile/experience/WorkExperienceForm.tsx
+  40:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  56:22  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  74:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/boni/Desktop/nexthirefinal/apps/web/src/providers/auth-context.tsx
+  84:10  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/boni/Desktop/nexthirefinal/apps/web/src/providers/auth-context.tsx:84:10
+  82 |
+  83 |   useEffect(() => {
+> 84 |     void bootstrap();
+     |          ^^^^^^^^^ Avoid calling setState() directly within an effect
+  85 |   }, [bootstrap]);
+  86 |
+  87 |   const login = useCallback(  react-hooks/set-state-in-effect
+
+✖ 38 problems (31 errors, 7 warnings)
+
+/home/boni/Desktop/nexthirefinal/apps/web:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @nexthire/web@0.1.0 lint: `eslint . --format stylish`
+Exit status 1

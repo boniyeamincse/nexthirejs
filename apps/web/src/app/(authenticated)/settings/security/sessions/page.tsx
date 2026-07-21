@@ -41,14 +41,16 @@ export default function SessionsPage() {
   }, [getAccessToken, logout, router]);
 
   useEffect(() => {
-    let mounted = true;
+    if (status !== 'authenticated') return;
+    const abortController = new AbortController();
+    
     const init = async () => {
-      if (mounted && status === 'authenticated') {
-        await fetchSessions();
-      }
+      if (abortController.signal.aborted) return;
+      await fetchSessions();
     };
     void init();
-    return () => { mounted = false; };
+    
+    return () => { abortController.abort(); };
   }, [status, fetchSessions]);
 
   async function handleRevoke() {

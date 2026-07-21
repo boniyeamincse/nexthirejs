@@ -23,6 +23,24 @@ async function main() {
 
   console.log(`Seeded role: ${candidateRole.code} (${candidateRole.id})`);
 
+  const testCandidate = await prisma.user.upsert({
+    where: { email: 'candidate@example.com' },
+    update: {},
+    create: {
+      email: 'candidate@example.com',
+      passwordHash: '$argon2id$v=19$m=65536,p=4,t=3$iY1KhtmOrBMJuGNqRFyPmQ$e07Yj840R2y+CDoXmSTmlmSoDBDDoHQvfNztpbLqu5A',
+      status: 'ACTIVE',
+      emailVerifiedAt: new Date(),
+      roles: {
+        create: {
+          roleId: candidateRole.id,
+        },
+      },
+    },
+  });
+
+  console.log(`Seeded test candidate: ${testCandidate.email}`);
+
   const bd = await prisma.country.upsert({
     where: { code: 'BD' },
     update: {},

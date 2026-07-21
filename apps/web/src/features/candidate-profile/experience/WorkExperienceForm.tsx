@@ -70,7 +70,7 @@ export function WorkExperienceForm({ initialData, onSave, onCancel }: WorkExperi
         payload.endDate = new Date(formData.endDate).toISOString();
       }
 
-      await onSave(payload as unknown as CreateWorkExperienceRecordInput | UpdateWorkExperienceRecordInput);
+      await onSave(payload as CreateWorkExperienceRecordInput & UpdateWorkExperienceRecordInput);
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : 'Failed to save work experience record');
     } finally {

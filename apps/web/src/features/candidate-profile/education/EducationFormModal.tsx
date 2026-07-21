@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import type { EducationRecordResult } from '@nexthire/types';
 import type { CreateEducationRecordInput, UpdateEducationRecordInput } from '@nexthire/validation';
 import { EducationForm } from './EducationForm';

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/providers/auth-context';
 import {
   listMyWorkExperienceRecords,
@@ -26,62 +26,53 @@ export default function ExperiencePage() {
   const [editingRecord, setEditingRecord] = useState<WorkExperienceRecordResult | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
 
-  const loadRecords = async () => {
+  const fetchRecords = useCallback(async (signal?: AbortSignal) => {
     const token = getAccessToken();
     if (!token) return;
 
     try {
-      setLoading(true);
       const data = await listMyWorkExperienceRecords(token);
-      setRecords(data.records);
-      setCompletion(data.completion);
-      setErrorMsg('');
-    } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'Failed to load work experience records');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    let mounted = true;
-    const init = async () => {
-      const token = getAccessToken();
-      if (!token) return;
-      try {
-        const data = await listMyWorkExperienceRecords(token);
-        if (mounted) {
-          setRecords(data.records);
-          setCompletion(data.completion);
-          setErrorMsg('');
-        }
-      } catch (err: unknown) {
-        if (mounted) {
-          setErrorMsg(err instanceof Error ? err.message : 'Failed to load experience records');
-        }
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
+      if (!signal?.aborted) {
+        setRecords(data.records);
+        setCompletion(data.completion);
+        setErrorMsg('');
       }
-    };
-    void init();
-    return () => { mounted = false; };
+    } catch (err: unknown) {
+      if (!signal?.aborted) {
+        setErrorMsg(err instanceof Error ? err.message : 'Failed to load work experience records');
+      }
+    }
   }, [getAccessToken]);
 
-  const handleAdd = () => {
+  useEffect(() => {
+    const abortController = new AbortController();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void fetchRecords(abortController.signal).finally(() => {
+      if (!abortController.signal.aborted) {
+        setLoading(false);
+      }
+    });
+    return () => abortController.abort();
+  }, [fetchRecords]);
+
+  const handleAdd = useCallback(() => {
     setEditingRecord(null);
     setIsFormOpen(true);
     setErrorMsg('');
-  };
+  }, []);
 
-  const handleEdit = (record: WorkExperienceRecordResult) => {
+  const handleEdit = useCallback((record: WorkExperienceRecordResult) => {
     setEditingRecord(record);
     setIsFormOpen(true);
     setErrorMsg('');
-  };
+  }, []);
 
-  const handleSave = async (data: CreateWorkExperienceRecordInput | UpdateWorkExperienceRecordInput) => {
+  const handleCancel = useCallback(() => {
+    setIsFormOpen(false);
+    setEditingRecord(null);
+  }, []);
+
+  const handleSave = useCallback(async (data: CreateWorkExperienceRecordInput | UpdateWorkExperienceRecordInput) => {
     const token = getAccessToken();
     if (!token) throw new Error('Not authenticated');
 
@@ -97,9 +88,9 @@ export default function ExperiencePage() {
 
     setIsFormOpen(false);
     setEditingRecord(null);
-  };
+  }, [getAccessToken, editingRecord]);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = useCallback(async (id: string) => {
     const token = getAccessToken();
     if (!token) return;
 
@@ -112,9 +103,9 @@ export default function ExperiencePage() {
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : 'Failed to delete record');
     }
-  };
+  }, [getAccessToken]);
 
-  const handleReorder = async (startIndex: number, endIndex: number) => {
+  const handleReorder = useCallback(async (startIndex: number, endIndex: number) => {
     const token = getAccessToken();
     if (!token) return;
 
@@ -131,9 +122,9 @@ export default function ExperiencePage() {
       await reorderWorkExperienceRecords(token, { orderedIds });
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : 'Failed to reorder records');
-      void loadRecords();
+      void fetchRecords();
     }
-  };
+  }, [getAccessToken, records, fetchRecords]);
 
   if (loading && records.length === 0) {
     return (
@@ -206,10 +197,7 @@ export default function ExperiencePage() {
           <WorkExperienceForm
             initialData={editingRecord}
             onSave={handleSave}
-            onCancel={() => {
-              setIsFormOpen(false);
-              setEditingRecord(null);
-            }}
+            onCancel={handleCancel}
           />
         ) : (
           <WorkExperienceList
