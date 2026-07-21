@@ -137,7 +137,7 @@ describe('CandidatePreferencesController (e2e)', () => {
       expect(response.body.country.code).toBe('BD');
       expect(response.body.preferredJobRoles).toContain('Engineer');
       expect(response.body.completion.percentage).toBeGreaterThan(0);
-      expect(response.body.completion.version).toBe('candidate-profile-v4');
+      expect(response.body.completion.version).toBe('candidate-profile-v5');
       
       // Update modifying the same row
       const updateResponse = await request(app.getHttpServer())

@@ -116,7 +116,7 @@ describe('CandidateWorkExperienceController (e2e)', () => {
         .expect((res) => {
           expect(res.body.records).toEqual([]);
           expect(res.body.completion.percentage).toBeDefined();
-          expect(res.body.completion.version).toBe('candidate-profile-v4');
+          expect(res.body.completion.version).toBe('candidate-profile-v5');
         });
     });
   });

@@ -1,5 +1,6 @@
 import { Injectable, BadRequestException, NotFoundException, InternalServerErrorException, Logger } from '@nestjs/common';
 import { CandidateSkillRepository } from '../repositories/candidate-skill.repository';
+import { CandidateLanguageRepository } from '../repositories/candidate-language.repository';
 import { CandidateProfileCompletionService } from './candidate-profile-completion.service';
 import { CandidateProfileRepository } from '../repositories/candidate-profile.repository';
 import { CandidatePreferencesRepository } from '../repositories/candidate-preferences.repository';
@@ -16,6 +17,7 @@ export class CandidateSkillService {
 
   constructor(
     private readonly skillRepository: CandidateSkillRepository,
+    private readonly languageRepository: CandidateLanguageRepository,
     private readonly profileRepository: CandidateProfileRepository,
     private readonly preferencesRepository: CandidatePreferencesRepository,
     private readonly educationRepository: CandidateEducationRepository,
@@ -226,7 +228,7 @@ export class CandidateSkillService {
     const educationRecords = await this.educationRepository.findByUserId(userId);
     const workExperienceRecords = await this.workExpRepository.findByUserId(userId);
     const skills = await this.skillRepository.findByUserId(userId);
-    const languages = await this.skillRepository.findByUserId(userId);
+    const languages = await this.languageRepository.findByUserId(userId);
 
     const profileInput = profile ? {
       fullName: profile.fullName,

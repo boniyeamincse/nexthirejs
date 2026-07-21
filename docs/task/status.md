@@ -12,10 +12,10 @@
 - Overall Status: Planning Complete
 - Development Status: In Progress
 - Current Phase: Phase 1 — Identity and Candidate Foundation
-- Current Task: NH-P1-T010 — Implement Candidate Skills and Languages
-- Last Completed Task: NH-P1-T009 — Implement Candidate Work Experience Records
+- Current Task: NH-P1-T011 — Implement Candidate Certifications and Training
+- Last Completed Task: NH-P1-T010 — Implement Candidate Skills and Languages
 - Blockers: None
-- Next Planned Task: NH-P1-T011 — Implement Candidate Certifications and Training
+- Next Planned Task: NH-P1-T012 — Implement Candidate Achievements and Professional Links
 
 ---
 
@@ -84,16 +84,19 @@ Use only these values:
 task_id: NH-P1-T010
 title: Implement Candidate Skills and Languages
 phase: Phase 1
-status: IN_PROGRESS
+status: COMPLETED
 started_at: 2026-07-21T16:56:00Z
-completed_at: null
+completed_at: 2026-07-21T18:03:00Z
 assigned_to: AI Development Workflow
 dependencies:
   - NH-P1-T009
 blockers: []
 git_commit:
-  hash: null
-  message: null
+  hash: 2c6d961
+  message: "feat(candidate-profile): add skills and languages [NH-P1-T010]"
+next_task:
+  task_id: NH-P1-T012
+  title: Implement Candidate Achievements and Professional Links
 ```
 
 ---
@@ -120,9 +123,37 @@ git_commit:
 
 ---
 
-## 7. In-Progress Tasks
+## Task Update — NH-P1-T010
 
-- NH-P1-T010 — Implement Candidate Skills and Languages
+- Status: COMPLETED
+- Started At: 2026-07-21T16:56:00Z
+- Completed At: 2026-07-21T18:10:00Z
+- Summary: Fixed bug in skill service (used skillRepository instead of languageRepository for language queries), rebalanced completion weights to total exactly 100 (v5), added E2E tests for skills and languages APIs (12+11 tests), added frontend unit tests for skill and language components (13+12 tests), fixed version string references in older E2E tests.
+- Files Added:
+  - E2E: `apps/api/test/candidate-skills.e2e-spec.ts`, `apps/api/test/candidate-languages.e2e-spec.ts`
+  - Frontend tests: `apps/web/src/features/candidate-profile/skills/__tests__/skills.test.tsx`, `apps/web/src/features/candidate-profile/languages/__tests__/languages.test.tsx`
+- Files Modified:
+  - `apps/api/src/modules/candidates/services/candidate-skill.service.ts` (injected CandidateLanguageRepository, fixed language query bug)
+  - `apps/api/src/modules/candidates/services/candidate-profile-completion.service.ts` (rebalanced weights to sum 100)
+  - `apps/api/test/candidate-preference.e2e-spec.ts` (v4→v5 version string)
+  - `apps/api/test/candidate-work-experience.e2e-spec.ts` (v4→v5 version string)
+  - `docs/task/status.md`
+- Database Changes: None (models already existed)
+- API Changes: Bug fix in skill service (language repository injection), weight rebalance
+- Tests Added:
+  - E2E: 12 skill tests + 11 language tests (list, create, duplicate, update, reorder, delete, ownership)
+  - Frontend: 13 skill tests + 12 language tests (list, form, validation, reorder, accessibility)
+- Test Result:
+  - Unit: 80/80 ✅
+  - E2E (my new tests): all passed ✅ (pre-existing afterAll hook timeout is a Jest config issue)
+  - Typecheck: API ✅, Web ✅
+  - Build: API ✅
+- Blockers: None (NH-P1-T010 now fully COMPLETED, NH-P1-T011 unblocked)
+- Decisions:
+  - Rebalanced weights to: Basics 35, Preferences 25, Education 15, Work 10, Skills 10, Languages 5 = 100
+  - Languages proficiency weight reduced from 7 to 2 to match Skills & Languages 15pt total per T010 spec
+  - Skill service now correctly injects CandidateLanguageRepository for completion calculation
+- Next Task: NH-P1-T011 — Implement Candidate Certifications and Training
 
 ## Task Update — NH-P1-T003
 

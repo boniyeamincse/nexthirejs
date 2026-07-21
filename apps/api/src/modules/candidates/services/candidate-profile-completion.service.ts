@@ -8,40 +8,38 @@ import { CandidateProfileCompletion } from '@nexthire/types';
  * Basic profile:         35 pts
  *   fullName             20
  *   professionalHeadline  8
- *   professionalSummary   7
- *   dateOfBirth           0
+ *   professionalSummary   5
+ *   dateOfBirth           2
  *
  * Preferences:           25 pts
  *   countryCode           8
  *   currentCity           8
  *   preferredJobRoles     5
- *   preferredWorkModes    4
- *   preferredEmploymentTypes 0
+ *   preferredWorkModes    2
+ *   preferredEmploymentTypes 2
  *
- * Education:             10 pts
+ * Education:             15 pts
  *   any record           10
- *   fieldOfStudy          0
- *   grade or description  0
+ *   fieldOfStudy          3
+ *   grade or description  2
  *
  * Work experience:       10 pts
  *   any record           10
- *   responsibilities      0
- *   achievements          0
  *
  * Skills:                10 pts
  *   >=3 skills            8
  *   >=1 intermediate+     2
  *
- * Languages:             10 pts
+ * Languages:              5 pts
  *   >=1 language          3
- *   >=1 prof/fluent/native speaking 7
+ *   >=1 prof/fluent/native speaking 2
  */
 @Injectable()
 export class CandidateProfileCompletionService {
   private readonly basicWeights = {
     fullName: 20,
     professionalHeadline: 8,
-    professionalSummary: 10,
+    professionalSummary: 5,
     dateOfBirth: 2,
   };
 
@@ -49,8 +47,8 @@ export class CandidateProfileCompletionService {
     countryCode: 8,
     currentCity: 8,
     preferredJobRoles: 5,
-    preferredWorkModes: 5,
-    preferredEmploymentTypes: 4,
+    preferredWorkModes: 2,
+    preferredEmploymentTypes: 2,
   };
 
   calculateCompletion(
@@ -172,7 +170,7 @@ export class CandidateProfileCompletionService {
       (r) => ['PROFESSIONAL', 'FLUENT', 'NATIVE'].includes(r.speaking)
     );
     if (hasProficientSpeaking) {
-      percentage += 7;
+      percentage += 2;
       completedFields.push('languagesProficiency');
     } else {
       missingFields.push('languagesProficiency');
