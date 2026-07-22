@@ -1,4 +1,14 @@
 import { publicEnv } from './env';
+import type {
+  AssessmentAttemptSubmissionResult,
+  AssessmentAttemptWorkspace,
+  SaveAssessmentDraftAnswerInput,
+  SaveAssessmentDraftAnswerResult,
+  StartAssessmentAttemptResult,
+  SubmitAssessmentAttemptInput,
+  AssessmentResultHistoryResponse,
+  AssessmentAttemptResultDetail,
+} from '@nexthire/types';
 
 interface ApiErrorDetail {
   field?: string;
@@ -1900,7 +1910,10 @@ export async function republishAssessment(accessToken: string, assessmentId: str
   throw new Error(errorBody?.message ?? `Failed to republish assessment: ${response.status}`);
 }
 
-export async function startOrResumeAssessmentAttempt(accessToken: string, assessmentIdOrSlug: string) {
+export async function startOrResumeAssessmentAttempt(
+  accessToken: string,
+  assessmentIdOrSlug: string,
+): Promise<StartAssessmentAttemptResult> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/assessments/${encodeURIComponent(assessmentIdOrSlug)}/attempts`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
@@ -1913,7 +1926,10 @@ export async function startOrResumeAssessmentAttempt(accessToken: string, assess
   return response.json();
 }
 
-export async function getActiveAssessmentAttempt(accessToken: string, assessmentIdOrSlug: string) {
+export async function getActiveAssessmentAttempt(
+  accessToken: string,
+  assessmentIdOrSlug: string,
+): Promise<{ attemptId: string } | null> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/assessments/${encodeURIComponent(assessmentIdOrSlug)}/attempts/active`, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
@@ -1938,7 +1954,10 @@ export async function clearAttemptAnswer(accessToken: string, attemptId: string,
   }
 }
 
-export async function getAttemptWorkspace(accessToken: string, attemptId: string) {
+export async function getAttemptWorkspace(
+  accessToken: string,
+  attemptId: string,
+): Promise<AssessmentAttemptWorkspace> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/assessment-attempts/${attemptId}`, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
@@ -1950,7 +1969,12 @@ export async function getAttemptWorkspace(accessToken: string, attemptId: string
   return response.json();
 }
 
-export async function saveAttemptAnswer(accessToken: string, attemptId: string, questionId: string, payload: any) {
+export async function saveAttemptAnswer(
+  accessToken: string,
+  attemptId: string,
+  questionId: string,
+  payload: SaveAssessmentDraftAnswerInput,
+): Promise<SaveAssessmentDraftAnswerResult> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/assessment-attempts/${attemptId}/questions/${questionId}/answer`, {
     method: 'PUT',
     headers: { 
@@ -1964,5 +1988,104 @@ export async function saveAttemptAnswer(accessToken: string, attemptId: string, 
     try { errorBody = await response.json(); } catch {}
     throw new Error(errorBody?.message ?? `Failed to save answer: ${response.status}`);
   }
+  return response.json();
+}
+
+export async function submitAssessmentAttempt(
+  accessToken: string,
+  attemptId: string,
+  payload: SubmitAssessmentAttemptInput,
+): Promise<AssessmentAttemptSubmissionResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/assessment-attempts/${attemptId}/submit`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    let errorBody = null;
+    try {
+      errorBody = await response.json();
+    } catch {}
+    throw new Error(errorBody?.message ?? `Failed to submit assessment: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+export async function getAssessmentSubmissionSummary(
+  accessToken: string,
+  attemptId: string,
+): Promise<AssessmentAttemptSubmissionResult> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/assessment-attempts/${attemptId}/submission-summary`,
+    {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    },
+  );
+
+  if (!response.ok) {
+    let errorBody = null;
+    try {
+      errorBody = await response.json();
+    } catch {}
+    throw new Error(
+      errorBody?.message ?? `Failed to fetch submission summary: ${response.status}`,
+    );
+  }
+
+  return response.json();
+}
+
+export async function listMyAssessmentResults(
+  accessToken: string,
+  queryString: string,
+): Promise<AssessmentResultHistoryResponse> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/candidates/me/assessment-results?${queryString}`,
+    {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      cache: 'no-store',
+    },
+  );
+
+  if (!response.ok) {
+    let errorBody = null;
+    try {
+      errorBody = await response.json();
+    } catch {}
+    throw new Error(
+      errorBody?.message ?? `Failed to fetch assessment results: ${response.status}`,
+    );
+  }
+
+  return response.json();
+}
+
+export async function getMyAssessmentResult(
+  accessToken: string,
+  attemptId: string,
+): Promise<AssessmentAttemptResultDetail> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/assessment-results/${attemptId}`,
+    {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      cache: 'no-store',
+    },
+  );
+
+  if (!response.ok) {
+    let errorBody = null;
+    try {
+      errorBody = await response.json();
+    } catch {}
+    throw new Error(
+      errorBody?.message ?? `Failed to fetch assessment result: ${response.status}`,
+    );
+  }
+
   return response.json();
 }

@@ -7,6 +7,99 @@
 
 ---
 
+## Task Update — NH-P2-T006
+
+- Status: COMPLETED
+- Started At: 2026-07-22T16:30:00Z
+- Completed At: 2026-07-22T16:55:00Z
+- Summary: Implemented assessment results and attempt history for authenticated candidates. Created backend module with two GET endpoints (paginated history and detailed result review), frontend pages at `/assessment-results` and `/assessment-results/[attemptId]`, E2E tests, validation schemas, shared types/contracts, API client extensions, and documentation.
+- Files Added:
+  - `apps/api/src/modules/assessments/results/`
+  - `apps/api/test/assessment-results.e2e-spec.ts`
+  - `apps/web/src/app/(authenticated)/assessment-results/`
+  - `docs/api/assessment-results.md`
+  - `docs/architecture/assessment-results.md`
+  - `docs/product/assessment-answer-review.md`
+  - `docs/security/assessment-result-privacy.md`
+- Files Modified:
+  - `apps/api/src/modules/assessments/assessments.module.ts`
+  - `apps/web/src/lib/api-client.ts`
+  - `packages/constants/src/assessments/assessment-errors.ts`
+  - `packages/types/src/assessments/attempts.ts`
+  - `packages/validation/src/assessments/attempts.ts`
+  - `packages/validation/tests/assessment-attempts.test.ts`
+  - `docs/task/status.md`
+- Database Changes: None (uses existing scoring/finalization fields from NH-P2-T005).
+- API Changes: `GET /v1/candidates/me/assessment-results` (paginated history with filters) and `GET /v1/assessment-results/:attemptId` (detailed result review).
+- Frontend Changes: `/assessment-results` (history with search/filter/pagination) and `/assessment-results/[attemptId]` (per-question result review).
+- Test Result:
+  - `pnpm --filter @nexthire/validation test` ✅ (114 pass)
+  - `pnpm --filter @nexthire/api typecheck` ✅
+  - `pnpm --filter @nexthire/api test` ✅ (90 pass)
+  - `pnpm --filter @nexthire/api test:e2e -- --testPathPattern assessment-results` ✅ (10/10 pass)
+  - `pnpm --filter @nexthire/web typecheck` ✅
+  - `pnpm --filter @nexthire/api db:format` ✅
+  - `pnpm --filter @nexthire/api db:validate` ✅
+  - `pnpm --filter @nexthire/api db:generate` ✅
+- Decisions:
+  - Cross-user access returns 404 (not 403) to avoid leaking attempt existence.
+  - History returns only finalized/scored attempts (SUBMITTED or EXPIRED).
+  - Result data sourced from immutable snapshot fields; candidate answers from `AssessmentAttemptAnswer`.
+  - Two bugs fixed: `AssessmentAttemptStartService` Prisma query (UUID cast error), `AssessmentAttemptSnapshotService` parameter order swap.
+- Next Task: NH-P2-T007 — Implement Assessment Performance Reports and Leaderboards.
+
+## Task Update — NH-P2-T005
+
+- Status: BLOCKED
+- Started At: 2026-07-22T10:00:00Z
+- Summary: Implemented the assessment submission and automatic scoring vertical slice for `NH-P2-T005`. Added Prisma scoring/finalization fields and migration, shared submission/result contracts, validation schema updates, transactional submission/finalization/scoring services, candidate submission and summary endpoints, deadline-aware attempt state enforcement, read-only post-finalization answer protection, and the attempt workspace submission UI with safe score summary states. Expanded assessment-attempt E2E coverage toward scoring integrity, idempotency, concurrency, deadline finalization, and authorization.
+- Files Added:
+  - `apps/api/prisma/migrations/20260722163000_add_assessment_submission_scoring/`
+  - `apps/api/src/modules/assessments/attempts/services/assessment-attempt-finalization.service.ts`
+  - `apps/api/src/modules/assessments/attempts/services/assessment-attempt-scoring.service.ts`
+  - `apps/api/src/modules/assessments/attempts/services/assessment-attempt-submission.service.ts`
+  - `packages/validation/scripts/emit-dmts.mjs`
+  - `packages/validation/tsconfig.build.json`
+- Files Modified:
+  - `apps/api/prisma/schema.prisma`
+  - `apps/api/src/modules/assessments/assessments.module.ts`
+  - `apps/api/src/modules/assessments/attempts/controllers/candidate-assessment-attempt.controller.ts`
+  - `apps/api/src/modules/assessments/attempts/services/assessment-attempt-answer.service.ts`
+  - `apps/api/src/modules/assessments/attempts/services/assessment-attempt-state.service.ts`
+  - `apps/api/src/modules/assessments/attempts/services/assessment-attempt-workspace.service.ts`
+  - `apps/api/test/assessment-attempts.e2e-spec.ts`
+  - `apps/web/src/app/(authenticated)/assessments/attempts/[attemptId]/page.tsx`
+  - `apps/web/src/app/(authenticated)/assessments/attempts/[attemptId]/page.module.css`
+  - `apps/web/src/app/(authenticated)/manage/assessments/new/page.tsx`
+  - `apps/web/src/app/(authenticated)/manage/assessments/page.tsx`
+  - `apps/web/src/app/(authenticated)/manage/assessments/[assessmentId]/edit/page.tsx`
+  - `apps/web/src/app/(authenticated)/manage/assessments/[assessmentId]/preview/page.tsx`
+  - `apps/web/src/app/(authenticated)/manage/assessments/[assessmentId]/questions/page.tsx`
+  - `apps/web/src/lib/api-client.ts`
+  - `packages/constants/src/assessments/assessment-errors.ts`
+  - `packages/types/src/assessments/attempts.ts`
+  - `packages/validation/package.json`
+  - `packages/validation/src/assessments/attempts.ts`
+  - `packages/validation/tests/assessment-attempts.test.ts`
+- Database Changes: Added attempt finalization/scoring enums, persisted attempt-level score/result fields, per-answer scoring fields, and integrity constraints/indexes.
+- API Changes: Added submit and submission-summary endpoints, automatic scoring/finalization services, deadline-triggered lazy finalization, idempotent summary reads, and transactional write protection after finalization.
+- Frontend Changes: Added submit confirmation flow, final summary state, deadline-finalization handling, and read-only finalized workspace behavior.
+- Test Result:
+  - `pnpm --filter @nexthire/validation test` ✅
+  - `pnpm --filter @nexthire/web typecheck` ✅
+  - `pnpm --filter @nexthire/api typecheck` ✅
+  - `pnpm --filter @nexthire/api db:migrate:deploy` blocked
+  - `pnpm --filter @nexthire/api test:e2e -- --runInBand test/assessment-attempts.e2e-spec.ts` blocked
+  - Repository-wide `pnpm lint` still has a large pre-existing baseline outside `NH-P2-T005`
+- Blockers:
+  - Escalated local-container access was rejected, so mandatory migration and API E2E verification could not connect to local Postgres/Redis and could not complete.
+  - Repository-wide lint has a large pre-existing failure baseline unrelated to this task, so the mandatory global quality gate is not currently green.
+- Decisions:
+  - Implemented the documented repository-policy deviation for overdue attempts by finalizing and scoring them while retaining `EXPIRED` with `DEADLINE_REACHED`.
+  - Switched `@nexthire/validation` declaration generation to `tsc` plus `.d.mts` emission so app/package type resolution remains stable with ESM `.mjs` runtime artifacts.
+- Next Task: NH-P2-T005 remains blocked until local verification access is granted and the mandatory quality gates can be completed.
+
+
 ## Task Update — NH-P2-T003
 
 - Status: COMPLETED
@@ -40,10 +133,10 @@
 - Overall Status: Planning Complete
 - Development Status: Phase 1 Complete
 - Current Phase: Phase 2 — Assessment and Learning
-- Current Task: NH-P2-T002 — Establish Assessment Take Domain Foundation
-- Last Completed Task: NH-P2-T001 — Establish Assessment Domain Foundation
-- Blockers: None
-- Next Planned Task: NH-P2-T002 — Establish Assessment Take Domain Foundation
+- Current Task: NH-P2-T005 — Implement Assessment Submission and Automatic Scoring
+- Last Completed Task: NH-P2-T004 — Implement Assessment Taker Experience
+- Blockers: Mandatory `NH-P2-T005` migration and API E2E verification are blocked because access to local Postgres/Redis containers was not approved; repository-wide lint also has a pre-existing failure baseline.
+- Next Planned Task: NH-P2-T005 — Implement Assessment Submission and Automatic Scoring
 
 ---
 
@@ -109,25 +202,25 @@ Use only these values:
 ## 5. Current Task
 
 ```yaml
-task_id: NH-P2-T003
-title: Implement Assessment Authoring Module
+task_id: NH-P2-T006
+title: Implement Assessment Results and Attempt History
 phase: Phase 2
 status: COMPLETED
-started_at: 2026-07-22T08:46:04.900Z
-completed_at: 2026-07-22T08:46:04.900Z
+started_at: 2026-07-22T16:30:00Z
+completed_at: 2026-07-22T16:55:00Z
 assigned_to: AI Development Workflow
 dependencies:
-  - NH-P2-T002
+  - NH-P2-T005
 blockers: []
 git_commit:
-  hash: pending
-  message: 'feat(assessment): implement assessment authoring module [NH-P2-T003]'
+  hash: null
+  message: "feat(assessment): add results and attempt history [NH-P2-T006]"
 phase_status:
   phase: Phase 2
   status: IN_PROGRESS
 next_task:
-  task_id: NH-P2-T004
-  title: Implement Assessment Taker Experience
+  task_id: NH-P2-T007
+  title: Implement Assessment Performance Reports and Leaderboards
 ```
 
 ---
@@ -160,6 +253,8 @@ next_task:
 | NH-P1-T018 | Phase 1 Integration and Security Quality Gate    | Phase 1 | COMPLETED | 2026-07-22T11:45:00Z    |
 | NH-P2-T001 | Establish Assessment Domain Foundation           | Phase 2 | COMPLETED | 2026-07-22T07:54:00Z    |
 | NH-P2-T002 | Establish Assessment Take Domain Foundation      | Phase 2 | COMPLETED | 2026-07-22T08:22:00Z    |
+| NH-P2-T004 | Implement Assessment Taker Experience            | Phase 2 | COMPLETED | 2026-07-22T13:30:00Z    |
+| NH-P2-T006 | Implement Assessment Results and Attempt History | Phase 2 | COMPLETED | 2026-07-22T16:55:00Z    |
 
 ---
 

@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { SaveAssessmentDraftAnswerInputSchema } from '../src/assessments/attempts';
+import {
+  SaveAssessmentDraftAnswerInputSchema,
+  SubmitAssessmentAttemptInputSchema,
+  AssessmentResultHistoryQuerySchema,
+} from '../src/assessments/attempts';
 
 describe('SaveAssessmentDraftAnswerInputSchema', () => {
   it('valid single-choice: one selected option passes', () => {
@@ -91,7 +95,68 @@ describe('SaveAssessmentDraftAnswerInputSchema', () => {
     });
     expect(result.success).toBe(true);
     if (result.success) {
-      expect((result.data as any).extraField).toBeUndefined();
+      expect((result.data as Record<string, unknown>).extraField).toBeUndefined();
     }
+  });
+});
+
+describe('AssessmentResultHistoryQuerySchema', () => {
+
+  it('valid history query passes', () => {
+    const result = AssessmentResultHistoryQuerySchema.safeParse({
+      page: 1,
+      pageSize: 12,
+      search: 'test',
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('invalid page fails (page < 1)', () => {
+    const result = AssessmentResultHistoryQuerySchema.safeParse({ page: 0 });
+    expect(result.success).toBe(false);
+  });
+
+  it('oversized page size fails (> 50)', () => {
+    const result = AssessmentResultHistoryQuerySchema.safeParse({ pageSize: 100 });
+    expect(result.success).toBe(false);
+  });
+
+  it('invalid enum filter fails', () => {
+    const result = AssessmentResultHistoryQuerySchema.safeParse({
+      resultStatus: 'INVALID_STATUS',
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('invalid date range fails (dateFrom > dateTo)', () => {
+    const result = AssessmentResultHistoryQuerySchema.safeParse({
+      dateFrom: '2024-06-01',
+      dateTo: '2024-01-01',
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('excessive date range fails (> 5 years)', () => {
+    const result = AssessmentResultHistoryQuerySchema.safeParse({
+      dateFrom: '2020-01-01',
+      dateTo: '2030-01-01',
+    });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe('SubmitAssessmentAttemptInputSchema', () => {
+  it('accepts explicit SUBMIT confirmation', () => {
+    const result = SubmitAssessmentAttemptInputSchema.safeParse({
+      confirmation: 'SUBMIT',
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects invalid confirmation values', () => {
+    const result = SubmitAssessmentAttemptInputSchema.safeParse({
+      confirmation: 'submit',
+    });
+    expect(result.success).toBe(false);
   });
 });

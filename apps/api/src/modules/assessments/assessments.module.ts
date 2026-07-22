@@ -30,6 +30,16 @@ import { AssessmentAttemptWorkspaceService } from './attempts/services/assessmen
 import { AssessmentAttemptAnswerService } from './attempts/services/assessment-attempt-answer.service';
 import { AssessmentAttemptProgressService } from './attempts/services/assessment-attempt-progress.service';
 import { AssessmentAttemptStateService } from './attempts/services/assessment-attempt-state.service';
+import { AssessmentAttemptScoringService } from './attempts/services/assessment-attempt-scoring.service';
+import { AssessmentAttemptFinalizationService } from './attempts/services/assessment-attempt-finalization.service';
+import { AssessmentAttemptSubmissionService } from './attempts/services/assessment-attempt-submission.service';
+
+import { CandidateAssessmentResultsController } from './results/controllers/candidate-assessment-results.controller';
+import { AssessmentResultHistoryService } from './results/services/assessment-result-history.service';
+import { AssessmentResultDetailService } from './results/services/assessment-result-detail.service';
+import { AssessmentResultMapperService } from './results/services/assessment-result-mapper.service';
+import { AssessmentResultConsistencyService } from './results/services/assessment-result-consistency.service';
+import { AssessmentResultRepository } from './results/repositories/assessment-result.repository';
 
 @Module({
   imports: [DatabaseModule, AuditModule, AuthModule],
@@ -41,6 +51,7 @@ import { AssessmentAttemptStateService } from './attempts/services/assessment-at
     AssessmentSectionController,
     AssessmentAssignmentController,
     CandidateAssessmentAttemptController,
+    CandidateAssessmentResultsController,
   ],
   providers: [
     AssessmentCatalogService,
@@ -60,6 +71,14 @@ import { AssessmentAttemptStateService } from './attempts/services/assessment-at
     AssessmentAttemptAnswerService,
     AssessmentAttemptProgressService,
     AssessmentAttemptStateService,
+    AssessmentAttemptScoringService,
+    AssessmentAttemptFinalizationService,
+    AssessmentAttemptSubmissionService,
+    AssessmentResultRepository,
+    AssessmentResultHistoryService,
+    AssessmentResultDetailService,
+    AssessmentResultMapperService,
+    AssessmentResultConsistencyService,
   ],
   exports: [AssessmentLifecycleService, AssessmentRepository, AssessmentCategoryRepository],
 })
