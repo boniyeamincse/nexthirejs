@@ -1406,3 +1406,59 @@ export async function getProfileShareLinkStatus(accessToken: string): Promise<{ 
   if (response.status === 404) return null;
   throw new Error(`Failed to get share link status: ${response.status}`);
 }
+
+export interface CandidateProfileSectionProgress {
+  section: string;
+  label: string;
+  status: 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
+  earnedPoints: number;
+  possiblePoints: number;
+  percentage: number;
+  route: string;
+  missingItems: string[];
+}
+
+export interface CandidateProfileCompletionAction {
+  id: string;
+  section: string;
+  title: string;
+  description: string;
+  route: string;
+  priority: number;
+  pointsAvailable: number;
+}
+
+export interface CandidateProfileCompletionDashboard {
+  completion: {
+    percentage: number;
+    earnedPoints: number;
+    totalPoints: number;
+    version: string;
+    updatedAt: string;
+  };
+  summary: {
+    completedSections: number;
+    inProgressSections: number;
+    notStartedSections: number;
+    totalSections: number;
+  };
+  sections: CandidateProfileSectionProgress[];
+  nextActions: CandidateProfileCompletionAction[];
+}
+
+export async function getMyProfileCompletionDashboard(accessToken: string): Promise<CandidateProfileCompletionDashboard> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/profile-completion`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (!response.ok) {
+    let errorData: ApiErrorResponse | null = null;
+    try { errorData = await response.json() as ApiErrorResponse; } catch { /* ignore */ }
+    throw new ApiClientError(
+      errorData?.message ?? `Failed to fetch profile completion (${response.status})`,
+      response.status,
+      errorData?.errors ?? [{ code: response.status.toString(), message: errorData?.message ?? 'Failed to fetch profile completion' }],
+      errorData?.requestId,
+    );
+  }
+  return response.json() as Promise<CandidateProfileCompletionDashboard>;
+}

@@ -26,6 +26,10 @@ import { CandidatePrivacyPolicyService } from './privacy/candidate-privacy-polic
 import { CandidatePrivacyDecisionService } from './privacy/candidate-privacy-decision.service';
 import { CandidateProfilePreviewService } from './profile-preview/candidate-profile-preview.service';
 import { CandidateProfilePreviewController } from './profile-preview/candidate-profile-preview.controller';
+import { ProfileCompletionController } from './profile-completion/profile-completion.controller';
+import { ProfileCompletionDashboardService } from './profile-completion/profile-completion-dashboard.service';
+import { ProfileSectionStatusService } from './profile-completion/profile-section-status.service';
+import { ProfileCompletionActionService } from './profile-completion/profile-completion-action.service';
 import { CandidateShareTokenService } from './share-token/candidate-share-token.service';
 import { CandidateProfilePrivacyRepository } from './privacy/candidate-profile-privacy.repository';
 import { CandidateShareTokenRepository } from './share-token/candidate-share-token.repository';
@@ -63,6 +67,7 @@ import { RequestContextModule } from '../../common/request-context/request-conte
     CandidateProfilePrivacyController,
     CandidateProfilePreviewController,
     CandidateShareTokenController,
+    ProfileCompletionController,
   ],
   providers: [
     CandidateProfileService,
@@ -92,6 +97,9 @@ import { RequestContextModule } from '../../common/request-context/request-conte
     CandidateProfilePrivacyRepository,
     CandidateProfilePreviewService,
     CandidateShareTokenService,
+    ProfileCompletionDashboardService,
+    ProfileSectionStatusService,
+    ProfileCompletionActionService,
     CandidateShareTokenRepository,
     TokenService,
     SessionService,
