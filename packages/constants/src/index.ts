@@ -13,3 +13,4 @@ export * from './auth/auth-errors.js';
 export * from './auth/password.js';
 export * from './assessments/assessment-errors.js';
 export * from './auth/mfa.js';
+export * from './experts/expert-errors.js';

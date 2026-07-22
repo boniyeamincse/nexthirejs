@@ -74,6 +74,51 @@ async function main() {
 
   console.log(`Seeded test manager: ${testManager.email}`);
 
+  const expertRole = await prisma.role.upsert({
+    where: { code: 'expert' },
+    update: {},
+    create: {
+      code: 'expert',
+      name: 'Expert',
+      description: 'Verified expert who can offer interview services',
+      isSystem: true,
+    },
+  });
+
+  console.log(`Seeded role: ${expertRole.code} (${expertRole.id})`);
+
+  const expertReviewerRole = await prisma.role.upsert({
+    where: { code: 'expert_application_reviewer' },
+    update: {},
+    create: {
+      code: 'expert_application_reviewer',
+      name: 'Expert Application Reviewer',
+      description: 'Can review and decide on expert verification applications',
+      isSystem: true,
+    },
+  });
+
+  console.log(`Seeded role: ${expertReviewerRole.code} (${expertReviewerRole.id})`);
+
+  const testReviewer = await prisma.user.upsert({
+    where: { email: 'expert-reviewer@example.com' },
+    update: {},
+    create: {
+      email: 'expert-reviewer@example.com',
+      passwordHash:
+        '$argon2id$v=19$m=65536,p=4,t=3$iY1KhtmOrBMJuGNqRFyPmQ$e07Yj840R2y+CDoXmSTmlmSoDBDDoHQvfNztpbLqu5A',
+      status: 'ACTIVE',
+      emailVerifiedAt: new Date(),
+      roles: {
+        create: {
+          roleId: expertReviewerRole.id,
+        },
+      },
+    },
+  });
+
+  console.log(`Seeded test expert reviewer: ${testReviewer.email}`);
+
   const bd = await prisma.country.upsert({
     where: { code: 'BD' },
     update: {},
@@ -124,7 +169,11 @@ async function main() {
     { name: 'Database', slug: 'database', sortOrder: 3 },
     { name: 'DevOps and Cloud', slug: 'devops-and-cloud', sortOrder: 4 },
     { name: 'Cybersecurity', slug: 'cybersecurity', sortOrder: 5 },
-    { name: 'Business and Professional Skills', slug: 'business-and-professional-skills', sortOrder: 6 },
+    {
+      name: 'Business and Professional Skills',
+      slug: 'business-and-professional-skills',
+      sortOrder: 6,
+    },
   ];
 
   const categoryRecords: Record<string, string> = {};
@@ -148,7 +197,8 @@ async function main() {
       categorySlug: 'programming',
       title: 'JavaScript Fundamentals',
       slug: 'javascript-fundamentals',
-      shortDescription: 'Test your core JavaScript knowledge including ES6+, closures, and async patterns.',
+      shortDescription:
+        'Test your core JavaScript knowledge including ES6+, closures, and async patterns.',
       type: 'SKILL_CHECK' as const,
       difficulty: 'INTERMEDIATE' as const,
       status: 'PUBLISHED' as const,
@@ -176,7 +226,8 @@ async function main() {
       categorySlug: 'database',
       title: 'SQL Fundamentals',
       slug: 'sql-fundamentals',
-      shortDescription: 'Assess your SQL querying skills including joins, aggregations, and subqueries.',
+      shortDescription:
+        'Assess your SQL querying skills including joins, aggregations, and subqueries.',
       type: 'SKILL_CHECK' as const,
       difficulty: 'BEGINNER' as const,
       status: 'PUBLISHED' as const,
@@ -204,7 +255,8 @@ async function main() {
       categorySlug: 'cybersecurity',
       title: 'Cybersecurity Fundamentals',
       slug: 'cybersecurity-fundamentals',
-      shortDescription: 'Assess your understanding of core cybersecurity concepts and best practices.',
+      shortDescription:
+        'Assess your understanding of core cybersecurity concepts and best practices.',
       type: 'PRACTICE' as const,
       difficulty: 'BEGINNER' as const,
       status: 'PUBLISHED' as const,
@@ -232,7 +284,8 @@ async function main() {
       categorySlug: 'programming',
       title: 'Advanced TypeScript Patterns',
       slug: 'advanced-typescript-patterns',
-      shortDescription: 'An advanced assessment covering TypeScript generics, utility types, and design patterns.',
+      shortDescription:
+        'An advanced assessment covering TypeScript generics, utility types, and design patterns.',
       type: 'SKILL_CHECK' as const,
       difficulty: 'ADVANCED' as const,
       status: 'DRAFT' as const,
@@ -246,7 +299,8 @@ async function main() {
       categorySlug: 'database',
       title: 'Database Design Mastery',
       slug: 'database-design-mastery',
-      shortDescription: 'Advanced assessment on database normalization, indexing, and query optimization.',
+      shortDescription:
+        'Advanced assessment on database normalization, indexing, and query optimization.',
       type: 'CERTIFICATION' as const,
       difficulty: 'EXPERT' as const,
       status: 'PUBLISHED' as const,

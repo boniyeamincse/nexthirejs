@@ -82,6 +82,8 @@ model User {
   mfaRecoveryCodes        MfaRecoveryCode[]
   mfaChallenges           MfaChallenge[]
   mfaTrustedDevices       MfaTrustedDevice[]
+  expertProfile           ExpertProfile?
+  expertApplications      ExpertApplication[]
 }
 
 model Role {
@@ -954,4 +956,94 @@ model MfaTrustedDevice {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, revokedAt, expiresAt])
+}
+
+enum ExpertApplicationStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  CHANGES_REQUESTED
+  APPROVED
+  REJECTED
+  WITHDRAWN
+}
+
+enum ExpertVerificationDocumentType {
+  GOVERNMENT_ID
+  PROFESSIONAL_CERTIFICATE
+  EMPLOYMENT_PROOF
+  EDUCATION_CERTIFICATE
+  OTHER_SUPPORTING_DOCUMENT
+}
+
+model ExpertProfile {
+  id                  String    @id @default(uuid()) @db.Uuid
+  userId              String    @unique @db.Uuid
+  professionalTitle   String    @db.VarChar(150)
+  professionalSummary String    @db.Text
+  yearsOfExperience   Int
+  currentCompany      String?   @db.VarChar(150)
+  currentPosition     String?   @db.VarChar(150)
+  highestEducation    String?   @db.VarChar(200)
+  linkedinUrl         String?   @db.VarChar(500)
+  portfolioUrl        String?   @db.VarChar(500)
+  personalWebsiteUrl  String?   @db.VarChar(500)
+  interviewLanguages  Json
+  countryId           String    @db.Uuid
+  city                String?   @db.VarChar(120)
+  profilePhotoFileId  String?   @db.Uuid
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  user         User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  applications ExpertApplication[]
+
+  @@index([countryId])
+}
+
+model ExpertApplication {
+  id                String                  @id @default(uuid()) @db.Uuid
+  userId            String                  @db.Uuid
+  expertProfileId   String                  @db.Uuid
+  status            ExpertApplicationStatus @default(DRAFT)
+  submissionVersion Int                     @default(0)
+  submittedAt       DateTime?
+  reviewStartedAt   DateTime?
+  reviewedAt        DateTime?
+  reviewedById      String?                 @db.Uuid
+  decisionReasonCode String?                @db.VarChar(100)
+  reviewerNote      String?                 @db.Text
+  applicantResponse String?                 @db.Text
+  approvedAt        DateTime?
+  rejectedAt        DateTime?
+  withdrawnAt       DateTime?
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
+
+  user          User                          @relation(fields: [userId], references: [id], onDelete: Restrict)
+  expertProfile ExpertProfile                 @relation(fields: [expertProfileId], references: [id], onDelete: Restrict)
+  documents     ExpertVerificationDocument[]
+
+  @@index([userId, status])
+  @@index([status, submittedAt])
+  @@index([reviewedById, reviewedAt])
+}
+
+model ExpertVerificationDocument {
+  id              String                         @id @default(uuid()) @db.Uuid
+  applicationId   String                         @db.Uuid
+  type            ExpertVerificationDocumentType
+  storageKey      String                         @unique @db.VarChar(500)
+  originalFileName String                        @db.VarChar(255)
+  mimeType        String                         @db.VarChar(120)
+  sizeBytes       BigInt
+  checksumSha256  String                         @db.VarChar(64)
+  uploadedAt      DateTime                       @default(now())
+  removedAt       DateTime?
+  createdAt       DateTime                       @default(now())
+  updatedAt       DateTime                       @updatedAt
+
+  application ExpertApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId, type, removedAt])
 }

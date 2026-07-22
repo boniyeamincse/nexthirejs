@@ -1775,7 +1775,10 @@ import type {
   AssessmentPublicationReadiness,
 } from '@nexthire/types';
 
-export async function createAssessment(accessToken: string, data: CreateAssessmentInput): Promise<AssessmentManagementDetail> {
+export async function createAssessment(
+  accessToken: string,
+  data: CreateAssessmentInput,
+): Promise<AssessmentManagementDetail> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/manage/assessments`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
@@ -1785,7 +1788,10 @@ export async function createAssessment(accessToken: string, data: CreateAssessme
   throw new Error(`Failed to create assessment: ${response.status}`);
 }
 
-export async function getManagedAssessment(accessToken: string, id: string): Promise<AssessmentManagementDetail> {
+export async function getManagedAssessment(
+  accessToken: string,
+  id: string,
+): Promise<AssessmentManagementDetail> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/manage/assessments/${id}`, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
@@ -1793,7 +1799,11 @@ export async function getManagedAssessment(accessToken: string, id: string): Pro
   throw new Error(`Failed to get managed assessment: ${response.status}`);
 }
 
-export async function updateAssessment(accessToken: string, id: string, data: UpdateAssessmentInput): Promise<AssessmentManagementDetail> {
+export async function updateAssessment(
+  accessToken: string,
+  id: string,
+  data: UpdateAssessmentInput,
+): Promise<AssessmentManagementDetail> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/manage/assessments/${id}`, {
     method: 'PUT',
     headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
@@ -1803,121 +1813,202 @@ export async function updateAssessment(accessToken: string, id: string, data: Up
   throw new Error(`Failed to update assessment: ${response.status}`);
 }
 
-export async function createAssessmentSection(accessToken: string, assessmentId: string, data: CreateAssessmentSectionInput): Promise<void> {
-  const response = await fetch(`${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/sections`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  });
+export async function createAssessmentSection(
+  accessToken: string,
+  assessmentId: string,
+  data: CreateAssessmentSectionInput,
+): Promise<void> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/sections`,
+    {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    },
+  );
   if (response.ok) return;
   throw new Error(`Failed to create section: ${response.status}`);
 }
 
-export async function updateAssessmentSection(accessToken: string, assessmentId: string, sectionId: string, data: UpdateAssessmentSectionInput): Promise<void> {
-  const response = await fetch(`${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/sections/${sectionId}`, {
-    method: 'PUT',
-    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  });
+export async function updateAssessmentSection(
+  accessToken: string,
+  assessmentId: string,
+  sectionId: string,
+  data: UpdateAssessmentSectionInput,
+): Promise<void> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/sections/${sectionId}`,
+    {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    },
+  );
   if (response.ok) return;
   throw new Error(`Failed to update section: ${response.status}`);
 }
 
-export async function deleteAssessmentSection(accessToken: string, assessmentId: string, sectionId: string): Promise<void> {
-  const response = await fetch(`${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/sections/${sectionId}`, {
-    method: 'DELETE',
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
+export async function deleteAssessmentSection(
+  accessToken: string,
+  assessmentId: string,
+  sectionId: string,
+): Promise<void> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/sections/${sectionId}`,
+    {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${accessToken}` },
+    },
+  );
   if (response.ok) return;
   throw new Error(`Failed to delete section: ${response.status}`);
 }
 
-export async function reorderAssessmentSections(accessToken: string, assessmentId: string, orderedIds: string[]): Promise<void> {
-  const response = await fetch(`${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/sections/reorder`, {
-    method: 'PUT',
-    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ orderedIds }),
-  });
+export async function reorderAssessmentSections(
+  accessToken: string,
+  assessmentId: string,
+  orderedIds: string[],
+): Promise<void> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/sections/reorder`,
+    {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderedIds }),
+    },
+  );
   if (response.ok) return;
   throw new Error(`Failed to reorder sections: ${response.status}`);
 }
 
-export async function assignAssessmentQuestions(accessToken: string, assessmentId: string, data: AssignAssessmentQuestionsInput): Promise<void> {
-  const response = await fetch(`${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/questions/assign`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  });
+export async function assignAssessmentQuestions(
+  accessToken: string,
+  assessmentId: string,
+  data: AssignAssessmentQuestionsInput,
+): Promise<void> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/questions/assign`,
+    {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    },
+  );
   if (response.ok) return;
   throw new Error(`Failed to assign questions: ${response.status}`);
 }
 
-export async function updateAssessmentQuestionAssignment(accessToken: string, assessmentId: string, assignmentId: string, data: UpdateAssessmentQuestionAssignmentInput): Promise<void> {
-  const response = await fetch(`${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/questions/${assignmentId}`, {
-    method: 'PUT',
-    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  });
+export async function updateAssessmentQuestionAssignment(
+  accessToken: string,
+  assessmentId: string,
+  assignmentId: string,
+  data: UpdateAssessmentQuestionAssignmentInput,
+): Promise<void> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/questions/${assignmentId}`,
+    {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    },
+  );
   if (response.ok) return;
   throw new Error(`Failed to update assignment: ${response.status}`);
 }
 
-export async function deleteAssessmentQuestionAssignment(accessToken: string, assessmentId: string, assignmentId: string): Promise<void> {
-  const response = await fetch(`${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/questions/${assignmentId}`, {
-    method: 'DELETE',
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
+export async function deleteAssessmentQuestionAssignment(
+  accessToken: string,
+  assessmentId: string,
+  assignmentId: string,
+): Promise<void> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/questions/${assignmentId}`,
+    {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${accessToken}` },
+    },
+  );
   if (response.ok) return;
   throw new Error(`Failed to delete assignment: ${response.status}`);
 }
 
-export async function reorderAssessmentSectionQuestions(accessToken: string, assessmentId: string, sectionId: string, orderedIds: string[]): Promise<void> {
-  const response = await fetch(`${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/sections/${sectionId}/questions/reorder`, {
-    method: 'PUT',
-    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ orderedIds }),
-  });
+export async function reorderAssessmentSectionQuestions(
+  accessToken: string,
+  assessmentId: string,
+  sectionId: string,
+  orderedIds: string[],
+): Promise<void> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/sections/${sectionId}/questions/reorder`,
+    {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderedIds }),
+    },
+  );
   if (response.ok) return;
   throw new Error(`Failed to reorder questions: ${response.status}`);
 }
 
-export async function getAssessmentReadiness(accessToken: string, assessmentId: string): Promise<AssessmentPublicationReadiness> {
-  const response = await fetch(`${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/readiness`, {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
+export async function getAssessmentReadiness(
+  accessToken: string,
+  assessmentId: string,
+): Promise<AssessmentPublicationReadiness> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/readiness`,
+    {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    },
+  );
   if (response.ok) return response.json();
   throw new Error(`Failed to check readiness: ${response.status}`);
 }
 
 export async function publishAssessment(accessToken: string, assessmentId: string): Promise<void> {
-  const response = await fetch(`${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/publish`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/publish`,
+    {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${accessToken}` },
+    },
+  );
   if (response.ok) return;
-  
+
   let errorBody = null;
-  try { errorBody = await response.json(); } catch {}
+  try {
+    errorBody = await response.json();
+  } catch {}
   throw new Error(errorBody?.message ?? `Failed to publish assessment: ${response.status}`);
 }
 
 export async function archiveAssessment(accessToken: string, assessmentId: string): Promise<void> {
-  const response = await fetch(`${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/archive`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/archive`,
+    {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${accessToken}` },
+    },
+  );
   if (response.ok) return;
   throw new Error(`Failed to archive assessment: ${response.status}`);
 }
 
-export async function republishAssessment(accessToken: string, assessmentId: string): Promise<void> {
-  const response = await fetch(`${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/republish`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
+export async function republishAssessment(
+  accessToken: string,
+  assessmentId: string,
+): Promise<void> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/republish`,
+    {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${accessToken}` },
+    },
+  );
   if (response.ok) return;
   let errorBody = null;
-  try { errorBody = await response.json(); } catch {}
+  try {
+    errorBody = await response.json();
+  } catch {}
   throw new Error(errorBody?.message ?? `Failed to republish assessment: ${response.status}`);
 }
 
@@ -1925,13 +2016,18 @@ export async function startOrResumeAssessmentAttempt(
   accessToken: string,
   assessmentIdOrSlug: string,
 ): Promise<StartAssessmentAttemptResult> {
-  const response = await fetch(`${publicEnv.apiBaseUrl}/assessments/${encodeURIComponent(assessmentIdOrSlug)}/attempts`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-  });
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/assessments/${encodeURIComponent(assessmentIdOrSlug)}/attempts`,
+    {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    },
+  );
   if (!response.ok) {
     let errorBody = null;
-    try { errorBody = await response.json(); } catch {}
+    try {
+      errorBody = await response.json();
+    } catch {}
     throw new Error(errorBody?.message ?? `Failed to start assessment attempt: ${response.status}`);
   }
   return response.json();
@@ -1941,26 +2037,40 @@ export async function getActiveAssessmentAttempt(
   accessToken: string,
   assessmentIdOrSlug: string,
 ): Promise<{ attemptId: string } | null> {
-  const response = await fetch(`${publicEnv.apiBaseUrl}/assessments/${encodeURIComponent(assessmentIdOrSlug)}/attempts/active`, {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/assessments/${encodeURIComponent(assessmentIdOrSlug)}/attempts/active`,
+    {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    },
+  );
   if (response.status === 404) return null;
   if (!response.ok) {
     let errorBody = null;
-    try { errorBody = await response.json(); } catch {}
+    try {
+      errorBody = await response.json();
+    } catch {}
     throw new Error(errorBody?.message ?? `Failed to fetch active attempt: ${response.status}`);
   }
   return response.json();
 }
 
-export async function clearAttemptAnswer(accessToken: string, attemptId: string, questionId: string) {
-  const response = await fetch(`${publicEnv.apiBaseUrl}/assessment-attempts/${attemptId}/questions/${questionId}/answer`, {
-    method: 'DELETE',
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
+export async function clearAttemptAnswer(
+  accessToken: string,
+  attemptId: string,
+  questionId: string,
+) {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/assessment-attempts/${attemptId}/questions/${questionId}/answer`,
+    {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${accessToken}` },
+    },
+  );
   if (!response.ok && response.status !== 404) {
     let errorBody = null;
-    try { errorBody = await response.json(); } catch {}
+    try {
+      errorBody = await response.json();
+    } catch {}
     throw new Error(errorBody?.message ?? `Failed to clear answer: ${response.status}`);
   }
 }
@@ -1974,7 +2084,9 @@ export async function getAttemptWorkspace(
   });
   if (!response.ok) {
     let errorBody = null;
-    try { errorBody = await response.json(); } catch {}
+    try {
+      errorBody = await response.json();
+    } catch {}
     throw new Error(errorBody?.message ?? `Failed to fetch attempt workspace: ${response.status}`);
   }
   return response.json();
@@ -1986,17 +2098,22 @@ export async function saveAttemptAnswer(
   questionId: string,
   payload: SaveAssessmentDraftAnswerInput,
 ): Promise<SaveAssessmentDraftAnswerResult> {
-  const response = await fetch(`${publicEnv.apiBaseUrl}/assessment-attempts/${attemptId}/questions/${questionId}/answer`, {
-    method: 'PUT',
-    headers: { 
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}` 
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/assessment-attempts/${attemptId}/questions/${questionId}/answer`,
+    {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(payload),
     },
-    body: JSON.stringify(payload),
-  });
+  );
   if (!response.ok) {
     let errorBody = null;
-    try { errorBody = await response.json(); } catch {}
+    try {
+      errorBody = await response.json();
+    } catch {}
     throw new Error(errorBody?.message ?? `Failed to save answer: ${response.status}`);
   }
   return response.json();
@@ -2043,9 +2160,7 @@ export async function getAssessmentSubmissionSummary(
     try {
       errorBody = await response.json();
     } catch {}
-    throw new Error(
-      errorBody?.message ?? `Failed to fetch submission summary: ${response.status}`,
-    );
+    throw new Error(errorBody?.message ?? `Failed to fetch submission summary: ${response.status}`);
   }
 
   return response.json();
@@ -2068,9 +2183,7 @@ export async function listMyAssessmentResults(
     try {
       errorBody = await response.json();
     } catch {}
-    throw new Error(
-      errorBody?.message ?? `Failed to fetch assessment results: ${response.status}`,
-    );
+    throw new Error(errorBody?.message ?? `Failed to fetch assessment results: ${response.status}`);
   }
 
   return response.json();
@@ -2080,22 +2193,17 @@ export async function getMyAssessmentResult(
   accessToken: string,
   attemptId: string,
 ): Promise<AssessmentAttemptResultDetail> {
-  const response = await fetch(
-    `${publicEnv.apiBaseUrl}/assessment-results/${attemptId}`,
-    {
-      headers: { Authorization: `Bearer ${accessToken}` },
-      cache: 'no-store',
-    },
-  );
+  const response = await fetch(`${publicEnv.apiBaseUrl}/assessment-results/${attemptId}`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+    cache: 'no-store',
+  });
 
   if (!response.ok) {
     let errorBody = null;
     try {
       errorBody = await response.json();
     } catch {}
-    throw new Error(
-      errorBody?.message ?? `Failed to fetch assessment result: ${response.status}`,
-    );
+    throw new Error(errorBody?.message ?? `Failed to fetch assessment result: ${response.status}`);
   }
 
   return response.json();
@@ -2117,10 +2225,10 @@ export async function getMyAssessmentPerformance(
 
   if (!response.ok) {
     let errorBody = null;
-    try { errorBody = await response.json(); } catch {}
-    throw new Error(
-      errorBody?.message ?? `Failed to fetch performance report: ${response.status}`,
-    );
+    try {
+      errorBody = await response.json();
+    } catch {}
+    throw new Error(errorBody?.message ?? `Failed to fetch performance report: ${response.status}`);
   }
 
   return response.json();
@@ -2129,17 +2237,16 @@ export async function getMyAssessmentPerformance(
 export async function getMyLeaderboardSettings(
   accessToken: string,
 ): Promise<LeaderboardParticipationSettings> {
-  const response = await fetch(
-    `${publicEnv.apiBaseUrl}/candidates/me/leaderboard-settings`,
-    {
-      headers: { Authorization: `Bearer ${accessToken}` },
-      cache: 'no-store',
-    },
-  );
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/leaderboard-settings`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+    cache: 'no-store',
+  });
 
   if (!response.ok) {
     let errorBody = null;
-    try { errorBody = await response.json(); } catch {}
+    try {
+      errorBody = await response.json();
+    } catch {}
     throw new Error(
       errorBody?.message ?? `Failed to fetch leaderboard settings: ${response.status}`,
     );
@@ -2152,21 +2259,20 @@ export async function updateMyLeaderboardSettings(
   accessToken: string,
   input: UpdateLeaderboardParticipationInput,
 ): Promise<LeaderboardParticipationSettings> {
-  const response = await fetch(
-    `${publicEnv.apiBaseUrl}/candidates/me/leaderboard-settings`,
-    {
-      method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(input),
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/leaderboard-settings`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
     },
-  );
+    body: JSON.stringify(input),
+  });
 
   if (!response.ok) {
     let errorBody = null;
-    try { errorBody = await response.json(); } catch {}
+    try {
+      errorBody = await response.json();
+    } catch {}
     throw new Error(
       errorBody?.message ?? `Failed to update leaderboard settings: ${response.status}`,
     );
@@ -2190,10 +2296,10 @@ export async function getAssessmentLeaderboard(
 
   if (!response.ok) {
     let errorBody = null;
-    try { errorBody = await response.json(); } catch {}
-    throw new Error(
-      errorBody?.message ?? `Failed to fetch leaderboard: ${response.status}`,
-    );
+    try {
+      errorBody = await response.json();
+    } catch {}
+    throw new Error(errorBody?.message ?? `Failed to fetch leaderboard: ${response.status}`);
   }
 
   return response.json();
@@ -2214,7 +2320,9 @@ export async function getCategoryLeaderboard(
 
   if (!response.ok) {
     let errorBody = null;
-    try { errorBody = await response.json(); } catch {}
+    try {
+      errorBody = await response.json();
+    } catch {}
     throw new Error(
       errorBody?.message ?? `Failed to fetch category leaderboard: ${response.status}`,
     );
@@ -2291,20 +2399,20 @@ export async function updateAssessmentRetakeCertificatePolicy(
 export async function getMyCertificates(
   accessToken: string,
   params?: { page?: number; pageSize?: number; status?: string },
-): Promise<{ items: AssessmentCertificateListItem[]; pagination: { page: number; pageSize: number; totalItems: number; totalPages: number } }> {
+): Promise<{
+  items: AssessmentCertificateListItem[];
+  pagination: { page: number; pageSize: number; totalItems: number; totalPages: number };
+}> {
   const queryParts: string[] = [];
   if (params?.page !== undefined) queryParts.push(`page=${params.page}`);
   if (params?.pageSize !== undefined) queryParts.push(`pageSize=${params.pageSize}`);
   if (params?.status) queryParts.push(`status=${encodeURIComponent(params.status)}`);
   const queryString = queryParts.length > 0 ? `?${queryParts.join('&')}` : '';
 
-  const response = await fetch(
-    `${publicEnv.apiBaseUrl}/candidates/me/certificates${queryString}`,
-    {
-      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-      cache: 'no-store',
-    },
-  );
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/certificates${queryString}`, {
+    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    cache: 'no-store',
+  });
 
   if (response.ok) {
     return response.json();
@@ -2451,4 +2559,352 @@ export async function verifyCertificate(
     errorBody?.errors,
     errorBody?.requestId,
   );
+}
+
+// ---------------------------------------------------------------------------
+// Expert Profile & Verification (NH-P3-T001)
+// ---------------------------------------------------------------------------
+
+import type {
+  ExpertProfileInput,
+  ExpertProfileResult,
+  ExpertApplicationDetail,
+  ExpertApplicationReadiness,
+  ExpertVerificationDocumentResult,
+  ExpertVerificationDocumentTypeValue,
+  SubmitExpertApplicationInput,
+  ReviewExpertApplicationInput,
+  ExpertApplicationListQuery,
+  PaginatedExpertApplicationResult,
+} from '@nexthire/types';
+
+export type {
+  ExpertProfileInput,
+  ExpertProfileResult,
+  ExpertApplicationDetail,
+  ExpertApplicationReadiness,
+  ExpertVerificationDocumentResult,
+  ExpertVerificationDocumentTypeValue,
+  SubmitExpertApplicationInput,
+  ReviewExpertApplicationInput,
+  ExpertApplicationListQuery,
+  PaginatedExpertApplicationResult,
+} from '@nexthire/types';
+
+export interface UploadExpertVerificationDocumentInput {
+  type: ExpertVerificationDocumentTypeValue;
+  file: File;
+}
+
+/**
+ * Short-lived, single-use reviewer document access grant.
+ * The `url` MUST NEVER be persisted to storage, logged, or cached.
+ */
+export interface ExpertVerificationDocumentAccessResult {
+  url: string;
+  expiresAt: string;
+  expiresInSeconds: number;
+}
+
+async function parseApiError(response: Response, fallback: string): Promise<ApiClientError> {
+  let errorBody: ApiErrorResponse | null = null;
+  try {
+    errorBody = (await response.json()) as ApiErrorResponse;
+  } catch {
+    // ignore parse errors
+  }
+  return new ApiClientError(
+    errorBody?.message ?? `${fallback} (${response.status})`,
+    response.status,
+    errorBody?.errors,
+    errorBody?.requestId,
+  );
+}
+
+function expertAuthHeaders(accessToken: string): Record<string, string> {
+  return {
+    Authorization: `Bearer ${accessToken}`,
+    'Content-Type': 'application/json',
+  };
+}
+
+// --- Applicant: Expert profile ---
+
+export async function getMyExpertProfile(accessToken: string): Promise<ExpertProfileResult | null> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/experts/me/profile`, {
+    headers: expertAuthHeaders(accessToken),
+  });
+  if (response.status === 404) {
+    return null;
+  }
+  if (response.ok) {
+    return response.json() as Promise<ExpertProfileResult>;
+  }
+  throw await parseApiError(response, 'Failed to load expert profile');
+}
+
+export async function updateMyExpertProfile(
+  accessToken: string,
+  input: ExpertProfileInput,
+): Promise<ExpertProfileResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/experts/me/profile`, {
+    method: 'PUT',
+    headers: expertAuthHeaders(accessToken),
+    body: JSON.stringify(input),
+  });
+  if (response.ok) {
+    return response.json() as Promise<ExpertProfileResult>;
+  }
+  throw await parseApiError(response, 'Failed to save expert profile');
+}
+
+// --- Applicant: Expert application ---
+
+export async function getMyExpertApplication(
+  accessToken: string,
+): Promise<ExpertApplicationDetail | null> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/experts/me/application`, {
+    headers: expertAuthHeaders(accessToken),
+  });
+  if (response.status === 404) {
+    return null;
+  }
+  if (response.ok) {
+    return response.json() as Promise<ExpertApplicationDetail>;
+  }
+  throw await parseApiError(response, 'Failed to load expert application');
+}
+
+export async function createMyExpertApplication(
+  accessToken: string,
+): Promise<ExpertApplicationDetail> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/experts/me/application`, {
+    method: 'POST',
+    headers: expertAuthHeaders(accessToken),
+  });
+  if (response.ok) {
+    return response.json() as Promise<ExpertApplicationDetail>;
+  }
+  throw await parseApiError(response, 'Failed to start expert application');
+}
+
+export async function getMyExpertApplicationReadiness(
+  accessToken: string,
+): Promise<ExpertApplicationReadiness> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/experts/me/application/readiness`, {
+    headers: expertAuthHeaders(accessToken),
+  });
+  if (response.ok) {
+    return response.json() as Promise<ExpertApplicationReadiness>;
+  }
+  throw await parseApiError(response, 'Failed to check application readiness');
+}
+
+export async function submitMyExpertApplication(
+  accessToken: string,
+  input?: SubmitExpertApplicationInput,
+): Promise<ExpertApplicationDetail> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/experts/me/application/submit`, {
+    method: 'POST',
+    headers: expertAuthHeaders(accessToken),
+    body: JSON.stringify(input ?? {}),
+  });
+  if (response.ok) {
+    return response.json() as Promise<ExpertApplicationDetail>;
+  }
+  throw await parseApiError(response, 'Failed to submit application');
+}
+
+export async function withdrawMyExpertApplication(
+  accessToken: string,
+): Promise<ExpertApplicationDetail> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/experts/me/application/withdraw`, {
+    method: 'POST',
+    headers: expertAuthHeaders(accessToken),
+  });
+  if (response.ok) {
+    return response.json() as Promise<ExpertApplicationDetail>;
+  }
+  throw await parseApiError(response, 'Failed to withdraw application');
+}
+
+// --- Applicant: Verification documents ---
+
+export async function listMyExpertVerificationDocuments(
+  accessToken: string,
+): Promise<ExpertVerificationDocumentResult[]> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/experts/me/application/documents`, {
+    headers: expertAuthHeaders(accessToken),
+  });
+  if (response.ok) {
+    const body = (await response.json()) as
+      { documents: ExpertVerificationDocumentResult[] } | ExpertVerificationDocumentResult[];
+    return Array.isArray(body) ? body : body.documents;
+  }
+  throw await parseApiError(response, 'Failed to load verification documents');
+}
+
+export async function uploadExpertVerificationDocument(
+  accessToken: string,
+  input: UploadExpertVerificationDocumentInput,
+): Promise<ExpertVerificationDocumentResult> {
+  const formData = new FormData();
+  formData.append('type', input.type);
+  formData.append('file', input.file, input.file.name);
+
+  const response = await fetch(`${publicEnv.apiBaseUrl}/experts/me/application/documents`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${accessToken}` },
+    body: formData,
+  });
+  if (response.ok) {
+    return response.json() as Promise<ExpertVerificationDocumentResult>;
+  }
+  throw await parseApiError(response, 'Failed to upload document');
+}
+
+export async function removeExpertVerificationDocument(
+  accessToken: string,
+  documentId: string,
+): Promise<void> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/experts/me/application/documents/${encodeURIComponent(documentId)}`,
+    {
+      method: 'DELETE',
+      headers: expertAuthHeaders(accessToken),
+    },
+  );
+  if (response.ok || response.status === 204) {
+    return;
+  }
+  throw await parseApiError(response, 'Failed to remove document');
+}
+
+// --- Admin: Expert application review ---
+
+export async function listExpertApplications(
+  accessToken: string,
+  query: ExpertApplicationListQuery = {},
+): Promise<PaginatedExpertApplicationResult> {
+  const params = new URLSearchParams();
+  if (query.page) params.set('page', String(query.page));
+  if (query.pageSize) params.set('pageSize', String(query.pageSize));
+  if (query.search) params.set('search', query.search);
+  if (query.status) params.set('status', query.status);
+  if (query.country) params.set('country', query.country);
+  if (query.submittedFrom) params.set('submittedFrom', query.submittedFrom);
+  if (query.submittedTo) params.set('submittedTo', query.submittedTo);
+
+  const qs = params.toString();
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/manage/experts/applications${qs ? `?${qs}` : ''}`,
+    { headers: expertAuthHeaders(accessToken) },
+  );
+  if (response.ok) {
+    return response.json() as Promise<PaginatedExpertApplicationResult>;
+  }
+  throw await parseApiError(response, 'Failed to load applications');
+}
+
+export interface ExpertApplicationReviewDetail extends ExpertApplicationDetail {
+  applicant: {
+    displayName: string;
+    countryId: string;
+  };
+  profile: ExpertProfileResult;
+  documents: ExpertVerificationDocumentResult[];
+}
+
+export async function getExpertApplicationForReview(
+  accessToken: string,
+  applicationId: string,
+): Promise<ExpertApplicationReviewDetail> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/manage/experts/applications/${encodeURIComponent(applicationId)}`,
+    { headers: expertAuthHeaders(accessToken) },
+  );
+  if (response.ok) {
+    return response.json() as Promise<ExpertApplicationReviewDetail>;
+  }
+  throw await parseApiError(response, 'Failed to load application');
+}
+
+export async function startExpertApplicationReview(
+  accessToken: string,
+  applicationId: string,
+): Promise<ExpertApplicationReviewDetail> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/manage/experts/applications/${encodeURIComponent(applicationId)}/start-review`,
+    { method: 'POST', headers: expertAuthHeaders(accessToken) },
+  );
+  if (response.ok) {
+    return response.json() as Promise<ExpertApplicationReviewDetail>;
+  }
+  throw await parseApiError(response, 'Failed to start review');
+}
+
+export async function approveExpertApplication(
+  accessToken: string,
+  applicationId: string,
+  input: ReviewExpertApplicationInput,
+): Promise<ExpertApplicationReviewDetail> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/manage/experts/applications/${encodeURIComponent(applicationId)}/approve`,
+    { method: 'POST', headers: expertAuthHeaders(accessToken), body: JSON.stringify(input) },
+  );
+  if (response.ok) {
+    return response.json() as Promise<ExpertApplicationReviewDetail>;
+  }
+  throw await parseApiError(response, 'Failed to approve application');
+}
+
+export async function rejectExpertApplication(
+  accessToken: string,
+  applicationId: string,
+  input: ReviewExpertApplicationInput,
+): Promise<ExpertApplicationReviewDetail> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/manage/experts/applications/${encodeURIComponent(applicationId)}/reject`,
+    { method: 'POST', headers: expertAuthHeaders(accessToken), body: JSON.stringify(input) },
+  );
+  if (response.ok) {
+    return response.json() as Promise<ExpertApplicationReviewDetail>;
+  }
+  throw await parseApiError(response, 'Failed to reject application');
+}
+
+export async function requestExpertApplicationChanges(
+  accessToken: string,
+  applicationId: string,
+  input: ReviewExpertApplicationInput,
+): Promise<ExpertApplicationReviewDetail> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/manage/experts/applications/${encodeURIComponent(applicationId)}/request-changes`,
+    { method: 'POST', headers: expertAuthHeaders(accessToken), body: JSON.stringify(input) },
+  );
+  if (response.ok) {
+    return response.json() as Promise<ExpertApplicationReviewDetail>;
+  }
+  throw await parseApiError(response, 'Failed to request changes');
+}
+
+/**
+ * Requests a short-lived reviewer download URL for a verification document.
+ * The returned URL is single-use / time-boxed and MUST NOT be persisted or logged.
+ */
+export async function getExpertVerificationDocumentAccess(
+  accessToken: string,
+  applicationId: string,
+  documentId: string,
+): Promise<ExpertVerificationDocumentAccessResult> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/manage/experts/applications/${encodeURIComponent(
+      applicationId,
+    )}/documents/${encodeURIComponent(documentId)}/access`,
+    { method: 'POST', headers: expertAuthHeaders(accessToken) },
+  );
+  if (response.ok) {
+    return response.json() as Promise<ExpertVerificationDocumentAccessResult>;
+  }
+  throw await parseApiError(response, 'Failed to obtain document access');
 }

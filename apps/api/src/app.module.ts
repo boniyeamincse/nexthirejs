@@ -17,6 +17,7 @@ import { CandidatesModule } from './modules/candidates/candidates.module';
 import { ConfigurationModule } from './modules/configuration/configuration.module';
 import { PublicModule } from './modules/public/public.module';
 import { AssessmentsModule } from './modules/assessments/assessments.module';
+import { ExpertsModule } from './modules/experts/experts.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { AssessmentsModule } from './modules/assessments/assessments.module';
     CandidatesModule,
     PublicModule,
     AssessmentsModule,
+    ExpertsModule,
   ],
   controllers: [AppController],
   providers: [

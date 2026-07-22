@@ -29,3 +29,4 @@ export * from './assessments/authoring.js';
 export * from './assessments/attempts.js';
 export * from './assessments/retakes.js';
 export * from './assessments/certificates.js';
+export * from './experts/index.js';
