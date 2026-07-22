@@ -118,7 +118,7 @@ describe('ProfessionalLinkList', () => {
     const records = [mockLink, { ...mockLink, id: '2', url: 'https://github.com/testuser' }];
     render(<ProfessionalLinkList {...defaultProps} records={records} onMoveUp={onMoveUp} />);
     const buttons = screen.getAllByLabelText('Move up');
-    await userEvent.click(buttons[1]);
+    await userEvent.click(buttons[1]!);
     expect(onMoveUp).toHaveBeenCalledWith(1);
   });
 

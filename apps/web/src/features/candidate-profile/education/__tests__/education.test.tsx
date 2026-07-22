@@ -145,7 +145,7 @@ describe('EducationList', () => {
       />,
     );
     const upButtons = screen.getAllByRole('button', { name: /move.*up/i });
-    await userEvent.click(upButtons[1]);
+    await userEvent.click(upButtons[1]!);
     expect(onMoveUp).toHaveBeenCalledWith(1);
   });
 
@@ -161,7 +161,7 @@ describe('EducationList', () => {
       />,
     );
     const downButtons = screen.getAllByRole('button', { name: /move.*down/i });
-    await userEvent.click(downButtons[0]);
+    await userEvent.click(downButtons[0]!);
     expect(onMoveDown).toHaveBeenCalledWith(0);
   });
 
@@ -177,7 +177,7 @@ describe('EducationList', () => {
     );
     const upButtons = screen.getAllByRole('button', { name: /move.*up/i });
     expect(upButtons[0]).toBeDisabled();
-    expect(upButtons[1]).not.toBeDisabled();
+    expect(upButtons[1]!).not.toBeDisabled();
   });
 
   it('disables move down for last item', () => {
@@ -191,7 +191,7 @@ describe('EducationList', () => {
       />,
     );
     const downButtons = screen.getAllByRole('button', { name: /move.*down/i });
-    expect(downButtons[0]).not.toBeDisabled();
+    expect(downButtons[0]!).not.toBeDisabled();
     expect(downButtons[1]).toBeDisabled();
   });
 });
@@ -235,8 +235,8 @@ describe('EducationForm', () => {
 
     // Fill text fields
     const textboxes = screen.getAllByRole('textbox');
-    await userEvent.type(textboxes[0], 'Test University'); // institutionName
-    await userEvent.type(textboxes[1], 'Test Degree'); // qualification
+    await userEvent.type(textboxes[0]!, 'Test University'); // institutionName
+    await userEvent.type(textboxes[1]!, 'Test Degree'); // qualification
 
     // Set start date value via the React state by firing change
     const startDateInput = document.querySelector<HTMLInputElement>('input[name="startDate"]');
@@ -294,7 +294,7 @@ describe('EducationFormModal', () => {
     render(<EducationFormModal isOpen={true} onSave={vi.fn()} onCancel={onCancel} />);
     // The dialog renders, find cancel button by text
     const cancelButtons = screen.getAllByText(/cancel/i);
-    await userEvent.click(cancelButtons[0]);
+    await userEvent.click(cancelButtons[0]!);
     expect(onCancel).toHaveBeenCalled();
   });
 });

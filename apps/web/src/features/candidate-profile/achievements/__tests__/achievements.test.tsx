@@ -121,7 +121,7 @@ describe('AchievementList', () => {
       />,
     );
     const buttons = screen.getAllByLabelText('Move up');
-    await userEvent.click(buttons[1]);
+    await userEvent.click(buttons[1]!);
     expect(onMoveUp).toHaveBeenCalledWith(1);
   });
 

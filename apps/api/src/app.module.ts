@@ -16,6 +16,7 @@ import { AuditModule } from './modules/audit';
 import { CandidatesModule } from './modules/candidates/candidates.module';
 import { ConfigurationModule } from './modules/configuration/configuration.module';
 import { PublicModule } from './modules/public/public.module';
+import { AssessmentsModule } from './modules/assessments/assessments.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { PublicModule } from './modules/public/public.module';
     ConfigurationModule,
     CandidatesModule,
     PublicModule,
+    AssessmentsModule,
   ],
   controllers: [AppController],
   providers: [

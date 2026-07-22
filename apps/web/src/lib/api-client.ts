@@ -1670,3 +1670,74 @@ export async function deactivateMyAccount(
   const text = await response.text().catch(() => '');
   throw new Error(text || `Failed to deactivate account: ${response.status}`);
 }
+
+// --- Assessment Catalog ---
+
+import type {
+  PaginatedAssessmentCatalogResult,
+  AssessmentCatalogDetail,
+} from '@nexthire/types';
+
+export async function listAssessments(
+  accessToken: string,
+  queryString: string,
+): Promise<PaginatedAssessmentCatalogResult> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/assessments${queryString ? `?${queryString}` : ''}`,
+    {
+      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    },
+  );
+
+  if (response.ok) {
+    return response.json() as Promise<PaginatedAssessmentCatalogResult>;
+  }
+
+  let errorBody: ApiErrorResponse | null = null;
+  try {
+    errorBody = (await response.json()) as ApiErrorResponse;
+  } catch {
+    // ignore
+  }
+
+  throw new ApiClientError(
+    errorBody?.message ?? `Failed to list assessments (${response.status})`,
+    response.status,
+    errorBody?.errors,
+    errorBody?.requestId,
+  );
+}
+
+export async function getAssessmentDetail(
+  accessToken: string,
+  assessmentIdOrSlug: string,
+): Promise<AssessmentCatalogDetail> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/assessments/${encodeURIComponent(assessmentIdOrSlug)}`,
+    {
+      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    },
+  );
+
+  if (response.ok) {
+    return response.json() as Promise<AssessmentCatalogDetail>;
+  }
+
+  if (response.status === 404) {
+    throw new ApiClientError('Assessment not found.', 404);
+  }
+
+  let errorBody: ApiErrorResponse | null = null;
+  try {
+    errorBody = (await response.json()) as ApiErrorResponse;
+  } catch {
+    // ignore
+  }
+
+  throw new ApiClientError(
+    errorBody?.message ?? `Failed to get assessment (${response.status})`,
+    response.status,
+    errorBody?.errors,
+    errorBody?.requestId,
+  );
+}

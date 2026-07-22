@@ -96,7 +96,7 @@ export default function SkillsPage() {
       setIsFormOpen(false);
       setEditingRecord(null);
     },
-    [getAccessToken, editingRecord],
+    [getAccessToken, editingRecord, fetchRecords],
   );
 
   const handleDelete = useCallback(

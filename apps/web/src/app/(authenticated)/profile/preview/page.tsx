@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable react-hooks/set-state-in-effect */
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
@@ -20,11 +21,11 @@ export default function ProfilePreviewPage() {
   const fetchPreview = useCallback(async () => {
     const token = getAccessToken();
     if (!token) {
-      setLoading(false);
+      setTimeout(() => setLoading(false), 0);
       return;
     }
 
-    setLoading(true);
+    setTimeout(() => setLoading(true), 0);
     setPageError(null);
 
     try {

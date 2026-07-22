@@ -475,6 +475,83 @@ enum DataExportStatus {
   CANCELLED
 }
 
+enum AssessmentStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+  RETIRED
+}
+
+enum AssessmentVisibility {
+  CANDIDATE_CATALOG
+  INVITE_ONLY
+  INTERNAL
+}
+
+enum AssessmentDifficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+enum AssessmentType {
+  PRACTICE
+  CERTIFICATION
+  SCREENING
+  SKILL_CHECK
+}
+
+enum AssessmentAvailability {
+  AVAILABLE
+  COMING_SOON
+  UNAVAILABLE
+}
+
+model AssessmentCategory {
+  id          String       @id @default(uuid()) @db.Uuid
+  name        String       @db.VarChar(120)
+  slug        String       @unique @db.VarChar(140)
+  description String?      @db.Text
+  sortOrder   Int          @default(0)
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  assessments Assessment[]
+
+  @@index([isActive, sortOrder])
+}
+
+model Assessment {
+  id                       String                 @id @default(uuid()) @db.Uuid
+  categoryId               String                 @db.Uuid
+  title                    String                 @db.VarChar(200)
+  slug                     String                 @unique @db.VarChar(220)
+  shortDescription         String                 @db.VarChar(500)
+  description              String?                @db.Text
+  instructions             String?                @db.Text
+  type                     AssessmentType
+  difficulty               AssessmentDifficulty
+  status                   AssessmentStatus       @default(DRAFT)
+  visibility               AssessmentVisibility   @default(CANDIDATE_CATALOG)
+  availability             AssessmentAvailability @default(COMING_SOON)
+  estimatedDurationMinutes Int
+  questionCount            Int                    @default(0)
+  publishedAt              DateTime?
+  createdById              String?                @db.Uuid
+  updatedById              String?                @db.Uuid
+  createdAt                DateTime               @default(now())
+  updatedAt                DateTime               @updatedAt
+
+  category AssessmentCategory @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  @@index([status, visibility, availability])
+  @@index([categoryId, status])
+  @@index([difficulty, type])
+  @@index([publishedAt])
+}
+
 model CandidateDataExportRequest {
   id              String           @id @default(uuid()) @db.Uuid
   userId          String           @db.Uuid

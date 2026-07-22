@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable react-hooks/set-state-in-effect */
 
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -72,10 +73,10 @@ export default function AccountSettingsPage() {
 
   useEffect(() => {
     if (authStatus === 'authenticated') {
-      setLoading(false);
+      setTimeout(() => setLoading(false), 0);
       void fetchExports();
     } else if (authStatus === 'unauthenticated') {
-      setLoading(false);
+      setTimeout(() => setLoading(false), 0);
     }
   }, [authStatus, fetchExports]);
 

@@ -16,4 +16,5 @@ export * from './auth/session-management.js';
 export * from './auth/candidate-account-security.js';
 export * from './audit.js';
 export * from './candidates/index.js';
+export * from './assessments/index.js';
 export * from './configuration/country.js';

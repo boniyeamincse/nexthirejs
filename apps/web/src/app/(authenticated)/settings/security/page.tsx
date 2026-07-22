@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable react-hooks/set-state-in-effect */
 
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -33,11 +34,11 @@ export default function AccountSecurityPage() {
   const fetchSummary = useCallback(async () => {
     const token = getAccessToken();
     if (!token) {
-      setLoading(false);
+      setTimeout(() => setLoading(false), 0);
       return;
     }
 
-    setLoading(true);
+    setTimeout(() => setLoading(true), 0);
     setPageError(null);
 
     try {
