@@ -21,3 +21,4 @@ export * from './candidates/candidate-training.js';
 export * from './candidates/candidate-achievements.js';
 export * from './candidates/candidate-professional-links.js';
 export * from './candidates/candidate-profile-privacy.js';
+export * from './candidates/candidate-account-lifecycle.js';

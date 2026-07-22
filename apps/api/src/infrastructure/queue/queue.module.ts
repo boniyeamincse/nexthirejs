@@ -4,7 +4,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { buildRedisOptions, toBullMQConnectionOptions } from '../redis/redis.options';
 import { QueueService } from './queue.service';
 import { SystemHealthProcessor } from './system-health.processor';
-import { SYSTEM_HEALTH_QUEUE } from './queue.constants';
+import { SYSTEM_HEALTH_QUEUE, DATA_EXPORT_QUEUE } from './queue.constants';
 
 @Module({
   imports: [
@@ -34,6 +34,9 @@ import { SYSTEM_HEALTH_QUEUE } from './queue.constants';
     }),
     BullModule.registerQueue({
       name: SYSTEM_HEALTH_QUEUE,
+    }),
+    BullModule.registerQueue({
+      name: DATA_EXPORT_QUEUE,
     }),
   ],
   providers: [QueueService, SystemHealthProcessor],

@@ -1505,3 +1505,78 @@ export async function changePassword(
   const errorText = await response.text().catch(() => 'Unknown error');
   throw new Error(`Failed to change password: ${response.status} ${errorText}`);
 }
+
+// --- Data Export & Account Lifecycle ---
+
+export interface RequestDataExportResult {
+  id: string;
+  status: string;
+  requestedAt: string;
+}
+
+export interface DataExportStatusResult {
+  id: string;
+  status: string;
+  requestedAt: string;
+  completedAt: string | null;
+  expiresAt: string | null;
+  fileSizeBytes: number | null;
+  downloadAvailable: boolean;
+}
+
+export interface DataExportDownloadResult {
+  downloadUrl: string;
+  expiresInSeconds: number;
+}
+
+export interface DeactivateAccountResult {
+  deactivated: boolean;
+  sessionsRevoked: number;
+}
+
+export async function requestMyDataExport(accessToken: string): Promise<RequestDataExportResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/data-exports`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+  });
+  if (response.ok) return response.json() as Promise<RequestDataExportResult>;
+  const text = await response.text().catch(() => '');
+  throw new Error(text || `Failed to request data export: ${response.status}`);
+}
+
+export async function listMyDataExports(accessToken: string): Promise<DataExportStatusResult[]> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/data-exports`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (response.ok) return response.json() as Promise<DataExportStatusResult[]>;
+  throw new Error(`Failed to list data exports: ${response.status}`);
+}
+
+export async function getMyDataExportStatus(accessToken: string, exportId: string): Promise<DataExportStatusResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/data-exports/${encodeURIComponent(exportId)}`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (response.ok) return response.json() as Promise<DataExportStatusResult>;
+  throw new Error(`Failed to get export status: ${response.status}`);
+}
+
+export async function getMyDataExportDownload(accessToken: string, exportId: string): Promise<DataExportDownloadResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/data-exports/${encodeURIComponent(exportId)}/download`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (response.ok) return response.json() as Promise<DataExportDownloadResult>;
+  const text = await response.text().catch(() => '');
+  throw new Error(text || `Failed to get download access: ${response.status}`);
+}
+
+export async function deactivateMyAccount(accessToken: string, data: { currentPassword: string; confirmation: string }): Promise<DeactivateAccountResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/deactivate`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (response.ok) return response.json() as Promise<DeactivateAccountResult>;
+  const text = await response.text().catch(() => '');
+  throw new Error(text || `Failed to deactivate account: ${response.status}`);
+}

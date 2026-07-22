@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { BullModule } from '@nestjs/bullmq';
 import { CandidateProfileController } from './controllers/candidate-profile.controller';
 import { CandidatePreferencesController } from './controllers/candidate-preferences.controller';
 import { CandidateEducationController } from './controllers/candidate-education.controller';
@@ -50,9 +51,16 @@ import { DatabaseModule } from '../../database/database.module';
 import { TokenService } from '../auth/token.service';
 import { SessionService } from '../auth/session.service';
 import { RequestContextModule } from '../../common/request-context/request-context.module';
+import { StorageModule } from '../../infrastructure/storage/storage.module';
+import { DATA_EXPORT_QUEUE } from '../../infrastructure/queue/queue.constants';
+import { CandidateDataExportController } from './data-export/candidate-data-export.controller';
+import { CandidateDataExportService } from './data-export/candidate-data-export.service';
+import { CandidateDataExportProcessor } from './data-export/candidate-data-export.processor';
+import { AccountDeactivationController } from './account-lifecycle/account-deactivation.controller';
+import { AccountDeactivationService } from './account-lifecycle/account-deactivation.service';
 
 @Module({
-  imports: [DatabaseModule, AuthModule, AuditModule, RequestContextModule],
+  imports: [DatabaseModule, AuthModule, AuditModule, RequestContextModule, StorageModule, BullModule.registerQueue({ name: DATA_EXPORT_QUEUE })],
   controllers: [
     CandidateProfileController,
     CandidatePreferencesController,
@@ -68,6 +76,8 @@ import { RequestContextModule } from '../../common/request-context/request-conte
     CandidateProfilePreviewController,
     CandidateShareTokenController,
     ProfileCompletionController,
+    CandidateDataExportController,
+    AccountDeactivationController,
   ],
   providers: [
     CandidateProfileService,
@@ -103,6 +113,9 @@ import { RequestContextModule } from '../../common/request-context/request-conte
     CandidateShareTokenRepository,
     TokenService,
     SessionService,
+    CandidateDataExportService,
+    CandidateDataExportProcessor,
+    AccountDeactivationService,
   ],
   exports: [
     CandidateProfileCompletionService,

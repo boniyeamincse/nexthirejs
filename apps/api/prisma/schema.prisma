@@ -48,14 +48,16 @@ enum UserStatus {
 }
 
 model User {
-  id                String     @id @default(uuid()) @db.Uuid
-  email             String     @unique @db.VarChar(320)
-  passwordHash      String
-  status            UserStatus @default(PENDING_VERIFICATION)
-  emailVerifiedAt   DateTime?
-  passwordChangedAt DateTime?
-  createdAt         DateTime   @default(now())
-  updatedAt         DateTime   @updatedAt
+  id                 String     @id @default(uuid()) @db.Uuid
+  email              String     @unique @db.VarChar(320)
+  passwordHash       String
+  status             UserStatus @default(PENDING_VERIFICATION)
+  emailVerifiedAt    DateTime?
+  passwordChangedAt  DateTime?
+  deactivatedAt      DateTime?
+  deactivationReason String?    @db.VarChar(100)
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
 
   roles                   UserRole[]
   sessions                UserSession[]
@@ -73,6 +75,7 @@ model User {
   professionalLinks       CandidateProfessionalLink[]
   profilePrivacy          CandidateProfilePrivacy?
   shareToken              CandidateProfileShareToken?
+  dataExportRequests      CandidateDataExportRequest[]
 }
 
 model Role {
@@ -461,4 +464,36 @@ model PasswordResetToken {
   @@unique([tokenHash])
   @@index([userId])
   @@index([expiresAt])
+}
+
+enum DataExportStatus {
+  PENDING
+  PROCESSING
+  READY
+  FAILED
+  EXPIRED
+  CANCELLED
+}
+
+model CandidateDataExportRequest {
+  id              String           @id @default(uuid()) @db.Uuid
+  userId          String           @db.Uuid
+  status          DataExportStatus @default(PENDING)
+  storageKey      String?          @db.VarChar(500)
+  fileSizeBytes   BigInt?
+  checksumSha256  String?          @db.VarChar(64)
+  requestedAt     DateTime         @default(now())
+  processingAt    DateTime?
+  completedAt     DateTime?
+  expiresAt       DateTime?
+  failedAt        DateTime?
+  failureCategory String?          @db.VarChar(100)
+  downloadedAt    DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, requestedAt])
+  @@index([status, expiresAt])
 }
