@@ -1,4 +1,11 @@
-import { Injectable, BadRequestException, NotFoundException, InternalServerErrorException, ConflictException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+  InternalServerErrorException,
+  ConflictException,
+  Logger,
+} from '@nestjs/common';
 import { CandidateProfessionalLinkRepository } from '../repositories/candidate-professional-link.repository';
 import { CandidateAchievementRepository } from '../repositories/candidate-achievement.repository';
 import { CandidateProfileCompletionService } from './candidate-profile-completion.service';
@@ -12,7 +19,11 @@ import { CandidateCertificationRepository } from '../repositories/candidate-cert
 import { CandidateTrainingRepository } from '../repositories/candidate-training.repository';
 import { AuditService } from '../../audit/audit.service';
 import { AuditActorType, AuditOutcome } from '@nexthire/types';
-import { candidateProfessionalLinkSchema, updateCandidateProfessionalLinkSchema, reorderCandidateProfessionalLinksSchema } from '@nexthire/validation';
+import {
+  candidateProfessionalLinkSchema,
+  updateCandidateProfessionalLinkSchema,
+  reorderCandidateProfessionalLinksSchema,
+} from '@nexthire/validation';
 import { UrlNormalizer } from '../../../common/url/url-normalizer';
 
 @Injectable()
@@ -55,7 +66,10 @@ export class CandidateProfessionalLinkService {
         completion,
       };
     } catch (error) {
-      this.logger.error(`Error listing professional links for user ${userId}`, error instanceof Error ? error.stack : error);
+      this.logger.error(
+        `Error listing professional links for user ${userId}`,
+        error instanceof Error ? error.stack : error,
+      );
       throw new InternalServerErrorException('Failed to retrieve professional links');
     }
   }
@@ -80,17 +94,24 @@ export class CandidateProfessionalLinkService {
         throw new BadRequestException('CANDIDATE_PROFESSIONAL_LINK_VALIDATION_FAILED');
       }
 
-      const existing = await this.linkRepository.findDuplicate(userId, normalizedUrlResult.normalizedUrl);
+      const existing = await this.linkRepository.findDuplicate(
+        userId,
+        normalizedUrlResult.normalizedUrl,
+      );
       if (existing) {
         throw new ConflictException('CANDIDATE_PROFESSIONAL_LINK_DUPLICATE');
       }
 
       const sortOrder = count;
-      const record = await this.linkRepository.create(userId, {
-        ...validatedData,
-        url: normalizedUrlResult.displayUrl,
-        normalizedUrl: normalizedUrlResult.normalizedUrl,
-      }, sortOrder);
+      const record = await this.linkRepository.create(
+        userId,
+        {
+          ...validatedData,
+          url: normalizedUrlResult.displayUrl,
+          normalizedUrl: normalizedUrlResult.normalizedUrl,
+        },
+        sortOrder,
+      );
       const completion = await this.recalculateCompletion(userId);
 
       await this.auditService.recordRequired({
@@ -114,7 +135,10 @@ export class CandidateProfessionalLinkService {
       };
     } catch (error) {
       if (error instanceof BadRequestException || error instanceof ConflictException) throw error;
-      this.logger.error(`Error creating professional link for user ${userId}`, error instanceof Error ? error.stack : error);
+      this.logger.error(
+        `Error creating professional link for user ${userId}`,
+        error instanceof Error ? error.stack : error,
+      );
       throw new InternalServerErrorException('Failed to create professional link');
     }
   }
@@ -142,7 +166,11 @@ export class CandidateProfessionalLinkService {
           throw new BadRequestException('CANDIDATE_PROFESSIONAL_LINK_VALIDATION_FAILED');
         }
 
-        const duplicate = await this.linkRepository.findDuplicate(userId, normalizedUrlResult.normalizedUrl, recordId);
+        const duplicate = await this.linkRepository.findDuplicate(
+          userId,
+          normalizedUrlResult.normalizedUrl,
+          recordId,
+        );
         if (duplicate) {
           throw new ConflictException('CANDIDATE_PROFESSIONAL_LINK_DUPLICATE');
         }
@@ -175,8 +203,16 @@ export class CandidateProfessionalLinkService {
         completion,
       };
     } catch (error) {
-      if (error instanceof NotFoundException || error instanceof BadRequestException || error instanceof ConflictException) throw error;
-      this.logger.error(`Error updating professional link ${recordId} for user ${userId}`, error instanceof Error ? error.stack : error);
+      if (
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException ||
+        error instanceof ConflictException
+      )
+        throw error;
+      this.logger.error(
+        `Error updating professional link ${recordId} for user ${userId}`,
+        error instanceof Error ? error.stack : error,
+      );
       throw new InternalServerErrorException('Failed to update professional link');
     }
   }
@@ -210,7 +246,10 @@ export class CandidateProfessionalLinkService {
       return { completion };
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
-      this.logger.error(`Error deleting professional link ${recordId} for user ${userId}`, error instanceof Error ? error.stack : error);
+      this.logger.error(
+        `Error deleting professional link ${recordId} for user ${userId}`,
+        error instanceof Error ? error.stack : error,
+      );
       throw new InternalServerErrorException('Failed to delete professional link');
     }
   }
@@ -224,11 +263,13 @@ export class CandidateProfessionalLinkService {
       const validatedData = parseResult.data;
 
       const records = await this.linkRepository.findByUserId(userId);
-      const ownedIds = new Set(records.map(r => r.id));
+      const ownedIds = new Set(records.map((r) => r.id));
 
       for (const id of validatedData.orderedIds) {
         if (!ownedIds.has(id)) {
-          throw new BadRequestException('Cannot reorder records that do not belong to you or do not exist');
+          throw new BadRequestException(
+            'Cannot reorder records that do not belong to you or do not exist',
+          );
         }
       }
 
@@ -249,7 +290,10 @@ export class CandidateProfessionalLinkService {
       return { completion };
     } catch (error) {
       if (error instanceof BadRequestException) throw error;
-      this.logger.error(`Error reordering professional links for user ${userId}`, error instanceof Error ? error.stack : error);
+      this.logger.error(
+        `Error reordering professional links for user ${userId}`,
+        error instanceof Error ? error.stack : error,
+      );
       throw new InternalServerErrorException('Failed to reorder professional links');
     }
   }
@@ -266,37 +310,57 @@ export class CandidateProfessionalLinkService {
     const achievements = await this.achievementRepository.findByUserId(userId);
     const links = await this.linkRepository.findByUserId(userId);
 
-    const profileInput = profile ? {
-      fullName: profile.fullName,
-      professionalHeadline: profile.professionalHeadline,
-      professionalSummary: profile.professionalSummary,
-      dateOfBirth: profile.dateOfBirth ? profile.dateOfBirth.toISOString() : undefined,
-    } : null;
+    const profileInput = profile
+      ? {
+          fullName: profile.fullName,
+          professionalHeadline: profile.professionalHeadline,
+          professionalSummary: profile.professionalSummary,
+          dateOfBirth: profile.dateOfBirth ? profile.dateOfBirth.toISOString() : undefined,
+        }
+      : null;
 
-    const preferencesInput = preferences ? {
-      countryCode: preferences.country.code,
-      currentCity: preferences.currentCity,
-      preferredJobRoles: preferences.preferredJobRoles,
-      preferredWorkModes: preferences.preferredWorkModes as any,
-      preferredEmploymentTypes: preferences.preferredEmploymentTypes as any,
-    } : null;
+    const preferencesInput = preferences
+      ? {
+          countryCode: preferences.country.code,
+          currentCity: preferences.currentCity,
+          preferredJobRoles: preferences.preferredJobRoles,
+          preferredWorkModes: preferences.preferredWorkModes as any,
+          preferredEmploymentTypes: preferences.preferredEmploymentTypes as any,
+        }
+      : null;
 
     const completion = this.completionService.calculateCompletion(
-      profileInput, preferencesInput, educationRecords, workExperienceRecords,
-      skills, languages, certifications, training, achievements, links
+      profileInput,
+      preferencesInput,
+      educationRecords,
+      workExperienceRecords,
+      skills,
+      languages,
+      certifications,
+      training,
+      achievements,
+      links,
     );
 
     if (profile) {
-      await this.profileRepository.upsertProfile(userId, {
-        fullName: profile.fullName,
-        professionalHeadline: profile.professionalHeadline,
-        professionalSummary: profile.professionalSummary,
-        dateOfBirth: profile.dateOfBirth ? profile.dateOfBirth.toISOString() : undefined,
-      }, completion.percentage);
+      await this.profileRepository.upsertProfile(
+        userId,
+        {
+          fullName: profile.fullName,
+          professionalHeadline: profile.professionalHeadline,
+          professionalSummary: profile.professionalSummary,
+          dateOfBirth: profile.dateOfBirth ? profile.dateOfBirth.toISOString() : undefined,
+        },
+        completion.percentage,
+      );
     } else {
-      await this.profileRepository.upsertProfile(userId, {
-        fullName: 'Unknown',
-      }, completion.percentage);
+      await this.profileRepository.upsertProfile(
+        userId,
+        {
+          fullName: 'Unknown',
+        },
+        completion.percentage,
+      );
     }
 
     return completion;

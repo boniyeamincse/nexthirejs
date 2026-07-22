@@ -123,7 +123,10 @@ export class CandidateProfileCompletionService {
       completedFields.push('education');
 
       const hasFieldOfStudy = educationRecords.some(
-        (r) => r.fieldOfStudy !== null && r.fieldOfStudy !== undefined && String(r.fieldOfStudy).trim() !== ''
+        (r) =>
+          r.fieldOfStudy !== null &&
+          r.fieldOfStudy !== undefined &&
+          String(r.fieldOfStudy).trim() !== '',
       );
       if (hasFieldOfStudy) {
         percentage += 2;
@@ -135,7 +138,9 @@ export class CandidateProfileCompletionService {
       const hasGradeOrDescription = educationRecords.some(
         (r) =>
           (r.grade !== null && r.grade !== undefined && String(r.grade).trim() !== '') ||
-          (r.description !== null && r.description !== undefined && String(r.description).trim() !== '')
+          (r.description !== null &&
+            r.description !== undefined &&
+            String(r.description).trim() !== ''),
       );
       if (hasGradeOrDescription) {
         percentage += 2;
@@ -165,8 +170,8 @@ export class CandidateProfileCompletionService {
       missingFields.push('skillsCount');
     }
 
-    const hasIntermediateSkill = skills?.some(
-      (r) => ['INTERMEDIATE', 'ADVANCED', 'EXPERT'].includes(r.level)
+    const hasIntermediateSkill = skills?.some((r) =>
+      ['INTERMEDIATE', 'ADVANCED', 'EXPERT'].includes(r.level),
     );
     if (hasIntermediateSkill) {
       percentage += 2;
@@ -183,8 +188,8 @@ export class CandidateProfileCompletionService {
       missingFields.push('languagesCount');
     }
 
-    const hasProficientSpeaking = languages?.some(
-      (r) => ['PROFESSIONAL', 'FLUENT', 'NATIVE'].includes(r.speaking)
+    const hasProficientSpeaking = languages?.some((r) =>
+      ['PROFESSIONAL', 'FLUENT', 'NATIVE'].includes(r.speaking),
     );
     if (hasProficientSpeaking) {
       percentage += 2;
@@ -203,8 +208,12 @@ export class CandidateProfileCompletionService {
 
     const hasCredentialReference = certifications?.some(
       (r) =>
-        (r.credentialId !== null && r.credentialId !== undefined && String(r.credentialId).trim() !== '') ||
-        (r.credentialUrl !== null && r.credentialUrl !== undefined && String(r.credentialUrl).trim() !== '')
+        (r.credentialId !== null &&
+          r.credentialId !== undefined &&
+          String(r.credentialId).trim() !== '') ||
+        (r.credentialUrl !== null &&
+          r.credentialUrl !== undefined &&
+          String(r.credentialUrl).trim() !== ''),
     );
     if (hasCredentialReference) {
       percentage += 1;
@@ -231,8 +240,12 @@ export class CandidateProfileCompletionService {
 
     const hasAchievementDetail = achievements?.some(
       (r) =>
-        (r.description !== null && r.description !== undefined && String(r.description).trim() !== '') ||
-        (r.referenceUrl !== null && r.referenceUrl !== undefined && String(r.referenceUrl).trim() !== '')
+        (r.description !== null &&
+          r.description !== undefined &&
+          String(r.description).trim() !== '') ||
+        (r.referenceUrl !== null &&
+          r.referenceUrl !== undefined &&
+          String(r.referenceUrl).trim() !== ''),
     );
     if (hasAchievementDetail) {
       percentage += 1;
@@ -248,8 +261,8 @@ export class CandidateProfileCompletionService {
       missingFields.push('professionalLinks');
     }
 
-    const hasKeyLink = professionalLinks?.some(
-      (r) => ['LINKEDIN', 'GITHUB', 'PORTFOLIO', 'PERSONAL_WEBSITE'].includes(r.type)
+    const hasKeyLink = professionalLinks?.some((r) =>
+      ['LINKEDIN', 'GITHUB', 'PORTFOLIO', 'PERSONAL_WEBSITE'].includes(r.type),
     );
     if (hasKeyLink) {
       percentage += 2;

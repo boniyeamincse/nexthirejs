@@ -52,9 +52,7 @@ export default function AccountSettingsPage() {
   const [deactivating, setDeactivating] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-  const hasActiveExport = exports.some(
-    (e) => e.status === 'PENDING' || e.status === 'PROCESSING',
-  );
+  const hasActiveExport = exports.some((e) => e.status === 'PENDING' || e.status === 'PROCESSING');
 
   const fetchExports = useCallback(async () => {
     const token = getAccessToken();
@@ -102,9 +100,17 @@ export default function AccountSettingsPage() {
         return;
       }
       const message = err instanceof Error ? err.message : 'An unexpected error occurred';
-      if (message.includes('429') || message.includes('rate limit') || message.includes('too many requests')) {
+      if (
+        message.includes('429') ||
+        message.includes('rate limit') ||
+        message.includes('too many requests')
+      ) {
         setRequestError('You have reached the rate limit. Please wait before requesting again.');
-      } else if (message.includes('409') || message.includes('already') || message.includes('Conflict')) {
+      } else if (
+        message.includes('409') ||
+        message.includes('already') ||
+        message.includes('Conflict')
+      ) {
         setRequestError('An export is already in progress.');
       } else {
         setRequestError(message);
@@ -179,9 +185,17 @@ export default function AccountSettingsPage() {
         return;
       }
       const message = err instanceof Error ? err.message : 'An unexpected error occurred';
-      if (message.includes('429') || message.includes('rate limit') || message.includes('too many requests')) {
+      if (
+        message.includes('429') ||
+        message.includes('rate limit') ||
+        message.includes('too many requests')
+      ) {
         setDeactivationError('Too many attempts. Please wait a moment before trying again.');
-      } else if (message.includes('password') || message.includes('Current password is incorrect') || message.includes('wrong password')) {
+      } else if (
+        message.includes('password') ||
+        message.includes('Current password is incorrect') ||
+        message.includes('wrong password')
+      ) {
         setDeactivationError('Current password is incorrect.');
       } else {
         setDeactivationError(message);
@@ -208,7 +222,11 @@ export default function AccountSettingsPage() {
         <div className={styles.background}></div>
         <div className={styles.glassCard} style={{ textAlign: 'center', padding: '4rem' }}>
           <p className={styles.subtitle}>Session expired. Please log in again.</p>
-          <button onClick={() => router.push('/login')} className={styles.submitButton} style={{ marginTop: '1rem' }}>
+          <button
+            onClick={() => router.push('/login')}
+            className={styles.submitButton}
+            style={{ marginTop: '1rem' }}
+          >
             Go to Login
           </button>
         </div>
@@ -217,11 +235,16 @@ export default function AccountSettingsPage() {
   }
 
   return (
-    <div className={styles.container} style={{ minHeight: 'calc(100vh - 72px)', padding: '2rem 1rem' }}>
+    <div
+      className={styles.container}
+      style={{ minHeight: 'calc(100vh - 72px)', padding: '2rem 1rem' }}
+    >
       <div className={styles.background}></div>
       <div className={styles.glassCard} style={{ maxWidth: '700px', margin: '0 auto' }}>
         <div style={{ marginBottom: '2rem' }}>
-          <h1 className={styles.title} style={{ fontSize: '1.75rem', margin: 0 }}>Account Settings</h1>
+          <h1 className={styles.title} style={{ fontSize: '1.75rem', margin: 0 }}>
+            Account Settings
+          </h1>
           <p className={styles.subtitle} style={{ marginTop: '0.5rem' }}>
             Manage your data export requests and account lifecycle.
           </p>
@@ -259,13 +282,23 @@ export default function AccountSettingsPage() {
         )}
 
         <section style={{ marginBottom: '2.5rem' }}>
-          <h2 className={styles.subtitle} style={{ fontSize: '1.1rem', fontWeight: 600, color: '#e2e8f0', marginBottom: '0.75rem' }}>
+          <h2
+            className={styles.subtitle}
+            style={{
+              fontSize: '1.1rem',
+              fontWeight: 600,
+              color: '#e2e8f0',
+              marginBottom: '0.75rem',
+            }}
+          >
             Data Export
           </h2>
-          <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '1rem', lineHeight: 1.5 }}>
-            Download a copy of your profile data, including your personal information,
-            work experience, education, skills, and other sections you have added.
-            Exports are available for a limited time after they are generated.
+          <p
+            style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '1rem', lineHeight: 1.5 }}
+          >
+            Download a copy of your profile data, including your personal information, work
+            experience, education, skills, and other sections you have added. Exports are available
+            for a limited time after they are generated.
           </p>
 
           {requestError && (
@@ -304,12 +337,23 @@ export default function AccountSettingsPage() {
             className={styles.submitButton}
             style={{ marginTop: 0 }}
           >
-            {requesting ? 'Requesting...' : hasActiveExport ? 'Export in Progress' : 'Request Export'}
+            {requesting
+              ? 'Requesting...'
+              : hasActiveExport
+                ? 'Export in Progress'
+                : 'Request Export'}
           </button>
 
           {exports.length > 0 && (
             <div style={{ marginTop: '1.5rem' }}>
-              <h3 style={{ color: '#e2e8f0', fontSize: '0.95rem', fontWeight: 500, marginBottom: '0.75rem' }}>
+              <h3
+                style={{
+                  color: '#e2e8f0',
+                  fontSize: '0.95rem',
+                  fontWeight: 500,
+                  marginBottom: '0.75rem',
+                }}
+              >
                 Recent Exports
               </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -366,10 +410,14 @@ export default function AccountSettingsPage() {
                           </button>
                         )}
                         {status === 'PENDING' && (
-                          <span style={{ color: '#94a3b8', fontSize: '0.8rem' }}>Processing...</span>
+                          <span style={{ color: '#94a3b8', fontSize: '0.8rem' }}>
+                            Processing...
+                          </span>
                         )}
                         {status === 'PROCESSING' && (
-                          <span style={{ color: '#94a3b8', fontSize: '0.8rem' }}>Processing...</span>
+                          <span style={{ color: '#94a3b8', fontSize: '0.8rem' }}>
+                            Processing...
+                          </span>
                         )}
                         {status === 'FAILED' && (
                           <span style={{ color: '#ef4444', fontSize: '0.8rem' }}>Failed</span>
@@ -406,10 +454,12 @@ export default function AccountSettingsPage() {
           >
             Danger Zone: Deactivate Account
           </h2>
-          <p style={{ color: '#fca5a5', fontSize: '0.85rem', marginBottom: '1rem', lineHeight: 1.5 }}>
-            Once you deactivate your account, you will not be able to log in.
-            Your profile will be hidden from recruiters, but your data will be
-            retained in case you choose to reactivate later.
+          <p
+            style={{ color: '#fca5a5', fontSize: '0.85rem', marginBottom: '1rem', lineHeight: 1.5 }}
+          >
+            Once you deactivate your account, you will not be able to log in. Your profile will be
+            hidden from recruiters, but your data will be retained in case you choose to reactivate
+            later.
           </p>
 
           {deactivationError && (
@@ -427,7 +477,10 @@ export default function AccountSettingsPage() {
                 id="deactivationPassword"
                 type="password"
                 value={deactivationPassword}
-                onChange={(e) => { setDeactivationPassword(e.target.value); setDeactivationError(null); }}
+                onChange={(e) => {
+                  setDeactivationPassword(e.target.value);
+                  setDeactivationError(null);
+                }}
                 className={styles.input}
                 autoComplete="current-password"
               />
@@ -441,7 +494,10 @@ export default function AccountSettingsPage() {
                 id="deactivationConfirmation"
                 type="text"
                 value={deactivationConfirmation}
-                onChange={(e) => { setDeactivationConfirmation(e.target.value); setDeactivationError(null); }}
+                onChange={(e) => {
+                  setDeactivationConfirmation(e.target.value);
+                  setDeactivationError(null);
+                }}
                 className={styles.input}
                 autoComplete="off"
               />
@@ -499,12 +555,23 @@ export default function AccountSettingsPage() {
               width: '90%',
             }}
           >
-            <h3 id="confirm-title" style={{ color: '#ef4444', fontSize: '1.15rem', margin: '0 0 0.75rem' }}>
+            <h3
+              id="confirm-title"
+              style={{ color: '#ef4444', fontSize: '1.15rem', margin: '0 0 0.75rem' }}
+            >
               Confirm Deactivation
             </h3>
-            <p id="confirm-desc" style={{ color: '#94a3b8', fontSize: '0.9rem', lineHeight: 1.5, margin: '0 0 1.5rem' }}>
-              Are you sure you want to deactivate your account? You will be
-              signed out immediately and will not be able to log in again.
+            <p
+              id="confirm-desc"
+              style={{
+                color: '#94a3b8',
+                fontSize: '0.9rem',
+                lineHeight: 1.5,
+                margin: '0 0 1.5rem',
+              }}
+            >
+              Are you sure you want to deactivate your account? You will be signed out immediately
+              and will not be able to log in again.
             </p>
             <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
               <button

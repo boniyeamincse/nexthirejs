@@ -10,10 +10,7 @@ export class CandidateEducationRepository {
   async findByUserId(userId: string) {
     return this.prisma.educationRecord.findMany({
       where: { userId },
-      orderBy: [
-        { sortOrder: 'asc' },
-        { startDate: 'desc' }
-      ],
+      orderBy: [{ sortOrder: 'asc' }, { startDate: 'desc' }],
     });
   }
 
@@ -54,7 +51,8 @@ export class CandidateEducationRepository {
     if (data.qualification !== undefined) updateData.qualification = data.qualification;
     if (data.fieldOfStudy !== undefined) updateData.fieldOfStudy = data.fieldOfStudy;
     if (data.startDate !== undefined) updateData.startDate = new Date(data.startDate);
-    if (data.endDate !== undefined) updateData.endDate = data.endDate ? new Date(data.endDate) : null;
+    if (data.endDate !== undefined)
+      updateData.endDate = data.endDate ? new Date(data.endDate) : null;
     if (data.currentlyStudying !== undefined) updateData.currentlyStudying = data.currentlyStudying;
     if (data.grade !== undefined) updateData.grade = data.grade;
     if (data.description !== undefined) updateData.description = data.description;
@@ -78,8 +76,8 @@ export class CandidateEducationRepository {
         this.prisma.educationRecord.update({
           where: { id: update.id },
           data: { sortOrder: update.sortOrder },
-        })
-      )
+        }),
+      ),
     );
   }
 }

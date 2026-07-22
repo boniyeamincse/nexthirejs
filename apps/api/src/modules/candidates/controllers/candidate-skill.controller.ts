@@ -1,4 +1,17 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, HttpCode, HttpStatus, ParseUUIDPipe, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  HttpCode,
+  HttpStatus,
+  ParseUUIDPipe,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { CandidateSkillService } from '../services/candidate-skill.service';
 import { AuthGuard } from '../../auth/auth.guard';
@@ -28,10 +41,7 @@ export class CandidateSkillController {
   @ApiOperation({ summary: 'Create skill' })
   @ApiResponse({ status: 201, description: 'Skill created successfully' })
   @ApiResponse({ status: 400, description: 'Validation failed or limit reached' })
-  async createSkill(
-    @Req() req: AuthenticatedRequest,
-    @Body() body: any,
-  ) {
+  async createSkill(@Req() req: AuthenticatedRequest, @Body() body: any) {
     return this.skillService.createRecord(req.principal.userId, body);
   }
 
@@ -39,10 +49,7 @@ export class CandidateSkillController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Reorder skills' })
   @ApiResponse({ status: 200, description: 'Skills reordered successfully' })
-  async reorderSkills(
-    @Req() req: AuthenticatedRequest,
-    @Body() body: any,
-  ) {
+  async reorderSkills(@Req() req: AuthenticatedRequest, @Body() body: any) {
     await this.skillService.reorderRecords(req.principal.userId, body);
   }
 
@@ -63,10 +70,7 @@ export class CandidateSkillController {
   @ApiOperation({ summary: 'Delete skill' })
   @ApiResponse({ status: 204, description: 'Skill deleted successfully' })
   @ApiResponse({ status: 404, description: 'Skill not found' })
-  async deleteSkill(
-    @Req() req: AuthenticatedRequest,
-    @Param('id', ParseUUIDPipe) id: string,
-  ) {
+  async deleteSkill(@Req() req: AuthenticatedRequest, @Param('id', ParseUUIDPipe) id: string) {
     await this.skillService.deleteRecord(req.principal.userId, id);
   }
 }

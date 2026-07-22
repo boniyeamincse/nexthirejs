@@ -9,10 +9,7 @@ export class CountriesService {
   async listActiveCountries(): Promise<{ countries: Country[] }> {
     const countries = await this.prisma.country.findMany({
       where: { isActive: true },
-      orderBy: [
-        { sortOrder: 'asc' },
-        { name: 'asc' }
-      ],
+      orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
       select: {
         code: true,
         name: true,
@@ -20,9 +17,9 @@ export class CountriesService {
         defaultCurrency: true,
         defaultTimezone: true,
         supportedLanguages: true,
-      }
+      },
     });
-    
+
     return { countries };
   }
 }

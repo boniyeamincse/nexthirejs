@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../database/prisma.service';
-import type { CreateWorkExperienceRecordInput, UpdateWorkExperienceRecordInput } from '@nexthire/validation';
+import type {
+  CreateWorkExperienceRecordInput,
+  UpdateWorkExperienceRecordInput,
+} from '@nexthire/validation';
 
 @Injectable()
 export class CandidateWorkExperienceRepository {
@@ -52,7 +55,8 @@ export class CandidateWorkExperienceRepository {
     if (data.location !== undefined) updateData.location = data.location;
     if (data.isRemote !== undefined) updateData.isRemote = data.isRemote;
     if (data.startDate !== undefined) updateData.startDate = new Date(data.startDate);
-    if (data.endDate !== undefined) updateData.endDate = data.endDate ? new Date(data.endDate) : null;
+    if (data.endDate !== undefined)
+      updateData.endDate = data.endDate ? new Date(data.endDate) : null;
     if (data.currentlyWorking !== undefined) updateData.currentlyWorking = data.currentlyWorking;
     if (data.responsibilities !== undefined) updateData.responsibilities = data.responsibilities;
     if (data.achievements !== undefined) updateData.achievements = data.achievements;
@@ -75,8 +79,8 @@ export class CandidateWorkExperienceRepository {
         this.prisma.workExperienceRecord.update({
           where: { id: update.id },
           data: { sortOrder: update.sortOrder },
-        })
-      )
+        }),
+      ),
     );
   }
 }

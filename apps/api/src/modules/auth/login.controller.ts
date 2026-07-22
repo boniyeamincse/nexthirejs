@@ -51,7 +51,10 @@ export class LoginController {
   ): Promise<CandidateLoginResult> {
     const ip = req.ip || req.socket?.remoteAddress || undefined;
     const userAgent = req.headers['user-agent'] || undefined;
-    const result = await this.loginService.login(dto.email, dto.password, { ipAddress: ip, userAgent });
+    const result = await this.loginService.login(dto.email, dto.password, {
+      ipAddress: ip,
+      userAgent,
+    });
 
     const cookieConfig = this.tokenService.getRefreshCookieConfig();
     res.cookie(REFRESH_COOKIE_NAME, result.rawRefreshToken, {

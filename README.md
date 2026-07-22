@@ -4,49 +4,52 @@ NextHire is a planned career-readiness, learning, portfolio, assessment, and hir
 
 ## Current Phase
 
-Phase 0: Foundation. This repository currently contains only the monorepo foundation and planning documentation. Application initialization will happen in later tasks.
+Phase 1: Identity and Candidate Foundation — COMPLETED. See `docs/phase-1/overview.md` for the full scope and `docs/task/status.md` for task tracking.
 
 ## Monorepo Structure
 
 ```text
 apps/
-  web/           Next.js web frontend
-  api/           NestJS backend API
+  web/           Next.js web frontend (Phase 1 candidate flows)
+  api/           NestJS backend API (Phase 1 identity + profile)
   mobile/        Planned Flutter mobile application
 packages/
-  types/         Planned shared TypeScript types
-  validation/    Planned shared validation schemas
-  constants/     Planned shared constants
+  types/         Shared TypeScript types (auth, candidates, audit, config)
+  validation/    Shared Zod validation schemas (auth, profile sections, pagination)
+  constants/     Shared constants (auth errors, countries, languages, currencies)
   api-client/    Planned shared API client
   eslint-config/ Planned shared lint configuration package
-  tsconfig/      Planned shared TypeScript configuration package
+  tsconfig/      Shared TypeScript configuration
 infrastructure/
-  docker/        Planned local container infrastructure files
+  docker/        Local Docker Compose (PostgreSQL, Redis, Mailpit, MinIO)
   nginx/         Planned edge and reverse-proxy configuration
   monitoring/    Planned observability configuration
-  scripts/       Planned repository and infrastructure scripts
+  scripts/       Repository and infrastructure scripts
 docs/
   architecture/  Architecture notes
   api/           API documentation
+  phase-1/       Phase 1 documentation (overview, API inventory, security, smoke test, limitations)
   database/      Database documentation
   task/          Task tracking and implementation instructions
+  privacy/       Data export privacy documentation
+  security/      Account deactivation security documentation
 ```
 
-## Planned Applications
+## Applications
 
-- `apps/web`: candidate, trainer, company, and admin web experience
-- `apps/api`: backend API and business logic services
+- `apps/web`: candidate web experience (register, login, profile management, settings)
+- `apps/api`: backend REST API (candidate identity, profile CRUD, privacy, completion, data export)
 - `apps/mobile`: Flutter mobile application for future phases
 
-## Planned Core Technology
+## Core Technology
 
-- Next.js with TypeScript for the web frontend
+- Next.js 15 with TypeScript for the web frontend
 - NestJS with TypeScript for the backend API
-- PostgreSQL with Prisma for persistent data
-- Redis and BullMQ for caching and background jobs
-- Socket.IO for real-time features
-- Docker for local infrastructure
+- PostgreSQL with Prisma (v7) for persistent data
+- Redis and BullMQ for background jobs (email queue, data export)
+- Docker Compose for local infrastructure (PostgreSQL, Redis, Mailpit, MinIO)
 - Turborepo and pnpm workspaces for monorepo orchestration
+- Zod for shared validation schemas
 
 ## Local Prerequisites
 
@@ -109,9 +112,9 @@ pnpm --filter @nexthire/web typecheck
 
 The following test accounts are available for local development and testing. You must run `pnpm --filter @nexthire/api db:seed` to create them in your local database.
 
-| Role      | Email                   | Password      | Notes                          |
-| --------- | ----------------------- | ------------- | ------------------------------ |
-| Candidate | `candidate@example.com` | `Password123!`| Standard candidate account     |
+| Role      | Email                   | Password       | Notes                      |
+| --------- | ----------------------- | -------------- | -------------------------- |
+| Candidate | `candidate@example.com` | `Password123!` | Standard candidate account |
 
 ## Documentation
 

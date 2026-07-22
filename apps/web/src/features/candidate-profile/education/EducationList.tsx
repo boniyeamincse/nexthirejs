@@ -10,7 +10,13 @@ interface EducationListProps {
   onMoveDown: (index: number) => Promise<void>;
 }
 
-export function EducationList({ records, onEdit, onDelete, onMoveUp, onMoveDown }: EducationListProps) {
+export function EducationList({
+  records,
+  onEdit,
+  onDelete,
+  onMoveUp,
+  onMoveDown,
+}: EducationListProps) {
   if (!records || records.length === 0) {
     return (
       <div
@@ -32,7 +38,11 @@ export function EducationList({ records, onEdit, onDelete, onMoveUp, onMoveDown 
   }
 
   return (
-    <div role="list" aria-label="Education records" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div
+      role="list"
+      aria-label="Education records"
+      style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
+    >
       {records.map((record, index) => (
         <EducationRecordCard
           key={record.id}

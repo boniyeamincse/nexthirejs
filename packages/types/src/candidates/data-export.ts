@@ -1,4 +1,5 @@
-export type DataExportStatus = 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED' | 'EXPIRED' | 'CANCELLED';
+export type DataExportStatus =
+  'PENDING' | 'PROCESSING' | 'READY' | 'FAILED' | 'EXPIRED' | 'CANCELLED';
 
 export interface RequestCandidateDataExportResult {
   id: string;

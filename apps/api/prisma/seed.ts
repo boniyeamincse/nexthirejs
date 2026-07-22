@@ -28,7 +28,8 @@ async function main() {
     update: {},
     create: {
       email: 'candidate@example.com',
-      passwordHash: '$argon2id$v=19$m=65536,p=4,t=3$iY1KhtmOrBMJuGNqRFyPmQ$e07Yj840R2y+CDoXmSTmlmSoDBDDoHQvfNztpbLqu5A',
+      passwordHash:
+        '$argon2id$v=19$m=65536,p=4,t=3$iY1KhtmOrBMJuGNqRFyPmQ$e07Yj840R2y+CDoXmSTmlmSoDBDDoHQvfNztpbLqu5A',
       status: 'ACTIVE',
       emailVerifiedAt: new Date(),
       roles: {

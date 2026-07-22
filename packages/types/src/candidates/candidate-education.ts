@@ -6,7 +6,7 @@ export enum EducationLevel {
   MASTER = 'MASTER',
   DOCTORATE = 'DOCTORATE',
   PROFESSIONAL = 'PROFESSIONAL',
-  OTHER = 'OTHER'
+  OTHER = 'OTHER',
 }
 
 export interface EducationRecordResult {

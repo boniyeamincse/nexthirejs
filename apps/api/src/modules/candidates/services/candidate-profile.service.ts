@@ -13,7 +13,9 @@ export class CandidateProfileService {
     private readonly auditService: AuditService,
   ) {}
 
-  async getProfile(userId: string): Promise<{ profile: CandidateProfileBasics | null, completion: any }> {
+  async getProfile(
+    userId: string,
+  ): Promise<{ profile: CandidateProfileBasics | null; completion: any }> {
     const record = await this.repository.findByUserId(userId);
 
     if (!record) {
@@ -31,16 +33,18 @@ export class CandidateProfileService {
     };
 
     const completion = this.completionService.calculateCompletion(inputData);
-    
+
     // Explicitly audit profile view (best effort)
-    void this.auditService.recordBestEffort({
-      actorType: AuditActorType.USER,
-      actorUserId: userId,
-      action: 'candidate.profile.viewed',
-      targetType: 'CandidateProfile',
-      targetId: record.id,
-      outcome: AuditOutcome.SUCCESS,
-    }).catch(() => {});
+    void this.auditService
+      .recordBestEffort({
+        actorType: AuditActorType.USER,
+        actorUserId: userId,
+        action: 'candidate.profile.viewed',
+        targetType: 'CandidateProfile',
+        targetId: record.id,
+        outcome: AuditOutcome.SUCCESS,
+      })
+      .catch(() => {});
 
     return {
       profile: this.mapToResponse(record, record.user.email, completion),
@@ -55,24 +59,30 @@ export class CandidateProfileService {
     }
 
     const validatedData = parseResult.data;
-    
+
     const existingProfile = await this.repository.findByUserId(userId);
-    const completionBefore = existingProfile 
+    const completionBefore = existingProfile
       ? this.completionService.calculateCompletion({
           fullName: existingProfile.fullName,
           professionalHeadline: existingProfile.professionalHeadline,
           professionalSummary: existingProfile.professionalSummary,
-          dateOfBirth: existingProfile.dateOfBirth ? existingProfile.dateOfBirth.toISOString() : undefined,
+          dateOfBirth: existingProfile.dateOfBirth
+            ? existingProfile.dateOfBirth.toISOString()
+            : undefined,
         })
       : this.completionService.calculateCompletion(null);
 
     const completionAfter = this.completionService.calculateCompletion(validatedData);
 
     try {
-      const result = await this.repository.upsertProfile(userId, validatedData, completionAfter.percentage);
-      
-      const changedFieldNames = existingProfile 
-        ? Object.keys(validatedData).filter(key => {
+      const result = await this.repository.upsertProfile(
+        userId,
+        validatedData,
+        completionAfter.percentage,
+      );
+
+      const changedFieldNames = existingProfile
+        ? Object.keys(validatedData).filter((key) => {
             const newVal = (validatedData as any)[key];
             let oldVal: any = existingProfile[key as keyof typeof existingProfile];
             if (oldVal instanceof Date) oldVal = oldVal.toISOString();
@@ -81,7 +91,7 @@ export class CandidateProfileService {
         : Object.keys(validatedData);
 
       const action = existingProfile ? 'candidate.profile.updated' : 'candidate.profile.created';
-      
+
       await this.auditService.recordRequired({
         actorType: AuditActorType.USER,
         actorUserId: userId,
@@ -93,13 +103,13 @@ export class CandidateProfileService {
           completionPercentageBefore: completionBefore.percentage,
           completionPercentageAfter: completionAfter.percentage,
           changedFieldNames,
-        }
+        },
       });
 
       return this.mapToResponse(result, result.user.email, completionAfter);
     } catch (error) {
       if ((error as any).code === 'P2002') {
-         throw new ConflictException('CANDIDATE_PROFILE_CONFLICT');
+        throw new ConflictException('CANDIDATE_PROFILE_CONFLICT');
       }
       throw error; // Will be mapped to 500 by global filter
     }

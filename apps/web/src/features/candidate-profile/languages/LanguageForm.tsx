@@ -1,5 +1,8 @@
 import { useState } from 'react';
-import type { CreateCandidateLanguageInput, UpdateCandidateLanguageInput } from '@nexthire/validation';
+import type {
+  CreateCandidateLanguageInput,
+  UpdateCandidateLanguageInput,
+} from '@nexthire/validation';
 import type { CandidateLanguageResult } from '@nexthire/types';
 
 interface LanguageFormProps {
@@ -43,26 +46,33 @@ export function LanguageForm({ initialData, onSave, onCancel }: LanguageFormProp
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <form
+      onSubmit={handleSubmit}
+      style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
+    >
       <h3 style={{ color: '#fff', fontSize: '1.2rem', marginBottom: '0.5rem' }}>
         {initialData ? 'Edit Language' : 'Add New Language'}
       </h3>
 
       {errorMsg && (
-        <div style={{
-          padding: '0.75rem',
-          background: 'rgba(239, 68, 68, 0.1)',
-          border: '1px solid rgba(239, 68, 68, 0.3)',
-          borderRadius: '0.5rem',
-          color: '#fca5a5',
-          fontSize: '0.9rem',
-        }}>
+        <div
+          style={{
+            padding: '0.75rem',
+            background: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: '0.5rem',
+            color: '#fca5a5',
+            fontSize: '0.9rem',
+          }}
+        >
           {errorMsg}
         </div>
       )}
 
       <div>
-        <label style={{ display: 'block', marginBottom: '0.5rem', color: '#cbd5e1', fontSize: '0.9rem' }}>
+        <label
+          style={{ display: 'block', marginBottom: '0.5rem', color: '#cbd5e1', fontSize: '0.9rem' }}
+        >
           Language Name *
         </label>
         <input
@@ -84,7 +94,14 @@ export function LanguageForm({ initialData, onSave, onCancel }: LanguageFormProp
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
         <div>
-          <label style={{ display: 'block', marginBottom: '0.5rem', color: '#cbd5e1', fontSize: '0.9rem' }}>
+          <label
+            style={{
+              display: 'block',
+              marginBottom: '0.5rem',
+              color: '#cbd5e1',
+              fontSize: '0.9rem',
+            }}
+          >
             Speaking *
           </label>
           <select
@@ -102,13 +119,22 @@ export function LanguageForm({ initialData, onSave, onCancel }: LanguageFormProp
             }}
           >
             {PROFICIENCY_LEVELS.map((lvl) => (
-              <option key={lvl.value} value={lvl.value}>{lvl.label}</option>
+              <option key={lvl.value} value={lvl.value}>
+                {lvl.label}
+              </option>
             ))}
           </select>
         </div>
 
         <div>
-          <label style={{ display: 'block', marginBottom: '0.5rem', color: '#cbd5e1', fontSize: '0.9rem' }}>
+          <label
+            style={{
+              display: 'block',
+              marginBottom: '0.5rem',
+              color: '#cbd5e1',
+              fontSize: '0.9rem',
+            }}
+          >
             Reading *
           </label>
           <select
@@ -126,13 +152,22 @@ export function LanguageForm({ initialData, onSave, onCancel }: LanguageFormProp
             }}
           >
             {PROFICIENCY_LEVELS.map((lvl) => (
-              <option key={lvl.value} value={lvl.value}>{lvl.label}</option>
+              <option key={lvl.value} value={lvl.value}>
+                {lvl.label}
+              </option>
             ))}
           </select>
         </div>
 
         <div>
-          <label style={{ display: 'block', marginBottom: '0.5rem', color: '#cbd5e1', fontSize: '0.9rem' }}>
+          <label
+            style={{
+              display: 'block',
+              marginBottom: '0.5rem',
+              color: '#cbd5e1',
+              fontSize: '0.9rem',
+            }}
+          >
             Writing *
           </label>
           <select
@@ -150,7 +185,9 @@ export function LanguageForm({ initialData, onSave, onCancel }: LanguageFormProp
             }}
           >
             {PROFICIENCY_LEVELS.map((lvl) => (
-              <option key={lvl.value} value={lvl.value}>{lvl.label}</option>
+              <option key={lvl.value} value={lvl.value}>
+                {lvl.label}
+              </option>
             ))}
           </select>
         </div>

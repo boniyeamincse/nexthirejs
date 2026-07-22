@@ -97,7 +97,12 @@ describe('ProfessionalLinkList', () => {
   });
 
   it('shows duplicate warning', () => {
-    render(<ProfessionalLinkList {...defaultProps} duplicateWarning="A link with this URL already exists." />);
+    render(
+      <ProfessionalLinkList
+        {...defaultProps}
+        duplicateWarning="A link with this URL already exists."
+      />,
+    );
     expect(screen.getByText('A link with this URL already exists.')).toBeInTheDocument();
   });
 
@@ -110,17 +115,8 @@ describe('ProfessionalLinkList', () => {
 
   it('calls onMoveUp', async () => {
     const onMoveUp = vi.fn();
-    const records = [
-      mockLink,
-      { ...mockLink, id: '2', url: 'https://github.com/testuser' },
-    ];
-    render(
-      <ProfessionalLinkList
-        {...defaultProps}
-        records={records}
-        onMoveUp={onMoveUp}
-      />
-    );
+    const records = [mockLink, { ...mockLink, id: '2', url: 'https://github.com/testuser' }];
+    render(<ProfessionalLinkList {...defaultProps} records={records} onMoveUp={onMoveUp} />);
     const buttons = screen.getAllByLabelText('Move up');
     await userEvent.click(buttons[1]);
     expect(onMoveUp).toHaveBeenCalledWith(1);

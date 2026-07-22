@@ -39,7 +39,7 @@ describe('ConfigurationModule - Countries (e2e)', () => {
 
       expect(response.body).toHaveProperty('countries');
       expect(Array.isArray(response.body.countries)).toBe(true);
-      
+
       const bd = response.body.countries.find((c: any) => c.code === 'BD');
       expect(bd).toBeDefined();
       expect(bd.name).toBe('Bangladesh');

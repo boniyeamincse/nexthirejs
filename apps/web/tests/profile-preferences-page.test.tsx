@@ -16,12 +16,8 @@ describe('ProfilePreferencesPage', () => {
   });
 
   it('renders loading state initially', () => {
-    (apiClient.listSupportedCountries as any).mockImplementation(
-      () => new Promise(() => {})
-    );
-    (apiClient.getMyCandidatePreferences as any).mockImplementation(
-      () => new Promise(() => {})
-    );
+    (apiClient.listSupportedCountries as any).mockImplementation(() => new Promise(() => {}));
+    (apiClient.getMyCandidatePreferences as any).mockImplementation(() => new Promise(() => {}));
 
     render(<ProfilePreferencesPage />);
     expect(screen.getByText(/loading/i)).toBeInTheDocument();
@@ -38,11 +34,16 @@ describe('ProfilePreferencesPage', () => {
         preferredJobRoles: ['Engineer'],
         preferredWorkModes: ['REMOTE'],
         preferredEmploymentTypes: ['FULL_TIME'],
-        completion: { percentage: 60, completedFields: [], missingFields: [], version: 'candidate-profile-v2' }
+        completion: {
+          percentage: 60,
+          completedFields: [],
+          missingFields: [],
+          version: 'candidate-profile-v2',
+        },
       },
       availableOptions: {
         workModes: ['REMOTE', 'HYBRID'],
-        employmentTypes: ['FULL_TIME']
+        employmentTypes: ['FULL_TIME'],
       },
     });
 
@@ -63,7 +64,7 @@ describe('ProfilePreferencesPage', () => {
       preferences: null,
       availableOptions: {
         workModes: ['REMOTE', 'HYBRID'],
-        employmentTypes: ['FULL_TIME']
+        employmentTypes: ['FULL_TIME'],
       },
     });
 

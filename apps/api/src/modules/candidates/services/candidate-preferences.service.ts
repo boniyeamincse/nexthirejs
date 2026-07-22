@@ -17,7 +17,9 @@ export class CandidatePreferencesService {
     private readonly prisma: PrismaService,
   ) {}
 
-  async getPreferences(userId: string): Promise<{ preferences: CandidatePreferenceResult | null, availableOptions: any }> {
+  async getPreferences(
+    userId: string,
+  ): Promise<{ preferences: CandidatePreferenceResult | null; availableOptions: any }> {
     const record = await this.repository.findByUserId(userId);
     const profile = await this.profileRepository.findByUserId(userId);
 
@@ -33,12 +35,14 @@ export class CandidatePreferencesService {
       };
     }
 
-    const profileInput = profile ? {
-      fullName: profile.fullName,
-      professionalHeadline: profile.professionalHeadline,
-      professionalSummary: profile.professionalSummary,
-      dateOfBirth: profile.dateOfBirth ? profile.dateOfBirth.toISOString() : undefined,
-    } : null;
+    const profileInput = profile
+      ? {
+          fullName: profile.fullName,
+          professionalHeadline: profile.professionalHeadline,
+          professionalSummary: profile.professionalSummary,
+          dateOfBirth: profile.dateOfBirth ? profile.dateOfBirth.toISOString() : undefined,
+        }
+      : null;
 
     const completion = this.completionService.calculateCompletion(profileInput, {
       countryCode: record.country.code,
@@ -48,14 +52,16 @@ export class CandidatePreferencesService {
       preferredEmploymentTypes: record.preferredEmploymentTypes as any,
     });
 
-    void this.auditService.recordBestEffort({
-      actorType: AuditActorType.USER,
-      actorUserId: userId,
-      action: 'candidate.preferences.viewed',
-      targetType: 'CandidatePreference',
-      targetId: record.id,
-      outcome: AuditOutcome.SUCCESS,
-    }).catch(() => {});
+    void this.auditService
+      .recordBestEffort({
+        actorType: AuditActorType.USER,
+        actorUserId: userId,
+        action: 'candidate.preferences.viewed',
+        targetType: 'CandidatePreference',
+        targetId: record.id,
+        outcome: AuditOutcome.SUCCESS,
+      })
+      .catch(() => {});
 
     return {
       preferences: this.mapToResponse(record, completion),
@@ -82,22 +88,28 @@ export class CandidatePreferencesService {
     const existingProfile = await this.profileRepository.findByUserId(userId);
     const existingPreferences = await this.repository.findByUserId(userId);
 
-    const profileInput = existingProfile ? {
-      fullName: existingProfile.fullName,
-      professionalHeadline: existingProfile.professionalHeadline,
-      professionalSummary: existingProfile.professionalSummary,
-      dateOfBirth: existingProfile.dateOfBirth ? existingProfile.dateOfBirth.toISOString() : undefined,
-    } : null;
+    const profileInput = existingProfile
+      ? {
+          fullName: existingProfile.fullName,
+          professionalHeadline: existingProfile.professionalHeadline,
+          professionalSummary: existingProfile.professionalSummary,
+          dateOfBirth: existingProfile.dateOfBirth
+            ? existingProfile.dateOfBirth.toISOString()
+            : undefined,
+        }
+      : null;
 
     const completionBefore = this.completionService.calculateCompletion(
-      profileInput, 
-      existingPreferences ? {
-        countryCode: existingPreferences.country.code,
-        currentCity: existingPreferences.currentCity,
-        preferredJobRoles: existingPreferences.preferredJobRoles,
-        preferredWorkModes: existingPreferences.preferredWorkModes as any,
-        preferredEmploymentTypes: existingPreferences.preferredEmploymentTypes as any,
-      } : null
+      profileInput,
+      existingPreferences
+        ? {
+            countryCode: existingPreferences.country.code,
+            currentCity: existingPreferences.currentCity,
+            preferredJobRoles: existingPreferences.preferredJobRoles,
+            preferredWorkModes: existingPreferences.preferredWorkModes as any,
+            preferredEmploymentTypes: existingPreferences.preferredEmploymentTypes as any,
+          }
+        : null,
     );
 
     const completionAfter = this.completionService.calculateCompletion(profileInput, validatedData);
@@ -106,20 +118,32 @@ export class CandidatePreferencesService {
 
     // Update profile completion score
     if (existingProfile) {
-      await this.profileRepository.upsertProfile(userId, {
-        fullName: existingProfile.fullName,
-        professionalHeadline: existingProfile.professionalHeadline,
-        professionalSummary: existingProfile.professionalSummary,
-        dateOfBirth: existingProfile.dateOfBirth ? existingProfile.dateOfBirth.toISOString() : undefined,
-      }, completionAfter.percentage);
+      await this.profileRepository.upsertProfile(
+        userId,
+        {
+          fullName: existingProfile.fullName,
+          professionalHeadline: existingProfile.professionalHeadline,
+          professionalSummary: existingProfile.professionalSummary,
+          dateOfBirth: existingProfile.dateOfBirth
+            ? existingProfile.dateOfBirth.toISOString()
+            : undefined,
+        },
+        completionAfter.percentage,
+      );
     } else {
-      await this.profileRepository.upsertProfile(userId, {
-        fullName: '',
-      }, completionAfter.percentage);
+      await this.profileRepository.upsertProfile(
+        userId,
+        {
+          fullName: '',
+        },
+        completionAfter.percentage,
+      );
     }
 
-    const action = existingPreferences ? 'candidate.preferences.updated' : 'candidate.preferences.created';
-    
+    const action = existingPreferences
+      ? 'candidate.preferences.updated'
+      : 'candidate.preferences.created';
+
     await this.auditService.recordRequired({
       actorType: AuditActorType.USER,
       actorUserId: userId,
@@ -134,7 +158,7 @@ export class CandidatePreferencesService {
         preferredEmploymentTypeCount: validatedData.preferredEmploymentTypes.length,
         completionPercentageBefore: completionBefore.percentage,
         completionPercentageAfter: completionAfter.percentage,
-      }
+      },
     });
 
     return this.mapToResponse(result, completionAfter);

@@ -28,10 +28,7 @@ export class CandidatePreferencesController {
   @ApiOperation({ summary: 'Create or update candidate preferences' })
   @ApiResponse({ status: 200, description: 'Preferences updated successfully' })
   @ApiResponse({ status: 400, description: 'Validation failed or unsupported country' })
-  async upsertPreferences(
-    @Req() req: AuthenticatedRequest,
-    @Body() data: any,
-  ) {
+  async upsertPreferences(@Req() req: AuthenticatedRequest, @Body() data: any) {
     return this.preferencesService.upsertPreferences(req.principal.userId, data);
   }
 }

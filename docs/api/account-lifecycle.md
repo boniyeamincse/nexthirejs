@@ -11,6 +11,7 @@ POST /api/v1/candidates/me/data-exports
 Auth: Bearer token (candidate role)
 
 Response 202:
+
 ```json
 {
   "id": "uuid",
@@ -50,6 +51,7 @@ POST /api/v1/candidates/me/data-exports/:exportId/download
 Auth: Bearer token (candidate role)
 
 Response 200:
+
 ```json
 {
   "downloadUrl": "<short-lived-url>",
@@ -79,6 +81,7 @@ POST /api/v1/candidates/me/deactivate
 Auth: Bearer token (candidate role)
 
 Request:
+
 ```json
 {
   "currentPassword": "CurrentPass#2026",
@@ -87,6 +90,7 @@ Request:
 ```
 
 Response 200:
+
 ```json
 {
   "deactivated": true,

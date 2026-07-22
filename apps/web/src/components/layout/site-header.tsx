@@ -5,20 +5,14 @@ import styles from './header.module.css';
 export function SiteHeader() {
   return (
     <header className={styles.header}>
-      <nav
-        className={styles.nav}
-        aria-label="Main navigation"
-      >
+      <nav className={styles.nav} aria-label="Main navigation">
         <Link href="/" className={styles.logo}>
           {siteConfig.name}
         </Link>
         <ul className={styles.navList}>
           {siteConfig.primaryNav.map((item) => (
             <li key={item.href}>
-              <Link
-                href={item.href}
-                className={styles.navItem}
-              >
+              <Link href={item.href} className={styles.navItem}>
                 {item.label}
               </Link>
             </li>

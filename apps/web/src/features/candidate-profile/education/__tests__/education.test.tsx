@@ -47,7 +47,6 @@ const mockRecord2: EducationRecordResult = {
   updatedAt: '2024-06-01T00:00:00.000Z',
 };
 
-
 // --- EducationList tests (no API mocking needed) ---
 
 describe('EducationList', () => {
@@ -86,7 +85,13 @@ describe('EducationList', () => {
   it('calls onEdit when edit button is clicked', async () => {
     const onEdit = vi.fn();
     render(
-      <EducationList records={[mockRecord]} onEdit={onEdit} onDelete={vi.fn()} onMoveUp={vi.fn()} onMoveDown={vi.fn()} />,
+      <EducationList
+        records={[mockRecord]}
+        onEdit={onEdit}
+        onDelete={vi.fn()}
+        onMoveUp={vi.fn()}
+        onMoveDown={vi.fn()}
+      />,
     );
     await userEvent.click(screen.getByRole('button', { name: /edit/i }));
     expect(onEdit).toHaveBeenCalledWith(mockRecord);
@@ -96,7 +101,13 @@ describe('EducationList', () => {
     const onDelete = vi.fn().mockResolvedValue(undefined);
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
     render(
-      <EducationList records={[mockRecord]} onEdit={vi.fn()} onDelete={onDelete} onMoveUp={vi.fn()} onMoveDown={vi.fn()} />,
+      <EducationList
+        records={[mockRecord]}
+        onEdit={vi.fn()}
+        onDelete={onDelete}
+        onMoveUp={vi.fn()}
+        onMoveDown={vi.fn()}
+      />,
     );
     await userEvent.click(screen.getByRole('button', { name: /delete/i }));
     expect(confirmSpy).toHaveBeenCalled();
@@ -108,7 +119,13 @@ describe('EducationList', () => {
     const onDelete = vi.fn();
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
     render(
-      <EducationList records={[mockRecord]} onEdit={vi.fn()} onDelete={onDelete} onMoveUp={vi.fn()} onMoveDown={vi.fn()} />,
+      <EducationList
+        records={[mockRecord]}
+        onEdit={vi.fn()}
+        onDelete={onDelete}
+        onMoveUp={vi.fn()}
+        onMoveDown={vi.fn()}
+      />,
     );
     await userEvent.click(screen.getByRole('button', { name: /delete/i }));
     expect(confirmSpy).toHaveBeenCalled();
@@ -119,7 +136,13 @@ describe('EducationList', () => {
   it('calls onMoveUp when up button is clicked', async () => {
     const onMoveUp = vi.fn().mockResolvedValue(undefined);
     render(
-      <EducationList records={[mockRecord, mockRecord2]} onEdit={vi.fn()} onDelete={vi.fn()} onMoveUp={onMoveUp} onMoveDown={vi.fn()} />,
+      <EducationList
+        records={[mockRecord, mockRecord2]}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        onMoveUp={onMoveUp}
+        onMoveDown={vi.fn()}
+      />,
     );
     const upButtons = screen.getAllByRole('button', { name: /move.*up/i });
     await userEvent.click(upButtons[1]);
@@ -129,7 +152,13 @@ describe('EducationList', () => {
   it('calls onMoveDown when down button is clicked', async () => {
     const onMoveDown = vi.fn().mockResolvedValue(undefined);
     render(
-      <EducationList records={[mockRecord, mockRecord2]} onEdit={vi.fn()} onDelete={vi.fn()} onMoveUp={vi.fn()} onMoveDown={onMoveDown} />,
+      <EducationList
+        records={[mockRecord, mockRecord2]}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        onMoveUp={vi.fn()}
+        onMoveDown={onMoveDown}
+      />,
     );
     const downButtons = screen.getAllByRole('button', { name: /move.*down/i });
     await userEvent.click(downButtons[0]);
@@ -138,7 +167,13 @@ describe('EducationList', () => {
 
   it('disables move up for first item', () => {
     render(
-      <EducationList records={[mockRecord, mockRecord2]} onEdit={vi.fn()} onDelete={vi.fn()} onMoveUp={vi.fn()} onMoveDown={vi.fn()} />,
+      <EducationList
+        records={[mockRecord, mockRecord2]}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        onMoveUp={vi.fn()}
+        onMoveDown={vi.fn()}
+      />,
     );
     const upButtons = screen.getAllByRole('button', { name: /move.*up/i });
     expect(upButtons[0]).toBeDisabled();
@@ -147,7 +182,13 @@ describe('EducationList', () => {
 
   it('disables move down for last item', () => {
     render(
-      <EducationList records={[mockRecord, mockRecord2]} onEdit={vi.fn()} onDelete={vi.fn()} onMoveUp={vi.fn()} onMoveDown={vi.fn()} />,
+      <EducationList
+        records={[mockRecord, mockRecord2]}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        onMoveUp={vi.fn()}
+        onMoveDown={vi.fn()}
+      />,
     );
     const downButtons = screen.getAllByRole('button', { name: /move.*down/i });
     expect(downButtons[0]).not.toBeDisabled();
@@ -176,7 +217,9 @@ describe('EducationForm', () => {
   it('disables end date when currently studying is checked', async () => {
     render(<EducationForm onSave={vi.fn()} onCancel={vi.fn()} />);
 
-    const currentlyStudyingCheckbox = screen.getByRole('checkbox', { name: /currently studying here/i });
+    const currentlyStudyingCheckbox = screen.getByRole('checkbox', {
+      name: /currently studying here/i,
+    });
     // Find end date input by name attribute
     const endDateInput = document.querySelector<HTMLInputElement>('input[name="endDate"]');
     expect(endDateInput).not.toBeNull();
@@ -193,13 +236,14 @@ describe('EducationForm', () => {
     // Fill text fields
     const textboxes = screen.getAllByRole('textbox');
     await userEvent.type(textboxes[0], 'Test University'); // institutionName
-    await userEvent.type(textboxes[1], 'Test Degree');     // qualification
+    await userEvent.type(textboxes[1], 'Test Degree'); // qualification
 
     // Set start date value via the React state by firing change
     const startDateInput = document.querySelector<HTMLInputElement>('input[name="startDate"]');
     if (startDateInput) {
       const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-        window.HTMLInputElement.prototype, 'value'
+        window.HTMLInputElement.prototype,
+        'value',
       )?.set;
       nativeInputValueSetter?.call(startDateInput, '2020-09-01');
       startDateInput.dispatchEvent(new Event('input', { bubbles: true }));
@@ -234,7 +278,14 @@ describe('EducationFormModal', () => {
   });
 
   it('renders in edit mode when initialData is provided', () => {
-    render(<EducationFormModal isOpen={true} initialData={mockRecord} onSave={vi.fn()} onCancel={vi.fn()} />);
+    render(
+      <EducationFormModal
+        isOpen={true}
+        initialData={mockRecord}
+        onSave={vi.fn()}
+        onCancel={vi.fn()}
+      />,
+    );
     expect(screen.getByText(/edit education/i)).toBeInTheDocument();
   });
 
@@ -294,4 +345,3 @@ describe('EducationPage with mocked API', () => {
     expect(true).toBe(true);
   });
 });
-

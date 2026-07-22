@@ -2,9 +2,19 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import type { CandidateProfileCompletion, CandidateAchievementResult, CandidateProfessionalLinkResult } from '@nexthire/types';
-import type { CreateCandidateAchievementInput, UpdateCandidateAchievementInput } from '@nexthire/validation';
-import type { CreateCandidateProfessionalLinkInput, UpdateCandidateProfessionalLinkInput } from '@nexthire/validation';
+import type {
+  CandidateProfileCompletion,
+  CandidateAchievementResult,
+  CandidateProfessionalLinkResult,
+} from '@nexthire/types';
+import type {
+  CreateCandidateAchievementInput,
+  UpdateCandidateAchievementInput,
+} from '@nexthire/validation';
+import type {
+  CreateCandidateProfessionalLinkInput,
+  UpdateCandidateProfessionalLinkInput,
+} from '@nexthire/validation';
 import { AchievementList } from '@/features/candidate-profile/achievements/AchievementList';
 import { ProfessionalLinkList } from '@/features/candidate-profile/professional-links/ProfessionalLinkList';
 import {
@@ -27,13 +37,38 @@ interface CompletionBarProps {
 function CompletionBar({ completion }: CompletionBarProps) {
   if (!completion) return null;
   return (
-    <div style={{ marginBottom: '2rem', padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '0.5rem' }}>
+    <div
+      style={{
+        marginBottom: '2rem',
+        padding: '1rem',
+        background: 'rgba(255,255,255,0.03)',
+        borderRadius: '0.5rem',
+      }}
+    >
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
         <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>Profile Completion</span>
-        <span style={{ color: '#818cf8', fontSize: '0.85rem', fontWeight: 600 }}>{completion.percentage}%</span>
+        <span style={{ color: '#818cf8', fontSize: '0.85rem', fontWeight: 600 }}>
+          {completion.percentage}%
+        </span>
       </div>
-      <div style={{ width: '100%', height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '3px', overflow: 'hidden' }}>
-        <div style={{ width: `${completion.percentage}%`, height: '100%', background: '#6366f1', borderRadius: '3px', transition: 'width 0.3s' }} />
+      <div
+        style={{
+          width: '100%',
+          height: '6px',
+          background: 'rgba(255,255,255,0.1)',
+          borderRadius: '3px',
+          overflow: 'hidden',
+        }}
+      >
+        <div
+          style={{
+            width: `${completion.percentage}%`,
+            height: '100%',
+            background: '#6366f1',
+            borderRadius: '3px',
+            transition: 'width 0.3s',
+          }}
+        />
       </div>
     </div>
   );
@@ -97,7 +132,9 @@ export default function AchievementsPage() {
     fetchAll();
   }, [fetchAll]);
 
-  const handleSaveAchievement = async (data: CreateCandidateAchievementInput | UpdateCandidateAchievementInput) => {
+  const handleSaveAchievement = async (
+    data: CreateCandidateAchievementInput | UpdateCandidateAchievementInput,
+  ) => {
     const token = getAccessToken();
     if (!token) return;
 
@@ -107,14 +144,21 @@ export default function AchievementsPage() {
       if ('title' in data && 'issuer' in data && achievementEditingIndex !== null) {
         const record = achievements[achievementEditingIndex];
         if (!record) return;
-        const result = await updateAchievementRecord(token, record.id, data as UpdateCandidateAchievementInput);
+        const result = await updateAchievementRecord(
+          token,
+          record.id,
+          data as UpdateCandidateAchievementInput,
+        );
         const updated = [...achievements];
         updated[achievementEditingIndex] = result.record;
         setAchievements(updated);
         setAchievementEditingIndex(null);
         if (result.completion) setCompletion(result.completion);
       } else {
-        const result = await createAchievementRecord(token, data as CreateCandidateAchievementInput);
+        const result = await createAchievementRecord(
+          token,
+          data as CreateCandidateAchievementInput,
+        );
         setAchievements([...achievements, result.record]);
         setAchievementFormOpen(false);
         if (result.completion) setCompletion(result.completion);
@@ -156,7 +200,9 @@ export default function AchievementsPage() {
     }
   };
 
-  const handleSaveLink = async (data: CreateCandidateProfessionalLinkInput | UpdateCandidateProfessionalLinkInput) => {
+  const handleSaveLink = async (
+    data: CreateCandidateProfessionalLinkInput | UpdateCandidateProfessionalLinkInput,
+  ) => {
     const token = getAccessToken();
     if (!token) return;
 
@@ -167,14 +213,21 @@ export default function AchievementsPage() {
       if ('type' in data && 'url' in data && linkEditingIndex !== null) {
         const record = links[linkEditingIndex];
         if (!record) return;
-        const result = await updateProfessionalLinkRecord(token, record.id, data as UpdateCandidateProfessionalLinkInput);
+        const result = await updateProfessionalLinkRecord(
+          token,
+          record.id,
+          data as UpdateCandidateProfessionalLinkInput,
+        );
         const updated = [...links];
         updated[linkEditingIndex] = result.record;
         setLinks(updated);
         setLinkEditingIndex(null);
         if (result.completion) setCompletion(result.completion);
       } else {
-        const result = await createProfessionalLinkRecord(token, data as CreateCandidateProfessionalLinkInput);
+        const result = await createProfessionalLinkRecord(
+          token,
+          data as CreateCandidateProfessionalLinkInput,
+        );
         setLinks([...links, result.record]);
         setLinkFormOpen(false);
         if (result.completion) setCompletion(result.completion);
@@ -254,7 +307,9 @@ export default function AchievementsPage() {
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
-      <h1 style={{ color: '#fff', fontSize: '1.5rem', marginBottom: '0.5rem' }}>Achievements &amp; Professional Links</h1>
+      <h1 style={{ color: '#fff', fontSize: '1.5rem', marginBottom: '0.5rem' }}>
+        Achievements &amp; Professional Links
+      </h1>
       <p style={{ color: '#94a3b8', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
         Showcase your accomplishments and connect your professional profiles.
       </p>
@@ -279,7 +334,9 @@ export default function AchievementsPage() {
       </section>
 
       <section>
-        <h2 style={{ color: '#fff', fontSize: '1.2rem', marginBottom: '1rem' }}>Professional Links</h2>
+        <h2 style={{ color: '#fff', fontSize: '1.2rem', marginBottom: '1rem' }}>
+          Professional Links
+        </h2>
         <ProfessionalLinkList
           records={links}
           onSave={handleSaveLink}

@@ -34,7 +34,7 @@ export const workExperienceRecordBaseSchema = z.object({
         const date = new Date(dateStr);
         return date <= new Date();
       },
-      { message: 'Start date cannot be in the future' }
+      { message: 'Start date cannot be in the future' },
     ),
 
   currentlyWorking: z.boolean(),
@@ -74,7 +74,7 @@ export const workExperienceRecordSchema = workExperienceRecordBaseSchema
     {
       message: 'End date is required when not currently working',
       path: ['endDate'],
-    }
+    },
   )
   .refine(
     (data) => {
@@ -86,7 +86,7 @@ export const workExperienceRecordSchema = workExperienceRecordBaseSchema
     {
       message: 'End date cannot be before start date',
       path: ['endDate'],
-    }
+    },
   )
   .refine(
     (data) => {
@@ -98,7 +98,7 @@ export const workExperienceRecordSchema = workExperienceRecordBaseSchema
     {
       message: 'Historical end date cannot be in the future',
       path: ['endDate'],
-    }
+    },
   );
 
 export type CreateWorkExperienceRecordInput = z.infer<typeof workExperienceRecordSchema>;

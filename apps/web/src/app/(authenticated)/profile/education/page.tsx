@@ -2,12 +2,12 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/providers/auth-context';
-import { 
-  listMyEducationRecords, 
-  createEducationRecord, 
-  updateEducationRecord, 
+import {
+  listMyEducationRecords,
+  createEducationRecord,
+  updateEducationRecord,
   deleteEducationRecord,
-  reorderEducationRecords
+  reorderEducationRecords,
 } from '@/lib/api-client';
 import type { EducationRecordResult, CandidateProfileCompletion } from '@nexthire/types';
 import type { CreateEducationRecordInput, UpdateEducationRecordInput } from '@nexthire/validation';
@@ -17,32 +17,35 @@ import { EducationForm } from '@/features/candidate-profile/education/EducationF
 
 export default function EducationPage() {
   const { getAccessToken } = useAuth();
-  
+
   const [loading, setLoading] = useState(true);
   const [records, setRecords] = useState<EducationRecordResult[]>([]);
   const [completion, setCompletion] = useState<CandidateProfileCompletion | null>(null);
-  
+
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState<EducationRecordResult | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
 
-  const fetchRecords = useCallback(async (signal?: AbortSignal) => {
-    const token = getAccessToken();
-    if (!token) return;
-    
-    try {
-      const data = await listMyEducationRecords(token);
-      if (!signal?.aborted) {
-        setRecords(data.records);
-        setCompletion(data.completion);
-        setErrorMsg('');
+  const fetchRecords = useCallback(
+    async (signal?: AbortSignal) => {
+      const token = getAccessToken();
+      if (!token) return;
+
+      try {
+        const data = await listMyEducationRecords(token);
+        if (!signal?.aborted) {
+          setRecords(data.records);
+          setCompletion(data.completion);
+          setErrorMsg('');
+        }
+      } catch (err: unknown) {
+        if (!signal?.aborted) {
+          setErrorMsg(err instanceof Error ? err.message : 'Failed to load education records');
+        }
       }
-    } catch (err: unknown) {
-      if (!signal?.aborted) {
-        setErrorMsg(err instanceof Error ? err.message : 'Failed to load education records');
-      }
-    }
-  }, [getAccessToken]);
+    },
+    [getAccessToken],
+  );
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -72,61 +75,74 @@ export default function EducationPage() {
     setEditingRecord(null);
   }, []);
 
-  const handleSave = useCallback(async (data: CreateEducationRecordInput | UpdateEducationRecordInput) => {
-    const token = getAccessToken();
-    if (!token) throw new Error('Not authenticated');
+  const handleSave = useCallback(
+    async (data: CreateEducationRecordInput | UpdateEducationRecordInput) => {
+      const token = getAccessToken();
+      if (!token) throw new Error('Not authenticated');
 
-    if (editingRecord) {
-      const result = await updateEducationRecord(token, editingRecord.id, data as UpdateEducationRecordInput);
-      setRecords(prev => prev.map(r => r.id === result.record.id ? result.record : r));
-      setCompletion(result.completion);
-    } else {
-      const result = await createEducationRecord(token, data as CreateEducationRecordInput);
-      setRecords(prev => [...prev, result.record]);
-      setCompletion(result.completion);
-    }
-    
-    setIsFormOpen(false);
-    setEditingRecord(null);
-  }, [getAccessToken, editingRecord]);
+      if (editingRecord) {
+        const result = await updateEducationRecord(
+          token,
+          editingRecord.id,
+          data as UpdateEducationRecordInput,
+        );
+        setRecords((prev) => prev.map((r) => (r.id === result.record.id ? result.record : r)));
+        setCompletion(result.completion);
+      } else {
+        const result = await createEducationRecord(token, data as CreateEducationRecordInput);
+        setRecords((prev) => [...prev, result.record]);
+        setCompletion(result.completion);
+      }
 
-  const handleDelete = useCallback(async (id: string) => {
-    const token = getAccessToken();
-    if (!token) return;
-    
-    try {
-      await deleteEducationRecord(token, id);
-      setRecords(prev => prev.filter(r => r.id !== id));
-      
-      // Reload to get updated completion (since delete API returns 204 no content without completion data)
-      const data = await listMyEducationRecords(token);
-      setCompletion(data.completion);
-    } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'Failed to delete record');
-    }
-  }, [getAccessToken]);
+      setIsFormOpen(false);
+      setEditingRecord(null);
+    },
+    [getAccessToken, editingRecord],
+  );
 
-  const handleReorder = useCallback(async (startIndex: number, endIndex: number) => {
-    const token = getAccessToken();
-    if (!token) return;
-    
-    const newRecords = Array.from(records);
-    const [removed] = newRecords.splice(startIndex, 1);
-    if (!removed) return;
-    newRecords.splice(endIndex, 0, removed);
-    
-    // Optimistic UI update
-    setRecords(newRecords);
-    
-    try {
-      const orderedIds = newRecords.map(r => r.id);
-      await reorderEducationRecords(token, { orderedIds });
-    } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'Failed to reorder records');
-      // Revert on failure
-      void fetchRecords();
-    }
-  }, [getAccessToken, records, fetchRecords]);
+  const handleDelete = useCallback(
+    async (id: string) => {
+      const token = getAccessToken();
+      if (!token) return;
+
+      try {
+        await deleteEducationRecord(token, id);
+        setRecords((prev) => prev.filter((r) => r.id !== id));
+
+        // Reload to get updated completion (since delete API returns 204 no content without completion data)
+        const data = await listMyEducationRecords(token);
+        setCompletion(data.completion);
+      } catch (err: unknown) {
+        setErrorMsg(err instanceof Error ? err.message : 'Failed to delete record');
+      }
+    },
+    [getAccessToken],
+  );
+
+  const handleReorder = useCallback(
+    async (startIndex: number, endIndex: number) => {
+      const token = getAccessToken();
+      if (!token) return;
+
+      const newRecords = Array.from(records);
+      const [removed] = newRecords.splice(startIndex, 1);
+      if (!removed) return;
+      newRecords.splice(endIndex, 0, removed);
+
+      // Optimistic UI update
+      setRecords(newRecords);
+
+      try {
+        const orderedIds = newRecords.map((r) => r.id);
+        await reorderEducationRecords(token, { orderedIds });
+      } catch (err: unknown) {
+        setErrorMsg(err instanceof Error ? err.message : 'Failed to reorder records');
+        // Revert on failure
+        void fetchRecords();
+      }
+    },
+    [getAccessToken, records, fetchRecords],
+  );
 
   if (loading && records.length === 0) {
     return (
@@ -140,23 +156,53 @@ export default function EducationPage() {
   }
 
   return (
-    <div className={styles.container} style={{ minHeight: 'calc(100vh - 72px)', padding: '2rem 1rem' }}>
+    <div
+      className={styles.container}
+      style={{ minHeight: 'calc(100vh - 72px)', padding: '2rem 1rem' }}
+    >
       <div className={styles.background}></div>
       <div className={styles.glassCard} style={{ maxWidth: '800px', margin: '0 auto' }}>
-        
-        <div className={styles.header} style={{ marginBottom: '2rem', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div
+          className={styles.header}
+          style={{
+            marginBottom: '2rem',
+            textAlign: 'left',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
           <div>
-            <a href="/profile" style={{ display: 'inline-block', marginBottom: '0.5rem', color: '#a5b4fc', textDecoration: 'none', fontSize: '0.9rem' }}>
+            <a
+              href="/profile"
+              style={{
+                display: 'inline-block',
+                marginBottom: '0.5rem',
+                color: '#a5b4fc',
+                textDecoration: 'none',
+                fontSize: '0.9rem',
+              }}
+            >
               ← Back to Basic Profile
             </a>
-            <h1 className={styles.title} style={{ fontSize: '2rem' }}>Education</h1>
+            <h1 className={styles.title} style={{ fontSize: '2rem' }}>
+              Education
+            </h1>
             <p className={styles.subtitle}>Add your academic history and qualifications.</p>
           </div>
-          
+
           {!isFormOpen && (
-            <button 
+            <button
               onClick={handleAdd}
-              style={{ padding: '0.5rem 1rem', background: '#6366f1', color: '#fff', border: 'none', borderRadius: '0.5rem', cursor: 'pointer', fontWeight: 500 }}
+              style={{
+                padding: '0.5rem 1rem',
+                background: '#6366f1',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '0.5rem',
+                cursor: 'pointer',
+                fontWeight: 500,
+              }}
             >
               + Add Education
             </button>
@@ -164,19 +210,45 @@ export default function EducationPage() {
         </div>
 
         {!isFormOpen && completion && (
-          <div style={{ 
-            marginBottom: '2rem', 
-            padding: '1.5rem', 
-            background: 'rgba(255,255,255,0.03)', 
-            borderRadius: '0.75rem',
-            border: '1px solid rgba(255,255,255,0.1)'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+          <div
+            style={{
+              marginBottom: '2rem',
+              padding: '1.5rem',
+              background: 'rgba(255,255,255,0.03)',
+              borderRadius: '0.75rem',
+              border: '1px solid rgba(255,255,255,0.1)',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '0.75rem',
+              }}
+            >
               <h3 style={{ color: '#f8fafc', fontWeight: 600, margin: 0 }}>Profile Completion</h3>
-              <span style={{ color: '#a5b4fc', fontWeight: 700, fontSize: '1.25rem' }}>{completion.percentage}%</span>
+              <span style={{ color: '#a5b4fc', fontWeight: 700, fontSize: '1.25rem' }}>
+                {completion.percentage}%
+              </span>
             </div>
-            <div style={{ width: '100%', height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
-              <div style={{ width: `${completion.percentage}%`, height: '100%', background: 'linear-gradient(90deg, #6366f1, #a5b4fc)', transition: 'width 0.5s ease' }}></div>
+            <div
+              style={{
+                width: '100%',
+                height: '8px',
+                background: 'rgba(255,255,255,0.1)',
+                borderRadius: '4px',
+                overflow: 'hidden',
+              }}
+            >
+              <div
+                style={{
+                  width: `${completion.percentage}%`,
+                  height: '100%',
+                  background: 'linear-gradient(90deg, #6366f1, #a5b4fc)',
+                  transition: 'width 0.5s ease',
+                }}
+              ></div>
             </div>
           </div>
         )}
@@ -188,13 +260,9 @@ export default function EducationPage() {
         )}
 
         {isFormOpen ? (
-          <EducationForm 
-            initialData={editingRecord}
-            onSave={handleSave}
-            onCancel={handleCancel}
-          />
+          <EducationForm initialData={editingRecord} onSave={handleSave} onCancel={handleCancel} />
         ) : (
-          <EducationList 
+          <EducationList
             records={records}
             onEdit={handleEdit}
             onDelete={handleDelete}
@@ -202,7 +270,6 @@ export default function EducationPage() {
             onMoveDown={(index) => handleReorder(index, index + 1)}
           />
         )}
-
       </div>
     </div>
   );

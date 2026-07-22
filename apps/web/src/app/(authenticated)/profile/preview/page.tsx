@@ -63,7 +63,11 @@ export default function ProfilePreviewPage() {
         <div className={styles.background}></div>
         <div className={styles.glassCard} style={{ textAlign: 'center', padding: '4rem' }}>
           <p className={styles.subtitle}>Session expired. Please log in again.</p>
-          <button onClick={() => router.push('/login')} className={styles.submitButton} style={{ marginTop: '1rem' }}>
+          <button
+            onClick={() => router.push('/login')}
+            className={styles.submitButton}
+            style={{ marginTop: '1rem' }}
+          >
             Go to Login
           </button>
         </div>
@@ -72,13 +76,19 @@ export default function ProfilePreviewPage() {
   }
 
   return (
-    <div className={styles.container} style={{ minHeight: 'calc(100vh - 72px)', padding: '2rem 1rem' }}>
+    <div
+      className={styles.container}
+      style={{ minHeight: 'calc(100vh - 72px)', padding: '2rem 1rem' }}
+    >
       <div className={styles.background}></div>
       <div className={styles.glassCard} style={{ maxWidth: '900px', margin: '0 auto' }}>
         <div style={{ marginBottom: '2rem' }}>
-          <h1 className={styles.title} style={{ fontSize: '1.75rem', margin: 0 }}>Profile Preview</h1>
+          <h1 className={styles.title} style={{ fontSize: '1.75rem', margin: 0 }}>
+            Profile Preview
+          </h1>
           <p className={styles.subtitle} style={{ marginTop: '0.5rem' }}>
-            See how your profile appears to others. Preview modes let you simulate different visibility levels.
+            See how your profile appears to others. Preview modes let you simulate different
+            visibility levels.
           </p>
         </div>
 
@@ -99,12 +109,7 @@ export default function ProfilePreviewPage() {
           </div>
         )}
 
-        {preview && (
-          <ProfilePreview
-            preview={preview}
-            accessToken={getAccessToken() ?? ''}
-          />
-        )}
+        {preview && <ProfilePreview preview={preview} accessToken={getAccessToken() ?? ''} />}
       </div>
     </div>
   );

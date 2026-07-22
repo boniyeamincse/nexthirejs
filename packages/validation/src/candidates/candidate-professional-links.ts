@@ -3,16 +3,26 @@ import { z } from 'zod';
 const urlSchema = z
   .string()
   .max(500, 'URL must not exceed 500 characters')
-  .refine(
-    (val) => val.startsWith('http://') || val.startsWith('https://'),
-    { message: 'URL must start with http:// or https://' }
-  );
+  .refine((val) => val.startsWith('http://') || val.startsWith('https://'), {
+    message: 'URL must start with http:// or https://',
+  });
 
 export const candidateProfessionalLinkSchema = z.object({
-  type: z.enum([
-    'LINKEDIN', 'GITHUB', 'PORTFOLIO', 'PERSONAL_WEBSITE',
-    'BEHANCE', 'DRIBBBLE', 'STACK_OVERFLOW', 'MEDIUM', 'YOUTUBE', 'OTHER',
-  ] as const, { required_error: 'Link type is required' }),
+  type: z.enum(
+    [
+      'LINKEDIN',
+      'GITHUB',
+      'PORTFOLIO',
+      'PERSONAL_WEBSITE',
+      'BEHANCE',
+      'DRIBBBLE',
+      'STACK_OVERFLOW',
+      'MEDIUM',
+      'YOUTUBE',
+      'OTHER',
+    ] as const,
+    { required_error: 'Link type is required' },
+  ),
 
   label: z
     .string()
@@ -28,7 +38,9 @@ export const candidateProfessionalLinkSchema = z.object({
 export type CreateCandidateProfessionalLinkInput = z.infer<typeof candidateProfessionalLinkSchema>;
 
 export const updateCandidateProfessionalLinkSchema = candidateProfessionalLinkSchema.partial();
-export type UpdateCandidateProfessionalLinkInput = z.infer<typeof updateCandidateProfessionalLinkSchema>;
+export type UpdateCandidateProfessionalLinkInput = z.infer<
+  typeof updateCandidateProfessionalLinkSchema
+>;
 
 export const reorderCandidateProfessionalLinksSchema = z.object({
   orderedIds: z
@@ -39,4 +51,6 @@ export const reorderCandidateProfessionalLinksSchema = z.object({
     }),
 });
 
-export type ReorderCandidateProfessionalLinksInput = z.infer<typeof reorderCandidateProfessionalLinksSchema>;
+export type ReorderCandidateProfessionalLinksInput = z.infer<
+  typeof reorderCandidateProfessionalLinksSchema
+>;

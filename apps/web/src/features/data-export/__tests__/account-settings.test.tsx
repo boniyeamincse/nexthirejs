@@ -21,7 +21,9 @@ vi.mock('@/providers/auth-context', () => ({
   useAuth: mockUseAuth,
 }));
 
-function createMockExport(overrides: Partial<DataExportStatusResult> & { id: string; status: string }): DataExportStatusResult {
+function createMockExport(
+  overrides: Partial<DataExportStatusResult> & { id: string; status: string },
+): DataExportStatusResult {
   return {
     requestedAt: '2026-07-22T10:00:00.000Z',
     completedAt: overrides.status === 'READY' ? '2026-07-22T10:05:00.000Z' : null,

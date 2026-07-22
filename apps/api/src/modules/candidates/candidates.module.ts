@@ -60,7 +60,14 @@ import { AccountDeactivationController } from './account-lifecycle/account-deact
 import { AccountDeactivationService } from './account-lifecycle/account-deactivation.service';
 
 @Module({
-  imports: [DatabaseModule, AuthModule, AuditModule, RequestContextModule, StorageModule, BullModule.registerQueue({ name: DATA_EXPORT_QUEUE })],
+  imports: [
+    DatabaseModule,
+    AuthModule,
+    AuditModule,
+    RequestContextModule,
+    StorageModule,
+    BullModule.registerQueue({ name: DATA_EXPORT_QUEUE }),
+  ],
   controllers: [
     CandidateProfileController,
     CandidatePreferencesController,

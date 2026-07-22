@@ -49,7 +49,9 @@ export default function AccountSecurityPage() {
         router.push('/login');
         return;
       }
-      setPageError('Account security information is temporarily unavailable. Please try again later.');
+      setPageError(
+        'Account security information is temporarily unavailable. Please try again later.',
+      );
     } finally {
       setLoading(false);
     }
@@ -135,11 +137,23 @@ export default function AccountSecurityPage() {
 
       const message = err instanceof Error ? err.message : 'An unexpected error occurred';
 
-      if (message.includes('429') || message.includes('rate limit') || message.includes('too many requests')) {
+      if (
+        message.includes('429') ||
+        message.includes('rate limit') ||
+        message.includes('too many requests')
+      ) {
         setFormError('Too many attempts. Please wait a moment before trying again.');
-      } else if (message.includes('current password') || message.includes('Current password is incorrect') || message.includes('wrong password')) {
+      } else if (
+        message.includes('current password') ||
+        message.includes('Current password is incorrect') ||
+        message.includes('wrong password')
+      ) {
         setFormError('Current password is incorrect.');
-      } else if (message.includes('reused') || message.includes('previously used') || message.includes('already been used')) {
+      } else if (
+        message.includes('reused') ||
+        message.includes('previously used') ||
+        message.includes('already been used')
+      ) {
         setFormError('This password has been used before. Please choose a different one.');
       } else {
         setFormError(message);
@@ -166,7 +180,11 @@ export default function AccountSecurityPage() {
         <div className={styles.background}></div>
         <div className={styles.glassCard} style={{ textAlign: 'center', padding: '4rem' }}>
           <p className={styles.subtitle}>Session expired. Please log in again.</p>
-          <button onClick={() => router.push('/login')} className={styles.submitButton} style={{ marginTop: '1rem' }}>
+          <button
+            onClick={() => router.push('/login')}
+            className={styles.submitButton}
+            style={{ marginTop: '1rem' }}
+          >
             Go to Login
           </button>
         </div>
@@ -175,11 +193,16 @@ export default function AccountSecurityPage() {
   }
 
   return (
-    <div className={styles.container} style={{ minHeight: 'calc(100vh - 72px)', padding: '2rem 1rem' }}>
+    <div
+      className={styles.container}
+      style={{ minHeight: 'calc(100vh - 72px)', padding: '2rem 1rem' }}
+    >
       <div className={styles.background}></div>
       <div className={styles.glassCard} style={{ maxWidth: '700px', margin: '0 auto' }}>
         <div style={{ marginBottom: '2rem' }}>
-          <h1 className={styles.title} style={{ fontSize: '1.75rem', margin: 0 }}>Account Security</h1>
+          <h1 className={styles.title} style={{ fontSize: '1.75rem', margin: 0 }}>
+            Account Security
+          </h1>
           <p className={styles.subtitle} style={{ marginTop: '0.5rem' }}>
             Manage your password and review your account security status.
           </p>
@@ -219,15 +242,41 @@ export default function AccountSecurityPage() {
         {summary && (
           <>
             <section style={{ marginBottom: '2rem' }}>
-              <h2 className={styles.subtitle} style={{ fontSize: '1.1rem', fontWeight: 600, color: '#e2e8f0', marginBottom: '1rem' }}>
+              <h2
+                className={styles.subtitle}
+                style={{
+                  fontSize: '1.1rem',
+                  fontWeight: 600,
+                  color: '#e2e8f0',
+                  marginBottom: '1rem',
+                }}
+              >
                 Account Overview
               </h2>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: '0.5rem' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '0.75rem',
+                    background: 'rgba(255,255,255,0.03)',
+                    borderRadius: '0.5rem',
+                  }}
+                >
                   <span style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Email</span>
                   <span style={{ color: '#e2e8f0', fontSize: '0.9rem' }}>{summary.email}</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: '0.5rem' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '0.75rem',
+                    background: 'rgba(255,255,255,0.03)',
+                    borderRadius: '0.5rem',
+                  }}
+                >
                   <span style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Account Status</span>
                   <span
                     style={{
@@ -242,7 +291,16 @@ export default function AccountSecurityPage() {
                     {summary.accountStatus}
                   </span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: '0.5rem' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '0.75rem',
+                    background: 'rgba(255,255,255,0.03)',
+                    borderRadius: '0.5rem',
+                  }}
+                >
                   <span style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Email Verified</span>
                   <span
                     style={{
@@ -250,38 +308,83 @@ export default function AccountSecurityPage() {
                       borderRadius: '0.375rem',
                       fontSize: '0.8rem',
                       fontWeight: 600,
-                      background: summary.emailVerified ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+                      background: summary.emailVerified
+                        ? 'rgba(34, 197, 94, 0.15)'
+                        : 'rgba(239, 68, 68, 0.15)',
                       color: summary.emailVerified ? '#22c55e' : '#ef4444',
                     }}
                   >
                     {summary.emailVerified ? 'Verified' : 'Not Verified'}
                   </span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: '0.5rem' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '0.75rem',
+                    background: 'rgba(255,255,255,0.03)',
+                    borderRadius: '0.5rem',
+                  }}
+                >
                   <span style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Active Sessions</span>
                   <Link
                     href={summary.securityLinks.sessions}
                     style={{ color: '#818cf8', fontSize: '0.9rem', textDecoration: 'none' }}
                   >
-                    {summary.activeSessionCount} {summary.activeSessionCount === 1 ? 'session' : 'sessions'}
+                    {summary.activeSessionCount}{' '}
+                    {summary.activeSessionCount === 1 ? 'session' : 'sessions'}
                   </Link>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: '0.5rem' }}>
-                  <span style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Current Session Started</span>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '0.75rem',
+                    background: 'rgba(255,255,255,0.03)',
+                    borderRadius: '0.5rem',
+                  }}
+                >
+                  <span style={{ color: '#94a3b8', fontSize: '0.9rem' }}>
+                    Current Session Started
+                  </span>
                   <span style={{ color: '#e2e8f0', fontSize: '0.9rem' }}>
                     {new Date(summary.currentSessionCreatedAt).toLocaleString()}
                   </span>
                 </div>
                 {summary.currentSessionLastUsedAt && (
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: '0.5rem' }}>
-                    <span style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Current Session Last Used</span>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: '0.75rem',
+                      background: 'rgba(255,255,255,0.03)',
+                      borderRadius: '0.5rem',
+                    }}
+                  >
+                    <span style={{ color: '#94a3b8', fontSize: '0.9rem' }}>
+                      Current Session Last Used
+                    </span>
                     <span style={{ color: '#e2e8f0', fontSize: '0.9rem' }}>
                       {new Date(summary.currentSessionLastUsedAt).toLocaleString()}
                     </span>
                   </div>
                 )}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: '0.5rem' }}>
-                  <span style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Password Last Changed</span>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '0.75rem',
+                    background: 'rgba(255,255,255,0.03)',
+                    borderRadius: '0.5rem',
+                  }}
+                >
+                  <span style={{ color: '#94a3b8', fontSize: '0.9rem' }}>
+                    Password Last Changed
+                  </span>
                   <span style={{ color: '#e2e8f0', fontSize: '0.9rem' }}>
                     {summary.passwordLastChangedAt
                       ? new Date(summary.passwordLastChangedAt).toLocaleDateString()
@@ -291,8 +394,23 @@ export default function AccountSecurityPage() {
               </div>
             </section>
 
-            <section style={{ marginBottom: '2rem', padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '0.5rem' }}>
-              <h2 className={styles.subtitle} style={{ fontSize: '1.1rem', fontWeight: 600, color: '#e2e8f0', marginBottom: '0.75rem' }}>
+            <section
+              style={{
+                marginBottom: '2rem',
+                padding: '1rem',
+                background: 'rgba(255,255,255,0.03)',
+                borderRadius: '0.5rem',
+              }}
+            >
+              <h2
+                className={styles.subtitle}
+                style={{
+                  fontSize: '1.1rem',
+                  fontWeight: 600,
+                  color: '#e2e8f0',
+                  marginBottom: '0.75rem',
+                }}
+              >
                 Quick Links
               </h2>
               <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
@@ -328,7 +446,15 @@ export default function AccountSecurityPage() {
             </section>
 
             <section>
-              <h2 className={styles.subtitle} style={{ fontSize: '1.1rem', fontWeight: 600, color: '#e2e8f0', marginBottom: '1rem' }}>
+              <h2
+                className={styles.subtitle}
+                style={{
+                  fontSize: '1.1rem',
+                  fontWeight: 600,
+                  color: '#e2e8f0',
+                  marginBottom: '1rem',
+                }}
+              >
                 Change Password
               </h2>
 
@@ -353,7 +479,11 @@ export default function AccountSecurityPage() {
                 >
                   {formSuccess}
                   {revokedCount !== null && revokedCount > 0 && (
-                    <span> &mdash; {revokedCount} other {revokedCount === 1 ? 'session was' : 'sessions were'} signed out.</span>
+                    <span>
+                      {' '}
+                      &mdash; {revokedCount} other{' '}
+                      {revokedCount === 1 ? 'session was' : 'sessions were'} signed out.
+                    </span>
                   )}
                 </div>
               )}
@@ -368,7 +498,10 @@ export default function AccountSecurityPage() {
                       id="currentPassword"
                       type={showCurrent ? 'text' : 'password'}
                       value={currentPassword}
-                      onChange={(e) => { setCurrentPassword(e.target.value); setFieldErrors((prev) => ({ ...prev, currentPassword: '' })); }}
+                      onChange={(e) => {
+                        setCurrentPassword(e.target.value);
+                        setFieldErrors((prev) => ({ ...prev, currentPassword: '' }));
+                      }}
                       className={`${styles.input} ${fieldErrors.currentPassword ? styles.inputError : ''}`}
                       aria-invalid={!!fieldErrors.currentPassword}
                       autoComplete="current-password"
@@ -383,7 +516,9 @@ export default function AccountSecurityPage() {
                     </button>
                   </div>
                   {fieldErrors.currentPassword && (
-                    <p className={styles.errorMessage} role="alert">{fieldErrors.currentPassword}</p>
+                    <p className={styles.errorMessage} role="alert">
+                      {fieldErrors.currentPassword}
+                    </p>
                   )}
                 </div>
 
@@ -396,7 +531,10 @@ export default function AccountSecurityPage() {
                       id="newPassword"
                       type={showNew ? 'text' : 'password'}
                       value={newPassword}
-                      onChange={(e) => { setNewPassword(e.target.value); setFieldErrors((prev) => ({ ...prev, newPassword: '' })); }}
+                      onChange={(e) => {
+                        setNewPassword(e.target.value);
+                        setFieldErrors((prev) => ({ ...prev, newPassword: '' }));
+                      }}
                       className={`${styles.input} ${fieldErrors.newPassword ? styles.inputError : ''}`}
                       aria-invalid={!!fieldErrors.newPassword}
                       autoComplete="new-password"
@@ -411,10 +549,13 @@ export default function AccountSecurityPage() {
                     </button>
                   </div>
                   {fieldErrors.newPassword && (
-                    <p className={styles.errorMessage} role="alert">{fieldErrors.newPassword}</p>
+                    <p className={styles.errorMessage} role="alert">
+                      {fieldErrors.newPassword}
+                    </p>
                   )}
                   <p style={{ color: '#64748b', fontSize: '0.8rem', marginTop: '0.25rem' }}>
-                    Must be at least 10 characters with uppercase, lowercase, number, and special character.
+                    Must be at least 10 characters with uppercase, lowercase, number, and special
+                    character.
                   </p>
                 </div>
 
@@ -427,7 +568,10 @@ export default function AccountSecurityPage() {
                       id="confirmNewPassword"
                       type={showConfirm ? 'text' : 'password'}
                       value={confirmNewPassword}
-                      onChange={(e) => { setConfirmNewPassword(e.target.value); setFieldErrors((prev) => ({ ...prev, confirmNewPassword: '' })); }}
+                      onChange={(e) => {
+                        setConfirmNewPassword(e.target.value);
+                        setFieldErrors((prev) => ({ ...prev, confirmNewPassword: '' }));
+                      }}
                       className={`${styles.input} ${fieldErrors.confirmNewPassword ? styles.inputError : ''}`}
                       aria-invalid={!!fieldErrors.confirmNewPassword}
                       autoComplete="new-password"
@@ -442,15 +586,13 @@ export default function AccountSecurityPage() {
                     </button>
                   </div>
                   {fieldErrors.confirmNewPassword && (
-                    <p className={styles.errorMessage} role="alert">{fieldErrors.confirmNewPassword}</p>
+                    <p className={styles.errorMessage} role="alert">
+                      {fieldErrors.confirmNewPassword}
+                    </p>
                   )}
                 </div>
 
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className={styles.submitButton}
-                >
+                <button type="submit" disabled={saving} className={styles.submitButton}>
                   {saving ? 'Saving...' : 'Change Password'}
                 </button>
               </form>

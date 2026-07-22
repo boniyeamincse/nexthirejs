@@ -34,22 +34,32 @@ export function SkillList({ records, onEdit, onDelete, onMoveUp, onMoveDown }: S
           }}
         >
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                marginBottom: '0.25rem',
+              }}
+            >
               <span style={{ fontWeight: 600, color: '#f8fafc' }}>{record.name}</span>
-              <span style={{
-                padding: '0.15rem 0.5rem',
-                borderRadius: '0.25rem',
-                fontSize: '0.75rem',
-                background: 'rgba(99, 102, 241, 0.2)',
-                color: '#a5b4fc',
-                border: '1px solid rgba(99, 102, 241, 0.3)',
-              }}>
+              <span
+                style={{
+                  padding: '0.15rem 0.5rem',
+                  borderRadius: '0.25rem',
+                  fontSize: '0.75rem',
+                  background: 'rgba(99, 102, 241, 0.2)',
+                  color: '#a5b4fc',
+                  border: '1px solid rgba(99, 102, 241, 0.3)',
+                }}
+              >
                 {record.level}
               </span>
             </div>
             {record.yearsOfExperience !== null && (
               <p style={{ fontSize: '0.85rem', color: '#94a3b8' }}>
-                {record.yearsOfExperience} {record.yearsOfExperience === 1 ? 'year' : 'years'} of experience
+                {record.yearsOfExperience} {record.yearsOfExperience === 1 ? 'year' : 'years'} of
+                experience
               </p>
             )}
           </div>

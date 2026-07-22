@@ -32,9 +32,8 @@ export class UrlNormalizer {
 
     const displayUrl = `${protocol}//${hostname}${port}${pathname}${search}${hash}`;
 
-    const normalizedPath = pathname.endsWith('/') && pathname.length > 1
-      ? pathname.replace(/\/+$/, '')
-      : pathname;
+    const normalizedPath =
+      pathname.endsWith('/') && pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname;
 
     const normalizedUrl = `${protocol}//${hostname}${port}${normalizedPath}${search}`;
 

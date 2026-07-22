@@ -34,7 +34,11 @@ export class LoginService {
     private readonly auditService: AuditService,
   ) {}
 
-  async login(email: string, password: string, metadata?: CreateSessionMetadata): Promise<LoginResult> {
+  async login(
+    email: string,
+    password: string,
+    metadata?: CreateSessionMetadata,
+  ): Promise<LoginResult> {
     const normalizedEmail = email.trim().toLowerCase();
 
     const user = await this.prisma.user.findUnique({

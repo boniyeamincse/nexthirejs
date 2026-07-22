@@ -20,11 +20,9 @@ describe('CandidateProfileController (e2e)', () => {
   });
 
   it('/v1/candidates/me/profile (GET) - unauthorized', () => {
-    return request(app.getHttpServer())
-      .get('/v1/candidates/me/profile')
-      .expect(401);
+    return request(app.getHttpServer()).get('/v1/candidates/me/profile').expect(401);
   });
-  
+
   it('/v1/candidates/me/profile (PUT) - unauthorized', () => {
     return request(app.getHttpServer())
       .put('/v1/candidates/me/profile')

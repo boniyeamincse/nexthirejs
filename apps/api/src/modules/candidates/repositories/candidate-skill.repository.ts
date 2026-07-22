@@ -9,10 +9,7 @@ export class CandidateSkillRepository {
   async findByUserId(userId: string) {
     return this.prisma.candidateSkill.findMany({
       where: { userId },
-      orderBy: [
-        { sortOrder: 'asc' },
-        { name: 'asc' }
-      ],
+      orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
     });
   }
 
@@ -34,7 +31,12 @@ export class CandidateSkillRepository {
     });
   }
 
-  async create(userId: string, data: CreateCandidateSkillInput, normalizedName: string, sortOrder: number) {
+  async create(
+    userId: string,
+    data: CreateCandidateSkillInput,
+    normalizedName: string,
+    sortOrder: number,
+  ) {
     return this.prisma.candidateSkill.create({
       data: {
         userId,
@@ -74,8 +76,8 @@ export class CandidateSkillRepository {
         this.prisma.candidateSkill.update({
           where: { id: update.id },
           data: { sortOrder: update.sortOrder },
-        })
-      )
+        }),
+      ),
     );
   }
 }

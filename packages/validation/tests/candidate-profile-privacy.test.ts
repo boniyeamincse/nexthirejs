@@ -53,6 +53,7 @@ describe('candidateProfilePrivacySchema', () => {
   });
 
   it('rejects missing section', () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { EDUCATION, ...partialSections } = validInput.sections;
     const result = candidateProfilePrivacySchema.safeParse({
       ...validInput,

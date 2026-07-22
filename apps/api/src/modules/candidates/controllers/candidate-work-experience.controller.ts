@@ -32,7 +32,10 @@ export class CandidateWorkExperienceController {
 
   @Get()
   @ApiOperation({ summary: 'List own work experience records' })
-  @ApiResponse({ status: 200, description: 'List of work experience records and completion status' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of work experience records and completion status',
+  })
   async listOwnExperience(@Req() req: AuthenticatedRequest) {
     return this.workExpService.listRecords(req.principal.userId);
   }
@@ -41,13 +44,13 @@ export class CandidateWorkExperienceController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create work experience record' })
   @ApiResponse({ status: 201, description: 'Work experience record created' })
-  @ApiResponse({ status: 400, description: 'CANDIDATE_EXPERIENCE_VALIDATION_FAILED or CANDIDATE_EXPERIENCE_LIMIT_REACHED' })
+  @ApiResponse({
+    status: 400,
+    description: 'CANDIDATE_EXPERIENCE_VALIDATION_FAILED or CANDIDATE_EXPERIENCE_LIMIT_REACHED',
+  })
   @ApiResponse({ status: 401, description: 'AUTH_ACCESS_TOKEN_INVALID' })
   @ApiResponse({ status: 403, description: 'CANDIDATE_ROLE_REQUIRED' })
-  async createExperience(
-    @Req() req: AuthenticatedRequest,
-    @Body() body: any,
-  ) {
+  async createExperience(@Req() req: AuthenticatedRequest, @Body() body: any) {
     return this.workExpService.createRecord(req.principal.userId, body);
   }
 
@@ -56,10 +59,7 @@ export class CandidateWorkExperienceController {
   @ApiOperation({ summary: 'Reorder work experience records' })
   @ApiResponse({ status: 200, description: 'Records reordered successfully' })
   @ApiResponse({ status: 400, description: 'CANDIDATE_EXPERIENCE_VALIDATION_FAILED' })
-  async reorderExperience(
-    @Req() req: AuthenticatedRequest,
-    @Body() body: any,
-  ) {
+  async reorderExperience(@Req() req: AuthenticatedRequest, @Body() body: any) {
     return this.workExpService.reorderRecords(req.principal.userId, body);
   }
 
@@ -83,10 +83,7 @@ export class CandidateWorkExperienceController {
   @ApiParam({ name: 'id', description: 'Work experience record UUID' })
   @ApiResponse({ status: 204, description: 'Work experience record deleted' })
   @ApiResponse({ status: 404, description: 'CANDIDATE_EXPERIENCE_NOT_FOUND' })
-  async deleteExperience(
-    @Req() req: AuthenticatedRequest,
-    @Param('id', ParseUUIDPipe) id: string,
-  ) {
+  async deleteExperience(@Req() req: AuthenticatedRequest, @Param('id', ParseUUIDPipe) id: string) {
     await this.workExpService.deleteRecord(req.principal.userId, id);
   }
 }

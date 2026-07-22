@@ -1,13 +1,28 @@
-import { Injectable, Logger, NotFoundException, ConflictException, GoneException, HttpException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  ConflictException,
+  GoneException,
+  HttpException,
+} from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { PrismaService } from '../../../database/prisma.service';
 import { StorageService } from '../../../infrastructure/storage/storage.service';
 import { AuditService } from '../../audit/audit.service';
-import { DATA_EXPORT_QUEUE, GENERATE_DATA_EXPORT_JOB } from '../../../infrastructure/queue/queue.constants';
+import {
+  DATA_EXPORT_QUEUE,
+  GENERATE_DATA_EXPORT_JOB,
+} from '../../../infrastructure/queue/queue.constants';
 import { DATA_EXPORT_ERROR_CODES } from '@nexthire/constants';
 import { AuditActorType, AuditOutcome } from '@nexthire/types';
-import type { DataExportStatus, RequestCandidateDataExportResult, CandidateDataExportStatusResult, CandidateDataExportDownloadResult } from '@nexthire/types';
+import type {
+  DataExportStatus,
+  RequestCandidateDataExportResult,
+  CandidateDataExportStatusResult,
+  CandidateDataExportDownloadResult,
+} from '@nexthire/types';
 
 @Injectable()
 export class CandidateDataExportService {
@@ -97,7 +112,10 @@ export class CandidateDataExportService {
     }));
   }
 
-  async getExportStatus(userId: string, exportId: string): Promise<CandidateDataExportStatusResult> {
+  async getExportStatus(
+    userId: string,
+    exportId: string,
+  ): Promise<CandidateDataExportStatusResult> {
     const record = await this.prisma.candidateDataExportRequest.findUnique({
       where: { id: exportId },
     });
@@ -111,11 +129,15 @@ export class CandidateDataExportService {
       completedAt: record.completedAt?.toISOString() ?? null,
       expiresAt: record.expiresAt?.toISOString() ?? null,
       fileSizeBytes: record.fileSizeBytes ? Number(record.fileSizeBytes) : null,
-      downloadAvailable: record.status === 'READY' && (record.expiresAt ? record.expiresAt > new Date() : false),
+      downloadAvailable:
+        record.status === 'READY' && (record.expiresAt ? record.expiresAt > new Date() : false),
     };
   }
 
-  async getDownloadAccess(userId: string, exportId: string): Promise<CandidateDataExportDownloadResult> {
+  async getDownloadAccess(
+    userId: string,
+    exportId: string,
+  ): Promise<CandidateDataExportDownloadResult> {
     const record = await this.prisma.candidateDataExportRequest.findUnique({
       where: { id: exportId },
     });

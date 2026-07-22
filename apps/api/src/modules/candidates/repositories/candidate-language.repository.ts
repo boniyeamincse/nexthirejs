@@ -9,10 +9,7 @@ export class CandidateLanguageRepository {
   async findByUserId(userId: string) {
     return this.prisma.candidateLanguage.findMany({
       where: { userId },
-      orderBy: [
-        { sortOrder: 'asc' },
-        { name: 'asc' }
-      ],
+      orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
     });
   }
 
@@ -34,7 +31,12 @@ export class CandidateLanguageRepository {
     });
   }
 
-  async create(userId: string, data: CreateCandidateLanguageInput, normalizedName: string, sortOrder: number) {
+  async create(
+    userId: string,
+    data: CreateCandidateLanguageInput,
+    normalizedName: string,
+    sortOrder: number,
+  ) {
     return this.prisma.candidateLanguage.create({
       data: {
         userId,
@@ -76,8 +78,8 @@ export class CandidateLanguageRepository {
         this.prisma.candidateLanguage.update({
           where: { id: update.id },
           data: { sortOrder: update.sortOrder },
-        })
-      )
+        }),
+      ),
     );
   }
 }

@@ -19,6 +19,8 @@ import { AccountSecurityController } from './account-security/account-security.c
 import { AccountSecurityService } from './account-security/account-security.service';
 import { ChangePasswordController } from './account-security/change-password.controller';
 import { ChangePasswordService } from './account-security/change-password.service';
+import { PasswordResetController } from './password-reset.controller';
+import { PasswordResetService } from './password-reset.service';
 
 @Module({
   imports: [DatabaseModule, AuditModule, EmailModule],
@@ -29,6 +31,7 @@ import { ChangePasswordService } from './account-security/change-password.servic
     SessionController,
     AccountSecurityController,
     ChangePasswordController,
+    PasswordResetController,
   ],
   providers: [
     PasswordHashingService,
@@ -41,6 +44,7 @@ import { ChangePasswordService } from './account-security/change-password.servic
     AuthGuard,
     AccountSecurityService,
     ChangePasswordService,
+    PasswordResetService,
     {
       provide: APP_GUARD,
       useClass: AuthGuard,

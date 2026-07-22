@@ -49,13 +49,14 @@ export class CandidateProfilePrivacyController {
       'Public profile and recruiter discovery features are not yet implemented.',
   })
   @ApiResponse({ status: 200, description: 'Privacy settings updated successfully' })
-  @ApiResponse({ status: 400, description: 'CANDIDATE_PRIVACY_VALIDATION_FAILED, CANDIDATE_PRIVACY_SECTION_MISSING, or CANDIDATE_PRIVACY_SECTION_UNSUPPORTED' })
+  @ApiResponse({
+    status: 400,
+    description:
+      'CANDIDATE_PRIVACY_VALIDATION_FAILED, CANDIDATE_PRIVACY_SECTION_MISSING, or CANDIDATE_PRIVACY_SECTION_UNSUPPORTED',
+  })
   @ApiResponse({ status: 401, description: 'Authentication required' })
   @ApiResponse({ status: 403, description: 'Candidate role required or account unavailable' })
-  async updatePrivacy(
-    @Req() req: AuthenticatedRequest,
-    @Body() data: any,
-  ) {
+  async updatePrivacy(@Req() req: AuthenticatedRequest, @Body() data: any) {
     return this.privacyService.updateSettings(req.principal.userId, data);
   }
 }

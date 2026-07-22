@@ -13,10 +13,7 @@ import type {
   PublicAchievementRecord,
   PublicProfessionalLinkRecord,
 } from '@nexthire/types';
-import {
-  rotateProfileShareLink,
-  setProfileShareLinkEnabled,
-} from '@/lib/api-client';
+import { rotateProfileShareLink, setProfileShareLinkEnabled } from '@/lib/api-client';
 
 interface ProfilePreviewProps {
   preview: OwnerProfilePreview;
@@ -137,8 +134,17 @@ export function ProfilePreview({ preview, accessToken }: ProfilePreviewProps) {
   return (
     <div>
       <section>
-        <fieldset style={{ border: '1px solid rgba(255,255,255,0.1)', borderRadius: '0.5rem', padding: '1rem', marginBottom: '1.5rem' }}>
-          <legend style={{ color: '#e2e8f0', fontWeight: 600, fontSize: '0.95rem', padding: '0 0.25rem' }}>
+        <fieldset
+          style={{
+            border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: '0.5rem',
+            padding: '1rem',
+            marginBottom: '1.5rem',
+          }}
+        >
+          <legend
+            style={{ color: '#e2e8f0', fontWeight: 600, fontSize: '0.95rem', padding: '0 0.25rem' }}
+          >
             Preview Mode
           </legend>
           <div
@@ -173,8 +179,17 @@ export function ProfilePreview({ preview, accessToken }: ProfilePreviewProps) {
       </section>
 
       <section>
-        <fieldset style={{ border: '1px solid rgba(255,255,255,0.1)', borderRadius: '0.5rem', padding: '1rem', marginBottom: '1.5rem' }}>
-          <legend style={{ color: '#e2e8f0', fontWeight: 600, fontSize: '0.95rem', padding: '0 0.25rem' }}>
+        <fieldset
+          style={{
+            border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: '0.5rem',
+            padding: '1rem',
+            marginBottom: '1.5rem',
+          }}
+        >
+          <legend
+            style={{ color: '#e2e8f0', fontWeight: 600, fontSize: '0.95rem', padding: '0 0.25rem' }}
+          >
             Privacy Summary
           </legend>
 
@@ -187,24 +202,38 @@ export function ProfilePreview({ preview, accessToken }: ProfilePreviewProps) {
 
           <div style={{ marginBottom: '0.5rem' }}>
             <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>Share Link: </span>
-            <span style={{
-              color: preview.privacySummary.shareLinkEnabled ? '#4ade80' : '#ef4444',
-              fontWeight: 500,
-              fontSize: '0.85rem',
-            }}>
+            <span
+              style={{
+                color: preview.privacySummary.shareLinkEnabled ? '#4ade80' : '#ef4444',
+                fontWeight: 500,
+                fontSize: '0.85rem',
+              }}
+            >
               {preview.privacySummary.shareLinkEnabled ? 'Enabled' : 'Disabled'}
             </span>
           </div>
 
           <div>
-            <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '0.35rem' }}>Section Visibility:</p>
+            <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '0.35rem' }}>
+              Section Visibility:
+            </p>
             {Object.entries(preview.privacySummary.sectionVisibility).map(([key, vis]) => (
-              <div key={key} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', marginBottom: '0.2rem' }}>
+              <div
+                key={key}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  fontSize: '0.8rem',
+                  marginBottom: '0.2rem',
+                }}
+              >
                 <span style={{ color: '#cbd5e1' }}>{SECTION_LABELS[key] || key}</span>
-                <span style={{
-                  color: vis === 'HIDDEN' ? '#ef4444' : vis === 'PUBLIC' ? '#4ade80' : '#facc15',
-                  fontWeight: 500,
-                }}>
+                <span
+                  style={{
+                    color: vis === 'HIDDEN' ? '#ef4444' : vis === 'PUBLIC' ? '#4ade80' : '#facc15',
+                    fontWeight: 500,
+                  }}
+                >
                   {vis.replace(/_/g, ' ')}
                 </span>
               </div>
@@ -215,14 +244,35 @@ export function ProfilePreview({ preview, accessToken }: ProfilePreviewProps) {
 
       {isOwner && (
         <section>
-          <fieldset style={{ border: '1px solid rgba(255,255,255,0.1)', borderRadius: '0.5rem', padding: '1rem', marginBottom: '1.5rem' }}>
-            <legend style={{ color: '#e2e8f0', fontWeight: 600, fontSize: '0.95rem', padding: '0 0.25rem' }}>
+          <fieldset
+            style={{
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '0.5rem',
+              padding: '1rem',
+              marginBottom: '1.5rem',
+            }}
+          >
+            <legend
+              style={{
+                color: '#e2e8f0',
+                fontWeight: 600,
+                fontSize: '0.95rem',
+                padding: '0 0.25rem',
+              }}
+            >
               Share Link Controls
             </legend>
 
             {shareEnabled && shareUrl && (
               <div style={{ marginBottom: '0.75rem' }}>
-                <label style={{ color: '#94a3b8', fontSize: '0.85rem', display: 'block', marginBottom: '0.35rem' }}>
+                <label
+                  style={{
+                    color: '#94a3b8',
+                    fontSize: '0.85rem',
+                    display: 'block',
+                    marginBottom: '0.35rem',
+                  }}
+                >
                   Share URL
                 </label>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -245,9 +295,13 @@ export function ProfilePreview({ preview, accessToken }: ProfilePreviewProps) {
                     onClick={handleCopyLink}
                     style={{
                       padding: '0.5rem 0.75rem',
-                      background: shareCopied ? 'rgba(34, 197, 94, 0.2)' : 'rgba(99, 102, 241, 0.2)',
+                      background: shareCopied
+                        ? 'rgba(34, 197, 94, 0.2)'
+                        : 'rgba(99, 102, 241, 0.2)',
                       color: shareCopied ? '#4ade80' : '#a5b4fc',
-                      border: shareCopied ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid rgba(99, 102, 241, 0.3)',
+                      border: shareCopied
+                        ? '1px solid rgba(34, 197, 94, 0.3)'
+                        : '1px solid rgba(99, 102, 241, 0.3)',
                       borderRadius: '0.375rem',
                       cursor: 'pointer',
                       fontSize: '0.85rem',
@@ -357,8 +411,8 @@ export function ProfilePreview({ preview, accessToken }: ProfilePreviewProps) {
             }}
           >
             <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: 0 }}>
-              Previewing as {previewMode === 'LINK_ONLY' ? 'Link-Only' : 'Platform Discoverable'} view.
-              Only sections with visibility above Hidden are shown.
+              Previewing as {previewMode === 'LINK_ONLY' ? 'Link-Only' : 'Platform Discoverable'}{' '}
+              view. Only sections with visibility above Hidden are shown.
             </p>
           </div>
         </section>
@@ -368,7 +422,9 @@ export function ProfilePreview({ preview, accessToken }: ProfilePreviewProps) {
         <h2 style={{ color: '#f8fafc', fontSize: '1.25rem', marginBottom: '1rem' }}>
           {profile.displayName}
           {profile.professionalHeadline && (
-            <span style={{ color: '#94a3b8', fontWeight: 400, fontSize: '1rem', marginLeft: '0.75rem' }}>
+            <span
+              style={{ color: '#94a3b8', fontWeight: 400, fontSize: '1rem', marginLeft: '0.75rem' }}
+            >
               {profile.professionalHeadline}
             </span>
           )}
@@ -381,13 +437,27 @@ export function ProfilePreview({ preview, accessToken }: ProfilePreviewProps) {
         )}
 
         {profile.professionalSummary && (
-          <p style={{ color: '#cbd5e1', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
+          <p
+            style={{
+              color: '#cbd5e1',
+              fontSize: '0.9rem',
+              lineHeight: 1.6,
+              marginBottom: '1.5rem',
+            }}
+          >
             {profile.professionalSummary}
           </p>
         )}
       </section>
 
-      {preferredJobRolesSection(profile.preferredJobRoles, profile.preferredWorkModes, profile.preferredEmploymentTypes, visibleSections, isOwner, hiddenSections)}
+      {preferredJobRolesSection(
+        profile.preferredJobRoles,
+        profile.preferredWorkModes,
+        profile.preferredEmploymentTypes,
+        visibleSections,
+        isOwner,
+        hiddenSections,
+      )}
 
       {educationSection(profile.education, visibleSections, isOwner, hiddenSections)}
       {experienceSection(profile.experience, visibleSections, isOwner, hiddenSections)}
@@ -396,9 +466,16 @@ export function ProfilePreview({ preview, accessToken }: ProfilePreviewProps) {
       {certificationsSection(profile.certifications, visibleSections, isOwner, hiddenSections)}
       {trainingSection(profile.training, visibleSections, isOwner, hiddenSections)}
       {achievementsSection(profile.achievements, visibleSections, isOwner, hiddenSections)}
-      {professionalLinksSection(profile.professionalLinks, visibleSections, isOwner, hiddenSections)}
+      {professionalLinksSection(
+        profile.professionalLinks,
+        visibleSections,
+        isOwner,
+        hiddenSections,
+      )}
 
-      <div style={{ marginTop: '1rem', fontSize: '0.75rem', color: '#64748b', textAlign: 'center' }}>
+      <div
+        style={{ marginTop: '1rem', fontSize: '0.75rem', color: '#64748b', textAlign: 'center' }}
+      >
         Last updated: {formatDate(profile.updatedAt)}
       </div>
     </div>
@@ -408,7 +485,16 @@ export function ProfilePreview({ preview, accessToken }: ProfilePreviewProps) {
 function sectionContainer(children: React.ReactNode, key: string, label: string) {
   return (
     <section key={key} style={{ marginBottom: '1.5rem' }}>
-      <h3 style={{ color: '#e2e8f0', fontWeight: 600, fontSize: '1rem', marginBottom: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.35rem' }}>
+      <h3
+        style={{
+          color: '#e2e8f0',
+          fontWeight: 600,
+          fontSize: '1rem',
+          marginBottom: '0.75rem',
+          borderBottom: '1px solid rgba(255,255,255,0.1)',
+          paddingBottom: '0.35rem',
+        }}
+      >
         {label}
       </h3>
       {children}
@@ -419,7 +505,16 @@ function sectionContainer(children: React.ReactNode, key: string, label: string)
 function hiddenSectionPlaceholder(key: string, label: string) {
   return (
     <section key={key} style={{ marginBottom: '1.5rem' }}>
-      <h3 style={{ color: '#64748b', fontWeight: 600, fontSize: '1rem', marginBottom: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '0.35rem' }}>
+      <h3
+        style={{
+          color: '#64748b',
+          fontWeight: 600,
+          fontSize: '1rem',
+          marginBottom: '0.75rem',
+          borderBottom: '1px solid rgba(255,255,255,0.05)',
+          paddingBottom: '0.35rem',
+        }}
+      >
         {label}
       </h3>
       <div
@@ -450,7 +545,9 @@ function renderSection<T>(
   if (items.length === 0 && !isOwner) return null;
   if (items.length === 0) {
     return sectionContainer(
-      <p style={{ color: '#64748b', fontSize: '0.85rem', fontStyle: 'italic', margin: 0 }}>No entries added yet.</p>,
+      <p style={{ color: '#64748b', fontSize: '0.85rem', fontStyle: 'italic', margin: 0 }}>
+        No entries added yet.
+      </p>,
       key,
       label,
     );
@@ -466,21 +563,43 @@ function renderSection<T>(
 
 function educationCard(edu: PublicEducationRecord) {
   return (
-    <div key={edu.id} style={{ padding: '0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: '0.375rem', border: '1px solid rgba(255,255,255,0.06)' }}>
+    <div
+      key={edu.id}
+      style={{
+        padding: '0.75rem',
+        background: 'rgba(255,255,255,0.03)',
+        borderRadius: '0.375rem',
+        border: '1px solid rgba(255,255,255,0.06)',
+      }}
+    >
       <p style={{ color: '#f8fafc', fontWeight: 500, margin: 0 }}>{edu.qualification}</p>
-      <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: '0.15rem 0' }}>{edu.institutionName}</p>
+      <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: '0.15rem 0' }}>
+        {edu.institutionName}
+      </p>
       <p style={{ color: '#64748b', fontSize: '0.8rem', margin: 0 }}>
         {formatDateRange(edu.startDate, edu.endDate, edu.currentlyStudying)}
         {edu.grade ? ` | ${edu.grade}` : ''}
       </p>
-      {edu.description && <p style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: '0.35rem' }}>{edu.description}</p>}
+      {edu.description && (
+        <p style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: '0.35rem' }}>
+          {edu.description}
+        </p>
+      )}
     </div>
   );
 }
 
 function experienceCard(exp: PublicWorkExperienceRecord) {
   return (
-    <div key={exp.id} style={{ padding: '0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: '0.375rem', border: '1px solid rgba(255,255,255,0.06)' }}>
+    <div
+      key={exp.id}
+      style={{
+        padding: '0.75rem',
+        background: 'rgba(255,255,255,0.03)',
+        borderRadius: '0.375rem',
+        border: '1px solid rgba(255,255,255,0.06)',
+      }}
+    >
       <p style={{ color: '#f8fafc', fontWeight: 500, margin: 0 }}>{exp.jobTitle}</p>
       <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: '0.15rem 0' }}>
         {exp.companyName}
@@ -489,10 +608,19 @@ function experienceCard(exp: PublicWorkExperienceRecord) {
       </p>
       <p style={{ color: '#64748b', fontSize: '0.8rem', margin: 0 }}>
         {formatDateRange(exp.startDate, exp.endDate, exp.currentlyWorking)}
-        {' | '}{exp.employmentType.replace(/_/g, ' ')}
+        {' | '}
+        {exp.employmentType.replace(/_/g, ' ')}
       </p>
-      {exp.responsibilities && <p style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: '0.35rem' }}>{exp.responsibilities}</p>}
-      {exp.achievements && <p style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: '0.2rem' }}>{exp.achievements}</p>}
+      {exp.responsibilities && (
+        <p style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: '0.35rem' }}>
+          {exp.responsibilities}
+        </p>
+      )}
+      {exp.achievements && (
+        <p style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: '0.2rem' }}>
+          {exp.achievements}
+        </p>
+      )}
     </div>
   );
 }
@@ -501,14 +629,17 @@ function skillList(skills: PublicSkillRecord[]) {
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
       {skills.map((s) => (
-        <span key={s.id} style={{
-          padding: '0.35rem 0.65rem',
-          background: 'rgba(99, 102, 241, 0.1)',
-          border: '1px solid rgba(99, 102, 241, 0.2)',
-          borderRadius: '999px',
-          fontSize: '0.8rem',
-          color: '#a5b4fc',
-        }}>
+        <span
+          key={s.id}
+          style={{
+            padding: '0.35rem 0.65rem',
+            background: 'rgba(99, 102, 241, 0.1)',
+            border: '1px solid rgba(99, 102, 241, 0.2)',
+            borderRadius: '999px',
+            fontSize: '0.8rem',
+            color: '#a5b4fc',
+          }}
+        >
           {s.name}
           {s.level !== 'NOT_SPECIFIED' && ` - ${s.level.replace(/_/g, ' ')}`}
         </span>
@@ -521,14 +652,17 @@ function languageList(languages: PublicLanguageRecord[]) {
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
       {languages.map((l) => (
-        <span key={l.id} style={{
-          padding: '0.35rem 0.65rem',
-          background: 'rgba(255,255,255,0.03)',
-          border: '1px solid rgba(255,255,255,0.08)',
-          borderRadius: '0.375rem',
-          fontSize: '0.8rem',
-          color: '#cbd5e1',
-        }}>
+        <span
+          key={l.id}
+          style={{
+            padding: '0.35rem 0.65rem',
+            background: 'rgba(255,255,255,0.03)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            borderRadius: '0.375rem',
+            fontSize: '0.8rem',
+            color: '#cbd5e1',
+          }}
+        >
           {l.name} ({l.speaking}/{l.reading}/{l.writing})
         </span>
       ))}
@@ -538,15 +672,32 @@ function languageList(languages: PublicLanguageRecord[]) {
 
 function certificationCard(c: PublicCertificationRecord) {
   return (
-    <div key={c.id} style={{ padding: '0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: '0.375rem', border: '1px solid rgba(255,255,255,0.06)' }}>
+    <div
+      key={c.id}
+      style={{
+        padding: '0.75rem',
+        background: 'rgba(255,255,255,0.03)',
+        borderRadius: '0.375rem',
+        border: '1px solid rgba(255,255,255,0.06)',
+      }}
+    >
       <p style={{ color: '#f8fafc', fontWeight: 500, margin: 0 }}>{c.name}</p>
       <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: '0.15rem 0' }}>{c.issuer}</p>
       <p style={{ color: '#64748b', fontSize: '0.8rem', margin: 0 }}>
         Issued: {formatDate(c.issueDate)}
-        {!c.doesNotExpire && c.expiryDate ? ` | Expires: ${formatDate(c.expiryDate)}` : c.doesNotExpire ? ' | No Expiry' : ''}
+        {!c.doesNotExpire && c.expiryDate
+          ? ` | Expires: ${formatDate(c.expiryDate)}`
+          : c.doesNotExpire
+            ? ' | No Expiry'
+            : ''}
       </p>
       {c.credentialUrl && (
-        <a href={c.credentialUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#818cf8', fontSize: '0.8rem' }}>
+        <a
+          href={c.credentialUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: '#818cf8', fontSize: '0.8rem' }}
+        >
           View Credential
         </a>
       )}
@@ -556,25 +707,57 @@ function certificationCard(c: PublicCertificationRecord) {
 
 function trainingCard(t: PublicTrainingRecord) {
   return (
-    <div key={t.id} style={{ padding: '0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: '0.375rem', border: '1px solid rgba(255,255,255,0.06)' }}>
+    <div
+      key={t.id}
+      style={{
+        padding: '0.75rem',
+        background: 'rgba(255,255,255,0.03)',
+        borderRadius: '0.375rem',
+        border: '1px solid rgba(255,255,255,0.06)',
+      }}
+    >
       <p style={{ color: '#f8fafc', fontWeight: 500, margin: 0 }}>{t.title}</p>
       <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: '0.15rem 0' }}>
         {t.provider}
         {t.durationHours ? ` (${t.durationHours}h)` : ''}
       </p>
-      <p style={{ color: '#64748b', fontSize: '0.8rem', margin: 0 }}>Completed: {formatDate(t.completionDate)}</p>
-      {t.description && <p style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: '0.35rem' }}>{t.description}</p>}
+      <p style={{ color: '#64748b', fontSize: '0.8rem', margin: 0 }}>
+        Completed: {formatDate(t.completionDate)}
+      </p>
+      {t.description && (
+        <p style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: '0.35rem' }}>
+          {t.description}
+        </p>
+      )}
     </div>
   );
 }
 
 function achievementCard(a: PublicAchievementRecord) {
   return (
-    <div key={a.id} style={{ padding: '0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: '0.375rem', border: '1px solid rgba(255,255,255,0.06)' }}>
+    <div
+      key={a.id}
+      style={{
+        padding: '0.75rem',
+        background: 'rgba(255,255,255,0.03)',
+        borderRadius: '0.375rem',
+        border: '1px solid rgba(255,255,255,0.06)',
+      }}
+    >
       <p style={{ color: '#f8fafc', fontWeight: 500, margin: 0 }}>{a.title}</p>
-      {a.issuer && <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: '0.15rem 0' }}>{a.issuer}</p>}
-      {a.achievedAt && <p style={{ color: '#64748b', fontSize: '0.8rem', margin: 0 }}>{formatDate(a.achievedAt)}</p>}
-      {a.description && <p style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: '0.35rem' }}>{a.description}</p>}
+      {a.issuer && (
+        <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: '0.15rem 0' }}>{a.issuer}</p>
+      )}
+      {a.achievedAt && (
+        <p style={{ color: '#64748b', fontSize: '0.8rem', margin: 0 }}>
+          {formatDate(a.achievedAt)}
+        </p>
+      )}
+      {a.description && (
+        <p style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: '0.35rem' }}>
+          {a.description}
+        </p>
+      )}
     </div>
   );
 }
@@ -610,21 +793,27 @@ function preferredJobRolesSection(
     return isOwner ? hiddenSectionPlaceholder(key, 'Location & Preferences') : null;
   }
   if (!visibleSections.includes(key)) return null;
-  if (jobRoles.length === 0 && workModes.length === 0 && employmentTypes.length === 0 && !isOwner) return null;
+  if (jobRoles.length === 0 && workModes.length === 0 && employmentTypes.length === 0 && !isOwner)
+    return null;
   return sectionContainer(
     <div>
       {jobRoles.length > 0 && (
         <div style={{ marginBottom: '0.5rem' }}>
-          <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '0.25rem' }}>Preferred Job Roles</p>
+          <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '0.25rem' }}>
+            Preferred Job Roles
+          </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
             {jobRoles.map((role, idx) => (
-              <span key={idx} style={{
-                padding: '0.25rem 0.5rem',
-                background: 'rgba(99, 102, 241, 0.08)',
-                borderRadius: '0.25rem',
-                fontSize: '0.8rem',
-                color: '#a5b4fc',
-              }}>
+              <span
+                key={idx}
+                style={{
+                  padding: '0.25rem 0.5rem',
+                  background: 'rgba(99, 102, 241, 0.08)',
+                  borderRadius: '0.25rem',
+                  fontSize: '0.8rem',
+                  color: '#a5b4fc',
+                }}
+              >
                 {role}
               </span>
             ))}
@@ -633,14 +822,20 @@ function preferredJobRolesSection(
       )}
       {workModes.length > 0 && (
         <div style={{ marginBottom: '0.5rem' }}>
-          <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '0.25rem' }}>Work Modes</p>
+          <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '0.25rem' }}>
+            Work Modes
+          </p>
           <p style={{ color: '#cbd5e1', fontSize: '0.85rem', margin: 0 }}>{workModes.join(', ')}</p>
         </div>
       )}
       {employmentTypes.length > 0 && (
         <div>
-          <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '0.25rem' }}>Employment Types</p>
-          <p style={{ color: '#cbd5e1', fontSize: '0.85rem', margin: 0 }}>{employmentTypes.join(', ')}</p>
+          <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '0.25rem' }}>
+            Employment Types
+          </p>
+          <p style={{ color: '#cbd5e1', fontSize: '0.85rem', margin: 0 }}>
+            {employmentTypes.join(', ')}
+          </p>
         </div>
       )}
     </div>,
@@ -655,9 +850,18 @@ function educationSection(
   isOwner: boolean,
   hiddenSections: string[],
 ) {
-  if (hiddenSections.includes('EDUCATION')) return isOwner ? hiddenSectionPlaceholder('EDUCATION', 'Education') : null;
+  if (hiddenSections.includes('EDUCATION'))
+    return isOwner ? hiddenSectionPlaceholder('EDUCATION', 'Education') : null;
   if (!visibleSections.includes('EDUCATION')) return null;
-  return renderSection(items, 'EDUCATION', 'Education', educationCard, visibleSections, isOwner, hiddenSections);
+  return renderSection(
+    items,
+    'EDUCATION',
+    'Education',
+    educationCard,
+    visibleSections,
+    isOwner,
+    hiddenSections,
+  );
 }
 
 function experienceSection(
@@ -666,9 +870,18 @@ function experienceSection(
   isOwner: boolean,
   hiddenSections: string[],
 ) {
-  if (hiddenSections.includes('WORK_EXPERIENCE')) return isOwner ? hiddenSectionPlaceholder('WORK_EXPERIENCE', 'Work Experience') : null;
+  if (hiddenSections.includes('WORK_EXPERIENCE'))
+    return isOwner ? hiddenSectionPlaceholder('WORK_EXPERIENCE', 'Work Experience') : null;
   if (!visibleSections.includes('WORK_EXPERIENCE')) return null;
-  return renderSection(items, 'WORK_EXPERIENCE', 'Work Experience', experienceCard, visibleSections, isOwner, hiddenSections);
+  return renderSection(
+    items,
+    'WORK_EXPERIENCE',
+    'Work Experience',
+    experienceCard,
+    visibleSections,
+    isOwner,
+    hiddenSections,
+  );
 }
 
 function skillsSection(
@@ -683,8 +896,12 @@ function skillsSection(
   if (!visibleSections.includes('SKILLS_AND_LANGUAGES')) return null;
   return sectionContainer(
     <div>
-      {items.length > 0 ? skillList(items) : isOwner ? (
-        <p style={{ color: '#64748b', fontSize: '0.85rem', fontStyle: 'italic', margin: 0 }}>No skills added yet.</p>
+      {items.length > 0 ? (
+        skillList(items)
+      ) : isOwner ? (
+        <p style={{ color: '#64748b', fontSize: '0.85rem', fontStyle: 'italic', margin: 0 }}>
+          No skills added yet.
+        </p>
       ) : null}
     </div>,
     'SKILLS_AND_LANGUAGES',
@@ -701,8 +918,12 @@ function languagesSection(
   if (hiddenSections.includes('SKILLS_AND_LANGUAGES')) return null;
   if (!visibleSections.includes('SKILLS_AND_LANGUAGES')) return null;
   return sectionContainer(
-    items.length > 0 ? languageList(items) : isOwner ? (
-      <p style={{ color: '#64748b', fontSize: '0.85rem', fontStyle: 'italic', margin: 0 }}>No languages added yet.</p>
+    items.length > 0 ? (
+      languageList(items)
+    ) : isOwner ? (
+      <p style={{ color: '#64748b', fontSize: '0.85rem', fontStyle: 'italic', margin: 0 }}>
+        No languages added yet.
+      </p>
     ) : null,
     'LANGUAGES',
     'Languages',
@@ -717,7 +938,15 @@ function certificationsSection(
 ) {
   if (hiddenSections.includes('CERTIFICATIONS_AND_TRAINING')) return null;
   if (!visibleSections.includes('CERTIFICATIONS_AND_TRAINING')) return null;
-  return renderSection(items, 'CERTIFICATIONS', 'Certifications', certificationCard, visibleSections, isOwner, hiddenSections);
+  return renderSection(
+    items,
+    'CERTIFICATIONS',
+    'Certifications',
+    certificationCard,
+    visibleSections,
+    isOwner,
+    hiddenSections,
+  );
 }
 
 function trainingSection(
@@ -728,7 +957,15 @@ function trainingSection(
 ) {
   if (hiddenSections.includes('CERTIFICATIONS_AND_TRAINING')) return null;
   if (!visibleSections.includes('CERTIFICATIONS_AND_TRAINING')) return null;
-  return renderSection(items, 'TRAINING', 'Training', trainingCard, visibleSections, isOwner, hiddenSections);
+  return renderSection(
+    items,
+    'TRAINING',
+    'Training',
+    trainingCard,
+    visibleSections,
+    isOwner,
+    hiddenSections,
+  );
 }
 
 function achievementsSection(
@@ -739,7 +976,15 @@ function achievementsSection(
 ) {
   if (hiddenSections.includes('ACHIEVEMENTS_AND_LINKS')) return null;
   if (!visibleSections.includes('ACHIEVEMENTS_AND_LINKS')) return null;
-  return renderSection(items, 'ACHIEVEMENTS', 'Achievements', achievementCard, visibleSections, isOwner, hiddenSections);
+  return renderSection(
+    items,
+    'ACHIEVEMENTS',
+    'Achievements',
+    achievementCard,
+    visibleSections,
+    isOwner,
+    hiddenSections,
+  );
 }
 
 function professionalLinksSection(
@@ -750,5 +995,13 @@ function professionalLinksSection(
 ) {
   if (hiddenSections.includes('ACHIEVEMENTS_AND_LINKS')) return null;
   if (!visibleSections.includes('ACHIEVEMENTS_AND_LINKS')) return null;
-  return renderSection(items, 'PROFESSIONAL_LINKS', 'Professional Links', professionalLinkCard, visibleSections, isOwner, hiddenSections);
+  return renderSection(
+    items,
+    'PROFESSIONAL_LINKS',
+    'Professional Links',
+    professionalLinkCard,
+    visibleSections,
+    isOwner,
+    hiddenSections,
+  );
 }

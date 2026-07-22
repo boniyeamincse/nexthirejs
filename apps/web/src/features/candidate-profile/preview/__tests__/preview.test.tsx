@@ -181,7 +181,7 @@ describe('ProfilePreview', () => {
     expect(screen.getByText('REMOTE, HYBRID')).toBeInTheDocument();
     expect(screen.getByText('FULL_TIME, CONTRACT')).toBeInTheDocument();
   });
-  
+
   it('renders experience section content', () => {
     render(<ProfilePreview preview={mockPreview} accessToken="test-token" />);
     expect(screen.getByText('Tech Corp')).toBeInTheDocument();

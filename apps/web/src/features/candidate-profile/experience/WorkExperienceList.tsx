@@ -17,7 +17,13 @@ interface WorkExperienceListProps {
   onMoveDown: (index: number) => Promise<void>;
 }
 
-export function WorkExperienceList({ records, onEdit, onDelete, onMoveUp, onMoveDown }: WorkExperienceListProps) {
+export function WorkExperienceList({
+  records,
+  onEdit,
+  onDelete,
+  onMoveUp,
+  onMoveDown,
+}: WorkExperienceListProps) {
   if (!records || records.length === 0) {
     return (
       <div
@@ -59,7 +65,14 @@ export function WorkExperienceList({ records, onEdit, onDelete, onMoveUp, onMove
           }}
         >
           <div style={{ flex: 1 }}>
-            <h4 style={{ margin: '0 0 0.25rem 0', color: '#f8fafc', fontSize: '1.1rem', fontWeight: 600 }}>
+            <h4
+              style={{
+                margin: '0 0 0.25rem 0',
+                color: '#f8fafc',
+                fontSize: '1.1rem',
+                fontWeight: 600,
+              }}
+            >
               {record.jobTitle}
             </h4>
             <p style={{ margin: '0 0 0.25rem 0', color: '#cbd5e1', fontWeight: 500 }}>
@@ -70,15 +83,35 @@ export function WorkExperienceList({ records, onEdit, onDelete, onMoveUp, onMove
             <p style={{ margin: '0 0 0.75rem 0', color: '#94a3b8', fontSize: '0.85rem' }}>
               {EMPLOYMENT_TYPE_LABELS[record.employmentType] || record.employmentType} ·{' '}
               {formatMonthYear(record.startDate)} –{' '}
-              {record.currentlyWorking ? 'Present' : record.endDate ? formatMonthYear(record.endDate) : ''}
+              {record.currentlyWorking
+                ? 'Present'
+                : record.endDate
+                  ? formatMonthYear(record.endDate)
+                  : ''}
             </p>
 
             {record.responsibilities && (
               <div style={{ marginBottom: '0.75rem' }}>
-                <p style={{ margin: '0 0 0.25rem 0', color: '#64748b', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                <p
+                  style={{
+                    margin: '0 0 0.25rem 0',
+                    color: '#64748b',
+                    fontSize: '0.8rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                  }}
+                >
                   Responsibilities
                 </p>
-                <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.9rem', lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>
+                <p
+                  style={{
+                    margin: 0,
+                    color: '#94a3b8',
+                    fontSize: '0.9rem',
+                    lineHeight: 1.5,
+                    whiteSpace: 'pre-wrap',
+                  }}
+                >
                   {record.responsibilities}
                 </p>
               </div>
@@ -86,10 +119,26 @@ export function WorkExperienceList({ records, onEdit, onDelete, onMoveUp, onMove
 
             {record.achievements && (
               <div>
-                <p style={{ margin: '0 0 0.25rem 0', color: '#64748b', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                <p
+                  style={{
+                    margin: '0 0 0.25rem 0',
+                    color: '#64748b',
+                    fontSize: '0.8rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                  }}
+                >
                   Achievements
                 </p>
-                <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.9rem', lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>
+                <p
+                  style={{
+                    margin: 0,
+                    color: '#94a3b8',
+                    fontSize: '0.9rem',
+                    lineHeight: 1.5,
+                    whiteSpace: 'pre-wrap',
+                  }}
+                >
                   {record.achievements}
                 </p>
               </div>
@@ -100,29 +149,61 @@ export function WorkExperienceList({ records, onEdit, onDelete, onMoveUp, onMove
             <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
               <button
                 onClick={() => onEdit(record)}
-                style={{ background: 'rgba(99,102,241,0.1)', color: '#a5b4fc', border: '1px solid rgba(99,102,241,0.2)', padding: '0.35rem 0.75rem', borderRadius: '0.5rem', cursor: 'pointer', fontSize: '0.85rem' }}
+                style={{
+                  background: 'rgba(99,102,241,0.1)',
+                  color: '#a5b4fc',
+                  border: '1px solid rgba(99,102,241,0.2)',
+                  padding: '0.35rem 0.75rem',
+                  borderRadius: '0.5rem',
+                  cursor: 'pointer',
+                  fontSize: '0.85rem',
+                }}
               >
                 Edit
               </button>
               <button
                 onClick={() => {
-                  if (window.confirm('Are you sure you want to delete this work experience record?')) {
+                  if (
+                    window.confirm('Are you sure you want to delete this work experience record?')
+                  ) {
                     onDelete(record.id);
                   }
                 }}
-                style={{ background: 'rgba(239,68,68,0.1)', color: '#fca5a5', border: '1px solid rgba(239,68,68,0.2)', padding: '0.35rem 0.75rem', borderRadius: '0.5rem', cursor: 'pointer', fontSize: '0.85rem' }}
+                style={{
+                  background: 'rgba(239,68,68,0.1)',
+                  color: '#fca5a5',
+                  border: '1px solid rgba(239,68,68,0.2)',
+                  padding: '0.35rem 0.75rem',
+                  borderRadius: '0.5rem',
+                  cursor: 'pointer',
+                  fontSize: '0.85rem',
+                }}
               >
                 Delete
               </button>
             </div>
 
             {records.length > 1 && (
-              <div style={{ display: 'flex', gap: '0.25rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  gap: '0.25rem',
+                  justifyContent: 'flex-end',
+                  marginTop: '0.5rem',
+                }}
+              >
                 <button
                   onClick={() => onMoveUp(index)}
                   disabled={index === 0}
                   title="Move Up"
-                  style={{ background: 'transparent', border: 'none', color: index === 0 ? '#334155' : '#94a3b8', cursor: index === 0 ? 'default' : 'pointer', padding: '0.25rem', fontSize: '1.1rem' }}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: index === 0 ? '#334155' : '#94a3b8',
+                    cursor: index === 0 ? 'default' : 'pointer',
+                    padding: '0.25rem',
+                    fontSize: '1.1rem',
+                  }}
                 >
                   ↑
                 </button>
@@ -130,7 +211,14 @@ export function WorkExperienceList({ records, onEdit, onDelete, onMoveUp, onMove
                   onClick={() => onMoveDown(index)}
                   disabled={index === records.length - 1}
                   title="Move Down"
-                  style={{ background: 'transparent', border: 'none', color: index === records.length - 1 ? '#334155' : '#94a3b8', cursor: index === records.length - 1 ? 'default' : 'pointer', padding: '0.25rem', fontSize: '1.1rem' }}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: index === records.length - 1 ? '#334155' : '#94a3b8',
+                    cursor: index === records.length - 1 ? 'default' : 'pointer',
+                    padding: '0.25rem',
+                    fontSize: '1.1rem',
+                  }}
                 >
                   ↓
                 </button>

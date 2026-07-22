@@ -46,7 +46,10 @@ export default function PrivacySettingsPage() {
     void fetchSettings();
   }, [fetchSettings]);
 
-  const handleSave = async (data: { overallDiscoverability: string; sections: Record<string, string> }) => {
+  const handleSave = async (data: {
+    overallDiscoverability: string;
+    sections: Record<string, string>;
+  }) => {
     const token = getAccessToken();
     if (!token) {
       await logout();
@@ -75,7 +78,11 @@ export default function PrivacySettingsPage() {
         <div className={styles.background}></div>
         <div className={styles.glassCard} style={{ textAlign: 'center', padding: '4rem' }}>
           <p className={styles.subtitle}>Session expired. Please log in again.</p>
-          <button onClick={() => router.push('/login')} className={styles.submitButton} style={{ marginTop: '1rem' }}>
+          <button
+            onClick={() => router.push('/login')}
+            className={styles.submitButton}
+            style={{ marginTop: '1rem' }}
+          >
             Go to Login
           </button>
         </div>
@@ -84,14 +91,19 @@ export default function PrivacySettingsPage() {
   }
 
   return (
-    <div className={styles.container} style={{ minHeight: 'calc(100vh - 72px)', padding: '2rem 1rem' }}>
+    <div
+      className={styles.container}
+      style={{ minHeight: 'calc(100vh - 72px)', padding: '2rem 1rem' }}
+    >
       <div className={styles.background}></div>
       <div className={styles.glassCard} style={{ maxWidth: '700px', margin: '0 auto' }}>
         <div style={{ marginBottom: '2rem' }}>
-          <h1 className={styles.title} style={{ fontSize: '1.75rem', margin: 0 }}>Privacy Settings</h1>
+          <h1 className={styles.title} style={{ fontSize: '1.75rem', margin: 0 }}>
+            Privacy Settings
+          </h1>
           <p className={styles.subtitle} style={{ marginTop: '0.5rem' }}>
-            Control how your profile and its sections are visible to others.
-            Public profile and recruiter discovery features are not yet available.
+            Control how your profile and its sections are visible to others. Public profile and
+            recruiter discovery features are not yet available.
           </p>
         </div>
 
@@ -112,20 +124,25 @@ export default function PrivacySettingsPage() {
           </div>
         )}
 
-        {settings && (
-          <PrivacySettingsForm
-            settings={settings}
-            onSave={handleSave}
-          />
-        )}
+        {settings && <PrivacySettingsForm settings={settings} onSave={handleSave} />}
 
-        <div style={{ marginTop: '2rem', padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '0.5rem', fontSize: '0.8rem', color: '#64748b' }}>
+        <div
+          style={{
+            marginTop: '2rem',
+            padding: '1rem',
+            background: 'rgba(255,255,255,0.03)',
+            borderRadius: '0.5rem',
+            fontSize: '0.8rem',
+            color: '#64748b',
+          }}
+        >
           <p style={{ margin: 0 }}>
             <strong>Policy Version:</strong> {settings?.policyVersion || 'Not available'}
             {settings?.source === 'DEFAULT' && ' (default — not yet saved)'}
           </p>
           <p style={{ margin: '0.25rem 0 0' }}>
-            These settings do not yet affect public or recruiter views. Those features are planned for future releases.
+            These settings do not yet affect public or recruiter views. Those features are planned
+            for future releases.
           </p>
         </div>
       </div>

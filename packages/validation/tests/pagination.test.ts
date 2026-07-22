@@ -44,8 +44,8 @@ describe('Cursor Pagination Schema', () => {
     expect(maxResult.success).toBe(true);
   });
 
-  it('should reject perPage greater than 50', () => {
-    const result = cursorPaginationQuerySchema.safeParse({ perPage: 51 });
+  it('should reject perPage greater than 100', () => {
+    const result = cursorPaginationQuerySchema.safeParse({ perPage: 101 });
     expect(result.success).toBe(false);
   });
 

@@ -3,19 +3,19 @@ import { EducationLevel } from '@nexthire/types';
 
 export const educationRecordBaseSchema = z.object({
   educationLevel: z.nativeEnum(EducationLevel),
-  
+
   institutionName: z
     .string()
     .trim()
     .min(2, 'Institution name must be at least 2 characters')
     .max(200, 'Institution name must not exceed 200 characters'),
-    
+
   qualification: z
     .string()
     .trim()
     .min(2, 'Qualification must be at least 2 characters')
     .max(150, 'Qualification must not exceed 150 characters'),
-    
+
   fieldOfStudy: z
     .string()
     .trim()
@@ -23,24 +23,27 @@ export const educationRecordBaseSchema = z.object({
     .nullable()
     .optional()
     .transform((val) => (val === '' ? null : val)),
-    
+
   startDate: z
     .string()
     .datetime({ message: 'Start date must be a valid ISO date string' })
-    .refine((dateStr) => {
-      const date = new Date(dateStr);
-      return date <= new Date();
-    }, { message: 'Start date cannot be in the future' }),
-    
+    .refine(
+      (dateStr) => {
+        const date = new Date(dateStr);
+        return date <= new Date();
+      },
+      { message: 'Start date cannot be in the future' },
+    ),
+
   currentlyStudying: z.boolean(),
-  
+
   endDate: z
     .string()
     .datetime({ message: 'End date must be a valid ISO date string' })
     .nullable()
     .optional()
     .transform((val) => (val === '' ? null : val)),
-    
+
   grade: z
     .string()
     .trim()
@@ -48,7 +51,7 @@ export const educationRecordBaseSchema = z.object({
     .nullable()
     .optional()
     .transform((val) => (val === '' ? null : val)),
-    
+
   description: z
     .string()
     .trim()
@@ -59,42 +62,42 @@ export const educationRecordBaseSchema = z.object({
 });
 
 export const educationRecordSchema = educationRecordBaseSchema
-.refine(
-  (data) => {
-    if (!data.currentlyStudying && !data.endDate) {
-      return false;
-    }
-    return true;
-  },
-  {
-    message: 'End date is required when not currently studying',
-    path: ['endDate'],
-  }
-)
-.refine(
-  (data) => {
-    if (data.startDate && data.endDate) {
-      return new Date(data.endDate) >= new Date(data.startDate);
-    }
-    return true;
-  },
-  {
-    message: 'End date cannot be before start date',
-    path: ['endDate'],
-  }
-)
-.refine(
-  (data) => {
-    if (!data.currentlyStudying && data.endDate) {
-      return new Date(data.endDate) <= new Date();
-    }
-    return true;
-  },
-  {
-    message: 'Historical end date cannot be in the future',
-    path: ['endDate'],
-  }
-);
+  .refine(
+    (data) => {
+      if (!data.currentlyStudying && !data.endDate) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: 'End date is required when not currently studying',
+      path: ['endDate'],
+    },
+  )
+  .refine(
+    (data) => {
+      if (data.startDate && data.endDate) {
+        return new Date(data.endDate) >= new Date(data.startDate);
+      }
+      return true;
+    },
+    {
+      message: 'End date cannot be before start date',
+      path: ['endDate'],
+    },
+  )
+  .refine(
+    (data) => {
+      if (!data.currentlyStudying && data.endDate) {
+        return new Date(data.endDate) <= new Date();
+      }
+      return true;
+    },
+    {
+      message: 'Historical end date cannot be in the future',
+      path: ['endDate'],
+    },
+  );
 
 export type CreateEducationRecordInput = z.infer<typeof educationRecordSchema>;
 

@@ -37,7 +37,9 @@ describe('CandidateAchievementsController (e2e)', () => {
     prisma = app.get<PrismaService>(PrismaService);
     tokenService = app.get<TokenService>(TokenService);
 
-    await prisma.candidateAchievement.deleteMany({ where: { user: { email: { startsWith: 'test-ach' } } } });
+    await prisma.candidateAchievement.deleteMany({
+      where: { user: { email: { startsWith: 'test-ach' } } },
+    });
     await prisma.userSession.deleteMany({ where: { user: { email: { startsWith: 'test-ach' } } } });
     await prisma.userRole.deleteMany({ where: { user: { email: { startsWith: 'test-ach' } } } });
     await prisma.user.deleteMany({ where: { email: { startsWith: 'test-ach' } } });
@@ -69,7 +71,9 @@ describe('CandidateAchievementsController (e2e)', () => {
       },
     });
 
-    candidateAccessToken = tokenService.signAccessToken(candidateUser.id, sid1, ['candidate']).token;
+    candidateAccessToken = tokenService.signAccessToken(candidateUser.id, sid1, [
+      'candidate',
+    ]).token;
 
     otherUser = await prisma.user.create({
       data: {
@@ -112,9 +116,7 @@ describe('CandidateAchievementsController (e2e)', () => {
     });
 
     it('returns 401 without auth', () => {
-      return request(app.getHttpServer())
-        .get('/api/v1/candidates/me/achievements')
-        .expect(401);
+      return request(app.getHttpServer()).get('/api/v1/candidates/me/achievements').expect(401);
     });
   });
 

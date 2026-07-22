@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import type { CandidateAchievementResult } from '@nexthire/types';
-import type { CreateCandidateAchievementInput, UpdateCandidateAchievementInput } from '@nexthire/validation';
+import type {
+  CreateCandidateAchievementInput,
+  UpdateCandidateAchievementInput,
+} from '@nexthire/validation';
 
 interface AchievementFormProps {
   initialData?: CandidateAchievementResult | null;
@@ -12,7 +15,7 @@ export function AchievementForm({ initialData, onSave, onCancel }: AchievementFo
   const [title, setTitle] = useState(initialData?.title || '');
   const [issuer, setIssuer] = useState(initialData?.issuer || '');
   const [achievedAt, setAchievedAt] = useState(
-    initialData?.achievedAt ? (initialData.achievedAt.split('T')[0] || '') : ''
+    initialData?.achievedAt ? initialData.achievedAt.split('T')[0] || '' : '',
   );
   const [description, setDescription] = useState(initialData?.description || '');
   const [referenceUrl, setReferenceUrl] = useState(initialData?.referenceUrl || '');
@@ -27,7 +30,11 @@ export function AchievementForm({ initialData, onSave, onCancel }: AchievementFo
       return;
     }
 
-    if (referenceUrl && !referenceUrl.startsWith('http://') && !referenceUrl.startsWith('https://')) {
+    if (
+      referenceUrl &&
+      !referenceUrl.startsWith('http://') &&
+      !referenceUrl.startsWith('https://')
+    ) {
       setErrorMsg('Reference URL must start with http:// or https://');
       return;
     }
@@ -64,27 +71,39 @@ export function AchievementForm({ initialData, onSave, onCancel }: AchievementFo
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <form
+      onSubmit={handleSubmit}
+      style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
+    >
       <h3 style={{ color: '#fff', fontSize: '1.2rem', marginBottom: '0.5rem' }}>
         {initialData ? 'Edit Achievement' : 'Add New Achievement'}
       </h3>
 
       {errorMsg && (
-        <div style={{
-          padding: '0.75rem',
-          background: 'rgba(239, 68, 68, 0.1)',
-          border: '1px solid rgba(239, 68, 68, 0.3)',
-          borderRadius: '0.5rem',
-          color: '#fca5a5',
-          fontSize: '0.9rem',
-        }}>
+        <div
+          style={{
+            padding: '0.75rem',
+            background: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: '0.5rem',
+            color: '#fca5a5',
+            fontSize: '0.9rem',
+          }}
+        >
           {errorMsg}
         </div>
       )}
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
         <div>
-          <label style={{ display: 'block', marginBottom: '0.5rem', color: '#cbd5e1', fontSize: '0.9rem' }}>
+          <label
+            style={{
+              display: 'block',
+              marginBottom: '0.5rem',
+              color: '#cbd5e1',
+              fontSize: '0.9rem',
+            }}
+          >
             Achievement Title *
           </label>
           <input
@@ -106,7 +125,14 @@ export function AchievementForm({ initialData, onSave, onCancel }: AchievementFo
         </div>
 
         <div>
-          <label style={{ display: 'block', marginBottom: '0.5rem', color: '#cbd5e1', fontSize: '0.9rem' }}>
+          <label
+            style={{
+              display: 'block',
+              marginBottom: '0.5rem',
+              color: '#cbd5e1',
+              fontSize: '0.9rem',
+            }}
+          >
             Issuer/Organization
           </label>
           <input
@@ -130,7 +156,14 @@ export function AchievementForm({ initialData, onSave, onCancel }: AchievementFo
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
         <div>
-          <label style={{ display: 'block', marginBottom: '0.5rem', color: '#cbd5e1', fontSize: '0.9rem' }}>
+          <label
+            style={{
+              display: 'block',
+              marginBottom: '0.5rem',
+              color: '#cbd5e1',
+              fontSize: '0.9rem',
+            }}
+          >
             Achieved Date
           </label>
           <input
@@ -151,7 +184,14 @@ export function AchievementForm({ initialData, onSave, onCancel }: AchievementFo
         </div>
 
         <div>
-          <label style={{ display: 'block', marginBottom: '0.5rem', color: '#cbd5e1', fontSize: '0.9rem' }}>
+          <label
+            style={{
+              display: 'block',
+              marginBottom: '0.5rem',
+              color: '#cbd5e1',
+              fontSize: '0.9rem',
+            }}
+          >
             Reference URL
           </label>
           <input
@@ -174,7 +214,9 @@ export function AchievementForm({ initialData, onSave, onCancel }: AchievementFo
       </div>
 
       <div>
-        <label style={{ display: 'block', marginBottom: '0.5rem', color: '#cbd5e1', fontSize: '0.9rem' }}>
+        <label
+          style={{ display: 'block', marginBottom: '0.5rem', color: '#cbd5e1', fontSize: '0.9rem' }}
+        >
           Description
         </label>
         <textarea

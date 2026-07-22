@@ -122,7 +122,9 @@ export async function loginCandidate(
   );
 }
 
-export async function requestPasswordReset(payload: CandidateForgotPasswordPayload): Promise<{ message: string }> {
+export async function requestPasswordReset(
+  payload: CandidateForgotPasswordPayload,
+): Promise<{ message: string }> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/auth/forgot-password`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -148,7 +150,9 @@ export async function requestPasswordReset(payload: CandidateForgotPasswordPaylo
   );
 }
 
-export async function resetPassword(payload: CandidateResetPasswordPayload): Promise<{ message: string }> {
+export async function resetPassword(
+  payload: CandidateResetPasswordPayload,
+): Promise<{ message: string }> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/auth/reset-password`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -438,7 +442,9 @@ export interface GetCandidateProfileResult {
   completion: CandidateProfileCompletion;
 }
 
-export async function getMyCandidateProfile(accessToken: string): Promise<GetCandidateProfileResult> {
+export async function getMyCandidateProfile(
+  accessToken: string,
+): Promise<GetCandidateProfileResult> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/profile`, {
     method: 'GET',
     headers: {
@@ -468,7 +474,7 @@ export async function getMyCandidateProfile(accessToken: string): Promise<GetCan
 
 export async function updateMyCandidateProfile(
   accessToken: string,
-  payload: CandidateProfileBasicsInput
+  payload: CandidateProfileBasicsInput,
 ): Promise<CandidateProfileBasics> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/profile`, {
     method: 'PUT',
@@ -531,7 +537,9 @@ export interface GetCandidatePreferenceResult {
   };
 }
 
-export async function getMyCandidatePreferences(accessToken: string): Promise<GetCandidatePreferenceResult> {
+export async function getMyCandidatePreferences(
+  accessToken: string,
+): Promise<GetCandidatePreferenceResult> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/preferences`, {
     method: 'GET',
     headers: {
@@ -539,17 +547,17 @@ export async function getMyCandidatePreferences(accessToken: string): Promise<Ge
       'Content-Type': 'application/json',
     },
   });
-  
+
   if (response.ok) {
     return response.json();
   }
-  
+
   throw new Error(`Failed to get preferences: ${response.status}`);
 }
 
 export async function updateMyCandidatePreferences(
   accessToken: string,
-  data: CandidatePreferenceInput
+  data: CandidatePreferenceInput,
 ): Promise<CandidatePreferenceResult> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/preferences`, {
     method: 'PUT',
@@ -559,15 +567,19 @@ export async function updateMyCandidatePreferences(
     },
     body: JSON.stringify(data),
   });
-  
+
   if (response.ok) {
     return response.json();
   }
-  
+
   throw new Error(`Failed to update preferences: ${response.status}`);
 }
 
-import type { CreateEducationRecordInput, UpdateEducationRecordInput, ReorderEducationRecordsInput } from '@nexthire/validation';
+import type {
+  CreateEducationRecordInput,
+  UpdateEducationRecordInput,
+  ReorderEducationRecordsInput,
+} from '@nexthire/validation';
 import type { EducationRecordResult } from '@nexthire/types';
 
 export interface GetEducationRecordsResult {
@@ -585,7 +597,9 @@ export interface UpdateEducationRecordResult {
   completion: CandidateProfileCompletion;
 }
 
-export async function listMyEducationRecords(accessToken: string): Promise<GetEducationRecordsResult> {
+export async function listMyEducationRecords(
+  accessToken: string,
+): Promise<GetEducationRecordsResult> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/education`, {
     method: 'GET',
     headers: {
@@ -593,17 +607,17 @@ export async function listMyEducationRecords(accessToken: string): Promise<GetEd
       'Content-Type': 'application/json',
     },
   });
-  
+
   if (response.ok) {
     return response.json();
   }
-  
+
   throw new Error(`Failed to list education records: ${response.status}`);
 }
 
 export async function createEducationRecord(
   accessToken: string,
-  data: CreateEducationRecordInput
+  data: CreateEducationRecordInput,
 ): Promise<CreateEducationRecordResult> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/education`, {
     method: 'POST',
@@ -613,18 +627,18 @@ export async function createEducationRecord(
     },
     body: JSON.stringify(data),
   });
-  
+
   if (response.ok) {
     return response.json();
   }
-  
+
   throw new Error(`Failed to create education record: ${response.status}`);
 }
 
 export async function updateEducationRecord(
   accessToken: string,
   id: string,
-  data: UpdateEducationRecordInput
+  data: UpdateEducationRecordInput,
 ): Promise<UpdateEducationRecordResult> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/education/${id}`, {
     method: 'PUT',
@@ -634,35 +648,32 @@ export async function updateEducationRecord(
     },
     body: JSON.stringify(data),
   });
-  
+
   if (response.ok) {
     return response.json();
   }
-  
+
   throw new Error(`Failed to update education record: ${response.status}`);
 }
 
-export async function deleteEducationRecord(
-  accessToken: string,
-  id: string
-): Promise<void> {
+export async function deleteEducationRecord(accessToken: string, id: string): Promise<void> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/education/${id}`, {
     method: 'DELETE',
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
   });
-  
+
   if (response.ok) {
     return;
   }
-  
+
   throw new Error(`Failed to delete education record: ${response.status}`);
 }
 
 export async function reorderEducationRecords(
   accessToken: string,
-  data: ReorderEducationRecordsInput
+  data: ReorderEducationRecordsInput,
 ): Promise<void> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/education/reorder`, {
     method: 'PUT',
@@ -672,11 +683,11 @@ export async function reorderEducationRecords(
     },
     body: JSON.stringify(data),
   });
-  
+
   if (response.ok) {
     return;
   }
-  
+
   throw new Error(`Failed to reorder education records: ${response.status}`);
 }
 
@@ -702,7 +713,9 @@ export interface UpdateWorkExperienceRecordResult {
   completion: CandidateProfileCompletion;
 }
 
-export async function listMyWorkExperienceRecords(accessToken: string): Promise<GetWorkExperienceRecordsResult> {
+export async function listMyWorkExperienceRecords(
+  accessToken: string,
+): Promise<GetWorkExperienceRecordsResult> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/experience`, {
     method: 'GET',
     headers: {
@@ -716,7 +729,7 @@ export async function listMyWorkExperienceRecords(accessToken: string): Promise<
 
 export async function createWorkExperienceRecord(
   accessToken: string,
-  data: CreateWorkExperienceRecordInput
+  data: CreateWorkExperienceRecordInput,
 ): Promise<CreateWorkExperienceRecordResult> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/experience`, {
     method: 'POST',
@@ -733,7 +746,7 @@ export async function createWorkExperienceRecord(
 export async function updateWorkExperienceRecord(
   accessToken: string,
   id: string,
-  data: UpdateWorkExperienceRecordInput
+  data: UpdateWorkExperienceRecordInput,
 ): Promise<UpdateWorkExperienceRecordResult> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/experience/${id}`, {
     method: 'PUT',
@@ -758,7 +771,7 @@ export async function deleteWorkExperienceRecord(accessToken: string, id: string
 
 export async function reorderWorkExperienceRecords(
   accessToken: string,
-  data: ReorderWorkExperienceRecordsInput
+  data: ReorderWorkExperienceRecordsInput,
 ): Promise<void> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/experience/reorder`, {
     method: 'PUT',
@@ -772,7 +785,11 @@ export async function reorderWorkExperienceRecords(
   throw new Error(`Failed to reorder work experience records: ${response.status}`);
 }
 
-import type { CreateCandidateSkillInput, UpdateCandidateSkillInput, ReorderCandidateSkillsInput } from '@nexthire/validation';
+import type {
+  CreateCandidateSkillInput,
+  UpdateCandidateSkillInput,
+  ReorderCandidateSkillsInput,
+} from '@nexthire/validation';
 import type { CandidateSkillResult } from '@nexthire/types';
 
 export interface GetCandidateSkillsResult {
@@ -804,7 +821,7 @@ export async function listMySkillRecords(accessToken: string): Promise<GetCandid
 
 export async function createSkillRecord(
   accessToken: string,
-  data: CreateCandidateSkillInput
+  data: CreateCandidateSkillInput,
 ): Promise<CreateCandidateSkillResult> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/skills`, {
     method: 'POST',
@@ -821,7 +838,7 @@ export async function createSkillRecord(
 export async function updateSkillRecord(
   accessToken: string,
   id: string,
-  data: UpdateCandidateSkillInput
+  data: UpdateCandidateSkillInput,
 ): Promise<UpdateCandidateSkillResult> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/skills/${id}`, {
     method: 'PUT',
@@ -846,7 +863,7 @@ export async function deleteSkillRecord(accessToken: string, id: string): Promis
 
 export async function reorderSkillRecords(
   accessToken: string,
-  data: ReorderCandidateSkillsInput
+  data: ReorderCandidateSkillsInput,
 ): Promise<void> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/skills/reorder`, {
     method: 'PUT',
@@ -860,13 +877,38 @@ export async function reorderSkillRecords(
   throw new Error(`Failed to reorder skills: ${response.status}`);
 }
 
-import type { CreateCandidateLanguageInput, UpdateCandidateLanguageInput, ReorderCandidateLanguagesInput } from '@nexthire/validation';
-import type { CreateCandidateCertificationInput, UpdateCandidateCertificationInput, ReorderCandidateCertificationsInput } from '@nexthire/validation';
-import type { CreateCandidateTrainingInput, UpdateCandidateTrainingInput, ReorderCandidateTrainingInput } from '@nexthire/validation';
-import type { CreateCandidateAchievementInput, UpdateCandidateAchievementInput, ReorderCandidateAchievementsInput } from '@nexthire/validation';
-import type { CreateCandidateProfessionalLinkInput, UpdateCandidateProfessionalLinkInput, ReorderCandidateProfessionalLinksInput } from '@nexthire/validation';
+import type {
+  CreateCandidateLanguageInput,
+  UpdateCandidateLanguageInput,
+  ReorderCandidateLanguagesInput,
+} from '@nexthire/validation';
+import type {
+  CreateCandidateCertificationInput,
+  UpdateCandidateCertificationInput,
+  ReorderCandidateCertificationsInput,
+} from '@nexthire/validation';
+import type {
+  CreateCandidateTrainingInput,
+  UpdateCandidateTrainingInput,
+  ReorderCandidateTrainingInput,
+} from '@nexthire/validation';
+import type {
+  CreateCandidateAchievementInput,
+  UpdateCandidateAchievementInput,
+  ReorderCandidateAchievementsInput,
+} from '@nexthire/validation';
+import type {
+  CreateCandidateProfessionalLinkInput,
+  UpdateCandidateProfessionalLinkInput,
+  ReorderCandidateProfessionalLinksInput,
+} from '@nexthire/validation';
 import type { CandidateLanguageResult } from '@nexthire/types';
-import type { CandidateCertificationResult, CandidateTrainingResult, CandidateAchievementResult, CandidateProfessionalLinkResult } from '@nexthire/types';
+import type {
+  CandidateCertificationResult,
+  CandidateTrainingResult,
+  CandidateAchievementResult,
+  CandidateProfessionalLinkResult,
+} from '@nexthire/types';
 
 export interface GetCandidateLanguagesResult {
   records: CandidateLanguageResult[];
@@ -883,7 +925,9 @@ export interface UpdateCandidateLanguageResult {
   completion: CandidateProfileCompletion;
 }
 
-export async function listMyLanguageRecords(accessToken: string): Promise<GetCandidateLanguagesResult> {
+export async function listMyLanguageRecords(
+  accessToken: string,
+): Promise<GetCandidateLanguagesResult> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/languages`, {
     method: 'GET',
     headers: {
@@ -897,7 +941,7 @@ export async function listMyLanguageRecords(accessToken: string): Promise<GetCan
 
 export async function createLanguageRecord(
   accessToken: string,
-  data: CreateCandidateLanguageInput
+  data: CreateCandidateLanguageInput,
 ): Promise<CreateCandidateLanguageResult> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/languages`, {
     method: 'POST',
@@ -914,7 +958,7 @@ export async function createLanguageRecord(
 export async function updateLanguageRecord(
   accessToken: string,
   id: string,
-  data: UpdateCandidateLanguageInput
+  data: UpdateCandidateLanguageInput,
 ): Promise<UpdateCandidateLanguageResult> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/languages/${id}`, {
     method: 'PUT',
@@ -939,7 +983,7 @@ export async function deleteLanguageRecord(accessToken: string, id: string): Pro
 
 export async function reorderLanguageRecords(
   accessToken: string,
-  data: ReorderCandidateLanguagesInput
+  data: ReorderCandidateLanguagesInput,
 ): Promise<void> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/languages/reorder`, {
     method: 'PUT',
@@ -968,7 +1012,9 @@ export interface UpdateCandidateCertificationResult {
   completion: CandidateProfileCompletion;
 }
 
-export async function listMyCertificationRecords(accessToken: string): Promise<GetCandidateCertificationsResult> {
+export async function listMyCertificationRecords(
+  accessToken: string,
+): Promise<GetCandidateCertificationsResult> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/certifications`, {
     method: 'GET',
     headers: {
@@ -982,7 +1028,7 @@ export async function listMyCertificationRecords(accessToken: string): Promise<G
 
 export async function createCertificationRecord(
   accessToken: string,
-  data: CreateCandidateCertificationInput
+  data: CreateCandidateCertificationInput,
 ): Promise<CreateCandidateCertificationResult> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/certifications`, {
     method: 'POST',
@@ -999,7 +1045,7 @@ export async function createCertificationRecord(
 export async function updateCertificationRecord(
   accessToken: string,
   id: string,
-  data: UpdateCandidateCertificationInput
+  data: UpdateCandidateCertificationInput,
 ): Promise<UpdateCandidateCertificationResult> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/certifications/${id}`, {
     method: 'PUT',
@@ -1024,7 +1070,7 @@ export async function deleteCertificationRecord(accessToken: string, id: string)
 
 export async function reorderCertificationRecords(
   accessToken: string,
-  data: ReorderCandidateCertificationsInput
+  data: ReorderCandidateCertificationsInput,
 ): Promise<void> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/certifications/reorder`, {
     method: 'PUT',
@@ -1053,7 +1099,9 @@ export interface UpdateCandidateTrainingResult {
   completion: CandidateProfileCompletion;
 }
 
-export async function listMyTrainingRecords(accessToken: string): Promise<GetCandidateTrainingResult> {
+export async function listMyTrainingRecords(
+  accessToken: string,
+): Promise<GetCandidateTrainingResult> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/training`, {
     method: 'GET',
     headers: {
@@ -1067,7 +1115,7 @@ export async function listMyTrainingRecords(accessToken: string): Promise<GetCan
 
 export async function createTrainingRecord(
   accessToken: string,
-  data: CreateCandidateTrainingInput
+  data: CreateCandidateTrainingInput,
 ): Promise<CreateCandidateTrainingResult> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/training`, {
     method: 'POST',
@@ -1084,7 +1132,7 @@ export async function createTrainingRecord(
 export async function updateTrainingRecord(
   accessToken: string,
   id: string,
-  data: UpdateCandidateTrainingInput
+  data: UpdateCandidateTrainingInput,
 ): Promise<UpdateCandidateTrainingResult> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/training/${id}`, {
     method: 'PUT',
@@ -1109,7 +1157,7 @@ export async function deleteTrainingRecord(accessToken: string, id: string): Pro
 
 export async function reorderTrainingRecords(
   accessToken: string,
-  data: ReorderCandidateTrainingInput
+  data: ReorderCandidateTrainingInput,
 ): Promise<void> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/training/reorder`, {
     method: 'PUT',
@@ -1138,7 +1186,9 @@ export interface UpdateCandidateAchievementResult {
   completion: CandidateProfileCompletion;
 }
 
-export async function listMyAchievementRecords(accessToken: string): Promise<GetCandidateAchievementsResult> {
+export async function listMyAchievementRecords(
+  accessToken: string,
+): Promise<GetCandidateAchievementsResult> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/achievements`, {
     method: 'GET',
     headers: {
@@ -1152,7 +1202,7 @@ export async function listMyAchievementRecords(accessToken: string): Promise<Get
 
 export async function createAchievementRecord(
   accessToken: string,
-  data: CreateCandidateAchievementInput
+  data: CreateCandidateAchievementInput,
 ): Promise<CreateCandidateAchievementResult> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/achievements`, {
     method: 'POST',
@@ -1169,7 +1219,7 @@ export async function createAchievementRecord(
 export async function updateAchievementRecord(
   accessToken: string,
   id: string,
-  data: UpdateCandidateAchievementInput
+  data: UpdateCandidateAchievementInput,
 ): Promise<UpdateCandidateAchievementResult> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/achievements/${id}`, {
     method: 'PUT',
@@ -1194,7 +1244,7 @@ export async function deleteAchievementRecord(accessToken: string, id: string): 
 
 export async function reorderAchievementRecords(
   accessToken: string,
-  data: ReorderCandidateAchievementsInput
+  data: ReorderCandidateAchievementsInput,
 ): Promise<void> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/achievements/reorder`, {
     method: 'PUT',
@@ -1223,7 +1273,9 @@ export interface UpdateCandidateProfessionalLinkResult {
   completion: CandidateProfileCompletion;
 }
 
-export async function listMyProfessionalLinkRecords(accessToken: string): Promise<GetCandidateProfessionalLinksResult> {
+export async function listMyProfessionalLinkRecords(
+  accessToken: string,
+): Promise<GetCandidateProfessionalLinksResult> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/professional-links`, {
     method: 'GET',
     headers: {
@@ -1237,7 +1289,7 @@ export async function listMyProfessionalLinkRecords(accessToken: string): Promis
 
 export async function createProfessionalLinkRecord(
   accessToken: string,
-  data: CreateCandidateProfessionalLinkInput
+  data: CreateCandidateProfessionalLinkInput,
 ): Promise<CreateCandidateProfessionalLinkResult> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/professional-links`, {
     method: 'POST',
@@ -1254,7 +1306,7 @@ export async function createProfessionalLinkRecord(
 export async function updateProfessionalLinkRecord(
   accessToken: string,
   id: string,
-  data: UpdateCandidateProfessionalLinkInput
+  data: UpdateCandidateProfessionalLinkInput,
 ): Promise<UpdateCandidateProfessionalLinkResult> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/professional-links/${id}`, {
     method: 'PUT',
@@ -1279,7 +1331,7 @@ export async function deleteProfessionalLinkRecord(accessToken: string, id: stri
 
 export async function reorderProfessionalLinkRecords(
   accessToken: string,
-  data: ReorderCandidateProfessionalLinksInput
+  data: ReorderCandidateProfessionalLinksInput,
 ): Promise<void> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/professional-links/reorder`, {
     method: 'PUT',
@@ -1321,7 +1373,7 @@ export async function getMyProfilePrivacy(accessToken: string): Promise<GetProfi
 
 export async function updateMyProfilePrivacy(
   accessToken: string,
-  data: UpdateProfilePrivacyInput
+  data: UpdateProfilePrivacyInput,
 ): Promise<GetProfilePrivacyResult> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/privacy`, {
     method: 'PUT',
@@ -1349,8 +1401,10 @@ export async function getMyProfilePreview(accessToken: string): Promise<OwnerPro
   throw new Error(`Failed to get profile preview: ${response.status}`);
 }
 
-export async function getPublicProfileById(publicId: string): Promise<PublicCandidateProfile | null> {
-  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/public/${publicId}`, {
+export async function getPublicProfileById(
+  publicId: string,
+): Promise<PublicCandidateProfile | null> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/public/candidates/${publicId}`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
   });
@@ -1360,10 +1414,13 @@ export async function getPublicProfileById(publicId: string): Promise<PublicCand
 }
 
 export async function getSharedProfile(token: string): Promise<PublicCandidateProfile | null> {
-  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/shared/${token}`, {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
-  });
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/public/candidate-profile?token=${encodeURIComponent(token)}`,
+    {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    },
+  );
   if (response.ok) return response.json();
   if (response.status === 404) return null;
   throw new Error(`Failed to get shared profile: ${response.status}`);
@@ -1381,7 +1438,10 @@ export async function rotateProfileShareLink(accessToken: string): Promise<Share
   throw new Error(`Failed to rotate share link: ${response.status}`);
 }
 
-export async function setProfileShareLinkEnabled(accessToken: string, enabled: boolean): Promise<{ enabled: boolean }> {
+export async function setProfileShareLinkEnabled(
+  accessToken: string,
+  enabled: boolean,
+): Promise<{ enabled: boolean }> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/profile/share-link`, {
     method: 'PUT',
     headers: {
@@ -1394,7 +1454,9 @@ export async function setProfileShareLinkEnabled(accessToken: string, enabled: b
   throw new Error(`Failed to update share link: ${response.status}`);
 }
 
-export async function getProfileShareLinkStatus(accessToken: string): Promise<{ enabled: boolean; rotatedAt: string | null } | null> {
+export async function getProfileShareLinkStatus(
+  accessToken: string,
+): Promise<{ enabled: boolean; rotatedAt: string | null } | null> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/profile/share-link`, {
     method: 'GET',
     headers: {
@@ -1446,17 +1508,28 @@ export interface CandidateProfileCompletionDashboard {
   nextActions: CandidateProfileCompletionAction[];
 }
 
-export async function getMyProfileCompletionDashboard(accessToken: string): Promise<CandidateProfileCompletionDashboard> {
+export async function getMyProfileCompletionDashboard(
+  accessToken: string,
+): Promise<CandidateProfileCompletionDashboard> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/profile-completion`, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
   if (!response.ok) {
     let errorData: ApiErrorResponse | null = null;
-    try { errorData = await response.json() as ApiErrorResponse; } catch { /* ignore */ }
+    try {
+      errorData = (await response.json()) as ApiErrorResponse;
+    } catch {
+      /* ignore */
+    }
     throw new ApiClientError(
       errorData?.message ?? `Failed to fetch profile completion (${response.status})`,
       response.status,
-      errorData?.errors ?? [{ code: response.status.toString(), message: errorData?.message ?? 'Failed to fetch profile completion' }],
+      errorData?.errors ?? [
+        {
+          code: response.status.toString(),
+          message: errorData?.message ?? 'Failed to fetch profile completion',
+        },
+      ],
       errorData?.requestId,
     );
   }
@@ -1484,7 +1557,9 @@ export interface ChangePasswordResponse {
   revokedOtherSessionCount: number;
 }
 
-export async function getMyAccountSecuritySummary(accessToken: string): Promise<CandidateAccountSecuritySummary> {
+export async function getMyAccountSecuritySummary(
+  accessToken: string,
+): Promise<CandidateAccountSecuritySummary> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/account-security`, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
@@ -1552,25 +1627,40 @@ export async function listMyDataExports(accessToken: string): Promise<DataExport
   throw new Error(`Failed to list data exports: ${response.status}`);
 }
 
-export async function getMyDataExportStatus(accessToken: string, exportId: string): Promise<DataExportStatusResult> {
-  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/data-exports/${encodeURIComponent(exportId)}`, {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
+export async function getMyDataExportStatus(
+  accessToken: string,
+  exportId: string,
+): Promise<DataExportStatusResult> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/candidates/me/data-exports/${encodeURIComponent(exportId)}`,
+    {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    },
+  );
   if (response.ok) return response.json() as Promise<DataExportStatusResult>;
   throw new Error(`Failed to get export status: ${response.status}`);
 }
 
-export async function getMyDataExportDownload(accessToken: string, exportId: string): Promise<DataExportDownloadResult> {
-  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/data-exports/${encodeURIComponent(exportId)}/download`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
+export async function getMyDataExportDownload(
+  accessToken: string,
+  exportId: string,
+): Promise<DataExportDownloadResult> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/candidates/me/data-exports/${encodeURIComponent(exportId)}/download`,
+    {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${accessToken}` },
+    },
+  );
   if (response.ok) return response.json() as Promise<DataExportDownloadResult>;
   const text = await response.text().catch(() => '');
   throw new Error(text || `Failed to get download access: ${response.status}`);
 }
 
-export async function deactivateMyAccount(accessToken: string, data: { currentPassword: string; confirmation: string }): Promise<DeactivateAccountResult> {
+export async function deactivateMyAccount(
+  accessToken: string,
+  data: { currentPassword: string; confirmation: string },
+): Promise<DeactivateAccountResult> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/deactivate`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },

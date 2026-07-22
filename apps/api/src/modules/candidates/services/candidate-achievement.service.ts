@@ -1,4 +1,10 @@
-import { Injectable, BadRequestException, NotFoundException, InternalServerErrorException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { CandidateAchievementRepository } from '../repositories/candidate-achievement.repository';
 import { CandidateProfessionalLinkRepository } from '../repositories/candidate-professional-link.repository';
 import { CandidateProfileCompletionService } from './candidate-profile-completion.service';
@@ -12,7 +18,11 @@ import { CandidateCertificationRepository } from '../repositories/candidate-cert
 import { CandidateTrainingRepository } from '../repositories/candidate-training.repository';
 import { AuditService } from '../../audit/audit.service';
 import { AuditActorType, AuditOutcome } from '@nexthire/types';
-import { candidateAchievementSchema, updateCandidateAchievementSchema, reorderCandidateAchievementsSchema } from '@nexthire/validation';
+import {
+  candidateAchievementSchema,
+  updateCandidateAchievementSchema,
+  reorderCandidateAchievementsSchema,
+} from '@nexthire/validation';
 
 @Injectable()
 export class CandidateAchievementService {
@@ -54,7 +64,10 @@ export class CandidateAchievementService {
         completion,
       };
     } catch (error) {
-      this.logger.error(`Error listing achievements for user ${userId}`, error instanceof Error ? error.stack : error);
+      this.logger.error(
+        `Error listing achievements for user ${userId}`,
+        error instanceof Error ? error.stack : error,
+      );
       throw new InternalServerErrorException('Failed to retrieve achievements');
     }
   }
@@ -97,7 +110,10 @@ export class CandidateAchievementService {
       };
     } catch (error) {
       if (error instanceof BadRequestException) throw error;
-      this.logger.error(`Error creating achievement for user ${userId}`, error instanceof Error ? error.stack : error);
+      this.logger.error(
+        `Error creating achievement for user ${userId}`,
+        error instanceof Error ? error.stack : error,
+      );
       throw new InternalServerErrorException('Failed to create achievement');
     }
   }
@@ -139,7 +155,10 @@ export class CandidateAchievementService {
       };
     } catch (error) {
       if (error instanceof NotFoundException || error instanceof BadRequestException) throw error;
-      this.logger.error(`Error updating achievement ${recordId} for user ${userId}`, error instanceof Error ? error.stack : error);
+      this.logger.error(
+        `Error updating achievement ${recordId} for user ${userId}`,
+        error instanceof Error ? error.stack : error,
+      );
       throw new InternalServerErrorException('Failed to update achievement');
     }
   }
@@ -172,7 +191,10 @@ export class CandidateAchievementService {
       return { completion };
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
-      this.logger.error(`Error deleting achievement ${recordId} for user ${userId}`, error instanceof Error ? error.stack : error);
+      this.logger.error(
+        `Error deleting achievement ${recordId} for user ${userId}`,
+        error instanceof Error ? error.stack : error,
+      );
       throw new InternalServerErrorException('Failed to delete achievement');
     }
   }
@@ -186,11 +208,13 @@ export class CandidateAchievementService {
       const validatedData = parseResult.data;
 
       const records = await this.achievementRepository.findByUserId(userId);
-      const ownedIds = new Set(records.map(r => r.id));
+      const ownedIds = new Set(records.map((r) => r.id));
 
       for (const id of validatedData.orderedIds) {
         if (!ownedIds.has(id)) {
-          throw new BadRequestException('Cannot reorder records that do not belong to you or do not exist');
+          throw new BadRequestException(
+            'Cannot reorder records that do not belong to you or do not exist',
+          );
         }
       }
 
@@ -211,7 +235,10 @@ export class CandidateAchievementService {
       return { completion };
     } catch (error) {
       if (error instanceof BadRequestException) throw error;
-      this.logger.error(`Error reordering achievements for user ${userId}`, error instanceof Error ? error.stack : error);
+      this.logger.error(
+        `Error reordering achievements for user ${userId}`,
+        error instanceof Error ? error.stack : error,
+      );
       throw new InternalServerErrorException('Failed to reorder achievements');
     }
   }
@@ -228,37 +255,57 @@ export class CandidateAchievementService {
     const achievements = await this.achievementRepository.findByUserId(userId);
     const links = await this.linkRepository.findByUserId(userId);
 
-    const profileInput = profile ? {
-      fullName: profile.fullName,
-      professionalHeadline: profile.professionalHeadline,
-      professionalSummary: profile.professionalSummary,
-      dateOfBirth: profile.dateOfBirth ? profile.dateOfBirth.toISOString() : undefined,
-    } : null;
+    const profileInput = profile
+      ? {
+          fullName: profile.fullName,
+          professionalHeadline: profile.professionalHeadline,
+          professionalSummary: profile.professionalSummary,
+          dateOfBirth: profile.dateOfBirth ? profile.dateOfBirth.toISOString() : undefined,
+        }
+      : null;
 
-    const preferencesInput = preferences ? {
-      countryCode: preferences.country.code,
-      currentCity: preferences.currentCity,
-      preferredJobRoles: preferences.preferredJobRoles,
-      preferredWorkModes: preferences.preferredWorkModes as any,
-      preferredEmploymentTypes: preferences.preferredEmploymentTypes as any,
-    } : null;
+    const preferencesInput = preferences
+      ? {
+          countryCode: preferences.country.code,
+          currentCity: preferences.currentCity,
+          preferredJobRoles: preferences.preferredJobRoles,
+          preferredWorkModes: preferences.preferredWorkModes as any,
+          preferredEmploymentTypes: preferences.preferredEmploymentTypes as any,
+        }
+      : null;
 
     const completion = this.completionService.calculateCompletion(
-      profileInput, preferencesInput, educationRecords, workExperienceRecords,
-      skills, languages, certifications, training, achievements, links
+      profileInput,
+      preferencesInput,
+      educationRecords,
+      workExperienceRecords,
+      skills,
+      languages,
+      certifications,
+      training,
+      achievements,
+      links,
     );
 
     if (profile) {
-      await this.profileRepository.upsertProfile(userId, {
-        fullName: profile.fullName,
-        professionalHeadline: profile.professionalHeadline,
-        professionalSummary: profile.professionalSummary,
-        dateOfBirth: profile.dateOfBirth ? profile.dateOfBirth.toISOString() : undefined,
-      }, completion.percentage);
+      await this.profileRepository.upsertProfile(
+        userId,
+        {
+          fullName: profile.fullName,
+          professionalHeadline: profile.professionalHeadline,
+          professionalSummary: profile.professionalSummary,
+          dateOfBirth: profile.dateOfBirth ? profile.dateOfBirth.toISOString() : undefined,
+        },
+        completion.percentage,
+      );
     } else {
-      await this.profileRepository.upsertProfile(userId, {
-        fullName: 'Unknown',
-      }, completion.percentage);
+      await this.profileRepository.upsertProfile(
+        userId,
+        {
+          fullName: 'Unknown',
+        },
+        completion.percentage,
+      );
     }
 
     return completion;

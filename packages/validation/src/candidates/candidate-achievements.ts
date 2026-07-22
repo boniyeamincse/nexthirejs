@@ -3,10 +3,9 @@ import { z } from 'zod';
 const urlSchema = z
   .string()
   .max(500, 'URL must not exceed 500 characters')
-  .refine(
-    (val) => val.startsWith('http://') || val.startsWith('https://'),
-    { message: 'URL must start with http:// or https://' }
-  );
+  .refine((val) => val.startsWith('http://') || val.startsWith('https://'), {
+    message: 'URL must start with http:// or https://',
+  });
 
 export const candidateAchievementSchema = z.object({
   title: z
@@ -33,14 +32,14 @@ export const candidateAchievementSchema = z.object({
         const date = new Date(val);
         return !isNaN(date.getTime());
       },
-      { message: 'Achieved date must be a valid date' }
+      { message: 'Achieved date must be a valid date' },
     )
     .refine(
       (val) => {
         if (!val) return true;
         return new Date(val) <= new Date();
       },
-      { message: 'Achieved date cannot be in the future' }
+      { message: 'Achieved date cannot be in the future' },
     )
     .transform((val) => (val === '' ? null : val)),
 
@@ -52,7 +51,10 @@ export const candidateAchievementSchema = z.object({
     .optional()
     .transform((val) => (val === '' ? null : val)),
 
-  referenceUrl: urlSchema.nullable().optional().transform((val) => (val === '' ? null : val)),
+  referenceUrl: urlSchema
+    .nullable()
+    .optional()
+    .transform((val) => (val === '' ? null : val)),
 });
 
 export type CreateCandidateAchievementInput = z.infer<typeof candidateAchievementSchema>;

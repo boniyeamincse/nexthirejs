@@ -1,4 +1,10 @@
-import { Injectable, BadRequestException, NotFoundException, InternalServerErrorException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { CandidateSkillRepository } from '../repositories/candidate-skill.repository';
 import { CandidateLanguageRepository } from '../repositories/candidate-language.repository';
 import { CandidateProfileCompletionService } from './candidate-profile-completion.service';
@@ -8,7 +14,11 @@ import { CandidateEducationRepository } from '../repositories/candidate-educatio
 import { CandidateWorkExperienceRepository } from '../repositories/candidate-work-experience.repository';
 import { AuditService } from '../../audit/audit.service';
 import { AuditActorType, AuditOutcome } from '@nexthire/types';
-import { candidateSkillSchema, updateCandidateSkillSchema, reorderCandidateSkillsSchema } from '@nexthire/validation';
+import {
+  candidateSkillSchema,
+  updateCandidateSkillSchema,
+  reorderCandidateSkillsSchema,
+} from '@nexthire/validation';
 
 @Injectable()
 export class CandidateSkillService {
@@ -46,7 +56,10 @@ export class CandidateSkillService {
         completion,
       };
     } catch (error) {
-      this.logger.error(`Error listing skills for user ${userId}`, error instanceof Error ? error.stack : error);
+      this.logger.error(
+        `Error listing skills for user ${userId}`,
+        error instanceof Error ? error.stack : error,
+      );
       throw new InternalServerErrorException('Failed to retrieve skills');
     }
   }
@@ -60,7 +73,10 @@ export class CandidateSkillService {
       const validatedData = parseResult.data;
 
       const normalizedName = validatedData.name.trim().toLowerCase();
-      const existing = await this.skillRepository.findByNormalizedNameAndUserId(normalizedName, userId);
+      const existing = await this.skillRepository.findByNormalizedNameAndUserId(
+        normalizedName,
+        userId,
+      );
       if (existing) {
         throw new BadRequestException('CANDIDATE_SKILL_DUPLICATE');
       }
@@ -71,7 +87,12 @@ export class CandidateSkillService {
       }
 
       const sortOrder = count;
-      const record = await this.skillRepository.create(userId, validatedData, normalizedName, sortOrder);
+      const record = await this.skillRepository.create(
+        userId,
+        validatedData,
+        normalizedName,
+        sortOrder,
+      );
       const completion = await this.recalculateCompletion(userId);
 
       await this.auditService.recordRequired({
@@ -94,7 +115,10 @@ export class CandidateSkillService {
       };
     } catch (error) {
       if (error instanceof BadRequestException) throw error;
-      this.logger.error(`Error creating skill for user ${userId}`, error instanceof Error ? error.stack : error);
+      this.logger.error(
+        `Error creating skill for user ${userId}`,
+        error instanceof Error ? error.stack : error,
+      );
       throw new InternalServerErrorException('Failed to create skill');
     }
   }
@@ -114,13 +138,18 @@ export class CandidateSkillService {
 
       if (validatedData.name) {
         const normalizedName = validatedData.name.trim().toLowerCase();
-        const duplicate = await this.skillRepository.findByNormalizedNameAndUserId(normalizedName, userId);
+        const duplicate = await this.skillRepository.findByNormalizedNameAndUserId(
+          normalizedName,
+          userId,
+        );
         if (duplicate && duplicate.id !== recordId) {
           throw new BadRequestException('CANDIDATE_SKILL_DUPLICATE');
         }
       }
 
-      const normalizedName = validatedData.name ? validatedData.name.trim().toLowerCase() : existing.normalizedName;
+      const normalizedName = validatedData.name
+        ? validatedData.name.trim().toLowerCase()
+        : existing.normalizedName;
       const record = await this.skillRepository.update(recordId, validatedData, normalizedName);
       const completion = await this.recalculateCompletion(userId);
 
@@ -145,7 +174,10 @@ export class CandidateSkillService {
       };
     } catch (error) {
       if (error instanceof NotFoundException || error instanceof BadRequestException) throw error;
-      this.logger.error(`Error updating skill ${recordId} for user ${userId}`, error instanceof Error ? error.stack : error);
+      this.logger.error(
+        `Error updating skill ${recordId} for user ${userId}`,
+        error instanceof Error ? error.stack : error,
+      );
       throw new InternalServerErrorException('Failed to update skill');
     }
   }
@@ -178,7 +210,10 @@ export class CandidateSkillService {
       return { completion };
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
-      this.logger.error(`Error deleting skill ${recordId} for user ${userId}`, error instanceof Error ? error.stack : error);
+      this.logger.error(
+        `Error deleting skill ${recordId} for user ${userId}`,
+        error instanceof Error ? error.stack : error,
+      );
       throw new InternalServerErrorException('Failed to delete skill');
     }
   }
@@ -192,11 +227,13 @@ export class CandidateSkillService {
       const validatedData = parseResult.data;
 
       const records = await this.skillRepository.findByUserId(userId);
-      const ownedIds = new Set(records.map(r => r.id));
+      const ownedIds = new Set(records.map((r) => r.id));
 
       for (const id of validatedData.orderedIds) {
         if (!ownedIds.has(id)) {
-          throw new BadRequestException('Cannot reorder records that do not belong to you or do not exist');
+          throw new BadRequestException(
+            'Cannot reorder records that do not belong to you or do not exist',
+          );
         }
       }
 
@@ -217,7 +254,10 @@ export class CandidateSkillService {
       return { completion };
     } catch (error) {
       if (error instanceof BadRequestException) throw error;
-      this.logger.error(`Error reordering skills for user ${userId}`, error instanceof Error ? error.stack : error);
+      this.logger.error(
+        `Error reordering skills for user ${userId}`,
+        error instanceof Error ? error.stack : error,
+      );
       throw new InternalServerErrorException('Failed to reorder skills');
     }
   }
@@ -230,34 +270,53 @@ export class CandidateSkillService {
     const skills = await this.skillRepository.findByUserId(userId);
     const languages = await this.languageRepository.findByUserId(userId);
 
-    const profileInput = profile ? {
-      fullName: profile.fullName,
-      professionalHeadline: profile.professionalHeadline,
-      professionalSummary: profile.professionalSummary,
-      dateOfBirth: profile.dateOfBirth ? profile.dateOfBirth.toISOString() : undefined,
-    } : null;
+    const profileInput = profile
+      ? {
+          fullName: profile.fullName,
+          professionalHeadline: profile.professionalHeadline,
+          professionalSummary: profile.professionalSummary,
+          dateOfBirth: profile.dateOfBirth ? profile.dateOfBirth.toISOString() : undefined,
+        }
+      : null;
 
-    const preferencesInput = preferences ? {
-      countryCode: preferences.country.code,
-      currentCity: preferences.currentCity,
-      preferredJobRoles: preferences.preferredJobRoles,
-      preferredWorkModes: preferences.preferredWorkModes as any,
-      preferredEmploymentTypes: preferences.preferredEmploymentTypes as any,
-    } : null;
+    const preferencesInput = preferences
+      ? {
+          countryCode: preferences.country.code,
+          currentCity: preferences.currentCity,
+          preferredJobRoles: preferences.preferredJobRoles,
+          preferredWorkModes: preferences.preferredWorkModes as any,
+          preferredEmploymentTypes: preferences.preferredEmploymentTypes as any,
+        }
+      : null;
 
-    const completion = this.completionService.calculateCompletion(profileInput, preferencesInput, educationRecords, workExperienceRecords, skills, languages);
-    
+    const completion = this.completionService.calculateCompletion(
+      profileInput,
+      preferencesInput,
+      educationRecords,
+      workExperienceRecords,
+      skills,
+      languages,
+    );
+
     if (profile) {
-      await this.profileRepository.upsertProfile(userId, {
-        fullName: profile.fullName,
-        professionalHeadline: profile.professionalHeadline,
-        professionalSummary: profile.professionalSummary,
-        dateOfBirth: profile.dateOfBirth ? profile.dateOfBirth.toISOString() : undefined,
-      }, completion.percentage);
+      await this.profileRepository.upsertProfile(
+        userId,
+        {
+          fullName: profile.fullName,
+          professionalHeadline: profile.professionalHeadline,
+          professionalSummary: profile.professionalSummary,
+          dateOfBirth: profile.dateOfBirth ? profile.dateOfBirth.toISOString() : undefined,
+        },
+        completion.percentage,
+      );
     } else {
-      await this.profileRepository.upsertProfile(userId, {
-        fullName: 'Unknown',
-      }, completion.percentage);
+      await this.profileRepository.upsertProfile(
+        userId,
+        {
+          fullName: 'Unknown',
+        },
+        completion.percentage,
+      );
     }
 
     return completion;

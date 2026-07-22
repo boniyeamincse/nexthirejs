@@ -9,6 +9,7 @@ Returns the privacy settings for the authenticated candidate. If no settings hav
 **Access:** Authenticated candidate only
 
 **Success Response (200):**
+
 ```json
 {
   "overallDiscoverability": "PRIVATE",
@@ -35,6 +36,7 @@ Creates or updates privacy settings for the authenticated candidate.
 **Access:** Authenticated candidate only
 
 **Request Body:**
+
 ```json
 {
   "overallDiscoverability": "LINK_ONLY",
@@ -53,6 +55,7 @@ Creates or updates privacy settings for the authenticated candidate.
 **Success Response (200):** Same structure as GET response with `source: "PERSISTED"`.
 
 **Error Codes:**
+
 - `400 CANDIDATE_PRIVACY_VALIDATION_FAILED` — invalid discoverability or visibility value
 - `400 CANDIDATE_PRIVACY_SECTION_MISSING` — required section not provided
 - `400 CANDIDATE_PRIVACY_SECTION_UNSUPPORTED` — unknown section key
@@ -61,16 +64,19 @@ Creates or updates privacy settings for the authenticated candidate.
 - `403 AUTH_ACCOUNT_UNAVAILABLE` — suspended or deleted account
 
 ### Discoverability Modes
+
 - `PRIVATE` — visible only to candidate and authorized internal processes
 - `LINK_ONLY` — future share-link access (not yet implemented)
 - `PLATFORM_DISCOVERABLE` — future platform search (not yet implemented)
 
 ### Visibility Modes
+
 - `HIDDEN` — only candidate and internal services
 - `PLATFORM_ONLY` — future authenticated company/recruiter views
 - `PUBLIC` — future anonymous/public views
 
 ### Supported Sections
+
 - `BASIC_PROFILE`
 - `LOCATION_AND_PREFERENCES`
 - `EDUCATION`

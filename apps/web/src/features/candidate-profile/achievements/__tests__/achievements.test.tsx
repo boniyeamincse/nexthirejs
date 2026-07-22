@@ -32,7 +32,10 @@ describe('AchievementForm', () => {
   it('calls onSave with form data', async () => {
     const onSave = vi.fn();
     render(<AchievementForm onSave={onSave} onCancel={vi.fn()} />);
-    await userEvent.type(screen.getByPlaceholderText(/e\.g\. Employee of the Year/), 'New Achievement');
+    await userEvent.type(
+      screen.getByPlaceholderText(/e\.g\. Employee of the Year/),
+      'New Achievement',
+    );
     await userEvent.click(screen.getByText('Add Achievement'));
     expect(onSave).toHaveBeenCalled();
   });
@@ -53,7 +56,10 @@ describe('AchievementForm', () => {
   it('rejects unsafe URL scheme', async () => {
     render(<AchievementForm onSave={vi.fn()} onCancel={vi.fn()} />);
     await userEvent.type(screen.getByPlaceholderText(/e\.g\. Employee of the Year/), 'Test');
-    await userEvent.type(screen.getByPlaceholderText(/https:\/\/example\.com/), 'javascript:alert(1)');
+    await userEvent.type(
+      screen.getByPlaceholderText(/https:\/\/example\.com/),
+      'javascript:alert(1)',
+    );
     await userEvent.click(screen.getByText('Add Achievement'));
     expect(screen.getByText(/must start with http/)).toBeInTheDocument();
   });
@@ -105,17 +111,14 @@ describe('AchievementList', () => {
   it('calls onMoveUp and onMoveDown', async () => {
     const onMoveUp = vi.fn();
     const onMoveDown = vi.fn();
-    const records = [
-      mockAchievement,
-      { ...mockAchievement, id: '2', title: 'Second Achievement' },
-    ];
+    const records = [mockAchievement, { ...mockAchievement, id: '2', title: 'Second Achievement' }];
     render(
       <AchievementList
         {...defaultProps}
         records={records}
         onMoveUp={onMoveUp}
         onMoveDown={onMoveDown}
-      />
+      />,
     );
     const buttons = screen.getAllByLabelText('Move up');
     await userEvent.click(buttons[1]);

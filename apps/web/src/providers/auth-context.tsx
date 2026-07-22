@@ -86,7 +86,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     };
     void init();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, [bootstrap]);
 
   const login = useCallback(

@@ -37,7 +37,9 @@ describe('CandidateEducationController (e2e)', () => {
     tokenService = app.get<TokenService>(TokenService);
 
     // Clean up specific test data
-    await prisma.educationRecord.deleteMany({ where: { user: { email: { startsWith: 'test-edu' } } } });
+    await prisma.educationRecord.deleteMany({
+      where: { user: { email: { startsWith: 'test-edu' } } },
+    });
     await prisma.userSession.deleteMany({ where: { user: { email: { startsWith: 'test-edu' } } } });
     await prisma.userRole.deleteMany({ where: { user: { email: { startsWith: 'test-edu' } } } });
     await prisma.user.deleteMany({ where: { email: { startsWith: 'test-edu' } } });
@@ -49,7 +51,7 @@ describe('CandidateEducationController (e2e)', () => {
       create: {
         code: 'candidate',
         name: 'Candidate',
-      }
+      },
     });
 
     // Create Candidate User 1
@@ -59,9 +61,9 @@ describe('CandidateEducationController (e2e)', () => {
         passwordHash: 'hashed_password',
         status: 'ACTIVE',
         roles: {
-          create: { roleId: candidateRole.id }
-        }
-      }
+          create: { roleId: candidateRole.id },
+        },
+      },
     });
 
     const tokenFamily1 = '11111111-1111-1111-1111-111111111111';
@@ -73,14 +75,12 @@ describe('CandidateEducationController (e2e)', () => {
         refreshTokenHash: `hash-edu1-${Date.now()}`,
         tokenFamilyId: tokenFamily1,
         expiresAt: new Date(Date.now() + 1000000),
-      }
+      },
     });
 
-    candidateAccessToken = tokenService.signAccessToken(
-      candidateUser.id,
-      sessionId1,
-      ['candidate']
-    ).token;
+    candidateAccessToken = tokenService.signAccessToken(candidateUser.id, sessionId1, [
+      'candidate',
+    ]).token;
 
     // Create Candidate User 2
     otherUser = await prisma.user.create({
@@ -89,9 +89,9 @@ describe('CandidateEducationController (e2e)', () => {
         passwordHash: 'hashed_password',
         status: 'ACTIVE',
         roles: {
-          create: { roleId: candidateRole.id }
-        }
-      }
+          create: { roleId: candidateRole.id },
+        },
+      },
     });
 
     const tokenFamily2 = '22222222-2222-2222-2222-222222222222';
@@ -103,14 +103,10 @@ describe('CandidateEducationController (e2e)', () => {
         refreshTokenHash: `hash-edu2-${Date.now()}`,
         tokenFamilyId: tokenFamily2,
         expiresAt: new Date(Date.now() + 1000000),
-      }
+      },
     });
 
-    otherAccessToken = tokenService.signAccessToken(
-      otherUser.id,
-      sessionId2,
-      ['candidate']
-    ).token;
+    otherAccessToken = tokenService.signAccessToken(otherUser.id, sessionId2, ['candidate']).token;
   });
 
   afterAll(async () => {

@@ -7,7 +7,14 @@ import { CurrentUser } from '../decorators/current-user.decorator';
 import { ChangePasswordService } from './change-password.service';
 import type { AuthenticatedPrincipal } from '../interfaces/authenticated-principal.interface';
 import type { ChangePasswordResponse } from '@nexthire/types';
-import { PASSWORD_MIN_LENGTH, PASSWORD_MAX_LENGTH, PASSWORD_UPPERCASE_ERROR, PASSWORD_LOWERCASE_ERROR, PASSWORD_DIGIT_ERROR, PASSWORD_SPECIAL_ERROR } from '@nexthire/constants';
+import {
+  PASSWORD_MIN_LENGTH,
+  PASSWORD_MAX_LENGTH,
+  PASSWORD_UPPERCASE_ERROR,
+  PASSWORD_LOWERCASE_ERROR,
+  PASSWORD_DIGIT_ERROR,
+  PASSWORD_SPECIAL_ERROR,
+} from '@nexthire/constants';
 
 export class ChangePasswordDto {
   @ApiProperty()

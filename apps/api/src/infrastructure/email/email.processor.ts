@@ -3,8 +3,12 @@ import { Job } from 'bullmq';
 import { ConfigService } from '@nestjs/config';
 import { Logger } from '@nestjs/common';
 import nodemailer from 'nodemailer';
-import { MAIL_QUEUE, SEND_VERIFICATION_EMAIL_JOB } from './email.constants';
-import type { SendVerificationEmailPayload } from './email.service';
+import {
+  MAIL_QUEUE,
+  SEND_VERIFICATION_EMAIL_JOB,
+  SEND_PASSWORD_RESET_EMAIL_JOB,
+} from './email.constants';
+import type { SendVerificationEmailPayload, SendPasswordResetEmailPayload } from './email.service';
 
 interface VerificationTemplate {
   subject: string;
@@ -32,6 +36,26 @@ function buildVerificationEmail(token: string): VerificationTemplate {
   };
 }
 
+function buildPasswordResetEmail(token: string): VerificationTemplate {
+  const resetUrl = `http://localhost:3000/reset-password?token=${encodeURIComponent(token)}`;
+
+  return {
+    subject: 'Reset your NextHire password',
+    html: `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family:sans-serif;padding:24px;background:#f5f5f5">
+<div style="max-width:480px;margin:0 auto;background:white;border-radius:8px;padding:32px">
+<h1 style="font-size:20px;margin:0 0 16px">Reset your password</h1>
+<p style="color:#444;line-height:1.6">You requested a password reset for your NextHire account. Click the button below to set a new password.</p>
+<a href="${resetUrl}" style="display:inline-block;margin:24px 0;padding:12px 24px;background:#2563eb;color:white;text-decoration:none;border-radius:6px;font-weight:600">Reset password</a>
+<p style="color:#666;font-size:13px">Or copy this link into your browser:<br><a href="${resetUrl}" style="color:#2563eb">${resetUrl}</a></p>
+<p style="color:#888;font-size:12px;margin-top:24px">This link expires in 1 hour. If you did not request this reset, you can ignore this email.</p>
+</div></body></html>`,
+    text: `Reset your password\n\nYou requested a password reset for your NextHire account. Please visit the link below to set a new password:\n\n${resetUrl}\n\nThis link expires in 1 hour. If you did not request this reset, you can ignore this email.`,
+  };
+}
+
 @Processor(MAIL_QUEUE)
 export class EmailProcessor extends WorkerHost {
   private readonly logger = new Logger(EmailProcessor.name);
@@ -53,18 +77,24 @@ export class EmailProcessor extends WorkerHost {
     return this.transporter;
   }
 
-  async process(job: Job<SendVerificationEmailPayload>): Promise<{ sent: boolean; to: string }> {
-    if (job.name !== SEND_VERIFICATION_EMAIL_JOB) {
-      throw new Error(`Unknown job name: ${job.name}`);
-    }
-
+  async process(
+    job: Job<SendVerificationEmailPayload | SendPasswordResetEmailPayload>,
+  ): Promise<{ sent: boolean; to: string }> {
     const { email, token } = job.data;
 
     if (!email || typeof email !== 'string' || !token || typeof token !== 'string') {
-      throw new Error('Invalid send-verification-email job payload');
+      throw new Error('Invalid email job payload');
     }
 
-    const template = buildVerificationEmail(token);
+    if (job.name !== SEND_VERIFICATION_EMAIL_JOB && job.name !== SEND_PASSWORD_RESET_EMAIL_JOB) {
+      throw new Error(`Unknown job name: ${job.name}`);
+    }
+
+    const template =
+      job.name === SEND_PASSWORD_RESET_EMAIL_JOB
+        ? buildPasswordResetEmail(token)
+        : buildVerificationEmail(token);
+
     const fromAddress = this.configService.get<string>(
       'MAIL_FROM_ADDRESS',
       'no-reply@mnexthire.local',
@@ -80,11 +110,11 @@ export class EmailProcessor extends WorkerHost {
         html: template.html,
       });
 
-      this.logger.log(`Verification email sent to ${email}`);
+      this.logger.log(`Email sent to ${email} (job: ${job.name})`);
       return { sent: true, to: email };
     } catch (error) {
       this.logger.error(
-        `Failed to send verification email to ${email}`,
+        `Failed to send email to ${email} (job: ${job.name})`,
         error instanceof Error ? error.stack : undefined,
       );
       throw error;

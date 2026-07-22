@@ -105,7 +105,9 @@ describe('PrivacySettingsForm', () => {
 
   it('prevents duplicate submission while saving', async () => {
     const user = userEvent.setup();
-    const mockSave = vi.fn().mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 1000)));
+    const mockSave = vi
+      .fn()
+      .mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 1000)));
     render(<PrivacySettingsForm settings={defaultSettings} onSave={mockSave} />);
     const linkOnlyRadio = screen.getByDisplayValue('LINK_ONLY');
     await user.click(linkOnlyRadio);
@@ -183,7 +185,9 @@ describe('PrivacySettingsForm', () => {
 
   it('renders with accessible fieldsets and legends', () => {
     render(<PrivacySettingsForm settings={defaultSettings} onSave={vi.fn()} />);
-    const legends = screen.getAllByText(/Overall Profile Discoverability|Section Visibility|Basic Profile|Location & Preferences|Education|Work Experience|Skills & Languages|Certifications & Training|Achievements & Links/);
+    const legends = screen.getAllByText(
+      /Overall Profile Discoverability|Section Visibility|Basic Profile|Location & Preferences|Education|Work Experience|Skills & Languages|Certifications & Training|Achievements & Links/,
+    );
     expect(legends.length).toBeGreaterThanOrEqual(8);
   });
 });

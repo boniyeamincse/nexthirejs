@@ -25,6 +25,7 @@
 ## Audit Metadata
 
 Audit events for external profile views use safe metadata only:
+
 - `accessMode` (LINK_HOLDER or PLATFORM_AUTHENTICATED)
 - `visibleSectionCount`
 - No raw tokens, hashes, profile content, or email addresses

@@ -4,7 +4,10 @@ import { Logger } from '@nestjs/common';
 import { PrismaService } from '../../../database/prisma.service';
 import { StorageService } from '../../../infrastructure/storage/storage.service';
 import { AuditService } from '../../audit/audit.service';
-import { DATA_EXPORT_QUEUE, GENERATE_DATA_EXPORT_JOB } from '../../../infrastructure/queue/queue.constants';
+import {
+  DATA_EXPORT_QUEUE,
+  GENERATE_DATA_EXPORT_JOB,
+} from '../../../infrastructure/queue/queue.constants';
 import { AuditActorType, AuditOutcome } from '@nexthire/types';
 import * as crypto from 'node:crypto';
 
@@ -25,7 +28,9 @@ export class CandidateDataExportProcessor extends WorkerHost {
     super();
   }
 
-  async process(job: Job<GenerateDataExportPayload>): Promise<{ exportId: string; status: string }> {
+  async process(
+    job: Job<GenerateDataExportPayload>,
+  ): Promise<{ exportId: string; status: string }> {
     if (job.name !== GENERATE_DATA_EXPORT_JOB) {
       throw new Error(`Unknown job name: ${job.name}`);
     }
@@ -88,7 +93,11 @@ export class CandidateDataExportProcessor extends WorkerHost {
         targetType: 'CandidateDataExportRequest',
         targetId: exportId,
         outcome: AuditOutcome.SUCCESS,
-        metadata: { exportRequestId: exportId, exportStatus: 'READY', fileSizeBytes: Number(fileSizeBytes) },
+        metadata: {
+          exportRequestId: exportId,
+          exportStatus: 'READY',
+          fileSizeBytes: Number(fileSizeBytes),
+        },
       });
 
       this.logger.log(`Data export ${exportId} completed for user ${userId}`);
@@ -159,19 +168,23 @@ export class CandidateDataExportProcessor extends WorkerHost {
         passwordChangedAt: user.passwordChangedAt?.toISOString() ?? null,
         deactivatedAt: user.deactivatedAt?.toISOString() ?? null,
       },
-      profile: user.candidateProfile ? {
-        fullName: user.candidateProfile.fullName,
-        professionalHeadline: user.candidateProfile.professionalHeadline,
-        professionalSummary: user.candidateProfile.professionalSummary,
-        dateOfBirth: user.candidateProfile.dateOfBirth?.toISOString() ?? null,
-      } : null,
-      preferences: user.candidatePreference ? {
-        country: user.candidatePreference.country?.name ?? null,
-        currentCity: user.candidatePreference.currentCity,
-        preferredJobRoles: user.candidatePreference.preferredJobRoles,
-        preferredWorkModes: user.candidatePreference.preferredWorkModes,
-        preferredEmploymentTypes: user.candidatePreference.preferredEmploymentTypes,
-      } : null,
+      profile: user.candidateProfile
+        ? {
+            fullName: user.candidateProfile.fullName,
+            professionalHeadline: user.candidateProfile.professionalHeadline,
+            professionalSummary: user.candidateProfile.professionalSummary,
+            dateOfBirth: user.candidateProfile.dateOfBirth?.toISOString() ?? null,
+          }
+        : null,
+      preferences: user.candidatePreference
+        ? {
+            country: user.candidatePreference.country?.name ?? null,
+            currentCity: user.candidatePreference.currentCity,
+            preferredJobRoles: user.candidatePreference.preferredJobRoles,
+            preferredWorkModes: user.candidatePreference.preferredWorkModes,
+            preferredEmploymentTypes: user.candidatePreference.preferredEmploymentTypes,
+          }
+        : null,
       education: user.educationRecords.map((e) => ({
         institution: e.institutionName,
         degree: e.qualification,
@@ -223,18 +236,20 @@ export class CandidateDataExportProcessor extends WorkerHost {
         label: l.label,
         url: l.url,
       })),
-      privacy: user.profilePrivacy ? {
-        overallDiscoverability: user.profilePrivacy.overallDiscoverability,
-        sections: {
-          BASIC_PROFILE: user.profilePrivacy.basicProfile,
-          LOCATION_AND_PREFERENCES: user.profilePrivacy.locationAndPreferences,
-          EDUCATION: user.profilePrivacy.education,
-          WORK_EXPERIENCE: user.profilePrivacy.workExperience,
-          SKILLS_AND_LANGUAGES: user.profilePrivacy.skillsAndLanguages,
-          CERTIFICATIONS_AND_TRAINING: user.profilePrivacy.certificationsAndTraining,
-          ACHIEVEMENTS_AND_LINKS: user.profilePrivacy.achievementsAndLinks,
-        },
-      } : null,
+      privacy: user.profilePrivacy
+        ? {
+            overallDiscoverability: user.profilePrivacy.overallDiscoverability,
+            sections: {
+              BASIC_PROFILE: user.profilePrivacy.basicProfile,
+              LOCATION_AND_PREFERENCES: user.profilePrivacy.locationAndPreferences,
+              EDUCATION: user.profilePrivacy.education,
+              WORK_EXPERIENCE: user.profilePrivacy.workExperience,
+              SKILLS_AND_LANGUAGES: user.profilePrivacy.skillsAndLanguages,
+              CERTIFICATIONS_AND_TRAINING: user.profilePrivacy.certificationsAndTraining,
+              ACHIEVEMENTS_AND_LINKS: user.profilePrivacy.achievementsAndLinks,
+            },
+          }
+        : null,
       sessions: user.sessions.map((s) => ({
         status: s.status,
         createdAt: s.createdAt.toISOString(),
@@ -247,9 +262,16 @@ export class CandidateDataExportProcessor extends WorkerHost {
     };
   }
 
-  private async generateZip(data: Record<string, unknown>): Promise<{ buffer: Buffer; checksum: string }> {
+  private async generateZip(
+    data: Record<string, unknown>,
+  ): Promise<{ buffer: Buffer; checksum: string }> {
     const content = {
-      'README.txt': 'NextHire Personal Data Export\nGenerated at: ' + data.generatedAt + '\nSchema Version: ' + data.schemaVersion + '\n\nThis file contains your personal data from your NextHire account.',
+      'README.txt':
+        'NextHire Personal Data Export\nGenerated at: ' +
+        data.generatedAt +
+        '\nSchema Version: ' +
+        data.schemaVersion +
+        '\n\nThis file contains your personal data from your NextHire account.',
       ...data,
     };
     const jsonStr = JSON.stringify(content, null, 2);

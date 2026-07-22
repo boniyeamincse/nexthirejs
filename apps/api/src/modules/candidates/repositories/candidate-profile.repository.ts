@@ -13,13 +13,17 @@ export class CandidateProfileRepository {
         user: {
           select: {
             email: true,
-          }
-        }
-      }
+          },
+        },
+      },
     });
   }
 
-  async upsertProfile(userId: string, data: CandidateProfileBasicsInput, completionPercentage: number) {
+  async upsertProfile(
+    userId: string,
+    data: CandidateProfileBasicsInput,
+    completionPercentage: number,
+  ) {
     return this.prisma.candidateProfile.upsert({
       where: { userId },
       create: {
@@ -41,9 +45,9 @@ export class CandidateProfileRepository {
         user: {
           select: {
             email: true,
-          }
-        }
-      }
+          },
+        },
+      },
     });
   }
 }

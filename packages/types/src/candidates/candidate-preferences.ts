@@ -1,5 +1,4 @@
 import { CandidateProfileCompletion } from './index.js';
-import { Country } from '../configuration/country.js';
 
 export enum WorkMode {
   ONSITE = 'ONSITE',

@@ -19,8 +19,14 @@ describe('Account Security (e2e)', () => {
 
   // Test users
   const testCandidate = { email: `${testPrefix}candidate@example.com`, password: 'TestPass#2026' };
-  const testOtherCandidate = { email: `${testPrefix}other@example.com`, password: 'OtherPass#2026' };
-  const testNonCandidate = { email: `${testPrefix}noncandidate@example.com`, password: 'AdminPass#2026' };
+  const testOtherCandidate = {
+    email: `${testPrefix}other@example.com`,
+    password: 'OtherPass#2026',
+  };
+  const testNonCandidate = {
+    email: `${testPrefix}noncandidate@example.com`,
+    password: 'AdminPass#2026',
+  };
   const testSuspended = { email: `${testPrefix}suspended@example.com`, password: 'Suspended#2026' };
 
   let candidateToken: string;
@@ -67,19 +73,29 @@ describe('Account Security (e2e)', () => {
     tokenService = app.get<TokenService>(TokenService);
 
     // Clean up any previous test data
-    await prismaService.userRole.deleteMany({ where: { user: { email: { startsWith: testPrefix } } } });
-    await prismaService.userSession.deleteMany({ where: { user: { email: { startsWith: testPrefix } } } });
-    await prismaService.candidateProfile.deleteMany({ where: { user: { email: { startsWith: testPrefix } } } });
+    await prismaService.userRole.deleteMany({
+      where: { user: { email: { startsWith: testPrefix } } },
+    });
+    await prismaService.userSession.deleteMany({
+      where: { user: { email: { startsWith: testPrefix } } },
+    });
+    await prismaService.candidateProfile.deleteMany({
+      where: { user: { email: { startsWith: testPrefix } } },
+    });
     await prismaService.user.deleteMany({ where: { email: { startsWith: testPrefix } } });
 
     // Create roles if they don't exist
     let candidateRole = await prismaService.role.findUnique({ where: { code: 'candidate' } });
     if (!candidateRole) {
-      candidateRole = await prismaService.role.create({ data: { code: 'candidate', name: 'Candidate' } });
+      candidateRole = await prismaService.role.create({
+        data: { code: 'candidate', name: 'Candidate' },
+      });
     }
     let adminRole = await prismaService.role.findUnique({ where: { code: 'admin' } });
     if (!adminRole) {
-      adminRole = await prismaService.role.create({ data: { code: 'admin', name: 'Administrator' } });
+      adminRole = await prismaService.role.create({
+        data: { code: 'admin', name: 'Administrator' },
+      });
     }
 
     // Create candidate user
@@ -93,9 +109,14 @@ describe('Account Security (e2e)', () => {
       },
     });
     candidateUserId = candidateUser.id;
-    await prismaService.userRole.create({ data: { userId: candidateUser.id, roleId: candidateRole!.id } });
+    await prismaService.userRole.create({
+      data: { userId: candidateUser.id, roleId: candidateRole!.id },
+    });
     candidateSessionId = crypto.randomUUID();
-    const candidateRefreshHash = crypto.createHash('sha256').update(crypto.randomBytes(32).toString('hex')).digest('hex');
+    const candidateRefreshHash = crypto
+      .createHash('sha256')
+      .update(crypto.randomBytes(32).toString('hex'))
+      .digest('hex');
     await prismaService.userSession.create({
       data: {
         id: candidateSessionId,
@@ -106,12 +127,19 @@ describe('Account Security (e2e)', () => {
         expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       },
     });
-    const candidateTokenResult = await tokenService.signAccessToken(candidateUser.id, candidateSessionId, ['candidate']);
+    const candidateTokenResult = await tokenService.signAccessToken(
+      candidateUser.id,
+      candidateSessionId,
+      ['candidate'],
+    );
     candidateToken = candidateTokenResult.token;
 
     // Create a second session for session revocation test
     const otherSessionId = crypto.randomUUID();
-    const otherSessionRefreshHash = crypto.createHash('sha256').update(crypto.randomBytes(32).toString('hex')).digest('hex');
+    const otherSessionRefreshHash = crypto
+      .createHash('sha256')
+      .update(crypto.randomBytes(32).toString('hex'))
+      .digest('hex');
     await prismaService.userSession.create({
       data: {
         id: otherSessionId,
@@ -134,9 +162,14 @@ describe('Account Security (e2e)', () => {
       },
     });
     otherCandidateUserId = otherUser.id;
-    await prismaService.userRole.create({ data: { userId: otherUser.id, roleId: candidateRole!.id } });
+    await prismaService.userRole.create({
+      data: { userId: otherUser.id, roleId: candidateRole!.id },
+    });
     const otherSessionId2 = crypto.randomUUID();
-    const otherRefreshHash2 = crypto.createHash('sha256').update(crypto.randomBytes(32).toString('hex')).digest('hex');
+    const otherRefreshHash2 = crypto
+      .createHash('sha256')
+      .update(crypto.randomBytes(32).toString('hex'))
+      .digest('hex');
     await prismaService.userSession.create({
       data: {
         id: otherSessionId2,
@@ -147,7 +180,9 @@ describe('Account Security (e2e)', () => {
         expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       },
     });
-    const otherTokenResult = await tokenService.signAccessToken(otherUser.id, otherSessionId2, ['candidate']);
+    const otherTokenResult = await tokenService.signAccessToken(otherUser.id, otherSessionId2, [
+      'candidate',
+    ]);
     otherCandidateToken = otherTokenResult.token;
 
     // Create non-candidate user (admin)
@@ -162,7 +197,10 @@ describe('Account Security (e2e)', () => {
     });
     await prismaService.userRole.create({ data: { userId: adminUser.id, roleId: adminRole!.id } });
     const adminSessionId = crypto.randomUUID();
-    const adminRefreshHash = crypto.createHash('sha256').update(crypto.randomBytes(32).toString('hex')).digest('hex');
+    const adminRefreshHash = crypto
+      .createHash('sha256')
+      .update(crypto.randomBytes(32).toString('hex'))
+      .digest('hex');
     await prismaService.userSession.create({
       data: {
         id: adminSessionId,
@@ -173,7 +211,9 @@ describe('Account Security (e2e)', () => {
         expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       },
     });
-    const adminTokenResult = await tokenService.signAccessToken(adminUser.id, adminSessionId, ['admin']);
+    const adminTokenResult = await tokenService.signAccessToken(adminUser.id, adminSessionId, [
+      'admin',
+    ]);
     nonCandidateToken = adminTokenResult.token;
 
     // Create suspended user
@@ -186,9 +226,14 @@ describe('Account Security (e2e)', () => {
         emailVerifiedAt: new Date(),
       },
     });
-    await prismaService.userRole.create({ data: { userId: suspendedUser.id, roleId: candidateRole!.id } });
+    await prismaService.userRole.create({
+      data: { userId: suspendedUser.id, roleId: candidateRole!.id },
+    });
     const suspendedSessionId = crypto.randomUUID();
-    const suspendedRefreshHash = crypto.createHash('sha256').update(crypto.randomBytes(32).toString('hex')).digest('hex');
+    const suspendedRefreshHash = crypto
+      .createHash('sha256')
+      .update(crypto.randomBytes(32).toString('hex'))
+      .digest('hex');
     await prismaService.userSession.create({
       data: {
         id: suspendedSessionId,
@@ -199,23 +244,31 @@ describe('Account Security (e2e)', () => {
         expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       },
     });
-    const suspendedTokenResult = await tokenService.signAccessToken(suspendedUser.id, suspendedSessionId, ['candidate']);
+    const suspendedTokenResult = await tokenService.signAccessToken(
+      suspendedUser.id,
+      suspendedSessionId,
+      ['candidate'],
+    );
     suspendedToken = suspendedTokenResult.token;
   }, 30000);
 
   afterAll(async () => {
-    await prismaService.userRole.deleteMany({ where: { user: { email: { startsWith: testPrefix } } } });
-    await prismaService.userSession.deleteMany({ where: { user: { email: { startsWith: testPrefix } } } });
-    await prismaService.candidateProfile.deleteMany({ where: { user: { email: { startsWith: testPrefix } } } });
+    await prismaService.userRole.deleteMany({
+      where: { user: { email: { startsWith: testPrefix } } },
+    });
+    await prismaService.userSession.deleteMany({
+      where: { user: { email: { startsWith: testPrefix } } },
+    });
+    await prismaService.candidateProfile.deleteMany({
+      where: { user: { email: { startsWith: testPrefix } } },
+    });
     await prismaService.user.deleteMany({ where: { email: { startsWith: testPrefix } } });
     await app.close();
   });
 
   describe('GET /api/v1/candidates/me/account-security', () => {
     it('should return 401 without auth', async () => {
-      await request(app.getHttpServer())
-        .get('/api/v1/candidates/me/account-security')
-        .expect(401);
+      await request(app.getHttpServer()).get('/api/v1/candidates/me/account-security').expect(401);
     });
 
     it('should return security summary with email and status', async () => {

@@ -1,7 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import type { CandidateProfilePrivacyResult, CandidateDiscoverability, CandidateProfileSection, CandidateSectionVisibility } from '@nexthire/types';
+import type {
+  CandidateProfilePrivacyResult,
+  CandidateDiscoverability,
+  CandidateProfileSection,
+  CandidateSectionVisibility,
+} from '@nexthire/types';
 
-export type ViewerContext = 'OWNER' | 'PLATFORM_AUTHENTICATED' | 'LINK_HOLDER' | 'ANONYMOUS' | 'INTERNAL_SYSTEM';
+export type ViewerContext =
+  'OWNER' | 'PLATFORM_AUTHENTICATED' | 'LINK_HOLDER' | 'ANONYMOUS' | 'INTERNAL_SYSTEM';
 
 @Injectable()
 export class CandidatePrivacyDecisionService {
@@ -10,7 +16,10 @@ export class CandidatePrivacyDecisionService {
   }
 
   canShareByLink(settings: CandidateProfilePrivacyResult): boolean {
-    return settings.overallDiscoverability === 'LINK_ONLY' || settings.overallDiscoverability === 'PLATFORM_DISCOVERABLE';
+    return (
+      settings.overallDiscoverability === 'LINK_ONLY' ||
+      settings.overallDiscoverability === 'PLATFORM_DISCOVERABLE'
+    );
   }
 
   canExternalViewerReadSection(
@@ -33,7 +42,10 @@ export class CandidatePrivacyDecisionService {
     }
 
     if (viewerContext === 'LINK_HOLDER') {
-      return settings.overallDiscoverability === 'LINK_ONLY' || settings.overallDiscoverability === 'PLATFORM_DISCOVERABLE';
+      return (
+        settings.overallDiscoverability === 'LINK_ONLY' ||
+        settings.overallDiscoverability === 'PLATFORM_DISCOVERABLE'
+      );
     }
 
     if (viewerContext === 'PLATFORM_AUTHENTICATED') {

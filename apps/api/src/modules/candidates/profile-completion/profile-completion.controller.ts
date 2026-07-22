@@ -15,9 +15,7 @@ import { ProfileCompletionDashboardService } from './profile-completion-dashboar
 @RequireRoles('candidate')
 @ApiBearerAuth()
 export class ProfileCompletionController {
-  constructor(
-    private readonly dashboardService: ProfileCompletionDashboardService,
-  ) {}
+  constructor(private readonly dashboardService: ProfileCompletionDashboardService) {}
 
   @Get()
   @ApiOperation({

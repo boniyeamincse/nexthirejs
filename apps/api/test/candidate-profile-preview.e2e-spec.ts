@@ -61,25 +61,55 @@ describe('CandidateProfilePreviewController (e2e)', () => {
     ).map((u) => u.id);
 
     await prisma.auditLog.deleteMany({
-      where: { actorUserId: { in: testUserIds.length > 0 ? testUserIds : ['00000000-0000-0000-0000-000000000000'] } },
+      where: {
+        actorUserId: {
+          in: testUserIds.length > 0 ? testUserIds : ['00000000-0000-0000-0000-000000000000'],
+        },
+      },
     });
     await prisma.candidateProfileShareToken.deleteMany({
       where: { user: { email: { startsWith: testEmailPrefix } } },
     });
     await prisma.userSession.deleteMany({ where: { id: { in: SESSION_IDS } } });
-    await prisma.candidateProfilePrivacy.deleteMany({ where: { user: { email: { startsWith: testEmailPrefix } } } });
-    await prisma.candidateProfessionalLink.deleteMany({ where: { user: { email: { startsWith: testEmailPrefix } } } });
-    await prisma.candidateAchievement.deleteMany({ where: { user: { email: { startsWith: testEmailPrefix } } } });
-    await prisma.candidateTraining.deleteMany({ where: { user: { email: { startsWith: testEmailPrefix } } } });
-    await prisma.candidateCertification.deleteMany({ where: { user: { email: { startsWith: testEmailPrefix } } } });
-    await prisma.candidateLanguage.deleteMany({ where: { user: { email: { startsWith: testEmailPrefix } } } });
-    await prisma.candidateSkill.deleteMany({ where: { user: { email: { startsWith: testEmailPrefix } } } });
-    await prisma.workExperienceRecord.deleteMany({ where: { user: { email: { startsWith: testEmailPrefix } } } });
-    await prisma.educationRecord.deleteMany({ where: { user: { email: { startsWith: testEmailPrefix } } } });
-    await prisma.candidatePreference.deleteMany({ where: { user: { email: { startsWith: testEmailPrefix } } } });
-    await prisma.candidateProfile.deleteMany({ where: { user: { email: { startsWith: testEmailPrefix } } } });
-    await prisma.userSession.deleteMany({ where: { user: { email: { startsWith: testEmailPrefix } } } });
-    await prisma.userRole.deleteMany({ where: { user: { email: { startsWith: testEmailPrefix } } } });
+    await prisma.candidateProfilePrivacy.deleteMany({
+      where: { user: { email: { startsWith: testEmailPrefix } } },
+    });
+    await prisma.candidateProfessionalLink.deleteMany({
+      where: { user: { email: { startsWith: testEmailPrefix } } },
+    });
+    await prisma.candidateAchievement.deleteMany({
+      where: { user: { email: { startsWith: testEmailPrefix } } },
+    });
+    await prisma.candidateTraining.deleteMany({
+      where: { user: { email: { startsWith: testEmailPrefix } } },
+    });
+    await prisma.candidateCertification.deleteMany({
+      where: { user: { email: { startsWith: testEmailPrefix } } },
+    });
+    await prisma.candidateLanguage.deleteMany({
+      where: { user: { email: { startsWith: testEmailPrefix } } },
+    });
+    await prisma.candidateSkill.deleteMany({
+      where: { user: { email: { startsWith: testEmailPrefix } } },
+    });
+    await prisma.workExperienceRecord.deleteMany({
+      where: { user: { email: { startsWith: testEmailPrefix } } },
+    });
+    await prisma.educationRecord.deleteMany({
+      where: { user: { email: { startsWith: testEmailPrefix } } },
+    });
+    await prisma.candidatePreference.deleteMany({
+      where: { user: { email: { startsWith: testEmailPrefix } } },
+    });
+    await prisma.candidateProfile.deleteMany({
+      where: { user: { email: { startsWith: testEmailPrefix } } },
+    });
+    await prisma.userSession.deleteMany({
+      where: { user: { email: { startsWith: testEmailPrefix } } },
+    });
+    await prisma.userRole.deleteMany({
+      where: { user: { email: { startsWith: testEmailPrefix } } },
+    });
     await prisma.user.deleteMany({ where: { email: { startsWith: testEmailPrefix } } });
 
     const candidateRole = await prisma.role.upsert({
@@ -127,7 +157,9 @@ describe('CandidateProfilePreviewController (e2e)', () => {
         expiresAt: new Date(Date.now() + 1000000),
       },
     });
-    candidateAccessToken = tokenService.signAccessToken(candidateUser.id, sid1, ['candidate']).token;
+    candidateAccessToken = tokenService.signAccessToken(candidateUser.id, sid1, [
+      'candidate',
+    ]).token;
 
     await prisma.candidateProfile.create({
       data: {
@@ -292,7 +324,9 @@ describe('CandidateProfilePreviewController (e2e)', () => {
         expiresAt: new Date(Date.now() + 1000000),
       },
     });
-    otherCandidateAccessToken = tokenService.signAccessToken(otherCandidate.id, sid2, ['candidate']).token;
+    otherCandidateAccessToken = tokenService.signAccessToken(otherCandidate.id, sid2, [
+      'candidate',
+    ]).token;
 
     await prisma.candidateProfile.create({
       data: {
@@ -334,7 +368,9 @@ describe('CandidateProfilePreviewController (e2e)', () => {
         expiresAt: new Date(Date.now() + 1000000),
       },
     });
-    nonCandidateAccessToken = tokenService.signAccessToken(nonCandidateUser.id, sid3, ['admin']).token;
+    nonCandidateAccessToken = tokenService.signAccessToken(nonCandidateUser.id, sid3, [
+      'admin',
+    ]).token;
 
     suspendedUser = await prisma.user.create({
       data: {
@@ -356,7 +392,9 @@ describe('CandidateProfilePreviewController (e2e)', () => {
         expiresAt: new Date(Date.now() + 1000000),
       },
     });
-    suspendedAccessToken = tokenService.signAccessToken(suspendedUser.id, sid4, ['candidate']).token;
+    suspendedAccessToken = tokenService.signAccessToken(suspendedUser.id, sid4, [
+      'candidate',
+    ]).token;
   }, 30000);
 
   afterAll(async () => {
@@ -409,9 +447,7 @@ describe('CandidateProfilePreviewController (e2e)', () => {
 
   describe('GET /api/v1/candidates/me/profile-preview', () => {
     it('returns 401 without auth', () => {
-      return request(app.getHttpServer())
-        .get('/api/v1/candidates/me/profile-preview')
-        .expect(401);
+      return request(app.getHttpServer()).get('/api/v1/candidates/me/profile-preview').expect(401);
     });
 
     it('returns owner preview with privacy summary and completion (200)', async () => {
@@ -425,7 +461,9 @@ describe('CandidateProfilePreviewController (e2e)', () => {
       expect(res.body.profile).toBeDefined();
       expect(res.body.profile.displayName).toBe('John Preview');
       expect(res.body.profile.professionalHeadline).toBe('Full Stack Developer');
-      expect(res.body.profile.professionalSummary).toBe('Experienced developer with 5 years in full-stack development.');
+      expect(res.body.profile.professionalSummary).toBe(
+        'Experienced developer with 5 years in full-stack development.',
+      );
       expect(res.body.profile.education).toHaveLength(1);
       expect(res.body.profile.experience).toHaveLength(1);
 
@@ -506,7 +544,9 @@ describe('CandidateProfilePreviewController (e2e)', () => {
 
       expect(res.body.displayName).toBe('John Preview');
       expect(res.body.professionalHeadline).toBe('Full Stack Developer');
-      expect(res.body.professionalSummary).toBe('Experienced developer with 5 years in full-stack development.');
+      expect(res.body.professionalSummary).toBe(
+        'Experienced developer with 5 years in full-stack development.',
+      );
       expect(res.body.education).toHaveLength(1);
       expect(res.body.experience).toHaveLength(1);
       expect(res.body.skills).toHaveLength(3);

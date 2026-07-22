@@ -70,8 +70,8 @@ export class CandidateProfessionalLinkRepository {
         this.prisma.candidateProfessionalLink.update({
           where: { id: update.id },
           data: { sortOrder: update.sortOrder },
-        })
-      )
+        }),
+      ),
     );
   }
 }

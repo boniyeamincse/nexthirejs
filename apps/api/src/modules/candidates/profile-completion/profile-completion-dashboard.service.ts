@@ -105,7 +105,18 @@ export class ProfileCompletionDashboardService {
   }
 
   private async loadFullProfile(userId: string) {
-    const [candidateProfile, candidatePreference, educationRecords, workExperienceRecords, skills, languages, certifications, training, achievements, professionalLinks] = await Promise.all([
+    const [
+      candidateProfile,
+      candidatePreference,
+      educationRecords,
+      workExperienceRecords,
+      skills,
+      languages,
+      certifications,
+      training,
+      achievements,
+      professionalLinks,
+    ] = await Promise.all([
       this.prisma.candidateProfile.findUnique({ where: { userId } }),
       this.prisma.candidatePreference.findUnique({
         where: { userId },

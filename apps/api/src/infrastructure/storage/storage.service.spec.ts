@@ -17,10 +17,7 @@ describe('StorageService', () => {
     } as unknown as jest.Mocked<ConfigService>;
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        StorageService,
-        { provide: ConfigService, useValue: mockConfigService },
-      ],
+      providers: [StorageService, { provide: ConfigService, useValue: mockConfigService }],
     }).compile();
 
     storageService = module.get<StorageService>(StorageService);

@@ -1,4 +1,15 @@
-import { Controller, Get, Put, Post, Body, UseGuards, Req, HttpCode, HttpStatus, BadRequestException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Put,
+  Post,
+  Body,
+  UseGuards,
+  Req,
+  HttpCode,
+  HttpStatus,
+  BadRequestException,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { CandidateShareTokenService } from './candidate-share-token.service';
 import { AuthGuard } from '../../auth/auth.guard';
@@ -51,10 +62,7 @@ export class CandidateShareTokenController {
   @ApiResponse({ status: 400, description: 'Validation failed' })
   @ApiResponse({ status: 401, description: 'Authentication required' })
   @ApiResponse({ status: 403, description: 'Candidate role required' })
-  async setEnabled(
-    @Req() req: AuthenticatedRequest,
-    @Body() body: Record<string, unknown>,
-  ) {
+  async setEnabled(@Req() req: AuthenticatedRequest, @Body() body: Record<string, unknown>) {
     if (typeof body?.enabled !== 'boolean') {
       throw new BadRequestException('VALIDATION_FAILED');
     }
@@ -62,14 +70,18 @@ export class CandidateShareTokenController {
     const enabled = body.enabled;
     await this.shareTokenService.setEnabled(req.principal.userId, enabled);
 
-    void this.auditService.recordBestEffort({
-      actorType: AuditActorType.USER,
-      actorUserId: req.principal.userId,
-      action: enabled ? 'candidate.profile_share_link.enabled' : 'candidate.profile_share_link.disabled',
-      targetType: 'CandidateProfileShareToken',
-      targetId: req.principal.userId,
-      outcome: AuditOutcome.SUCCESS,
-    }).catch(() => {});
+    void this.auditService
+      .recordBestEffort({
+        actorType: AuditActorType.USER,
+        actorUserId: req.principal.userId,
+        action: enabled
+          ? 'candidate.profile_share_link.enabled'
+          : 'candidate.profile_share_link.disabled',
+        targetType: 'CandidateProfileShareToken',
+        targetId: req.principal.userId,
+        outcome: AuditOutcome.SUCCESS,
+      })
+      .catch(() => {});
 
     return { enabled };
   }

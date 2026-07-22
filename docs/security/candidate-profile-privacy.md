@@ -39,15 +39,16 @@ The `CandidatePrivacyDecisionService` provides queryable decision methods:
 
 ### Viewer Context Rules
 
-| Context | PRIVATE | LINK_ONLY | PLATFORM_DISCOVERABLE |
-|---------|---------|-----------|----------------------|
-| OWNER | Allowed | Allowed | Allowed |
-| INTERNAL_SYSTEM | Allowed | Allowed | Allowed |
-| ANONYMOUS | Denied | Denied | Only PUBLIC sections |
-| LINK_HOLDER | Denied | Allowed (future) | Allowed |
-| PLATFORM_AUTHENTICATED | Denied | Denied | Allowed |
+| Context                | PRIVATE | LINK_ONLY        | PLATFORM_DISCOVERABLE |
+| ---------------------- | ------- | ---------------- | --------------------- |
+| OWNER                  | Allowed | Allowed          | Allowed               |
+| INTERNAL_SYSTEM        | Allowed | Allowed          | Allowed               |
+| ANONYMOUS              | Denied  | Denied           | Only PUBLIC sections  |
+| LINK_HOLDER            | Denied  | Allowed (future) | Allowed               |
+| PLATFORM_AUTHENTICATED | Denied  | Denied           | Allowed               |
 
 Section visibility further restricts access:
+
 - `HIDDEN` denies all external viewer types
 - `PLATFORM_ONLY` denies anonymous/public access
 - `PUBLIC` allows anonymous access only when overall discoverability permits

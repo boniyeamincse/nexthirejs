@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Param, Body, UseGuards, Req, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Param,
+  Body,
+  UseGuards,
+  Req,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { IsString, MinLength, MaxLength } from 'class-validator';
@@ -58,10 +68,7 @@ export class CandidateDataExportController {
   @ApiResponse({ status: 401, description: 'Authentication required' })
   @ApiResponse({ status: 403, description: 'Candidate role required' })
   @ApiResponse({ status: 404, description: 'Export request not found' })
-  async getExportStatus(
-    @Req() req: AuthenticatedRequest,
-    @Param('exportId') exportId: string,
-  ) {
+  async getExportStatus(@Req() req: AuthenticatedRequest, @Param('exportId') exportId: string) {
     return this.dataExportService.getExportStatus(req.principal.userId, exportId);
   }
 
@@ -76,10 +83,7 @@ export class CandidateDataExportController {
   @ApiResponse({ status: 409, description: DATA_EXPORT_ERROR_CODES.NOT_READY })
   @ApiResponse({ status: 410, description: 'Export has expired' })
   @ApiResponse({ status: 429, description: 'Rate limit exceeded - 10 per hour' })
-  async getDownloadAccess(
-    @Req() req: AuthenticatedRequest,
-    @Param('exportId') exportId: string,
-  ) {
+  async getDownloadAccess(@Req() req: AuthenticatedRequest, @Param('exportId') exportId: string) {
     return this.dataExportService.getDownloadAccess(req.principal.userId, exportId);
   }
 }

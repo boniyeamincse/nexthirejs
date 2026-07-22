@@ -221,6 +221,81 @@
   font-size: 1rem;
 }
 
+/* Highlight Section (CV Builder) */
+.highlightSection {
+  padding: 6rem 2rem;
+  background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%);
+  position: relative;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.highlightContainer {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+}
+
+.highlightContent {
+  z-index: 2;
+}
+
+.highlightBadge {
+  display: inline-block;
+  background: rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.highlightTitle {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+}
+
+.highlightDesc {
+  color: #94a3b8;
+  font-size: 1.15rem;
+  line-height: 1.7;
+  margin-bottom: 2.5rem;
+}
+
+.highlightImageWrapper {
+  position: relative;
+  z-index: 2;
+  perspective: 1000px;
+}
+
+.highlightImage {
+  width: 100%;
+  height: auto;
+  border-radius: 1rem;
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.7),
+    0 0 30px rgba(99, 102, 241, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transform: rotateY(-8deg) rotateX(4deg);
+  transition: transform 0.5s ease;
+}
+
+.highlightImage:hover {
+  transform: rotateY(0deg) rotateX(0deg);
+}
+
 /* CTA Section */
 .cta {
   padding: 8rem 2rem;
@@ -270,5 +345,15 @@
 
   .ctaTitle {
     font-size: 2.25rem;
+  }
+
+  .highlightContainer {
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: 3rem;
+  }
+
+  .highlightImage {
+    transform: none;
   }
 }

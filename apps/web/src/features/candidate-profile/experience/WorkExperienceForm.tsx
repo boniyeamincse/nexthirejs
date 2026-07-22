@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
 import type { WorkExperienceRecordResult } from '@nexthire/types';
 import { EmploymentType } from '@nexthire/types';
-import type { CreateWorkExperienceRecordInput, UpdateWorkExperienceRecordInput } from '@nexthire/validation';
+import type {
+  CreateWorkExperienceRecordInput,
+  UpdateWorkExperienceRecordInput,
+} from '@nexthire/validation';
 import styles from '@/app/(auth)/auth.module.css';
 
 interface WorkExperienceFormProps {
   initialData?: WorkExperienceRecordResult | null;
-  onSave: (data: CreateWorkExperienceRecordInput | UpdateWorkExperienceRecordInput) => Promise<void>;
+  onSave: (
+    data: CreateWorkExperienceRecordInput | UpdateWorkExperienceRecordInput,
+  ) => Promise<void>;
   onCancel: () => void;
 }
 
@@ -25,8 +30,8 @@ export function WorkExperienceForm({ initialData, onSave, onCancel }: WorkExperi
     employmentType: initialData?.employmentType || EmploymentType.FULL_TIME,
     location: initialData?.location || '',
     isRemote: initialData?.isRemote || false,
-    startDate: initialData ? (initialData.startDate.split('T')[0] || '') : '',
-    endDate: initialData?.endDate ? (initialData.endDate.split('T')[0] || '') : '',
+    startDate: initialData ? initialData.startDate.split('T')[0] || '' : '',
+    endDate: initialData?.endDate ? initialData.endDate.split('T')[0] || '' : '',
     currentlyWorking: initialData?.currentlyWorking || false,
     responsibilities: initialData?.responsibilities || '',
     achievements: initialData?.achievements || '',
@@ -35,7 +40,9 @@ export function WorkExperienceForm({ initialData, onSave, onCancel }: WorkExperi
   const [saving, setSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
+  ) => {
     const { name, value, type } = e.target;
     let finalValue: string | boolean = value;
     if (type === 'checkbox') {
@@ -82,7 +89,12 @@ export function WorkExperienceForm({ initialData, onSave, onCancel }: WorkExperi
     <form
       onSubmit={handleSubmit}
       className={styles.form}
-      style={{ background: 'rgba(30, 41, 59, 0.7)', padding: '2rem', borderRadius: '1rem', border: '1px solid rgba(255,255,255,0.1)' }}
+      style={{
+        background: 'rgba(30, 41, 59, 0.7)',
+        padding: '2rem',
+        borderRadius: '1rem',
+        border: '1px solid rgba(255,255,255,0.1)',
+      }}
     >
       <h3 style={{ color: '#fff', fontSize: '1.5rem', marginBottom: '1.5rem', marginTop: 0 }}>
         {initialData ? 'Edit Work Experience' : 'Add Work Experience'}
@@ -118,7 +130,14 @@ export function WorkExperienceForm({ initialData, onSave, onCancel }: WorkExperi
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginTop: '1.5rem' }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '1.5rem',
+          marginTop: '1.5rem',
+        }}
+      >
         <div className={styles.formGroup}>
           <label className={styles.label}>Employment Type *</label>
           <select
@@ -152,7 +171,15 @@ export function WorkExperienceForm({ initialData, onSave, onCancel }: WorkExperi
       </div>
 
       <div className={styles.formGroup} style={{ marginTop: '1rem' }}>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#cbd5e1', cursor: 'pointer' }}>
+        <label
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            color: '#cbd5e1',
+            cursor: 'pointer',
+          }}
+        >
           <input
             name="isRemote"
             type="checkbox"
@@ -164,7 +191,14 @@ export function WorkExperienceForm({ initialData, onSave, onCancel }: WorkExperi
         </label>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginTop: '1.5rem' }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '1.5rem',
+          marginTop: '1.5rem',
+        }}
+      >
         <div className={styles.formGroup}>
           <label className={styles.label}>Start Date *</label>
           <input
@@ -194,7 +228,15 @@ export function WorkExperienceForm({ initialData, onSave, onCancel }: WorkExperi
       </div>
 
       <div className={styles.formGroup} style={{ marginTop: '1rem' }}>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#cbd5e1', cursor: 'pointer' }}>
+        <label
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            color: '#cbd5e1',
+            cursor: 'pointer',
+          }}
+        >
           <input
             name="currentlyWorking"
             type="checkbox"
@@ -243,7 +285,15 @@ export function WorkExperienceForm({ initialData, onSave, onCancel }: WorkExperi
           type="button"
           onClick={onCancel}
           disabled={saving}
-          style={{ padding: '0.75rem 1.5rem', background: 'transparent', color: '#cbd5e1', border: '1px solid #475569', borderRadius: '0.5rem', cursor: 'pointer', fontWeight: 500 }}
+          style={{
+            padding: '0.75rem 1.5rem',
+            background: 'transparent',
+            color: '#cbd5e1',
+            border: '1px solid #475569',
+            borderRadius: '0.5rem',
+            cursor: 'pointer',
+            fontWeight: 500,
+          }}
         >
           Cancel
         </button>

@@ -10,7 +10,12 @@ interface EducationFormModalProps {
   onCancel: () => void;
 }
 
-export function EducationFormModal({ isOpen, initialData, onSave, onCancel }: EducationFormModalProps) {
+export function EducationFormModal({
+  isOpen,
+  initialData,
+  onSave,
+  onCancel,
+}: EducationFormModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
@@ -85,4 +90,3 @@ export function EducationFormModal({ isOpen, initialData, onSave, onCancel }: Ed
     </dialog>
   );
 }
-

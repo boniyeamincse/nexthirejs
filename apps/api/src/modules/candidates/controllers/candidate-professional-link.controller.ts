@@ -1,4 +1,17 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, HttpCode, HttpStatus, ParseUUIDPipe, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  HttpCode,
+  HttpStatus,
+  ParseUUIDPipe,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { CandidateProfessionalLinkService } from '../services/candidate-professional-link.service';
 import { AuthGuard } from '../../auth/auth.guard';
@@ -29,10 +42,7 @@ export class CandidateProfessionalLinkController {
   @ApiResponse({ status: 201, description: 'Professional link created successfully' })
   @ApiResponse({ status: 400, description: 'Validation failed or limit reached' })
   @ApiResponse({ status: 409, description: 'Duplicate professional link' })
-  async createLink(
-    @Req() req: AuthenticatedRequest,
-    @Body() body: any,
-  ) {
+  async createLink(@Req() req: AuthenticatedRequest, @Body() body: any) {
     return this.linkService.createRecord(req.principal.userId, body);
   }
 
@@ -40,10 +50,7 @@ export class CandidateProfessionalLinkController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Reorder professional links' })
   @ApiResponse({ status: 200, description: 'Professional links reordered successfully' })
-  async reorderLinks(
-    @Req() req: AuthenticatedRequest,
-    @Body() body: any,
-  ) {
+  async reorderLinks(@Req() req: AuthenticatedRequest, @Body() body: any) {
     return this.linkService.reorderRecords(req.principal.userId, body);
   }
 
@@ -65,10 +72,7 @@ export class CandidateProfessionalLinkController {
   @ApiOperation({ summary: 'Delete professional link' })
   @ApiResponse({ status: 204, description: 'Professional link deleted successfully' })
   @ApiResponse({ status: 404, description: 'Professional link not found' })
-  async deleteLink(
-    @Req() req: AuthenticatedRequest,
-    @Param('id', ParseUUIDPipe) id: string,
-  ) {
+  async deleteLink(@Req() req: AuthenticatedRequest, @Param('id', ParseUUIDPipe) id: string) {
     await this.linkService.deleteRecord(req.principal.userId, id);
   }
 }

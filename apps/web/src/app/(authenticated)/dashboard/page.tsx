@@ -46,19 +46,27 @@ export default function DashboardPage() {
 
   const statusLabel = (s: string): string => {
     switch (s) {
-      case 'NOT_STARTED': return 'Not started';
-      case 'IN_PROGRESS': return 'In progress';
-      case 'COMPLETED': return 'Completed';
-      default: return s;
+      case 'NOT_STARTED':
+        return 'Not started';
+      case 'IN_PROGRESS':
+        return 'In progress';
+      case 'COMPLETED':
+        return 'Completed';
+      default:
+        return s;
     }
   };
 
   const statusDesc = (s: string): string => {
     switch (s) {
-      case 'NOT_STARTED': return 'This section has not been started yet.';
-      case 'IN_PROGRESS': return 'This section is partially completed.';
-      case 'COMPLETED': return 'This section is fully completed.';
-      default: return '';
+      case 'NOT_STARTED':
+        return 'This section has not been started yet.';
+      case 'IN_PROGRESS':
+        return 'This section is partially completed.';
+      case 'COMPLETED':
+        return 'This section is fully completed.';
+      default:
+        return '';
     }
   };
 
@@ -164,7 +172,8 @@ export default function DashboardPage() {
         style={{
           position: 'fixed',
           inset: 0,
-          background: 'radial-gradient(ellipse at 50% 0%, rgba(99,102,241,0.08) 0%, transparent 60%), radial-gradient(ellipse at 80% 80%, rgba(139,92,246,0.04) 0%, transparent 50%)',
+          background:
+            'radial-gradient(ellipse at 50% 0%, rgba(99,102,241,0.08) 0%, transparent 60%), radial-gradient(ellipse at 80% 80%, rgba(139,92,246,0.04) 0%, transparent 50%)',
           pointerEvents: 'none',
           zIndex: 0,
         }}
@@ -182,7 +191,14 @@ export default function DashboardPage() {
             marginBottom: '1.5rem',
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+              marginBottom: '1.5rem',
+            }}
+          >
             <div>
               <h1 style={{ fontSize: '1.75rem', fontWeight: 700, margin: 0, color: '#e4e4e7' }}>
                 Profile Completion
@@ -217,9 +233,10 @@ export default function DashboardPage() {
               style={{
                 width: `${pct}%`,
                 height: '100%',
-                background: pct === 100
-                  ? 'linear-gradient(90deg, #22c55e, #16a34a)'
-                  : 'linear-gradient(90deg, #6366f1, #8b5cf6)',
+                background:
+                  pct === 100
+                    ? 'linear-gradient(90deg, #22c55e, #16a34a)'
+                    : 'linear-gradient(90deg, #6366f1, #8b5cf6)',
                 borderRadius: '0.3125rem',
                 transition: 'width 0.4s ease',
               }}
@@ -273,7 +290,14 @@ export default function DashboardPage() {
           Sections
         </h2>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.75rem',
+            marginBottom: '1.5rem',
+          }}
+        >
           {dashboard.sections.map((section) => (
             <div
               key={section.section}
@@ -286,7 +310,14 @@ export default function DashboardPage() {
                 padding: '1.25rem',
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                  marginBottom: '0.5rem',
+                }}
+              >
                 <div>
                   <h3 style={{ fontSize: '1rem', fontWeight: 600, margin: 0, color: '#e4e4e7' }}>
                     {section.label}
@@ -324,11 +355,12 @@ export default function DashboardPage() {
                   style={{
                     width: `${section.percentage}%`,
                     height: '100%',
-                    background: section.status === 'COMPLETED'
-                      ? '#22c55e'
-                      : section.status === 'IN_PROGRESS'
-                        ? '#eab308'
-                        : '#64748b',
+                    background:
+                      section.status === 'COMPLETED'
+                        ? '#22c55e'
+                        : section.status === 'IN_PROGRESS'
+                          ? '#eab308'
+                          : '#64748b',
                     borderRadius: '0.1875rem',
                   }}
                 />
@@ -336,10 +368,24 @@ export default function DashboardPage() {
 
               {section.missingItems.length > 0 && (
                 <div style={{ marginBottom: '0.75rem' }}>
-                  <p style={{ margin: '0 0 0.25rem', fontSize: '0.75rem', color: '#a1a1aa', fontWeight: 500 }}>
+                  <p
+                    style={{
+                      margin: '0 0 0.25rem',
+                      fontSize: '0.75rem',
+                      color: '#a1a1aa',
+                      fontWeight: 500,
+                    }}
+                  >
                     Missing items:
                   </p>
-                  <ul style={{ margin: 0, paddingLeft: '1.25rem', fontSize: '0.8rem', color: '#a1a1aa' }}>
+                  <ul
+                    style={{
+                      margin: 0,
+                      paddingLeft: '1.25rem',
+                      fontSize: '0.8rem',
+                      color: '#a1a1aa',
+                    }}
+                  >
                     {section.missingItems.map((item) => (
                       <li key={item}>{item}</li>
                     ))}
@@ -358,7 +404,11 @@ export default function DashboardPage() {
                 }}
                 aria-label={`Go to ${section.label}`}
               >
-                {section.status === 'NOT_STARTED' ? 'Start section' : section.status === 'IN_PROGRESS' ? 'Continue section' : 'View section'}
+                {section.status === 'NOT_STARTED'
+                  ? 'Start section'
+                  : section.status === 'IN_PROGRESS'
+                    ? 'Continue section'
+                    : 'View section'}
               </Link>
             </div>
           ))}
@@ -366,11 +416,20 @@ export default function DashboardPage() {
 
         {dashboard.nextActions.length > 0 && (
           <>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 600, margin: '0 0 1rem', color: '#e4e4e7' }}>
+            <h2
+              style={{ fontSize: '1.25rem', fontWeight: 600, margin: '0 0 1rem', color: '#e4e4e7' }}
+            >
               Next Actions
             </h2>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.75rem',
+                marginBottom: '1.5rem',
+              }}
+            >
               {dashboard.nextActions.map((action) => (
                 <div
                   key={action.id}
@@ -387,14 +446,18 @@ export default function DashboardPage() {
                   }}
                 >
                   <div>
-                    <h3 style={{ fontSize: '0.95rem', fontWeight: 600, margin: 0, color: '#e4e4e7' }}>
+                    <h3
+                      style={{ fontSize: '0.95rem', fontWeight: 600, margin: 0, color: '#e4e4e7' }}
+                    >
                       {action.title}
                     </h3>
                     <p style={{ margin: '0.25rem 0 0', fontSize: '0.8rem', color: '#64748b' }}>
                       {action.description}
                     </p>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
+                  <div
+                    style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}
+                  >
                     <span style={{ fontSize: '0.75rem', color: '#22c55e', fontWeight: 600 }}>
                       +{action.pointsAvailable} pts
                     </span>

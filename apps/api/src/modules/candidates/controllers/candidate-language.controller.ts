@@ -1,4 +1,17 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, HttpCode, HttpStatus, ParseUUIDPipe, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  HttpCode,
+  HttpStatus,
+  ParseUUIDPipe,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { CandidateLanguageService } from '../services/candidate-language.service';
 import { AuthGuard } from '../../auth/auth.guard';
@@ -28,10 +41,7 @@ export class CandidateLanguageController {
   @ApiOperation({ summary: 'Create language' })
   @ApiResponse({ status: 201, description: 'Language created successfully' })
   @ApiResponse({ status: 400, description: 'Validation failed or limit reached' })
-  async createLanguage(
-    @Req() req: AuthenticatedRequest,
-    @Body() body: any,
-  ) {
+  async createLanguage(@Req() req: AuthenticatedRequest, @Body() body: any) {
     return this.languageService.createRecord(req.principal.userId, body);
   }
 
@@ -39,10 +49,7 @@ export class CandidateLanguageController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Reorder languages' })
   @ApiResponse({ status: 200, description: 'Languages reordered successfully' })
-  async reorderLanguages(
-    @Req() req: AuthenticatedRequest,
-    @Body() body: any,
-  ) {
+  async reorderLanguages(@Req() req: AuthenticatedRequest, @Body() body: any) {
     await this.languageService.reorderRecords(req.principal.userId, body);
   }
 
@@ -63,10 +70,7 @@ export class CandidateLanguageController {
   @ApiOperation({ summary: 'Delete language' })
   @ApiResponse({ status: 204, description: 'Language deleted successfully' })
   @ApiResponse({ status: 404, description: 'Language not found' })
-  async deleteLanguage(
-    @Req() req: AuthenticatedRequest,
-    @Param('id', ParseUUIDPipe) id: string,
-  ) {
+  async deleteLanguage(@Req() req: AuthenticatedRequest, @Param('id', ParseUUIDPipe) id: string) {
     await this.languageService.deleteRecord(req.principal.userId, id);
   }
 }

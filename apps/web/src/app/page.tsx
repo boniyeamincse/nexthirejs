@@ -101,6 +101,33 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Free CV Builder Section */}
+      <section className={styles.highlightSection}>
+        <div className={styles.highlightContainer}>
+          <div className={styles.highlightContent}>
+            <span className={styles.highlightBadge}>New Feature</span>
+            <h2 className={styles.highlightTitle}>Build a professional CV for free</h2>
+            <p className={styles.highlightDesc}>
+              Stand out to employers with our beautifully designed, free CV builder. Easily add your
+              experience, education, and skills. Live preview your resume as you type, and export it
+              instantly. Anyone can use it—no credit card required.
+            </p>
+            <Link href="/register" className={styles.primaryButton}>
+              Create Your Free CV
+            </Link>
+          </div>
+          <div className={styles.highlightImageWrapper}>
+            <Image
+              src="/images/cv-builder-preview.png"
+              alt="NextHire Free CV Builder Preview"
+              width={800}
+              height={600}
+              className={styles.highlightImage}
+            />
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className={styles.cta}>
         <div className={styles.ctaContent}>

@@ -5,13 +5,18 @@ import type { GetProfilePrivacyResult } from '@/lib/api-client';
 
 interface PrivacySettingsFormProps {
   settings: GetProfilePrivacyResult;
-  onSave: (data: { overallDiscoverability: string; sections: Record<string, string> }) => Promise<void>;
+  onSave: (data: {
+    overallDiscoverability: string;
+    sections: Record<string, string>;
+  }) => Promise<void>;
 }
 
 const DISCOVERABILITY_DESCRIPTIONS: Record<string, string> = {
   PRIVATE: 'Your profile is visible only to you and authorized internal processes.',
-  LINK_ONLY: 'Future: your profile will be accessible only through a share link. This feature is not yet active.',
-  PLATFORM_DISCOVERABLE: 'Future: authorized companies and recruiters may discover your profile through platform search. This feature is not yet active.',
+  LINK_ONLY:
+    'Future: your profile will be accessible only through a share link. This feature is not yet active.',
+  PLATFORM_DISCOVERABLE:
+    'Future: authorized companies and recruiters may discover your profile through platform search. This feature is not yet active.',
 };
 
 const VISIBILITY_DESCRIPTIONS: Record<string, string> = {
@@ -31,7 +36,9 @@ const SECTION_LABELS: Record<string, string> = {
 };
 
 export function PrivacySettingsForm({ settings, onSave }: PrivacySettingsFormProps) {
-  const [overallDiscoverability, setOverallDiscoverability] = useState(settings.overallDiscoverability);
+  const [overallDiscoverability, setOverallDiscoverability] = useState(
+    settings.overallDiscoverability,
+  );
   const [sections, setSections] = useState<Record<string, string>>({ ...settings.sections });
   const [saving, setSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
@@ -75,14 +82,29 @@ export function PrivacySettingsForm({ settings, onSave }: PrivacySettingsFormPro
   return (
     <form onSubmit={handleSubmit}>
       <fieldset style={{ border: 'none', padding: 0, margin: 0 }}>
-        <legend style={{ fontSize: '1.1rem', fontWeight: 600, color: '#f8fafc', marginBottom: '0.5rem' }}>
+        <legend
+          style={{ fontSize: '1.1rem', fontWeight: 600, color: '#f8fafc', marginBottom: '0.5rem' }}
+        >
           Overall Profile Discoverability
         </legend>
-        <p id="discoverability-desc" style={{ fontSize: '0.85rem', color: '#94a3b8', marginBottom: '1rem' }}>
-          Controls who can find your profile on the platform. Your profile content is always visible to you.
+        <p
+          id="discoverability-desc"
+          style={{ fontSize: '0.85rem', color: '#94a3b8', marginBottom: '1rem' }}
+        >
+          Controls who can find your profile on the platform. Your profile content is always visible
+          to you.
         </p>
 
-        <div role="radiogroup" aria-labelledby="discoverability-desc" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
+        <div
+          role="radiogroup"
+          aria-labelledby="discoverability-desc"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.75rem',
+            marginBottom: '1.5rem',
+          }}
+        >
           {['PRIVATE', 'LINK_ONLY', 'PLATFORM_DISCOVERABLE'].map((mode) => (
             <label
               key={mode}
@@ -91,9 +113,15 @@ export function PrivacySettingsForm({ settings, onSave }: PrivacySettingsFormPro
                 alignItems: 'flex-start',
                 gap: '0.75rem',
                 padding: '0.75rem',
-                background: overallDiscoverability === mode ? 'rgba(99, 102, 241, 0.1)' : 'rgba(255,255,255,0.03)',
+                background:
+                  overallDiscoverability === mode
+                    ? 'rgba(99, 102, 241, 0.1)'
+                    : 'rgba(255,255,255,0.03)',
                 borderRadius: '0.5rem',
-                border: overallDiscoverability === mode ? '1px solid rgba(99, 102, 241, 0.3)' : '1px solid rgba(255,255,255,0.1)',
+                border:
+                  overallDiscoverability === mode
+                    ? '1px solid rgba(99, 102, 241, 0.3)'
+                    : '1px solid rgba(255,255,255,0.1)',
                 cursor: 'pointer',
               }}
             >
@@ -136,7 +164,15 @@ export function PrivacySettingsForm({ settings, onSave }: PrivacySettingsFormPro
           </div>
         )}
 
-        <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: '#f8fafc', marginBottom: '0.75rem', marginTop: '0' }}>
+        <h3
+          style={{
+            fontSize: '1.1rem',
+            fontWeight: 600,
+            color: '#f8fafc',
+            marginBottom: '0.75rem',
+            marginTop: '0',
+          }}
+        >
           Section Visibility
         </h3>
 
@@ -150,7 +186,14 @@ export function PrivacySettingsForm({ settings, onSave }: PrivacySettingsFormPro
               marginBottom: '0.75rem',
             }}
           >
-            <legend style={{ color: '#e2e8f0', fontWeight: 500, fontSize: '0.9rem', padding: '0 0.25rem' }}>
+            <legend
+              style={{
+                color: '#e2e8f0',
+                fontWeight: 500,
+                fontSize: '0.9rem',
+                padding: '0 0.25rem',
+              }}
+            >
               {SECTION_LABELS[sectionKey] || sectionKey}
             </legend>
             <div
@@ -224,7 +267,14 @@ export function PrivacySettingsForm({ settings, onSave }: PrivacySettingsFormPro
         )}
 
         {(isDirty || saveStatus === 'success') && (
-          <p style={{ fontSize: '0.75rem', color: '#64748b', textAlign: 'center', marginBottom: '0.5rem' }}>
+          <p
+            style={{
+              fontSize: '0.75rem',
+              color: '#64748b',
+              textAlign: 'center',
+              marginBottom: '0.5rem',
+            }}
+          >
             {isDirty ? 'You have unsaved changes.' : 'All changes saved.'}
           </p>
         )}

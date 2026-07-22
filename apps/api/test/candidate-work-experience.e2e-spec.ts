@@ -36,7 +36,9 @@ describe('CandidateWorkExperienceController (e2e)', () => {
     tokenService = app.get<TokenService>(TokenService);
 
     // Clean up specific test data
-    await prisma.workExperienceRecord.deleteMany({ where: { user: { email: { startsWith: 'test-exp' } } } });
+    await prisma.workExperienceRecord.deleteMany({
+      where: { user: { email: { startsWith: 'test-exp' } } },
+    });
     await prisma.userSession.deleteMany({ where: { user: { email: { startsWith: 'test-exp' } } } });
     await prisma.userRole.deleteMany({ where: { user: { email: { startsWith: 'test-exp' } } } });
     await prisma.user.deleteMany({ where: { email: { startsWith: 'test-exp' } } });
@@ -70,7 +72,9 @@ describe('CandidateWorkExperienceController (e2e)', () => {
       },
     });
 
-    candidateAccessToken = tokenService.signAccessToken(candidateUser.id, sessionId1, ['candidate']).token;
+    candidateAccessToken = tokenService.signAccessToken(candidateUser.id, sessionId1, [
+      'candidate',
+    ]).token;
 
     // Create Candidate User 2
     otherUser = await prisma.user.create({
@@ -103,9 +107,7 @@ describe('CandidateWorkExperienceController (e2e)', () => {
 
   describe('GET /api/v1/candidates/me/experience', () => {
     it('returns 401 if unauthenticated', () => {
-      return request(app.getHttpServer())
-        .get('/api/v1/candidates/me/experience')
-        .expect(401);
+      return request(app.getHttpServer()).get('/api/v1/candidates/me/experience').expect(401);
     });
 
     it('returns empty list for new candidate', () => {

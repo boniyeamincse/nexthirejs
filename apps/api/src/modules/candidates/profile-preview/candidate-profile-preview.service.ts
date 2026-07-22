@@ -106,19 +106,23 @@ export class CandidateProfilePreviewService {
       profileData.professionalLinks,
     );
 
-    this.auditService.recordBestEffort({
-      actorType: AuditActorType.USER,
-      actorUserId: userId,
-      action: 'candidate.profile_preview.viewed',
-      targetType: 'CandidateProfile',
-      targetId: profileData.candidateProfile?.id ?? userId,
-      outcome: AuditOutcome.SUCCESS,
-      metadata: { viewerContext: 'OWNER' },
-    }).catch(() => {});
+    this.auditService
+      .recordBestEffort({
+        actorType: AuditActorType.USER,
+        actorUserId: userId,
+        action: 'candidate.profile_preview.viewed',
+        targetType: 'CandidateProfile',
+        targetId: profileData.candidateProfile?.id ?? userId,
+        outcome: AuditOutcome.SUCCESS,
+        metadata: { viewerContext: 'OWNER' },
+      })
+      .catch(() => {});
 
     const sectionVisibility: Record<string, string> = {};
     for (const [privacySection, displayNames] of Object.entries(PRIVACY_TO_DISPLAY_SECTIONS)) {
-      const visibility = privacySettings.sections[privacySection as keyof typeof privacySettings.sections] ?? 'HIDDEN';
+      const visibility =
+        privacySettings.sections[privacySection as keyof typeof privacySettings.sections] ??
+        'HIDDEN';
       for (const name of displayNames) {
         sectionVisibility[name] = visibility;
       }
@@ -158,16 +162,23 @@ export class CandidateProfilePreviewService {
 
     const profileData = await this.loadFullProfile(publicId);
 
-    const profile = this.buildPublicProfile(user, profileData, privacySettings, 'PLATFORM_AUTHENTICATED');
+    const profile = this.buildPublicProfile(
+      user,
+      profileData,
+      privacySettings,
+      'PLATFORM_AUTHENTICATED',
+    );
 
-    this.auditService.recordBestEffort({
-      actorType: AuditActorType.ANONYMOUS,
-      action: 'candidate.public_profile.viewed',
-      targetType: 'CandidateProfile',
-      targetId: profileData.candidateProfile?.id ?? publicId,
-      outcome: AuditOutcome.SUCCESS,
-      metadata: { viewerContext: 'PLATFORM_AUTHENTICATED' },
-    }).catch(() => {});
+    this.auditService
+      .recordBestEffort({
+        actorType: AuditActorType.ANONYMOUS,
+        action: 'candidate.public_profile.viewed',
+        targetType: 'CandidateProfile',
+        targetId: profileData.candidateProfile?.id ?? publicId,
+        outcome: AuditOutcome.SUCCESS,
+        metadata: { viewerContext: 'PLATFORM_AUTHENTICATED' },
+      })
+      .catch(() => {});
 
     return profile;
   }
@@ -199,14 +210,16 @@ export class CandidateProfilePreviewService {
 
     const profile = this.buildPublicProfile(user, profileData, privacySettings, 'LINK_HOLDER');
 
-    this.auditService.recordBestEffort({
-      actorType: AuditActorType.ANONYMOUS,
-      action: 'candidate.public_profile.viewed',
-      targetType: 'CandidateProfile',
-      targetId: profileData.candidateProfile?.id ?? userId,
-      outcome: AuditOutcome.SUCCESS,
-      metadata: { viewerContext: 'LINK_HOLDER' },
-    }).catch(() => {});
+    this.auditService
+      .recordBestEffort({
+        actorType: AuditActorType.ANONYMOUS,
+        action: 'candidate.public_profile.viewed',
+        targetType: 'CandidateProfile',
+        targetId: profileData.candidateProfile?.id ?? userId,
+        outcome: AuditOutcome.SUCCESS,
+        metadata: { viewerContext: 'LINK_HOLDER' },
+      })
+      .catch(() => {});
 
     return profile;
   }
@@ -219,7 +232,18 @@ export class CandidateProfilePreviewService {
   }
 
   private async loadFullProfile(userId: string) {
-    const [candidateProfile, candidatePreference, educationRecords, workExperienceRecords, skills, languages, certifications, training, achievements, professionalLinks] = await Promise.all([
+    const [
+      candidateProfile,
+      candidatePreference,
+      educationRecords,
+      workExperienceRecords,
+      skills,
+      languages,
+      certifications,
+      training,
+      achievements,
+      professionalLinks,
+    ] = await Promise.all([
       this.prisma.candidateProfile.findUnique({ where: { userId } }),
       this.prisma.candidatePreference.findUnique({
         where: { userId },
@@ -295,25 +319,41 @@ export class CandidateProfilePreviewService {
     return {
       profileId: profileData.candidateProfile?.id ?? user.id,
       displayName: basicVisible ? (profileData.candidateProfile?.fullName ?? '') : '',
-      professionalHeadline: basicVisible ? (profileData.candidateProfile?.professionalHeadline ?? null) : null,
-      professionalSummary: basicVisible ? (profileData.candidateProfile?.professionalSummary ?? null) : null,
+      professionalHeadline: basicVisible
+        ? (profileData.candidateProfile?.professionalHeadline ?? null)
+        : null,
+      professionalSummary: basicVisible
+        ? (profileData.candidateProfile?.professionalSummary ?? null)
+        : null,
       location: locationVisible
         ? {
             city: profileData.candidatePreference?.currentCity ?? null,
             countryName: profileData.candidatePreference?.country?.name ?? null,
           }
         : null,
-      preferredJobRoles: locationVisible ? (profileData.candidatePreference?.preferredJobRoles ?? []) : [],
-      preferredWorkModes: locationVisible ? (profileData.candidatePreference?.preferredWorkModes ?? []) : [],
-      preferredEmploymentTypes: locationVisible ? (profileData.candidatePreference?.preferredEmploymentTypes ?? []) : [],
+      preferredJobRoles: locationVisible
+        ? (profileData.candidatePreference?.preferredJobRoles ?? [])
+        : [],
+      preferredWorkModes: locationVisible
+        ? (profileData.candidatePreference?.preferredWorkModes ?? [])
+        : [],
+      preferredEmploymentTypes: locationVisible
+        ? (profileData.candidatePreference?.preferredEmploymentTypes ?? [])
+        : [],
       education: this.toPublicEducation(profileData.educationRecords, educationVisible),
       experience: this.toPublicExperience(profileData.workExperienceRecords, experienceVisible),
       skills: this.toPublicSkills(profileData.skills, skillsVisible),
       languages: this.toPublicLanguages(profileData.languages, languagesVisible),
-      certifications: this.toPublicCertifications(profileData.certifications, certificationsVisible),
+      certifications: this.toPublicCertifications(
+        profileData.certifications,
+        certificationsVisible,
+      ),
       training: this.toPublicTraining(profileData.training, trainingVisible),
       achievements: this.toPublicAchievements(profileData.achievements, achievementsVisible),
-      professionalLinks: this.toPublicProfessionalLinks(profileData.professionalLinks, linksVisible),
+      professionalLinks: this.toPublicProfessionalLinks(
+        profileData.professionalLinks,
+        linksVisible,
+      ),
       visibleSections,
       updatedAt: user.updatedAt?.toISOString() ?? new Date().toISOString(),
     };
@@ -431,7 +471,10 @@ export class CandidateProfilePreviewService {
     }));
   }
 
-  private toPublicProfessionalLinks(records: any[], visible: boolean): PublicProfessionalLinkRecord[] {
+  private toPublicProfessionalLinks(
+    records: any[],
+    visible: boolean,
+  ): PublicProfessionalLinkRecord[] {
     if (!visible || !records) return [];
     return records.map((r) => ({
       id: r.id,

@@ -41,8 +41,12 @@ describe('CandidateProfilePrivacyController (e2e)', () => {
     prisma = app.get<PrismaService>(PrismaService);
     tokenService = app.get<TokenService>(TokenService);
 
-    await prisma.candidateProfilePrivacy.deleteMany({ where: { user: { email: { startsWith: 'test-priv' } } } });
-    await prisma.userSession.deleteMany({ where: { user: { email: { startsWith: 'test-priv' } } } });
+    await prisma.candidateProfilePrivacy.deleteMany({
+      where: { user: { email: { startsWith: 'test-priv' } } },
+    });
+    await prisma.userSession.deleteMany({
+      where: { user: { email: { startsWith: 'test-priv' } } },
+    });
     await prisma.userRole.deleteMany({ where: { user: { email: { startsWith: 'test-priv' } } } });
     await prisma.user.deleteMany({ where: { email: { startsWith: 'test-priv' } } });
 
@@ -79,7 +83,9 @@ describe('CandidateProfilePrivacyController (e2e)', () => {
       },
     });
 
-    candidateAccessToken = tokenService.signAccessToken(candidateUser.id, sid1, ['candidate']).token;
+    candidateAccessToken = tokenService.signAccessToken(candidateUser.id, sid1, [
+      'candidate',
+    ]).token;
 
     otherUser = await prisma.user.create({
       data: {
@@ -125,7 +131,9 @@ describe('CandidateProfilePrivacyController (e2e)', () => {
       },
     });
 
-    nonCandidateAccessToken = tokenService.signAccessToken(nonCandidateUser.id, sid3, ['admin']).token;
+    nonCandidateAccessToken = tokenService.signAccessToken(nonCandidateUser.id, sid3, [
+      'admin',
+    ]).token;
 
     suspendedUser = await prisma.user.create({
       data: {
@@ -148,7 +156,9 @@ describe('CandidateProfilePrivacyController (e2e)', () => {
       },
     });
 
-    suspendedAccessToken = tokenService.signAccessToken(suspendedUser.id, sid4, ['candidate']).token;
+    suspendedAccessToken = tokenService.signAccessToken(suspendedUser.id, sid4, [
+      'candidate',
+    ]).token;
   }, 30000);
 
   afterAll(async () => {
@@ -170,9 +180,7 @@ describe('CandidateProfilePrivacyController (e2e)', () => {
 
   describe('GET /api/v1/candidates/me/privacy', () => {
     it('returns 401 without auth', () => {
-      return request(app.getHttpServer())
-        .get('/api/v1/candidates/me/privacy')
-        .expect(401);
+      return request(app.getHttpServer()).get('/api/v1/candidates/me/privacy').expect(401);
     });
 
     it('returns defaults when no row exists (source=DEFAULT)', async () => {
@@ -328,7 +336,9 @@ describe('CandidateProfilePrivacyController (e2e)', () => {
         where: { userId: otherUser.id },
       });
 
-      expect(profileBefore?.completionPercentage ?? null).toBe(profileAfter?.completionPercentage ?? null);
+      expect(profileBefore?.completionPercentage ?? null).toBe(
+        profileAfter?.completionPercentage ?? null,
+      );
     });
 
     it('returns cross-user independent settings', async () => {

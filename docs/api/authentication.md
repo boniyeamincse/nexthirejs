@@ -156,6 +156,7 @@ GET /api/v1/candidates/me/account-security
 Auth: Bearer token (candidate role required)
 
 Response 200:
+
 ```json
 {
   "email": "candidate@example.com",
@@ -183,6 +184,7 @@ POST /api/v1/auth/change-password
 Auth: Bearer token (authenticated user)
 
 Request:
+
 ```json
 {
   "currentPassword": "CurrentPass#2026",
@@ -192,6 +194,7 @@ Request:
 ```
 
 Response 200:
+
 ```json
 {
   "changed": true,

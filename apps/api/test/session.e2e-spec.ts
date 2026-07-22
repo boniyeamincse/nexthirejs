@@ -148,7 +148,9 @@ describe('Session Management (e2e)', () => {
       .expect(200);
 
     expect(listRes.body.sessions.length).toBeGreaterThanOrEqual(2);
-    const currentCount = listRes.body.sessions.filter((s: Record<string, unknown>) => s.isCurrent).length;
+    const currentCount = listRes.body.sessions.filter(
+      (s: Record<string, unknown>) => s.isCurrent,
+    ).length;
     expect(currentCount).toBe(1);
   });
 
@@ -211,17 +213,11 @@ describe('Session Management (e2e)', () => {
   });
 
   it('unauthorized request returns 401', async () => {
-    await request(app.getHttpServer())
-      .get('/api/v1/auth/sessions')
-      .expect(401);
+    await request(app.getHttpServer()).get('/api/v1/auth/sessions').expect(401);
 
-    await request(app.getHttpServer())
-      .delete('/api/v1/auth/sessions/some-id')
-      .expect(401);
+    await request(app.getHttpServer()).delete('/api/v1/auth/sessions/some-id').expect(401);
 
-    await request(app.getHttpServer())
-      .post('/api/v1/auth/logout-all')
-      .expect(401);
+    await request(app.getHttpServer()).post('/api/v1/auth/logout-all').expect(401);
   });
 
   it('private fields are absent from session list', async () => {

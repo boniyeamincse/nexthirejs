@@ -29,8 +29,8 @@ export class RolesGuard implements CanActivate {
 
     if (!hasRole) {
       if (requiredRoles.includes('candidate')) {
-         // Task specifies returning 403 CANDIDATE_ROLE_REQUIRED
-         throw new ForbiddenException('CANDIDATE_ROLE_REQUIRED');
+        // Task specifies returning 403 CANDIDATE_ROLE_REQUIRED
+        throw new ForbiddenException('CANDIDATE_ROLE_REQUIRED');
       }
       throw new ForbiddenException('ROLE_REQUIRED');
     }

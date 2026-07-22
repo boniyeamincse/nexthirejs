@@ -115,14 +115,23 @@ export class ProfileSectionStatusService {
         const records = data.educationRecords;
         if (!records || records.length === 0) return 0;
         let earned = 7;
-        if (records.some((r) => r.fieldOfStudy !== null && r.fieldOfStudy !== undefined && String(r.fieldOfStudy).trim() !== '')) {
+        if (
+          records.some(
+            (r) =>
+              r.fieldOfStudy !== null &&
+              r.fieldOfStudy !== undefined &&
+              String(r.fieldOfStudy).trim() !== '',
+          )
+        ) {
           earned += 2;
         }
         if (
           records.some(
             (r) =>
               (r.grade !== null && r.grade !== undefined && String(r.grade).trim() !== '') ||
-              (r.description !== null && r.description !== undefined && String(r.description).trim() !== ''),
+              (r.description !== null &&
+                r.description !== undefined &&
+                String(r.description).trim() !== ''),
           )
         ) {
           earned += 2;
@@ -141,7 +150,9 @@ export class ProfileSectionStatusService {
         if (records && records.length >= 3) {
           earned += 6;
         }
-        if (records?.some((r) => ['INTERMEDIATE', 'ADVANCED', 'EXPERT'].includes(r.level as string))) {
+        if (
+          records?.some((r) => ['INTERMEDIATE', 'ADVANCED', 'EXPERT'].includes(r.level as string))
+        ) {
           earned += 2;
         }
         return earned;
@@ -153,7 +164,9 @@ export class ProfileSectionStatusService {
         if (records && records.length >= 1) {
           earned += 3;
         }
-        if (records?.some((r) => ['PROFESSIONAL', 'FLUENT', 'NATIVE'].includes(r.speaking as string))) {
+        if (
+          records?.some((r) => ['PROFESSIONAL', 'FLUENT', 'NATIVE'].includes(r.speaking as string))
+        ) {
           earned += 2;
         }
         return earned;
@@ -168,8 +181,12 @@ export class ProfileSectionStatusService {
         if (
           records?.some(
             (r) =>
-              (r.credentialId !== null && r.credentialId !== undefined && String(r.credentialId).trim() !== '') ||
-              (r.credentialUrl !== null && r.credentialUrl !== undefined && String(r.credentialUrl).trim() !== ''),
+              (r.credentialId !== null &&
+                r.credentialId !== undefined &&
+                String(r.credentialId).trim() !== '') ||
+              (r.credentialUrl !== null &&
+                r.credentialUrl !== undefined &&
+                String(r.credentialUrl).trim() !== ''),
           )
         ) {
           earned += 1;
@@ -191,8 +208,12 @@ export class ProfileSectionStatusService {
         if (
           records?.some(
             (r) =>
-              (r.description !== null && r.description !== undefined && String(r.description).trim() !== '') ||
-              (r.referenceUrl !== null && r.referenceUrl !== undefined && String(r.referenceUrl).trim() !== ''),
+              (r.description !== null &&
+                r.description !== undefined &&
+                String(r.description).trim() !== '') ||
+              (r.referenceUrl !== null &&
+                r.referenceUrl !== undefined &&
+                String(r.referenceUrl).trim() !== ''),
           )
         ) {
           earned += 1;
@@ -206,7 +227,11 @@ export class ProfileSectionStatusService {
         if (records && records.length >= 1) {
           earned += 3;
         }
-        if (records?.some((r) => ['LINKEDIN', 'GITHUB', 'PORTFOLIO', 'PERSONAL_WEBSITE'].includes(r.type as string))) {
+        if (
+          records?.some((r) =>
+            ['LINKEDIN', 'GITHUB', 'PORTFOLIO', 'PERSONAL_WEBSITE'].includes(r.type as string),
+          )
+        ) {
           earned += 2;
         }
         return earned;
@@ -255,14 +280,23 @@ export class ProfileSectionStatusService {
         if (!records || records.length === 0) {
           items.push('Add at least one education record');
         } else {
-          if (!records.some((r) => r.fieldOfStudy !== null && r.fieldOfStudy !== undefined && String(r.fieldOfStudy).trim() !== '')) {
+          if (
+            !records.some(
+              (r) =>
+                r.fieldOfStudy !== null &&
+                r.fieldOfStudy !== undefined &&
+                String(r.fieldOfStudy).trim() !== '',
+            )
+          ) {
             items.push('Add field of study to an education record');
           }
           if (
             !records.some(
               (r) =>
                 (r.grade !== null && r.grade !== undefined && String(r.grade).trim() !== '') ||
-                (r.description !== null && r.description !== undefined && String(r.description).trim() !== ''),
+                (r.description !== null &&
+                  r.description !== undefined &&
+                  String(r.description).trim() !== ''),
             )
           ) {
             items.push('Add grade or description to an education record');
@@ -284,7 +318,9 @@ export class ProfileSectionStatusService {
         if (!records || records.length < 3) {
           items.push('Add at least 3 skills');
         }
-        if (!records?.some((r) => ['INTERMEDIATE', 'ADVANCED', 'EXPERT'].includes(r.level as string))) {
+        if (
+          !records?.some((r) => ['INTERMEDIATE', 'ADVANCED', 'EXPERT'].includes(r.level as string))
+        ) {
           items.push('Add an intermediate or higher skill');
         }
         break;
@@ -295,7 +331,9 @@ export class ProfileSectionStatusService {
         if (!records || records.length < 1) {
           items.push('Add at least one language');
         }
-        if (!records?.some((r) => ['PROFESSIONAL', 'FLUENT', 'NATIVE'].includes(r.speaking as string))) {
+        if (
+          !records?.some((r) => ['PROFESSIONAL', 'FLUENT', 'NATIVE'].includes(r.speaking as string))
+        ) {
           items.push('Add professional-level speaking proficiency');
         }
         break;
@@ -309,8 +347,12 @@ export class ProfileSectionStatusService {
         if (
           !records?.some(
             (r) =>
-              (r.credentialId !== null && r.credentialId !== undefined && String(r.credentialId).trim() !== '') ||
-              (r.credentialUrl !== null && r.credentialUrl !== undefined && String(r.credentialUrl).trim() !== ''),
+              (r.credentialId !== null &&
+                r.credentialId !== undefined &&
+                String(r.credentialId).trim() !== '') ||
+              (r.credentialUrl !== null &&
+                r.credentialUrl !== undefined &&
+                String(r.credentialUrl).trim() !== ''),
           )
         ) {
           items.push('Add a credential ID or URL');
@@ -334,8 +376,12 @@ export class ProfileSectionStatusService {
         if (
           !records?.some(
             (r) =>
-              (r.description !== null && r.description !== undefined && String(r.description).trim() !== '') ||
-              (r.referenceUrl !== null && r.referenceUrl !== undefined && String(r.referenceUrl).trim() !== ''),
+              (r.description !== null &&
+                r.description !== undefined &&
+                String(r.description).trim() !== '') ||
+              (r.referenceUrl !== null &&
+                r.referenceUrl !== undefined &&
+                String(r.referenceUrl).trim() !== ''),
           )
         ) {
           items.push('Add description or URL to an achievement');
@@ -348,7 +394,11 @@ export class ProfileSectionStatusService {
         if (!records || records.length < 1) {
           items.push('Add at least one professional link');
         }
-        if (!records?.some((r) => ['LINKEDIN', 'GITHUB', 'PORTFOLIO', 'PERSONAL_WEBSITE'].includes(r.type as string))) {
+        if (
+          !records?.some((r) =>
+            ['LINKEDIN', 'GITHUB', 'PORTFOLIO', 'PERSONAL_WEBSITE'].includes(r.type as string),
+          )
+        ) {
           items.push('Add a key link (LinkedIn, GitHub, Portfolio, or Website)');
         }
         break;
@@ -454,7 +504,10 @@ export class ProfileSectionStatusService {
     ]);
 
     const preferenceWithCountry = candidatePreference
-      ? { ...candidatePreference, countryCode: (candidatePreference as any).country?.code ?? undefined }
+      ? {
+          ...candidatePreference,
+          countryCode: (candidatePreference as any).country?.code ?? undefined,
+        }
       : null;
 
     return {

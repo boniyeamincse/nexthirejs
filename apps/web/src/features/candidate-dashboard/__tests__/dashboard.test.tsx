@@ -146,7 +146,9 @@ beforeEach(() => {
 describe('DashboardPage', () => {
   it('renders loading state initially', () => {
     vi.spyOn(apiClient, 'getMyProfileCompletionDashboard').mockReturnValue(
-      new Promise(() => { /* pending */ })
+      new Promise(() => {
+        /* pending */
+      }),
     );
     render(<DashboardPage />);
     expect(screen.getByText('Loading dashboard...')).toBeInTheDocument();
@@ -171,8 +173,12 @@ describe('DashboardPage', () => {
       expect(screen.getByText('Basic Profile')).toBeInTheDocument();
     });
     expect(screen.getByText(/Completed — This section is fully completed\./)).toBeInTheDocument();
-    expect(screen.getByText(/In progress — This section is partially completed\./)).toBeInTheDocument();
-    expect(screen.getByText(/Not started — This section has not been started yet\./)).toBeInTheDocument();
+    expect(
+      screen.getByText(/In progress — This section is partially completed\./),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Not started — This section has not been started yet\./),
+    ).toBeInTheDocument();
     expect(screen.getByText('30/30')).toBeInTheDocument();
     expect(screen.getByText('5/11')).toBeInTheDocument();
     expect(screen.getByText('Degree type')).toBeInTheDocument();
@@ -186,14 +192,20 @@ describe('DashboardPage', () => {
       expect(screen.getByText('Complete your education details')).toBeInTheDocument();
     });
     expect(screen.getByText('+6 pts')).toBeInTheDocument();
-    expect(screen.getByText('Add degree type and institution name to your education section.')).toBeInTheDocument();
+    expect(
+      screen.getByText('Add degree type and institution name to your education section.'),
+    ).toBeInTheDocument();
   });
 
   it('handles API error with retry', async () => {
-    vi.spyOn(apiClient, 'getMyProfileCompletionDashboard').mockRejectedValue(new Error('Network error'));
+    vi.spyOn(apiClient, 'getMyProfileCompletionDashboard').mockRejectedValue(
+      new Error('Network error'),
+    );
     render(<DashboardPage />);
     await waitFor(() => {
-      expect(screen.getByText('Dashboard is temporarily unavailable. Please try again later.')).toBeInTheDocument();
+      expect(
+        screen.getByText('Dashboard is temporarily unavailable. Please try again later.'),
+      ).toBeInTheDocument();
     });
     expect(screen.getByText('Try again')).toBeInTheDocument();
   });
@@ -259,9 +271,13 @@ describe('DashboardPage', () => {
       expect(screen.getByText('65%')).toBeInTheDocument();
     });
     const progressBars = screen.getAllByRole('progressbar');
-    const overallBar = progressBars.find((b) => b.getAttribute('aria-label')?.startsWith('Profile completion'));
+    const overallBar = progressBars.find((b) =>
+      b.getAttribute('aria-label')?.startsWith('Profile completion'),
+    );
     expect(overallBar).toHaveAttribute('aria-valuenow', '65');
-    const sectionBar = progressBars.find((b) => b.getAttribute('aria-label') === 'Education progress: 45%');
+    const sectionBar = progressBars.find(
+      (b) => b.getAttribute('aria-label') === 'Education progress: 45%',
+    );
     expect(sectionBar).toHaveAttribute('aria-valuenow', '45');
   });
 });

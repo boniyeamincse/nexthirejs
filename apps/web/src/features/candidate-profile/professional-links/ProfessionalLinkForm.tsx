@@ -1,11 +1,16 @@
 import { useState } from 'react';
 import type { CandidateProfessionalLinkResult } from '@nexthire/types';
 import { ProfessionalLinkType } from '@nexthire/types';
-import type { CreateCandidateProfessionalLinkInput, UpdateCandidateProfessionalLinkInput } from '@nexthire/validation';
+import type {
+  CreateCandidateProfessionalLinkInput,
+  UpdateCandidateProfessionalLinkInput,
+} from '@nexthire/validation';
 
 interface ProfessionalLinkFormProps {
   initialData?: CandidateProfessionalLinkResult | null;
-  onSave: (data: CreateCandidateProfessionalLinkInput | UpdateCandidateProfessionalLinkInput) => void;
+  onSave: (
+    data: CreateCandidateProfessionalLinkInput | UpdateCandidateProfessionalLinkInput,
+  ) => void;
   onCancel: () => void;
 }
 
@@ -23,7 +28,9 @@ const LINK_TYPES = [
 ];
 
 export function ProfessionalLinkForm({ initialData, onSave, onCancel }: ProfessionalLinkFormProps) {
-  const [type, setType] = useState<ProfessionalLinkType>(initialData?.type || ProfessionalLinkType.LINKEDIN);
+  const [type, setType] = useState<ProfessionalLinkType>(
+    initialData?.type || ProfessionalLinkType.LINKEDIN,
+  );
   const [label, setLabel] = useState(initialData?.label || '');
   const [url, setUrl] = useState(initialData?.url || '');
   const [errorMsg, setErrorMsg] = useState('');
@@ -57,27 +64,39 @@ export function ProfessionalLinkForm({ initialData, onSave, onCancel }: Professi
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <form
+      onSubmit={handleSubmit}
+      style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
+    >
       <h3 style={{ color: '#fff', fontSize: '1.2rem', marginBottom: '0.5rem' }}>
         {initialData ? 'Edit Professional Link' : 'Add New Professional Link'}
       </h3>
 
       {errorMsg && (
-        <div style={{
-          padding: '0.75rem',
-          background: 'rgba(239, 68, 68, 0.1)',
-          border: '1px solid rgba(239, 68, 68, 0.3)',
-          borderRadius: '0.5rem',
-          color: '#fca5a5',
-          fontSize: '0.9rem',
-        }}>
+        <div
+          style={{
+            padding: '0.75rem',
+            background: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: '0.5rem',
+            color: '#fca5a5',
+            fontSize: '0.9rem',
+          }}
+        >
           {errorMsg}
         </div>
       )}
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
         <div>
-          <label style={{ display: 'block', marginBottom: '0.5rem', color: '#cbd5e1', fontSize: '0.9rem' }}>
+          <label
+            style={{
+              display: 'block',
+              marginBottom: '0.5rem',
+              color: '#cbd5e1',
+              fontSize: '0.9rem',
+            }}
+          >
             Link Type *
           </label>
           <select
@@ -94,7 +113,11 @@ export function ProfessionalLinkForm({ initialData, onSave, onCancel }: Professi
             }}
           >
             {LINK_TYPES.map((lt) => (
-              <option key={lt.value} value={lt.value} style={{ background: '#1e293b', color: '#f8fafc' }}>
+              <option
+                key={lt.value}
+                value={lt.value}
+                style={{ background: '#1e293b', color: '#f8fafc' }}
+              >
                 {lt.label}
               </option>
             ))}
@@ -102,7 +125,14 @@ export function ProfessionalLinkForm({ initialData, onSave, onCancel }: Professi
         </div>
 
         <div>
-          <label style={{ display: 'block', marginBottom: '0.5rem', color: '#cbd5e1', fontSize: '0.9rem' }}>
+          <label
+            style={{
+              display: 'block',
+              marginBottom: '0.5rem',
+              color: '#cbd5e1',
+              fontSize: '0.9rem',
+            }}
+          >
             Label
           </label>
           <input
@@ -125,7 +155,9 @@ export function ProfessionalLinkForm({ initialData, onSave, onCancel }: Professi
       </div>
 
       <div>
-        <label style={{ display: 'block', marginBottom: '0.5rem', color: '#cbd5e1', fontSize: '0.9rem' }}>
+        <label
+          style={{ display: 'block', marginBottom: '0.5rem', color: '#cbd5e1', fontSize: '0.9rem' }}
+        >
           URL *
         </label>
         <input

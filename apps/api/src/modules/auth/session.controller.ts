@@ -1,4 +1,14 @@
-import { Controller, Get, Delete, Post, Param, HttpCode, Res, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Delete,
+  Post,
+  Param,
+  HttpCode,
+  Res,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import type { Response } from 'express';
@@ -8,7 +18,11 @@ import { CurrentUser } from './decorators/current-user.decorator';
 import { SessionService } from './session.service';
 import { AuditService } from '../audit/audit.service';
 import type { AuthenticatedPrincipal } from './interfaces/authenticated-principal.interface';
-import type { UserSessionSummary, SessionListResult, LogoutAllSessionsResult } from '@nexthire/types';
+import type {
+  UserSessionSummary,
+  SessionListResult,
+  LogoutAllSessionsResult,
+} from '@nexthire/types';
 import { AuditActorType, AuditOutcome } from '@nexthire/types';
 
 const REFRESH_COOKIE_NAME = 'nexthire_refresh';
@@ -53,7 +67,10 @@ export class SessionController {
   @ApiResponse({ status: 200, description: 'Session list' })
   @ApiResponse({ status: 401, description: 'Access token missing or invalid' })
   async listSessions(@CurrentUser() principal: AuthenticatedPrincipal): Promise<SessionListResult> {
-    const sessions = await this.sessionService.listUserSessions(principal.userId, principal.sessionId!);
+    const sessions = await this.sessionService.listUserSessions(
+      principal.userId,
+      principal.sessionId!,
+    );
 
     await this.auditService.recordBestEffort({
       action: 'auth.sessions.viewed',
@@ -65,7 +82,9 @@ export class SessionController {
     });
 
     return {
-      sessions: sessions.map((s) => toSummary(s as unknown as Record<string, unknown>, principal.sessionId!)),
+      sessions: sessions.map((s) =>
+        toSummary(s as unknown as Record<string, unknown>, principal.sessionId!),
+      ),
     };
   }
 

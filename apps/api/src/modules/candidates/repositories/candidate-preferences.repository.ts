@@ -11,7 +11,7 @@ export class CandidatePreferencesRepository {
       where: { userId },
       include: {
         country: true,
-      }
+      },
     });
   }
 
@@ -35,7 +35,7 @@ export class CandidatePreferencesRepository {
       },
       include: {
         country: true,
-      }
+      },
     });
   }
 }

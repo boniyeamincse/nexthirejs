@@ -54,9 +54,7 @@ describe('AccountSecurityPage', () => {
       status: 'unknown',
     });
     mockGetAccessToken.mockReturnValue('test-token');
-    vi.spyOn(apiClient, 'getMyAccountSecuritySummary').mockReturnValue(
-      new Promise(() => {})
-    );
+    vi.spyOn(apiClient, 'getMyAccountSecuritySummary').mockReturnValue(new Promise(() => {}));
     render(<AccountSecurityPage />);
     expect(screen.getByText('Loading...')).toBeInTheDocument();
   });

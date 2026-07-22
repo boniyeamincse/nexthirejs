@@ -4,9 +4,7 @@ import { CandidateShareTokenRepository } from './candidate-share-token.repositor
 
 @Injectable()
 export class CandidateShareTokenService {
-  constructor(
-    private readonly repository: CandidateShareTokenRepository,
-  ) {}
+  constructor(private readonly repository: CandidateShareTokenRepository) {}
 
   generateToken(): { rawToken: string; hash: string } {
     const rawToken = crypto.randomBytes(32).toString('hex');

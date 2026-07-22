@@ -16,8 +16,8 @@ export function EducationForm({ initialData, onSave, onCancel }: EducationFormPr
     institutionName: initialData?.institutionName || '',
     qualification: initialData?.qualification || '',
     fieldOfStudy: initialData?.fieldOfStudy || '',
-    startDate: initialData ? (initialData.startDate.split('T')[0] || '') : '',
-    endDate: initialData && initialData.endDate ? (initialData.endDate.split('T')[0] || '') : '',
+    startDate: initialData ? initialData.startDate.split('T')[0] || '' : '',
+    endDate: initialData && initialData.endDate ? initialData.endDate.split('T')[0] || '' : '',
     currentlyStudying: initialData?.currentlyStudying || false,
     grade: initialData?.grade || '',
     description: initialData?.description || '',
@@ -26,21 +26,23 @@ export function EducationForm({ initialData, onSave, onCancel }: EducationFormPr
   const [saving, setSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
+  ) => {
     const { name, value, type } = e.target;
     let finalValue: string | boolean = value;
-    
+
     if (type === 'checkbox') {
       finalValue = (e.target as HTMLInputElement).checked;
     }
-    
-    setFormData(prev => ({
+
+    setFormData((prev) => ({
       ...prev,
-      [name]: finalValue === '' ? null : finalValue
+      [name]: finalValue === '' ? null : finalValue,
     }));
-    
+
     if (name === 'currentlyStudying' && finalValue === true) {
-      setFormData(prev => ({ ...prev, endDate: null }));
+      setFormData((prev) => ({ ...prev, endDate: null }));
     }
   };
 
@@ -50,13 +52,16 @@ export function EducationForm({ initialData, onSave, onCancel }: EducationFormPr
     setErrorMsg('');
 
     try {
-      const payload: Record<string, string | boolean | undefined> = { ...formData } as Record<string, string | boolean | undefined>;
-      
+      const payload: Record<string, string | boolean | undefined> = { ...formData } as Record<
+        string,
+        string | boolean | undefined
+      >;
+
       // Clean up empty strings to null or undefined as required by validation
       if (!payload.fieldOfStudy) payload.fieldOfStudy = undefined;
       if (!payload.grade) payload.grade = undefined;
       if (!payload.description) payload.description = undefined;
-      
+
       // For API it might want full ISO dates, but YYYY-MM-DD should be parsed well by Zod.
       if (payload.startDate) {
         payload.startDate = new Date(payload.startDate as string).toISOString();
@@ -66,7 +71,7 @@ export function EducationForm({ initialData, onSave, onCancel }: EducationFormPr
       } else {
         payload.endDate = undefined;
       }
-      
+
       await onSave(payload as CreateEducationRecordInput & UpdateEducationRecordInput);
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : 'Failed to save education record');
@@ -76,11 +81,20 @@ export function EducationForm({ initialData, onSave, onCancel }: EducationFormPr
   };
 
   return (
-    <form onSubmit={handleSubmit} className={styles.form} style={{ background: 'rgba(30, 41, 59, 0.7)', padding: '2rem', borderRadius: '1rem', border: '1px solid rgba(255,255,255,0.1)' }}>
+    <form
+      onSubmit={handleSubmit}
+      className={styles.form}
+      style={{
+        background: 'rgba(30, 41, 59, 0.7)',
+        padding: '2rem',
+        borderRadius: '1rem',
+        border: '1px solid rgba(255,255,255,0.1)',
+      }}
+    >
       <h3 style={{ color: '#fff', fontSize: '1.5rem', marginBottom: '1.5rem', marginTop: 0 }}>
         {initialData ? 'Edit Education' : 'Add Education'}
       </h3>
-      
+
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
         <div className={styles.formGroup}>
           <label className={styles.label}>Education Level *</label>
@@ -92,7 +106,7 @@ export function EducationForm({ initialData, onSave, onCancel }: EducationFormPr
             onChange={handleChange}
             style={{ appearance: 'auto' }}
           >
-            {Object.values(EducationLevel).map(level => (
+            {Object.values(EducationLevel).map((level) => (
               <option key={level} value={level}>
                 {level.replace('_', ' ')}
               </option>
@@ -115,7 +129,14 @@ export function EducationForm({ initialData, onSave, onCancel }: EducationFormPr
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginTop: '1.5rem' }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '1.5rem',
+          marginTop: '1.5rem',
+        }}
+      >
         <div className={styles.formGroup}>
           <label className={styles.label}>Qualification/Degree *</label>
           <input
@@ -144,7 +165,14 @@ export function EducationForm({ initialData, onSave, onCancel }: EducationFormPr
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginTop: '1.5rem' }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '1.5rem',
+          marginTop: '1.5rem',
+        }}
+      >
         <div className={styles.formGroup}>
           <label className={styles.label}>Start Date *</label>
           <input
@@ -174,7 +202,15 @@ export function EducationForm({ initialData, onSave, onCancel }: EducationFormPr
       </div>
 
       <div className={styles.formGroup} style={{ marginTop: '1rem' }}>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#cbd5e1', cursor: 'pointer' }}>
+        <label
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            color: '#cbd5e1',
+            cursor: 'pointer',
+          }}
+        >
           <input
             name="currentlyStudying"
             type="checkbox"
@@ -186,7 +222,9 @@ export function EducationForm({ initialData, onSave, onCancel }: EducationFormPr
         </label>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem', marginTop: '1.5rem' }}>
+      <div
+        style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem', marginTop: '1.5rem' }}
+      >
         <div className={styles.formGroup}>
           <label className={styles.label}>Grade / GPA</label>
           <input
@@ -225,7 +263,15 @@ export function EducationForm({ initialData, onSave, onCancel }: EducationFormPr
           type="button"
           onClick={onCancel}
           disabled={saving}
-          style={{ padding: '0.75rem 1.5rem', background: 'transparent', color: '#cbd5e1', border: '1px solid #475569', borderRadius: '0.5rem', cursor: 'pointer', fontWeight: 500 }}
+          style={{
+            padding: '0.75rem 1.5rem',
+            background: 'transparent',
+            color: '#cbd5e1',
+            border: '1px solid #475569',
+            borderRadius: '0.5rem',
+            cursor: 'pointer',
+            fontWeight: 500,
+          }}
         >
           Cancel
         </button>

@@ -55,8 +55,7 @@ export function EducationRecordCard({
           {record.institutionName}
         </p>
         <p style={{ margin: '0 0 0.75rem 0', color: '#94a3b8', fontSize: '0.85rem' }}>
-          {record.educationLevel.replace('_', ' ')} &bull;{' '}
-          {formatMonthYear(record.startDate)} -{' '}
+          {record.educationLevel.replace('_', ' ')} &bull; {formatMonthYear(record.startDate)} -{' '}
           {record.currentlyStudying
             ? 'Present'
             : record.endDate
@@ -129,7 +128,12 @@ export function EducationRecordCard({
 
         {totalRecords > 1 && (
           <div
-            style={{ display: 'flex', gap: '0.25rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}
+            style={{
+              display: 'flex',
+              gap: '0.25rem',
+              justifyContent: 'flex-end',
+              marginTop: '0.5rem',
+            }}
             role="group"
             aria-label="Reorder controls"
           >
@@ -171,4 +175,3 @@ export function EducationRecordCard({
     </div>
   );
 }
-

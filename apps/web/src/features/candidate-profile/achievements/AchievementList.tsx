@@ -1,6 +1,9 @@
 import type { CandidateAchievementResult } from '@nexthire/types';
 import { AchievementForm } from './AchievementForm';
-import type { CreateCandidateAchievementInput, UpdateCandidateAchievementInput } from '@nexthire/validation';
+import type {
+  CreateCandidateAchievementInput,
+  UpdateCandidateAchievementInput,
+} from '@nexthire/validation';
 
 interface AchievementListProps {
   records: CandidateAchievementResult[];
@@ -17,9 +20,17 @@ interface AchievementListProps {
 }
 
 export function AchievementList({
-  records, onSave, onDelete, onMoveUp, onMoveDown,
-  editingIndex, setEditingIndex, showForm, setShowForm,
-  saving, errorMsg,
+  records,
+  onSave,
+  onDelete,
+  onMoveUp,
+  onMoveDown,
+  editingIndex,
+  setEditingIndex,
+  showForm,
+  setShowForm,
+  saving,
+  errorMsg,
 }: AchievementListProps) {
   if (saving) {
     return <div style={{ color: '#94a3b8', padding: '2rem', textAlign: 'center' }}>Saving...</div>;
@@ -28,15 +39,17 @@ export function AchievementList({
   return (
     <div>
       {errorMsg && (
-        <div style={{
-          padding: '0.75rem',
-          marginBottom: '1rem',
-          background: 'rgba(239, 68, 68, 0.1)',
-          border: '1px solid rgba(239, 68, 68, 0.3)',
-          borderRadius: '0.5rem',
-          color: '#fca5a5',
-          fontSize: '0.9rem',
-        }}>
+        <div
+          style={{
+            padding: '0.75rem',
+            marginBottom: '1rem',
+            background: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: '0.5rem',
+            color: '#fca5a5',
+            fontSize: '0.9rem',
+          }}
+        >
           {errorMsg}
         </div>
       )}
@@ -67,7 +80,15 @@ export function AchievementList({
       )}
 
       {records.length === 0 && !showForm ? (
-        <div style={{ color: '#94a3b8', padding: '2rem', textAlign: 'center', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '0.5rem' }}>
+        <div
+          style={{
+            color: '#94a3b8',
+            padding: '2rem',
+            textAlign: 'center',
+            border: '1px dashed rgba(255,255,255,0.1)',
+            borderRadius: '0.5rem',
+          }}
+        >
           No achievements yet. Add your first achievement to showcase your accomplishments.
         </div>
       ) : (
@@ -82,18 +103,30 @@ export function AchievementList({
                 />
               </div>
             ) : (
-              <div style={{
-                padding: '1rem',
-                marginBottom: '0.75rem',
-                background: 'rgba(255,255,255,0.03)',
-                borderRadius: '0.5rem',
-                border: '1px solid rgba(255,255,255,0.08)',
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div
+                style={{
+                  padding: '1rem',
+                  marginBottom: '0.75rem',
+                  background: 'rgba(255,255,255,0.03)',
+                  borderRadius: '0.5rem',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                }}
+              >
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                  }}
+                >
                   <div style={{ flex: 1 }}>
-                    <h4 style={{ color: '#fff', margin: '0 0 0.25rem', fontSize: '1rem' }}>{record.title}</h4>
+                    <h4 style={{ color: '#fff', margin: '0 0 0.25rem', fontSize: '1rem' }}>
+                      {record.title}
+                    </h4>
                     {record.issuer && (
-                      <p style={{ color: '#94a3b8', margin: '0 0 0.25rem', fontSize: '0.85rem' }}>{record.issuer}</p>
+                      <p style={{ color: '#94a3b8', margin: '0 0 0.25rem', fontSize: '0.85rem' }}>
+                        {record.issuer}
+                      </p>
                     )}
                     {record.achievedAt && (
                       <p style={{ color: '#64748b', margin: '0 0 0.25rem', fontSize: '0.8rem' }}>
@@ -101,14 +134,21 @@ export function AchievementList({
                       </p>
                     )}
                     {record.description && (
-                      <p style={{ color: '#cbd5e1', margin: '0.25rem 0', fontSize: '0.85rem' }}>{record.description}</p>
+                      <p style={{ color: '#cbd5e1', margin: '0.25rem 0', fontSize: '0.85rem' }}>
+                        {record.description}
+                      </p>
                     )}
                     {record.referenceUrl && (
                       <a
                         href={record.referenceUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        style={{ color: '#6366f1', fontSize: '0.85rem', display: 'inline-block', marginTop: '0.25rem' }}
+                        style={{
+                          color: '#6366f1',
+                          fontSize: '0.85rem',
+                          display: 'inline-block',
+                          marginTop: '0.25rem',
+                        }}
                       >
                         View Reference
                       </a>

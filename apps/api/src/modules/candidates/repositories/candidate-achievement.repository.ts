@@ -42,7 +42,8 @@ export class CandidateAchievementRepository {
     const updateData: any = {};
     if (data.title !== undefined) updateData.title = data.title;
     if (data.issuer !== undefined) updateData.issuer = data.issuer ?? null;
-    if (data.achievedAt !== undefined) updateData.achievedAt = data.achievedAt ? new Date(data.achievedAt) : null;
+    if (data.achievedAt !== undefined)
+      updateData.achievedAt = data.achievedAt ? new Date(data.achievedAt) : null;
     if (data.description !== undefined) updateData.description = data.description ?? null;
     if (data.referenceUrl !== undefined) updateData.referenceUrl = data.referenceUrl ?? null;
 
@@ -64,8 +65,8 @@ export class CandidateAchievementRepository {
         this.prisma.candidateAchievement.update({
           where: { id: update.id },
           data: { sortOrder: update.sortOrder },
-        })
-      )
+        }),
+      ),
     );
   }
 }

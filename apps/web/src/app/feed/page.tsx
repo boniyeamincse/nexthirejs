@@ -15,7 +15,7 @@ export default function FeedPage() {
           </p>
         </div>
 
-        <div 
+        <div
           style={{
             display: 'inline-block',
             background: 'rgba(99, 102, 241, 0.2)',
@@ -27,7 +27,7 @@ export default function FeedPage() {
             fontSize: '0.9rem',
             letterSpacing: '0.05em',
             textTransform: 'uppercase',
-            marginBottom: '2rem'
+            marginBottom: '2rem',
           }}
         >
           Coming Soon
@@ -37,7 +37,11 @@ export default function FeedPage() {
           We are currently building the personalized career feed. Stay tuned!
         </p>
 
-        <Link href="/" className={styles.submitButton} style={{ textDecoration: 'none', display: 'inline-block', padding: '0.75rem 2rem' }}>
+        <Link
+          href="/"
+          className={styles.submitButton}
+          style={{ textDecoration: 'none', display: 'inline-block', padding: '0.75rem 2rem' }}
+        >
           Return Home
         </Link>
       </div>

@@ -63,7 +63,10 @@ export class StorageService {
     return `${userId}/${exportId}-${randomPart}.zip`;
   }
 
-  async getPresignedUrl(key: string, expiresInSeconds: number): Promise<{ url: string; expiresInSeconds: number }> {
+  async getPresignedUrl(
+    key: string,
+    expiresInSeconds: number,
+  ): Promise<{ url: string; expiresInSeconds: number }> {
     const filePath = path.join(this.storageDir, key);
     const resolved = path.resolve(filePath);
     if (!resolved.startsWith(path.resolve(this.storageDir))) {

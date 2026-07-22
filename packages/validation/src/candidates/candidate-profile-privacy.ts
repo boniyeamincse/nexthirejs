@@ -13,15 +13,19 @@ const SUPPORTED_SECTION_KEYS = [
   'ACHIEVEMENTS_AND_LINKS',
 ] as const;
 
-const sectionVisibilitySchema = z.object(
-  Object.fromEntries(
-    SUPPORTED_SECTION_KEYS.map((section) => [section, z.enum(visibilityValues)])
-  ),
-).strict();
+const sectionVisibilitySchema = z
+  .object(
+    Object.fromEntries(
+      SUPPORTED_SECTION_KEYS.map((section) => [section, z.enum(visibilityValues)]),
+    ),
+  )
+  .strict();
 
-export const candidateProfilePrivacySchema = z.object({
-  overallDiscoverability: z.enum(discoverabilityValues),
-  sections: sectionVisibilitySchema,
-}).strict();
+export const candidateProfilePrivacySchema = z
+  .object({
+    overallDiscoverability: z.enum(discoverabilityValues),
+    sections: sectionVisibilitySchema,
+  })
+  .strict();
 
 export type CandidateProfilePrivacyInput = z.infer<typeof candidateProfilePrivacySchema>;

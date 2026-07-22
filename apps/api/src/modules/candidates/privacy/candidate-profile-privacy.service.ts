@@ -1,8 +1,19 @@
-import { Injectable, BadRequestException, ForbiddenException, InternalServerErrorException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  ForbiddenException,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { CandidateProfilePrivacyRepository } from './candidate-profile-privacy.repository';
 import { CandidatePrivacyPolicyService } from './candidate-privacy-policy.service';
 import { candidateProfilePrivacySchema } from '@nexthire/validation';
-import { AuditActorType, AuditOutcome, SUPPORTED_SECTIONS, CANDIDATE_PRIVACY_POLICY_VERSION } from '@nexthire/types';
+import {
+  AuditActorType,
+  AuditOutcome,
+  SUPPORTED_SECTIONS,
+  CANDIDATE_PRIVACY_POLICY_VERSION,
+} from '@nexthire/types';
 import type { CandidateProfilePrivacyResult, CandidateProfilePrivacyInput } from '@nexthire/types';
 import { AuditService } from '../../audit/audit.service';
 import { PrismaService } from '../../../database/prisma.service';
@@ -31,39 +42,46 @@ export class CandidateProfilePrivacyService {
     const record = await this.repository.findByUserId(userId);
 
     if (!record) {
-      await this.auditService.recordBestEffort({
-        actorType: AuditActorType.USER,
-        actorUserId: userId,
-        action: 'candidate.privacy.viewed',
-        targetType: 'CandidateProfilePrivacy',
-        targetId: userId,
-        outcome: AuditOutcome.SUCCESS,
-        metadata: {
-          settingsSource: 'DEFAULT',
-          policyVersion: CANDIDATE_PRIVACY_POLICY_VERSION,
-        },
-      }).catch(() => {});
+      await this.auditService
+        .recordBestEffort({
+          actorType: AuditActorType.USER,
+          actorUserId: userId,
+          action: 'candidate.privacy.viewed',
+          targetType: 'CandidateProfilePrivacy',
+          targetId: userId,
+          outcome: AuditOutcome.SUCCESS,
+          metadata: {
+            settingsSource: 'DEFAULT',
+            policyVersion: CANDIDATE_PRIVACY_POLICY_VERSION,
+          },
+        })
+        .catch(() => {});
 
       return this.policyService.getDefaultSettings();
     }
 
-    void this.auditService.recordBestEffort({
-      actorType: AuditActorType.USER,
-      actorUserId: userId,
-      action: 'candidate.privacy.viewed',
-      targetType: 'CandidateProfilePrivacy',
-      targetId: record.id,
-      outcome: AuditOutcome.SUCCESS,
-      metadata: {
-        settingsSource: 'PERSISTED',
-        policyVersion: record.policyVersion,
-      },
-    }).catch(() => {});
+    void this.auditService
+      .recordBestEffort({
+        actorType: AuditActorType.USER,
+        actorUserId: userId,
+        action: 'candidate.privacy.viewed',
+        targetType: 'CandidateProfilePrivacy',
+        targetId: record.id,
+        outcome: AuditOutcome.SUCCESS,
+        metadata: {
+          settingsSource: 'PERSISTED',
+          policyVersion: record.policyVersion,
+        },
+      })
+      .catch(() => {});
 
     return this.policyService.toResult(record);
   }
 
-  async updateSettings(userId: string, data: CandidateProfilePrivacyInput): Promise<CandidateProfilePrivacyResult> {
+  async updateSettings(
+    userId: string,
+    data: CandidateProfilePrivacyInput,
+  ): Promise<CandidateProfilePrivacyResult> {
     const parseResult = candidateProfilePrivacySchema.safeParse(data);
     if (!parseResult.success) {
       const firstError = parseResult.error.errors[0];
@@ -129,7 +147,10 @@ export class CandidateProfilePrivacyService {
       return this.policyService.toResult(result);
     } catch (error: any) {
       if (error instanceof BadRequestException || error instanceof ForbiddenException) throw error;
-      this.logger.error(`Failed to update privacy settings for user ${userId}: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to update privacy settings for user ${userId}: ${error.message}`,
+        error.stack,
+      );
       throw new InternalServerErrorException('Failed to update privacy settings');
     }
   }

@@ -22,7 +22,7 @@ export function SkillForm({ initialData, onSave, onCancel }: SkillFormProps) {
   const [yearsOfExperience, setYearsOfExperience] = useState<string>(
     initialData?.yearsOfExperience !== null && initialData?.yearsOfExperience !== undefined
       ? String(initialData.yearsOfExperience)
-      : ''
+      : '',
   );
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -45,26 +45,33 @@ export function SkillForm({ initialData, onSave, onCancel }: SkillFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <form
+      onSubmit={handleSubmit}
+      style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
+    >
       <h3 style={{ color: '#fff', fontSize: '1.2rem', marginBottom: '0.5rem' }}>
         {initialData ? 'Edit Skill' : 'Add New Skill'}
       </h3>
 
       {errorMsg && (
-        <div style={{
-          padding: '0.75rem',
-          background: 'rgba(239, 68, 68, 0.1)',
-          border: '1px solid rgba(239, 68, 68, 0.3)',
-          borderRadius: '0.5rem',
-          color: '#fca5a5',
-          fontSize: '0.9rem',
-        }}>
+        <div
+          style={{
+            padding: '0.75rem',
+            background: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: '0.5rem',
+            color: '#fca5a5',
+            fontSize: '0.9rem',
+          }}
+        >
           {errorMsg}
         </div>
       )}
 
       <div>
-        <label style={{ display: 'block', marginBottom: '0.5rem', color: '#cbd5e1', fontSize: '0.9rem' }}>
+        <label
+          style={{ display: 'block', marginBottom: '0.5rem', color: '#cbd5e1', fontSize: '0.9rem' }}
+        >
           Skill Name *
         </label>
         <input
@@ -85,7 +92,9 @@ export function SkillForm({ initialData, onSave, onCancel }: SkillFormProps) {
       </div>
 
       <div>
-        <label style={{ display: 'block', marginBottom: '0.5rem', color: '#cbd5e1', fontSize: '0.9rem' }}>
+        <label
+          style={{ display: 'block', marginBottom: '0.5rem', color: '#cbd5e1', fontSize: '0.9rem' }}
+        >
           Proficiency Level *
         </label>
         <select
@@ -103,13 +112,17 @@ export function SkillForm({ initialData, onSave, onCancel }: SkillFormProps) {
           }}
         >
           {SKILL_LEVELS.map((lvl) => (
-            <option key={lvl.value} value={lvl.value}>{lvl.label}</option>
+            <option key={lvl.value} value={lvl.value}>
+              {lvl.label}
+            </option>
           ))}
         </select>
       </div>
 
       <div>
-        <label style={{ display: 'block', marginBottom: '0.5rem', color: '#cbd5e1', fontSize: '0.9rem' }}>
+        <label
+          style={{ display: 'block', marginBottom: '0.5rem', color: '#cbd5e1', fontSize: '0.9rem' }}
+        >
           Years of Experience (optional)
         </label>
         <input

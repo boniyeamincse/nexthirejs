@@ -39,7 +39,7 @@ describe('CandidatePreferencesController (e2e)', () => {
     // Create a candidate user for testing
     const candidateRole = await prisma.role.findUnique({ where: { code: 'candidate' } });
     const passwordHash = await argon2.hash('TestPass123!');
-    
+
     const user = await prisma.user.create({
       data: {
         email: `test-pref-${Date.now()}@example.com`,
@@ -52,13 +52,13 @@ describe('CandidatePreferencesController (e2e)', () => {
         },
       },
     });
-    
+
     testUserId = user.id;
 
     // Generate token
     const tokenFamilyId = crypto.randomUUID();
     const sessionId = crypto.randomUUID();
-    
+
     await prisma.userSession.create({
       data: {
         id: sessionId,
@@ -68,14 +68,10 @@ describe('CandidatePreferencesController (e2e)', () => {
         ipAddress: '127.0.0.1',
         userAgent: 'test-agent',
         expiresAt: new Date(Date.now() + 3600000),
-      }
+      },
     });
 
-    const tokenResponse = tokenService.signAccessToken(
-      user.id,
-      sessionId,
-      ['candidate']
-    );
+    const tokenResponse = tokenService.signAccessToken(user.id, sessionId, ['candidate']);
     candidateToken = tokenResponse.token;
   });
 
@@ -88,9 +84,7 @@ describe('CandidatePreferencesController (e2e)', () => {
 
   describe('GET /api/api/v1/candidates/me/preferences', () => {
     it('should return 401 if unauthenticated', async () => {
-      await request(app.getHttpServer())
-        .get('/api/v1/candidates/me/preferences')
-        .expect(401);
+      await request(app.getHttpServer()).get('/api/v1/candidates/me/preferences').expect(401);
     });
 
     it('should return empty state for candidate without preferences', async () => {
@@ -98,7 +92,7 @@ describe('CandidatePreferencesController (e2e)', () => {
         .get('/api/v1/candidates/me/preferences')
         .set('Authorization', `Bearer ${candidateToken}`)
         .expect(200);
-      
+
       expect(response.body).toHaveProperty('preferences', null);
       expect(response.body).toHaveProperty('availableOptions');
       expect(response.body.availableOptions.workModes).toBeDefined();
@@ -138,7 +132,7 @@ describe('CandidatePreferencesController (e2e)', () => {
       expect(response.body.preferredJobRoles).toContain('Engineer');
       expect(response.body.completion.percentage).toBeGreaterThan(0);
       expect(response.body.completion.version).toBe('candidate-profile-v5');
-      
+
       // Update modifying the same row
       const updateResponse = await request(app.getHttpServer())
         .put('/api/v1/candidates/me/preferences')
@@ -151,7 +145,7 @@ describe('CandidatePreferencesController (e2e)', () => {
           preferredEmploymentTypes: ['FULL_TIME'],
         })
         .expect(200);
-        
+
       expect(updateResponse.body.currentCity).toBe('Chittagong');
       expect(updateResponse.body.preferredJobRoles).toContain('Manager');
       expect(updateResponse.body.id).toBe(response.body.id);

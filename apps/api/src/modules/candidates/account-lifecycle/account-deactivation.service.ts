@@ -1,4 +1,10 @@
-import { Injectable, Logger, BadRequestException, ForbiddenException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  BadRequestException,
+  ForbiddenException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from '../../../database/prisma.service';
 import { PasswordHashingService } from '../../auth/password-hashing.service';
 import { AuditService } from '../../audit/audit.service';
@@ -16,7 +22,11 @@ export class AccountDeactivationService {
     private readonly auditService: AuditService,
   ) {}
 
-  async deactivateAccount(userId: string, currentPassword: string, confirmation: string): Promise<DeactivateCandidateAccountResult> {
+  async deactivateAccount(
+    userId: string,
+    currentPassword: string,
+    confirmation: string,
+  ): Promise<DeactivateCandidateAccountResult> {
     if (confirmation !== 'DEACTIVATE') {
       throw new BadRequestException(ACCOUNT_ERROR_CODES.DEACTIVATION_CONFIRMATION_INVALID);
     }
@@ -88,7 +98,9 @@ export class AccountDeactivationService {
       metadata: { sessionsRevokedCount: result.sessionsRevoked },
     });
 
-    this.logger.log(`Account deactivated for user ${userId}, ${result.sessionsRevoked} sessions revoked`);
+    this.logger.log(
+      `Account deactivated for user ${userId}, ${result.sessionsRevoked} sessions revoked`,
+    );
 
     return { deactivated: true, sessionsRevoked: result.sessionsRevoked };
   }

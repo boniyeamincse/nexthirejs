@@ -1,11 +1,16 @@
 import type { CandidateProfessionalLinkResult } from '@nexthire/types';
 import { ProfessionalLinkType } from '@nexthire/types';
 import { ProfessionalLinkForm } from './ProfessionalLinkForm';
-import type { CreateCandidateProfessionalLinkInput, UpdateCandidateProfessionalLinkInput } from '@nexthire/validation';
+import type {
+  CreateCandidateProfessionalLinkInput,
+  UpdateCandidateProfessionalLinkInput,
+} from '@nexthire/validation';
 
 interface ProfessionalLinkListProps {
   records: CandidateProfessionalLinkResult[];
-  onSave: (data: CreateCandidateProfessionalLinkInput | UpdateCandidateProfessionalLinkInput) => void;
+  onSave: (
+    data: CreateCandidateProfessionalLinkInput | UpdateCandidateProfessionalLinkInput,
+  ) => void;
   onDelete: (id: string) => void;
   onMoveUp: (index: number) => void;
   onMoveDown: (index: number) => void;
@@ -32,9 +37,18 @@ const LINK_TYPE_LABELS: Record<ProfessionalLinkType, string> = {
 };
 
 export function ProfessionalLinkList({
-  records, onSave, onDelete, onMoveUp, onMoveDown,
-  editingIndex, setEditingIndex, showForm, setShowForm,
-  saving, errorMsg, duplicateWarning,
+  records,
+  onSave,
+  onDelete,
+  onMoveUp,
+  onMoveDown,
+  editingIndex,
+  setEditingIndex,
+  showForm,
+  setShowForm,
+  saving,
+  errorMsg,
+  duplicateWarning,
 }: ProfessionalLinkListProps) {
   if (saving) {
     return <div style={{ color: '#94a3b8', padding: '2rem', textAlign: 'center' }}>Saving...</div>;
@@ -43,29 +57,33 @@ export function ProfessionalLinkList({
   return (
     <div>
       {errorMsg && (
-        <div style={{
-          padding: '0.75rem',
-          marginBottom: '1rem',
-          background: 'rgba(239, 68, 68, 0.1)',
-          border: '1px solid rgba(239, 68, 68, 0.3)',
-          borderRadius: '0.5rem',
-          color: '#fca5a5',
-          fontSize: '0.9rem',
-        }}>
+        <div
+          style={{
+            padding: '0.75rem',
+            marginBottom: '1rem',
+            background: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: '0.5rem',
+            color: '#fca5a5',
+            fontSize: '0.9rem',
+          }}
+        >
           {errorMsg}
         </div>
       )}
 
       {duplicateWarning && (
-        <div style={{
-          padding: '0.75rem',
-          marginBottom: '1rem',
-          background: 'rgba(245, 158, 11, 0.1)',
-          border: '1px solid rgba(245, 158, 11, 0.3)',
-          borderRadius: '0.5rem',
-          color: '#fbbf24',
-          fontSize: '0.9rem',
-        }}>
+        <div
+          style={{
+            padding: '0.75rem',
+            marginBottom: '1rem',
+            background: 'rgba(245, 158, 11, 0.1)',
+            border: '1px solid rgba(245, 158, 11, 0.3)',
+            borderRadius: '0.5rem',
+            color: '#fbbf24',
+            fontSize: '0.9rem',
+          }}
+        >
           {duplicateWarning}
         </div>
       )}
@@ -96,7 +114,15 @@ export function ProfessionalLinkList({
       )}
 
       {records.length === 0 && !showForm ? (
-        <div style={{ color: '#94a3b8', padding: '2rem', textAlign: 'center', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '0.5rem' }}>
+        <div
+          style={{
+            color: '#94a3b8',
+            padding: '2rem',
+            textAlign: 'center',
+            border: '1px dashed rgba(255,255,255,0.1)',
+            borderRadius: '0.5rem',
+          }}
+        >
           No professional links yet. Add your LinkedIn, GitHub, portfolio, or other links.
         </div>
       ) : (
@@ -111,24 +137,41 @@ export function ProfessionalLinkList({
                 />
               </div>
             ) : (
-              <div style={{
-                padding: '1rem',
-                marginBottom: '0.75rem',
-                background: 'rgba(255,255,255,0.03)',
-                borderRadius: '0.5rem',
-                border: '1px solid rgba(255,255,255,0.08)',
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div
+                style={{
+                  padding: '1rem',
+                  marginBottom: '0.75rem',
+                  background: 'rgba(255,255,255,0.03)',
+                  borderRadius: '0.5rem',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                }}
+              >
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                  }}
+                >
                   <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-                      <span style={{
-                        padding: '0.125rem 0.5rem',
-                        background: 'rgba(99,102,241,0.15)',
-                        color: '#818cf8',
-                        borderRadius: '0.25rem',
-                        fontSize: '0.75rem',
-                        fontWeight: 500,
-                      }}>
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        marginBottom: '0.25rem',
+                      }}
+                    >
+                      <span
+                        style={{
+                          padding: '0.125rem 0.5rem',
+                          background: 'rgba(99,102,241,0.15)',
+                          color: '#818cf8',
+                          borderRadius: '0.25rem',
+                          fontSize: '0.75rem',
+                          fontWeight: 500,
+                        }}
+                      >
                         {LINK_TYPE_LABELS[record.type]}
                       </span>
                       {record.label && (

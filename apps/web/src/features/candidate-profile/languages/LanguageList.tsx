@@ -16,7 +16,13 @@ const PROFICIENCY_LABELS: Record<string, string> = {
   NATIVE: 'Native',
 };
 
-export function LanguageList({ records, onEdit, onDelete, onMoveUp, onMoveDown }: LanguageListProps) {
+export function LanguageList({
+  records,
+  onEdit,
+  onDelete,
+  onMoveUp,
+  onMoveDown,
+}: LanguageListProps) {
   if (records.length === 0) {
     return (
       <div style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8' }}>
@@ -42,18 +48,34 @@ export function LanguageList({ records, onEdit, onDelete, onMoveUp, onMoveDown }
           }}
         >
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                marginBottom: '0.25rem',
+              }}
+            >
               <span style={{ fontWeight: 600, color: '#f8fafc' }}>{record.name}</span>
             </div>
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
               <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
-                Speaking: <span style={{ color: '#a5b4fc' }}>{PROFICIENCY_LABELS[record.speaking] || record.speaking}</span>
+                Speaking:{' '}
+                <span style={{ color: '#a5b4fc' }}>
+                  {PROFICIENCY_LABELS[record.speaking] || record.speaking}
+                </span>
               </span>
               <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
-                Reading: <span style={{ color: '#a5b4fc' }}>{PROFICIENCY_LABELS[record.reading] || record.reading}</span>
+                Reading:{' '}
+                <span style={{ color: '#a5b4fc' }}>
+                  {PROFICIENCY_LABELS[record.reading] || record.reading}
+                </span>
               </span>
               <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
-                Writing: <span style={{ color: '#a5b4fc' }}>{PROFICIENCY_LABELS[record.writing] || record.writing}</span>
+                Writing:{' '}
+                <span style={{ color: '#a5b4fc' }}>
+                  {PROFICIENCY_LABELS[record.writing] || record.writing}
+                </span>
               </span>
             </div>
           </div>

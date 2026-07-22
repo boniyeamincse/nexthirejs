@@ -32,12 +32,28 @@ const mockLanguage2: CandidateLanguageResult = {
 
 describe('LanguageList', () => {
   it('renders empty state', () => {
-    render(<LanguageList records={[]} onEdit={vi.fn()} onDelete={vi.fn()} onMoveUp={vi.fn()} onMoveDown={vi.fn()} />);
+    render(
+      <LanguageList
+        records={[]}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        onMoveUp={vi.fn()}
+        onMoveDown={vi.fn()}
+      />,
+    );
     expect(screen.getByText('No languages added yet')).toBeInTheDocument();
   });
 
   it('renders language records', () => {
-    render(<LanguageList records={[mockLanguage]} onEdit={vi.fn()} onDelete={vi.fn()} onMoveUp={vi.fn()} onMoveDown={vi.fn()} />);
+    render(
+      <LanguageList
+        records={[mockLanguage]}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        onMoveUp={vi.fn()}
+        onMoveDown={vi.fn()}
+      />,
+    );
     expect(screen.getByText('English')).toBeInTheDocument();
     expect(screen.getByText('Fluent')).toBeInTheDocument();
     expect(screen.getByText('Native')).toBeInTheDocument();
@@ -46,14 +62,30 @@ describe('LanguageList', () => {
 
   it('calls onEdit with the record', async () => {
     const onEdit = vi.fn();
-    render(<LanguageList records={[mockLanguage]} onEdit={onEdit} onDelete={vi.fn()} onMoveUp={vi.fn()} onMoveDown={vi.fn()} />);
+    render(
+      <LanguageList
+        records={[mockLanguage]}
+        onEdit={onEdit}
+        onDelete={vi.fn()}
+        onMoveUp={vi.fn()}
+        onMoveDown={vi.fn()}
+      />,
+    );
     await userEvent.click(screen.getByLabelText('Edit English'));
     expect(onEdit).toHaveBeenCalledWith(mockLanguage);
   });
 
   it('calls onDelete with the id', async () => {
     const onDelete = vi.fn();
-    render(<LanguageList records={[mockLanguage]} onEdit={vi.fn()} onDelete={onDelete} onMoveUp={vi.fn()} onMoveDown={vi.fn()} />);
+    render(
+      <LanguageList
+        records={[mockLanguage]}
+        onEdit={vi.fn()}
+        onDelete={onDelete}
+        onMoveUp={vi.fn()}
+        onMoveDown={vi.fn()}
+      />,
+    );
     await userEvent.click(screen.getByLabelText('Delete English'));
     expect(onDelete).toHaveBeenCalledWith('1');
   });
@@ -61,7 +93,15 @@ describe('LanguageList', () => {
   it('calls onMoveUp and onMoveDown', async () => {
     const onMoveUp = vi.fn();
     const onMoveDown = vi.fn();
-    render(<LanguageList records={[mockLanguage, mockLanguage2]} onEdit={vi.fn()} onDelete={vi.fn()} onMoveUp={onMoveUp} onMoveDown={onMoveDown} />);
+    render(
+      <LanguageList
+        records={[mockLanguage, mockLanguage2]}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        onMoveUp={onMoveUp}
+        onMoveDown={onMoveDown}
+      />,
+    );
     const moveUpButtons = screen.getAllByLabelText('Move up');
     const moveDownButtons = screen.getAllByLabelText('Move down');
     await userEvent.click(moveUpButtons[1]!);
@@ -71,13 +111,29 @@ describe('LanguageList', () => {
   });
 
   it('disables move up for first item', () => {
-    render(<LanguageList records={[mockLanguage, mockLanguage2]} onEdit={vi.fn()} onDelete={vi.fn()} onMoveUp={vi.fn()} onMoveDown={vi.fn()} />);
+    render(
+      <LanguageList
+        records={[mockLanguage, mockLanguage2]}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        onMoveUp={vi.fn()}
+        onMoveDown={vi.fn()}
+      />,
+    );
     const moveUpButtons = screen.getAllByLabelText('Move up');
     expect(moveUpButtons[0]!).toBeDisabled();
   });
 
   it('disables move down for last item', () => {
-    render(<LanguageList records={[mockLanguage, mockLanguage2]} onEdit={vi.fn()} onDelete={vi.fn()} onMoveUp={vi.fn()} onMoveDown={vi.fn()} />);
+    render(
+      <LanguageList
+        records={[mockLanguage, mockLanguage2]}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        onMoveUp={vi.fn()}
+        onMoveDown={vi.fn()}
+      />,
+    );
     const moveDownButtons = screen.getAllByLabelText('Move down');
     expect(moveDownButtons[1]!).toBeDisabled();
   });
@@ -108,7 +164,12 @@ describe('LanguageForm', () => {
     fireEvent.change(comboboxes[1]!, { target: { value: LanguageProficiency.BASIC } });
     fireEvent.change(comboboxes[2]!, { target: { value: LanguageProficiency.BASIC } });
     await userEvent.click(screen.getByText('Add Language'));
-    expect(onSave).toHaveBeenCalledWith({ name: 'French', speaking: 'CONVERSATIONAL', reading: 'BASIC', writing: 'BASIC' });
+    expect(onSave).toHaveBeenCalledWith({
+      name: 'French',
+      speaking: 'CONVERSATIONAL',
+      reading: 'BASIC',
+      writing: 'BASIC',
+    });
   });
 
   it('shows validation error for empty name', async () => {

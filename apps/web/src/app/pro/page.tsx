@@ -15,7 +15,7 @@ export default function ProPage() {
           </p>
         </div>
 
-        <div 
+        <div
           style={{
             display: 'inline-block',
             background: 'rgba(99, 102, 241, 0.2)',
@@ -27,17 +27,22 @@ export default function ProPage() {
             fontSize: '0.9rem',
             letterSpacing: '0.05em',
             textTransform: 'uppercase',
-            marginBottom: '2rem'
+            marginBottom: '2rem',
           }}
         >
           Coming Soon
         </div>
 
         <p className={styles.subtitle} style={{ marginBottom: '2.5rem' }}>
-          We are polishing the final features for our Pro tier. Get ready to supercharge your career!
+          We are polishing the final features for our Pro tier. Get ready to supercharge your
+          career!
         </p>
 
-        <Link href="/" className={styles.submitButton} style={{ textDecoration: 'none', display: 'inline-block', padding: '0.75rem 2rem' }}>
+        <Link
+          href="/"
+          className={styles.submitButton}
+          style={{ textDecoration: 'none', display: 'inline-block', padding: '0.75rem 2rem' }}
+        >
           Return Home
         </Link>
       </div>

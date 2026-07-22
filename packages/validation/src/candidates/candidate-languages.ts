@@ -9,7 +9,9 @@ export const candidateLanguageSchema = z.object({
     .max(100, 'Language name must not exceed 100 characters')
     .regex(/[a-zA-Z]/, 'Language name must contain at least one letter'),
 
-  speaking: z.nativeEnum(LanguageProficiency, { required_error: 'Speaking proficiency is required' }),
+  speaking: z.nativeEnum(LanguageProficiency, {
+    required_error: 'Speaking proficiency is required',
+  }),
   reading: z.nativeEnum(LanguageProficiency, { required_error: 'Reading proficiency is required' }),
   writing: z.nativeEnum(LanguageProficiency, { required_error: 'Writing proficiency is required' }),
 });

@@ -15,7 +15,7 @@ export default function CareersPage() {
           </p>
         </div>
 
-        <div 
+        <div
           style={{
             display: 'inline-block',
             background: 'rgba(99, 102, 241, 0.2)',
@@ -27,17 +27,22 @@ export default function CareersPage() {
             fontSize: '0.9rem',
             letterSpacing: '0.05em',
             textTransform: 'uppercase',
-            marginBottom: '2rem'
+            marginBottom: '2rem',
           }}
         >
           Coming Soon
         </div>
 
         <p className={styles.subtitle} style={{ marginBottom: '2.5rem' }}>
-          Our job board is currently under construction. Please check back later for exciting opportunities to join our team!
+          Our job board is currently under construction. Please check back later for exciting
+          opportunities to join our team!
         </p>
 
-        <Link href="/" className={styles.submitButton} style={{ textDecoration: 'none', display: 'inline-block', padding: '0.75rem 2rem' }}>
+        <Link
+          href="/"
+          className={styles.submitButton}
+          style={{ textDecoration: 'none', display: 'inline-block', padding: '0.75rem 2rem' }}
+        >
           Return Home
         </Link>
       </div>

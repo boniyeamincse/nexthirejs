@@ -30,12 +30,28 @@ const mockSkill2: CandidateSkillResult = {
 
 describe('SkillList', () => {
   it('renders empty state', () => {
-    render(<SkillList records={[]} onEdit={vi.fn()} onDelete={vi.fn()} onMoveUp={vi.fn()} onMoveDown={vi.fn()} />);
+    render(
+      <SkillList
+        records={[]}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        onMoveUp={vi.fn()}
+        onMoveDown={vi.fn()}
+      />,
+    );
     expect(screen.getByText('No skills added yet')).toBeInTheDocument();
   });
 
   it('renders skill records', () => {
-    render(<SkillList records={[mockSkill]} onEdit={vi.fn()} onDelete={vi.fn()} onMoveUp={vi.fn()} onMoveDown={vi.fn()} />);
+    render(
+      <SkillList
+        records={[mockSkill]}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        onMoveUp={vi.fn()}
+        onMoveDown={vi.fn()}
+      />,
+    );
     expect(screen.getByText('TypeScript')).toBeInTheDocument();
     expect(screen.getByText('ADVANCED')).toBeInTheDocument();
     expect(screen.getByText('5 years of experience')).toBeInTheDocument();
@@ -43,14 +59,30 @@ describe('SkillList', () => {
 
   it('calls onEdit with the record', async () => {
     const onEdit = vi.fn();
-    render(<SkillList records={[mockSkill]} onEdit={onEdit} onDelete={vi.fn()} onMoveUp={vi.fn()} onMoveDown={vi.fn()} />);
+    render(
+      <SkillList
+        records={[mockSkill]}
+        onEdit={onEdit}
+        onDelete={vi.fn()}
+        onMoveUp={vi.fn()}
+        onMoveDown={vi.fn()}
+      />,
+    );
     await userEvent.click(screen.getByLabelText('Edit TypeScript'));
     expect(onEdit).toHaveBeenCalledWith(mockSkill);
   });
 
   it('calls onDelete with the id', async () => {
     const onDelete = vi.fn();
-    render(<SkillList records={[mockSkill]} onEdit={vi.fn()} onDelete={onDelete} onMoveUp={vi.fn()} onMoveDown={vi.fn()} />);
+    render(
+      <SkillList
+        records={[mockSkill]}
+        onEdit={vi.fn()}
+        onDelete={onDelete}
+        onMoveUp={vi.fn()}
+        onMoveDown={vi.fn()}
+      />,
+    );
     await userEvent.click(screen.getByLabelText('Delete TypeScript'));
     expect(onDelete).toHaveBeenCalledWith('1');
   });
@@ -58,7 +90,15 @@ describe('SkillList', () => {
   it('calls onMoveUp and onMoveDown', async () => {
     const onMoveUp = vi.fn();
     const onMoveDown = vi.fn();
-    render(<SkillList records={[mockSkill, mockSkill2]} onEdit={vi.fn()} onDelete={vi.fn()} onMoveUp={onMoveUp} onMoveDown={onMoveDown} />);
+    render(
+      <SkillList
+        records={[mockSkill, mockSkill2]}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        onMoveUp={onMoveUp}
+        onMoveDown={onMoveDown}
+      />,
+    );
     const moveUpButtons = screen.getAllByLabelText('Move up');
     const moveDownButtons = screen.getAllByLabelText('Move down');
     await userEvent.click(moveUpButtons[1]!);
@@ -68,13 +108,29 @@ describe('SkillList', () => {
   });
 
   it('disables move up for first item', () => {
-    render(<SkillList records={[mockSkill, mockSkill2]} onEdit={vi.fn()} onDelete={vi.fn()} onMoveUp={vi.fn()} onMoveDown={vi.fn()} />);
+    render(
+      <SkillList
+        records={[mockSkill, mockSkill2]}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        onMoveUp={vi.fn()}
+        onMoveDown={vi.fn()}
+      />,
+    );
     const moveUpButtons = screen.getAllByLabelText('Move up');
     expect(moveUpButtons[0]!).toBeDisabled();
   });
 
   it('disables move down for last item', () => {
-    render(<SkillList records={[mockSkill, mockSkill2]} onEdit={vi.fn()} onDelete={vi.fn()} onMoveUp={vi.fn()} onMoveDown={vi.fn()} />);
+    render(
+      <SkillList
+        records={[mockSkill, mockSkill2]}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        onMoveUp={vi.fn()}
+        onMoveDown={vi.fn()}
+      />,
+    );
     const moveDownButtons = screen.getAllByLabelText('Move down');
     expect(moveDownButtons[1]!).toBeDisabled();
   });
@@ -101,7 +157,11 @@ describe('SkillForm', () => {
     await userEvent.type(screen.getByPlaceholderText(/e\.g\. React/), 'React');
     fireEvent.change(screen.getByRole('combobox'), { target: { value: SkillLevel.INTERMEDIATE } });
     await userEvent.click(screen.getByText('Add Skill'));
-    expect(onSave).toHaveBeenCalledWith({ name: 'React', level: 'INTERMEDIATE', yearsOfExperience: null });
+    expect(onSave).toHaveBeenCalledWith({
+      name: 'React',
+      level: 'INTERMEDIATE',
+      yearsOfExperience: null,
+    });
   });
 
   it('shows validation error for empty name', async () => {

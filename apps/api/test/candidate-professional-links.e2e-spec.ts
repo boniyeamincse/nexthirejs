@@ -37,8 +37,12 @@ describe('CandidateProfessionalLinksController (e2e)', () => {
     prisma = app.get<PrismaService>(PrismaService);
     tokenService = app.get<TokenService>(TokenService);
 
-    await prisma.candidateProfessionalLink.deleteMany({ where: { user: { email: { startsWith: 'test-link' } } } });
-    await prisma.userSession.deleteMany({ where: { user: { email: { startsWith: 'test-link' } } } });
+    await prisma.candidateProfessionalLink.deleteMany({
+      where: { user: { email: { startsWith: 'test-link' } } },
+    });
+    await prisma.userSession.deleteMany({
+      where: { user: { email: { startsWith: 'test-link' } } },
+    });
     await prisma.userRole.deleteMany({ where: { user: { email: { startsWith: 'test-link' } } } });
     await prisma.user.deleteMany({ where: { email: { startsWith: 'test-link' } } });
 
@@ -69,7 +73,9 @@ describe('CandidateProfessionalLinksController (e2e)', () => {
       },
     });
 
-    candidateAccessToken = tokenService.signAccessToken(candidateUser.id, sid1, ['candidate']).token;
+    candidateAccessToken = tokenService.signAccessToken(candidateUser.id, sid1, [
+      'candidate',
+    ]).token;
 
     otherUser = await prisma.user.create({
       data: {

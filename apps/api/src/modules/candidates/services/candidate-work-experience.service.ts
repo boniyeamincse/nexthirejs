@@ -51,7 +51,10 @@ export class CandidateWorkExperienceService {
         completion,
       };
     } catch (error) {
-      this.logger.error(`Error listing work experience records for user ${userId}`, error instanceof Error ? error.stack : error);
+      this.logger.error(
+        `Error listing work experience records for user ${userId}`,
+        error instanceof Error ? error.stack : error,
+      );
       throw new InternalServerErrorException('Failed to retrieve work experience records');
     }
   }
@@ -94,7 +97,10 @@ export class CandidateWorkExperienceService {
       };
     } catch (error) {
       if (error instanceof BadRequestException) throw error;
-      this.logger.error(`Error creating work experience record for user ${userId}`, error instanceof Error ? error.stack : error);
+      this.logger.error(
+        `Error creating work experience record for user ${userId}`,
+        error instanceof Error ? error.stack : error,
+      );
       throw new InternalServerErrorException('Failed to create work experience record');
     }
   }
@@ -138,7 +144,10 @@ export class CandidateWorkExperienceService {
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
       if (error instanceof BadRequestException) throw error;
-      this.logger.error(`Error updating work experience record ${recordId} for user ${userId}`, error instanceof Error ? error.stack : error);
+      this.logger.error(
+        `Error updating work experience record ${recordId} for user ${userId}`,
+        error instanceof Error ? error.stack : error,
+      );
       throw new InternalServerErrorException('Failed to update work experience record');
     }
   }
@@ -171,7 +180,10 @@ export class CandidateWorkExperienceService {
       });
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
-      this.logger.error(`Error deleting work experience record ${recordId} for user ${userId}`, error instanceof Error ? error.stack : error);
+      this.logger.error(
+        `Error deleting work experience record ${recordId} for user ${userId}`,
+        error instanceof Error ? error.stack : error,
+      );
       throw new InternalServerErrorException('Failed to delete work experience record');
     }
   }
@@ -189,7 +201,9 @@ export class CandidateWorkExperienceService {
 
       for (const id of validatedData.orderedIds) {
         if (!ownedIds.has(id)) {
-          throw new BadRequestException('Cannot reorder records that do not belong to you or do not exist');
+          throw new BadRequestException(
+            'Cannot reorder records that do not belong to you or do not exist',
+          );
         }
       }
 
@@ -211,7 +225,10 @@ export class CandidateWorkExperienceService {
       return { records: updatedRecords.map(this.mapRecordToResponse), completion };
     } catch (error) {
       if (error instanceof BadRequestException) throw error;
-      this.logger.error(`Error reordering work experience records for user ${userId}`, error instanceof Error ? error.stack : error);
+      this.logger.error(
+        `Error reordering work experience records for user ${userId}`,
+        error instanceof Error ? error.stack : error,
+      );
       throw new InternalServerErrorException('Failed to reorder work experience records');
     }
   }

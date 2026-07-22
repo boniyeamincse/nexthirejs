@@ -35,8 +35,12 @@ describe('CandidateSkillsController (e2e)', () => {
     prisma = app.get<PrismaService>(PrismaService);
     tokenService = app.get<TokenService>(TokenService);
 
-    await prisma.candidateSkill.deleteMany({ where: { user: { email: { startsWith: 'test-skill' } } } });
-    await prisma.userSession.deleteMany({ where: { user: { email: { startsWith: 'test-skill' } } } });
+    await prisma.candidateSkill.deleteMany({
+      where: { user: { email: { startsWith: 'test-skill' } } },
+    });
+    await prisma.userSession.deleteMany({
+      where: { user: { email: { startsWith: 'test-skill' } } },
+    });
     await prisma.userRole.deleteMany({ where: { user: { email: { startsWith: 'test-skill' } } } });
     await prisma.user.deleteMany({ where: { email: { startsWith: 'test-skill' } } });
 
@@ -67,7 +71,9 @@ describe('CandidateSkillsController (e2e)', () => {
       },
     });
 
-    candidateAccessToken = tokenService.signAccessToken(candidateUser.id, sid1, ['candidate']).token;
+    candidateAccessToken = tokenService.signAccessToken(candidateUser.id, sid1, [
+      'candidate',
+    ]).token;
 
     otherUser = await prisma.user.create({
       data: {
@@ -110,9 +116,7 @@ describe('CandidateSkillsController (e2e)', () => {
     });
 
     it('returns 401 when unauthenticated', () => {
-      return request(app.getHttpServer())
-        .get('/api/v1/candidates/me/skills')
-        .expect(401);
+      return request(app.getHttpServer()).get('/api/v1/candidates/me/skills').expect(401);
     });
   });
 

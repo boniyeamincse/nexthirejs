@@ -1,4 +1,17 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, HttpCode, HttpStatus, ParseUUIDPipe, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  HttpCode,
+  HttpStatus,
+  ParseUUIDPipe,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { CandidateAchievementService } from '../services/candidate-achievement.service';
 import { AuthGuard } from '../../auth/auth.guard';
@@ -28,10 +41,7 @@ export class CandidateAchievementController {
   @ApiOperation({ summary: 'Create achievement' })
   @ApiResponse({ status: 201, description: 'Achievement created successfully' })
   @ApiResponse({ status: 400, description: 'Validation failed or limit reached' })
-  async createAchievement(
-    @Req() req: AuthenticatedRequest,
-    @Body() body: any,
-  ) {
+  async createAchievement(@Req() req: AuthenticatedRequest, @Body() body: any) {
     return this.achievementService.createRecord(req.principal.userId, body);
   }
 
@@ -39,10 +49,7 @@ export class CandidateAchievementController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Reorder achievements' })
   @ApiResponse({ status: 200, description: 'Achievements reordered successfully' })
-  async reorderAchievements(
-    @Req() req: AuthenticatedRequest,
-    @Body() body: any,
-  ) {
+  async reorderAchievements(@Req() req: AuthenticatedRequest, @Body() body: any) {
     return this.achievementService.reorderRecords(req.principal.userId, body);
   }
 

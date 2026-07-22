@@ -43,14 +43,16 @@ export default function SessionsPage() {
   useEffect(() => {
     if (status !== 'authenticated') return;
     const abortController = new AbortController();
-    
+
     const init = async () => {
       if (abortController.signal.aborted) return;
       await fetchSessions();
     };
     void init();
-    
-    return () => { abortController.abort(); };
+
+    return () => {
+      abortController.abort();
+    };
   }, [status, fetchSessions]);
 
   async function handleRevoke() {
@@ -107,15 +109,16 @@ export default function SessionsPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-12">
-      <h1 className="mb-2 text-3xl font-bold tracking-tight text-zinc-900">
-        Security Settings
-      </h1>
+      <h1 className="mb-2 text-3xl font-bold tracking-tight text-zinc-900">Security Settings</h1>
       <p className="mb-8 text-sm text-zinc-500">
         Manage your active sessions. Revoke any session you do not recognise.
       </p>
 
       {error && (
-        <div role="alert" className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+        <div
+          role="alert"
+          className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800"
+        >
           {error}
           <button
             onClick={fetchSessions}
@@ -148,19 +151,30 @@ export default function SessionsPage() {
                         Current
                       </span>
                     )}
-                    <span className={`rounded px-2 py-0.5 text-xs font-medium ${
-                      session.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-zinc-100 text-zinc-600'
-                    }`}>
+                    <span
+                      className={`rounded px-2 py-0.5 text-xs font-medium ${
+                        session.status === 'ACTIVE'
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-zinc-100 text-zinc-600'
+                      }`}
+                    >
                       {session.status}
                     </span>
                   </div>
                   <div className="mt-1 text-sm text-zinc-500">
-                    {session.device.operatingSystem && <span>{session.device.operatingSystem} &middot; </span>}
-                    {session.device.deviceType && <span>{session.device.deviceType} &middot; </span>}
+                    {session.device.operatingSystem && (
+                      <span>{session.device.operatingSystem} &middot; </span>
+                    )}
+                    {session.device.deviceType && (
+                      <span>{session.device.deviceType} &middot; </span>
+                    )}
                     {session.ipAddressMasked && <span>{session.ipAddressMasked} &middot; </span>}
                     <span>Signed in {new Date(session.createdAt).toLocaleDateString()}</span>
                     {session.lastUsedAt && (
-                      <span> &middot; Last active {new Date(session.lastUsedAt).toLocaleDateString()}</span>
+                      <span>
+                        {' '}
+                        &middot; Last active {new Date(session.lastUsedAt).toLocaleDateString()}
+                      </span>
                     )}
                   </div>
                 </div>
@@ -204,9 +218,7 @@ export default function SessionsPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <h2 id="revoke-title" className="text-lg font-semibold text-zinc-900">
-              {revokeTarget.isCurrent
-                ? 'Revoke this session?'
-                : 'Revoke this session?'}
+              {revokeTarget.isCurrent ? 'Revoke this session?' : 'Revoke this session?'}
             </h2>
             <p className="mt-2 text-sm text-zinc-600">
               {revokeTarget.isCurrent

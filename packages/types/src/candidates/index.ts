@@ -16,7 +16,14 @@ export interface CandidateProfileCompletion {
   percentage: number;
   completedFields: string[];
   missingFields: string[];
-  version: 'candidate-profile-basic-v1' | 'candidate-profile-v2' | 'candidate-profile-v3' | 'candidate-profile-v4' | 'candidate-profile-v5' | 'candidate-profile-v6' | 'candidate-profile-v7';
+  version:
+    | 'candidate-profile-basic-v1'
+    | 'candidate-profile-v2'
+    | 'candidate-profile-v3'
+    | 'candidate-profile-v4'
+    | 'candidate-profile-v5'
+    | 'candidate-profile-v6'
+    | 'candidate-profile-v7';
 }
 
 export interface CandidateProfileBasics {
