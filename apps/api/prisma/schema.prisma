@@ -519,6 +519,7 @@ model AssessmentCategory {
   updatedAt   DateTime     @updatedAt
 
   assessments Assessment[]
+  questions   AssessmentQuestion[]
 
   @@index([isActive, sortOrder])
 }
@@ -573,4 +574,58 @@ model CandidateDataExportRequest {
 
   @@index([userId, requestedAt])
   @@index([status, expiresAt])
+}
+
+enum AssessmentQuestionType {
+  SINGLE_CHOICE
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+  SHORT_TEXT
+}
+
+enum AssessmentQuestionStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+model AssessmentQuestion {
+  id                  String                   @id @default(uuid()) @db.Uuid
+  categoryId          String                   @db.Uuid
+  type                AssessmentQuestionType
+  status              AssessmentQuestionStatus @default(DRAFT)
+  difficulty          AssessmentDifficulty
+  prompt              String                   @db.Text
+  explanation         String?                  @db.Text
+  acceptedAnswers     String[]
+  tags                String[]
+  sourceReference     String?                  @db.VarChar(300)
+  estimatedSeconds    Int?
+  createdById         String?                  @db.Uuid
+  updatedById         String?                  @db.Uuid
+  archivedAt          DateTime?
+  createdAt           DateTime                 @default(now())
+  updatedAt           DateTime                 @updatedAt
+
+  category AssessmentCategory       @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  options  AssessmentQuestionOption[]
+
+  @@index([categoryId, status])
+  @@index([type, difficulty, status])
+  @@index([createdAt])
+}
+
+model AssessmentQuestionOption {
+  id         String   @id @default(uuid()) @db.Uuid
+  questionId String   @db.Uuid
+  label      String   @db.Text
+  isCorrect  Boolean  @default(false)
+  sortOrder  Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  question AssessmentQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([questionId, sortOrder])
+  @@index([questionId])
 }

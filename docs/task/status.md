@@ -81,25 +81,25 @@ Use only these values:
 ## 5. Current Task
 
 ```yaml
-task_id: NH-P2-T001
-title: Establish Assessment Domain Foundation
+task_id: NH-P2-T002
+title: Establish Assessment Take Domain Foundation
 phase: Phase 2
 status: COMPLETED
-started_at: 2026-07-22T04:00:00Z
-completed_at: 2026-07-22T07:54:00Z
+started_at: 2026-07-22T08:00:00Z
+completed_at: 2026-07-22T08:22:00Z
 assigned_to: AI Development Workflow
 dependencies:
-  - NH-P1-T018
+  - NH-P2-T001
 blockers: []
 git_commit:
   hash: pending
-  message: 'feat(assessment): establish assessment domain foundation [NH-P2-T001]'
+  message: 'feat(assessment): establish assessment take domain foundation [NH-P2-T002]'
 phase_status:
   phase: Phase 2
   status: IN_PROGRESS
 next_task:
-  task_id: NH-P2-T002
-  title: Establish Assessment Take Domain Foundation
+  task_id: NH-P2-T003
+  title: Implement Assessment Taker Experience
 ```
 
 ---
@@ -130,6 +130,36 @@ next_task:
 | NH-P1-T017 | Candidate Account Deactivation and Data Export   | Phase 1 | COMPLETED | 2026-07-22T10:40:00Z    |
 | NH-P1-T018 | Phase 1 Integration and Security Quality Gate    | Phase 1 | COMPLETED | 2026-07-22T11:45:00Z    |
 | NH-P2-T001 | Establish Assessment Domain Foundation           | Phase 2 | COMPLETED | 2026-07-22T07:54:00Z    |
+| NH-P2-T002 | Establish Assessment Take Domain Foundation      | Phase 2 | COMPLETED | 2026-07-22T08:22:00Z    |
+
+---
+
+## Task Update — NH-P2-T002
+
+- Status: COMPLETED
+- Started At: 2026-07-22T08:00:00Z
+- Completed At: 2026-07-22T08:22:00Z
+- Summary: Implemented the Assessment Category and Question Bank Management module (NH-P2-T002). Extended Prisma schema with AssessmentQuestion and AssessmentQuestionOption models and migrated DB. Created management endpoints under `/v1/manage/assessments/` protected by `assessment_manager` role. Implemented Zod validation schemas for complex question logic (e.g., correct options count per type). Added management API tests, E2E tests for question and category management.
+- Files Added:
+  - Database: `apps/api/prisma/migrations/20260722081000_add_assessment_questions/` (timestamp may vary)
+  - API: `apps/api/src/modules/assessments/management/controllers/*`, `apps/api/src/modules/assessments/management/services/*`
+  - E2E: `apps/api/test/assessments-management.e2e-spec.ts`
+- Files Modified:
+  - `apps/api/prisma/schema.prisma`
+  - `apps/api/prisma/seed.ts`
+  - `apps/api/src/modules/assessments/assessments.module.ts`
+  - `apps/api/src/modules/assessments/controllers/assessment-catalog.controller.ts` (fixed any types)
+  - `apps/api/src/modules/assessments/services/assessment-catalog.service.ts`
+  - `packages/validation/tests/assessment-management.test.ts`
+  - `docs/task/status.md`
+- Database Changes: Added `AssessmentQuestion` and `AssessmentQuestionOption` tables.
+- API Changes: Implemented management API for categories and questions with atomic transactions for question/option creation and updates, and audit logging.
+- Tests Added: E2E tests for category and question management APIs.
+- Test Result: E2E tests passed ✅, Typechecks passed ✅, Linters passed (except pre-existing `any` type errors in `apps/api`) ⚠️.
+- Blockers: None
+- Decisions: Fixed TS enum usage and `ZodValidationPipe` metadata errors by moving schema parsing into the service layer and explicitly casting types, which correctly resolved NestJS DI compiler issues with TS `isolatedModules: true`.
+- Pre-existing Issues: `apps/api` has 1917 lint errors from previous work causing `pnpm lint` to fail globally. `apps/web` tests fail due to Vite/React incompatibility.
+- Next Task: NH-P2-T003 — Implement Assessment Taker Experience
 
 ---
 

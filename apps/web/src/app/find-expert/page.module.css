@@ -1,0 +1,298 @@
+.container {
+  min-height: 100vh;
+  background-color: #0f172a;
+  color: #f8fafc;
+  font-family: var(--font-outfit), sans-serif;
+  padding-bottom: 6rem;
+}
+
+/* Header Section */
+.hero {
+  position: relative;
+  padding: 6rem 2rem 4rem;
+  background: radial-gradient(ellipse at 50% 0%, #312e81 0%, #0f172a 70%);
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.title {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.subtitle {
+  font-size: 1.25rem;
+  color: #94a3b8;
+  max-width: 600px;
+  margin: 0 auto 3rem;
+  line-height: 1.6;
+}
+
+/* Search Bar */
+.searchContainer {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  gap: 1rem;
+  background: rgba(30, 41, 59, 0.7);
+  padding: 0.75rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(12px);
+}
+
+.searchInputWrapper {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 1.25rem;
+  color: #64748b;
+  font-size: 1.2rem;
+}
+
+.searchInput {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: #f8fafc;
+  font-size: 1.1rem;
+  padding: 0.75rem 1rem 0.75rem 3.5rem;
+  outline: none;
+}
+
+.searchInput::placeholder {
+  color: #64748b;
+}
+
+.searchButton {
+  background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.searchButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+}
+
+/* Filters */
+.filters {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+.filterPill {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  padding: 0.5rem 1.25rem;
+  border-radius: 9999px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filterPill:hover,
+.filterPill.active {
+  background: rgba(99, 102, 241, 0.2);
+  border-color: rgba(99, 102, 241, 0.5);
+  color: #a5b4fc;
+}
+
+/* Grid Section */
+.content {
+  max-width: 1200px;
+  margin: 4rem auto 0;
+  padding: 0 2rem;
+}
+
+.expertGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 2rem;
+}
+
+/* Expert Card */
+.expertCard {
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 1.25rem;
+  padding: 2rem;
+  transition: all 0.4s ease;
+  backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+}
+
+.expertCard:hover {
+  transform: translateY(-5px);
+  background: rgba(30, 41, 59, 0.8);
+  border-color: rgba(99, 102, 241, 0.3);
+  box-shadow: 0 20px 40px -15px rgba(99, 102, 241, 0.15);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.expertInfo {
+  flex: 1;
+}
+
+.expertName {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #f8fafc;
+  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.verifiedBadge {
+  color: #38bdf8;
+  font-size: 1rem;
+}
+
+.expertTitle {
+  font-size: 0.95rem;
+  color: #94a3b8;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #cbd5e1;
+}
+
+.star {
+  color: #f59e0b;
+}
+
+.bio {
+  color: #94a3b8;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  margin-top: auto;
+}
+
+.skillTag {
+  background: rgba(255, 255, 255, 0.05);
+  color: #cbd5e1;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.price {
+  display: flex;
+  flex-direction: column;
+}
+
+.priceAmount {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.priceLabel {
+  font-size: 0.75rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.bookButton {
+  background: rgba(99, 102, 241, 0.1);
+  color: #a5b4fc;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  padding: 0.6rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.expertCard:hover .bookButton {
+  background: #4f46e5;
+  color: white;
+  border-color: #4f46e5;
+}
+
+@media (max-width: 768px) {
+  .searchContainer {
+    flex-direction: column;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  .searchInputWrapper {
+    background: rgba(30, 41, 59, 0.7);
+    border-radius: 9999px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .searchButton {
+    width: 100%;
+  }
+}

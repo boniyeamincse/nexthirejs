@@ -7,16 +7,27 @@ import { AssessmentLifecycleService } from './services/assessment-lifecycle.serv
 import { AssessmentRepository } from './repositories/assessment.repository';
 import { AssessmentCategoryRepository } from './repositories/assessment-category.repository';
 
+import { AssessmentCategoryManagementController } from './management/controllers/assessment-category-management.controller';
+import { AssessmentCategoryManagementService } from './management/services/assessment-category-management.service';
+import { AssessmentQuestionManagementController } from './management/controllers/assessment-question-management.controller';
+import { AssessmentQuestionManagementService } from './management/services/assessment-question-management.service';
+
 import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [DatabaseModule, AuditModule, AuthModule],
-  controllers: [AssessmentCatalogController],
+  controllers: [
+    AssessmentCatalogController,
+    AssessmentCategoryManagementController,
+    AssessmentQuestionManagementController,
+  ],
   providers: [
     AssessmentCatalogService,
     AssessmentLifecycleService,
     AssessmentRepository,
     AssessmentCategoryRepository,
+    AssessmentCategoryManagementService,
+    AssessmentQuestionManagementService,
   ],
   exports: [AssessmentLifecycleService, AssessmentRepository, AssessmentCategoryRepository],
 })

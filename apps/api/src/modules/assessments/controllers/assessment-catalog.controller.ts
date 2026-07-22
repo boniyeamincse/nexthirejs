@@ -37,7 +37,7 @@ export class AssessmentCatalogController {
   @ApiResponse({ status: 403, description: 'CANDIDATE_ROLE_REQUIRED or AUTH_ACCOUNT_UNAVAILABLE' })
   async listCatalog(
     @Req() req: AuthenticatedRequest,
-    @Query() query: Record<string, unknown>,
+    @Query() query: any,
   ) {
     return this.catalogService.listCatalog(req.principal.userId, query);
   }

@@ -83,3 +83,5 @@ export interface PaginatedAssessmentCatalogResult {
   };
   filters: AssessmentCatalogFilterOptions;
 }
+
+export * from './management.js';

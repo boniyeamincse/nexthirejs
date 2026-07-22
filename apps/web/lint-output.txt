@@ -1,0 +1,128 @@
+
+> @nexthire/web@0.1.0 lint /home/boni/Desktop/nexthirefinal/apps/web
+> eslint .
+
+
+/home/boni/Desktop/nexthirefinal/apps/web/src/app/(auth)/forgot-password/page.tsx
+  22:14  warning  'error' is defined but never used                                @typescript-eslint/no-unused-vars
+  39:44  error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+/home/boni/Desktop/nexthirefinal/apps/web/src/app/(authenticated)/assessments/[assessmentId]/page.tsx
+   55:12  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/boni/Desktop/nexthirefinal/apps/web/src/app/(authenticated)/assessments/[assessmentId]/page.tsx:55:12
+  53 |   useEffect(() => {
+  54 |     if (authStatus === 'authenticated') {
+> 55 |       void fetchDetail();
+     |            ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  56 |     } else if (authStatus === 'unauthenticated') {
+  57 |       setLoading(false);
+  58 |     }  react-hooks/set-state-in-effect
+  116:13  error  Do not use an `<a>` element to navigate to `/assessments/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @next/next/no-html-link-for-pages
+  134:13  error  Do not use an `<a>` element to navigate to `/assessments/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @next/next/no-html-link-for-pages
+  145:7   error  Do not use an `<a>` element to navigate to `/assessments/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @next/next/no-html-link-for-pages
+
+/home/boni/Desktop/nexthirefinal/apps/web/src/app/(authenticated)/assessments/page.tsx
+   7:38  warning  'AssessmentCategorySummary' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+  69:12  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/boni/Desktop/nexthirefinal/apps/web/src/app/(authenticated)/assessments/page.tsx:69:12
+  67 |   useEffect(() => {
+  68 |     if (authStatus === 'authenticated') {
+> 69 |       void fetchCatalog();
+     |            ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  70 |     } else if (authStatus === 'unauthenticated') {
+  71 |       setLoading(false);
+  72 |     }  react-hooks/set-state-in-effect
+
+/home/boni/Desktop/nexthirefinal/apps/web/src/app/(authenticated)/dashboard/page.tsx
+  44:10  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/boni/Desktop/nexthirefinal/apps/web/src/app/(authenticated)/dashboard/page.tsx:44:10
+  42 |
+  43 |   useEffect(() => {
+> 44 |     void fetchDashboard();
+     |          ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  45 |   }, [fetchDashboard]);
+  46 |
+  47 |   const statusLabel = (s: string): string => {  react-hooks/set-state-in-effect
+
+/home/boni/Desktop/nexthirefinal/apps/web/src/app/(authenticated)/profile/achievements/page.tsx
+  124:19  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-explicit-any
+  132:5   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/boni/Desktop/nexthirefinal/apps/web/src/app/(authenticated)/profile/achievements/page.tsx:132:5
+  130 |
+  131 |   useEffect(() => {
+> 132 |     fetchAll();
+      |     ^^^^^^^^ Avoid calling setState() directly within an effect
+  133 |   }, [fetchAll]);
+  134 |
+  135 |   const handleSaveAchievement = async (  react-hooks/set-state-in-effect
+  166:19  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-explicit-any
+  181:19  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-explicit-any
+  198:19  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-explicit-any
+  235:19  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-explicit-any
+  255:19  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-explicit-any
+  272:19  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-explicit-any
+
+/home/boni/Desktop/nexthirefinal/apps/web/src/app/(authenticated)/profile/certifications/page.tsx
+  77:10  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/boni/Desktop/nexthirefinal/apps/web/src/app/(authenticated)/profile/certifications/page.tsx:77:10
+  75 |   useEffect(() => {
+  76 |     const abortController = new AbortController();
+> 77 |     void fetchRecords(abortController.signal).finally(() => {
+     |          ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  78 |       if (!abortController.signal.aborted) {
+  79 |         setLoading(false);
+  80 |       }  react-hooks/set-state-in-effect
+
+/home/boni/Desktop/nexthirefinal/apps/web/src/features/candidate-dashboard/__tests__/dashboard.test.tsx
+  3:8  warning  'userEvent' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/boni/Desktop/nexthirefinal/apps/web/src/features/candidate-profile/certifications/__tests__/certifications.test.tsx
+  3:26  warning  'fireEvent' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/boni/Desktop/nexthirefinal/apps/web/src/features/candidate-profile/preview/__tests__/preview.test.tsx
+  2:26  warning  'waitFor' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/boni/Desktop/nexthirefinal/apps/web/src/features/candidate-profile/training/__tests__/training.test.tsx
+  3:26  warning  'fireEvent' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/boni/Desktop/nexthirefinal/apps/web/src/features/data-export/__tests__/account-settings.test.tsx
+  2:35  warning  'act' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 23 problems (16 errors, 7 warnings)
+
+ ELIFECYCLE  Command failed with exit code 1.

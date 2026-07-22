@@ -9,6 +9,8 @@ import type {
   AssessmentCatalogItem,
   AssessmentCatalogDetail,
   PaginatedAssessmentCatalogResult,
+} from '@nexthire/types';
+import {
   AssessmentType,
   AssessmentDifficulty,
   AssessmentAvailability,
@@ -79,9 +81,9 @@ export class AssessmentCatalogService {
       this.categoryRepository.findActive(),
     ]);
 
-    const typeValues: AssessmentType[] = ['PRACTICE', 'CERTIFICATION', 'SCREENING', 'SKILL_CHECK'];
-    const difficultyValues: AssessmentDifficulty[] = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT'];
-    const availabilityValues: AssessmentAvailability[] = ['AVAILABLE', 'COMING_SOON', 'UNAVAILABLE'];
+    const typeValues: AssessmentType[] = [AssessmentType.PRACTICE, AssessmentType.CERTIFICATION, AssessmentType.SCREENING, AssessmentType.SKILL_CHECK];
+    const difficultyValues: AssessmentDifficulty[] = [AssessmentDifficulty.BEGINNER, AssessmentDifficulty.INTERMEDIATE, AssessmentDifficulty.ADVANCED, AssessmentDifficulty.EXPERT];
+    const availabilityValues: AssessmentAvailability[] = [AssessmentAvailability.AVAILABLE, AssessmentAvailability.COMING_SOON, AssessmentAvailability.UNAVAILABLE];
 
     void this.auditService.recordRequired({
       actorType: AuditActorType.USER,

@@ -26,6 +26,11 @@
       "types": "./dist/auth/candidate-registration.d.mts",
       "import": "./dist/auth/candidate-registration.mjs",
       "require": "./dist/auth/candidate-registration.mjs"
+    },
+    "./assessments": {
+      "types": "./dist/assessments/index.d.mts",
+      "import": "./dist/assessments/index.mjs",
+      "require": "./dist/assessments/index.mjs"
     }
   },
   "files": [

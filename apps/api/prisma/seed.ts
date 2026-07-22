@@ -42,6 +42,38 @@ async function main() {
 
   console.log(`Seeded test candidate: ${testCandidate.email}`);
 
+  const managerRole = await prisma.role.upsert({
+    where: { code: 'assessment_manager' },
+    update: {},
+    create: {
+      code: 'assessment_manager',
+      name: 'Assessment Manager',
+      description: 'Can manage assessment categories and questions',
+      isSystem: true,
+    },
+  });
+
+  console.log(`Seeded role: ${managerRole.code} (${managerRole.id})`);
+
+  const testManager = await prisma.user.upsert({
+    where: { email: 'manager@example.com' },
+    update: {},
+    create: {
+      email: 'manager@example.com',
+      passwordHash:
+        '$argon2id$v=19$m=65536,p=4,t=3$iY1KhtmOrBMJuGNqRFyPmQ$e07Yj840R2y+CDoXmSTmlmSoDBDDoHQvfNztpbLqu5A', // same as candidate
+      status: 'ACTIVE',
+      emailVerifiedAt: new Date(),
+      roles: {
+        create: {
+          roleId: managerRole.id,
+        },
+      },
+    },
+  });
+
+  console.log(`Seeded test manager: ${testManager.email}`);
+
   const bd = await prisma.country.upsert({
     where: { code: 'BD' },
     update: {},
