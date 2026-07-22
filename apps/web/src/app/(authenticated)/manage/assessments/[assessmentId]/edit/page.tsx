@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth } from '@/providers/auth-context';
 import { getManagedAssessment, updateAssessment } from '@/lib/api-client';
 
 export default function EditAssessmentPage({ params }: { params: { assessmentId: string } }) {

@@ -5,7 +5,7 @@ import { useAuth } from '@/providers/auth-context';
 import { getMyCandidateProfile, updateMyCandidateProfile } from '@/lib/api-client';
 import type { CandidateProfileCompletion } from '@nexthire/types';
 import type { CandidateProfileBasicsInput } from '@nexthire/validation';
-import styles from '../../(auth)/auth.module.css';
+import styles from '@/app/(auth)/auth.module.css';
 
 export default function ProfilePage() {
   const { getAccessToken, user } = useAuth();

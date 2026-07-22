@@ -3,29 +3,32 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { publicEnv } from '@/lib/env';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth } from '@/providers/auth-context';
 
 export default function AssessmentListPage() {
-  const { session } = useAuth();
+  const { getAccessToken } = useAuth();
   const [assessments, setAssessments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function load() {
-      if (!session?.accessToken) return;
+    const fetchAssessments = async () => {
+      const accessToken = getAccessToken();
+      if (!accessToken) {
+        setLoading(false);
+        return;
+      }
       try {
-        const res = await fetch(`${publicEnv.apiBaseUrl}/manage/assessments`, {
-          headers: { Authorization: `Bearer ${session.accessToken}` },
+        const response = await fetch(`${publicEnv.apiBaseUrl}/manage/assessments`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
         });
-        if (res.ok) {
-          const data = await res.json();
-          // Assuming the list returns an array directly, but normally it's paginated.
-          // Since I haven't implemented the LIST endpoint in the controller yet! 
-          // WAIT! I missed the LIST endpoint in AssessmentManagementController!
-          setAssessments(data.items || data || []);
+        if (response.ok) {
+          const data = await response.json();
+          setAssessments(data.items || []);
         }
       } catch (err) {
-        console.error(err);
+        console.error('Failed to fetch assessments', err);
       } finally {
         setLoading(false);
       }

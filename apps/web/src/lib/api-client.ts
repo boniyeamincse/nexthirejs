@@ -1899,3 +1899,70 @@ export async function republishAssessment(accessToken: string, assessmentId: str
   try { errorBody = await response.json(); } catch {}
   throw new Error(errorBody?.message ?? `Failed to republish assessment: ${response.status}`);
 }
+
+export async function startOrResumeAssessmentAttempt(accessToken: string, assessmentIdOrSlug: string) {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/assessments/${encodeURIComponent(assessmentIdOrSlug)}/attempts`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+  });
+  if (!response.ok) {
+    let errorBody = null;
+    try { errorBody = await response.json(); } catch {}
+    throw new Error(errorBody?.message ?? `Failed to start assessment attempt: ${response.status}`);
+  }
+  return response.json();
+}
+
+export async function getActiveAssessmentAttempt(accessToken: string, assessmentIdOrSlug: string) {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/assessments/${encodeURIComponent(assessmentIdOrSlug)}/attempts/active`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (response.status === 404) return null;
+  if (!response.ok) {
+    let errorBody = null;
+    try { errorBody = await response.json(); } catch {}
+    throw new Error(errorBody?.message ?? `Failed to fetch active attempt: ${response.status}`);
+  }
+  return response.json();
+}
+
+export async function clearAttemptAnswer(accessToken: string, attemptId: string, questionId: string) {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/assessment-attempts/${attemptId}/questions/${questionId}/answer`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (!response.ok && response.status !== 404) {
+    let errorBody = null;
+    try { errorBody = await response.json(); } catch {}
+    throw new Error(errorBody?.message ?? `Failed to clear answer: ${response.status}`);
+  }
+}
+
+export async function getAttemptWorkspace(accessToken: string, attemptId: string) {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/assessment-attempts/${attemptId}`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (!response.ok) {
+    let errorBody = null;
+    try { errorBody = await response.json(); } catch {}
+    throw new Error(errorBody?.message ?? `Failed to fetch attempt workspace: ${response.status}`);
+  }
+  return response.json();
+}
+
+export async function saveAttemptAnswer(accessToken: string, attemptId: string, questionId: string, payload: any) {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/assessment-attempts/${attemptId}/questions/${questionId}/answer`, {
+    method: 'PUT',
+    headers: { 
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}` 
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    let errorBody = null;
+    try { errorBody = await response.json(); } catch {}
+    throw new Error(errorBody?.message ?? `Failed to save answer: ${response.status}`);
+  }
+  return response.json();
+}

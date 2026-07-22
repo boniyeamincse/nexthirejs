@@ -8,7 +8,7 @@ import { getMyProfilePrivacy, updateMyProfilePrivacy } from '@/lib/api-client';
 import { ApiClientError } from '@/lib/api-client';
 import type { GetProfilePrivacyResult } from '@/lib/api-client';
 import { PrivacySettingsForm } from '@/features/candidate-profile/privacy/PrivacySettingsForm';
-import styles from '../../(auth)/auth.module.css';
+import styles from '@/app/(auth)/auth.module.css';
 
 export default function PrivacySettingsPage() {
   const { getAccessToken, logout, status: authStatus } = useAuth();

@@ -23,6 +23,14 @@ import { AssessmentReadinessService, AssessmentPublicationService } from './mana
 
 import { AuthModule } from '../auth/auth.module';
 
+import { CandidateAssessmentAttemptController } from './attempts/controllers/candidate-assessment-attempt.controller';
+import { AssessmentAttemptStartService } from './attempts/services/assessment-attempt-start.service';
+import { AssessmentAttemptSnapshotService } from './attempts/services/assessment-attempt-snapshot.service';
+import { AssessmentAttemptWorkspaceService } from './attempts/services/assessment-attempt-workspace.service';
+import { AssessmentAttemptAnswerService } from './attempts/services/assessment-attempt-answer.service';
+import { AssessmentAttemptProgressService } from './attempts/services/assessment-attempt-progress.service';
+import { AssessmentAttemptStateService } from './attempts/services/assessment-attempt-state.service';
+
 @Module({
   imports: [DatabaseModule, AuditModule, AuthModule],
   controllers: [
@@ -32,6 +40,7 @@ import { AuthModule } from '../auth/auth.module';
     AssessmentManagementController,
     AssessmentSectionController,
     AssessmentAssignmentController,
+    CandidateAssessmentAttemptController,
   ],
   providers: [
     AssessmentCatalogService,
@@ -45,6 +54,12 @@ import { AuthModule } from '../auth/auth.module';
     AssessmentAssignmentService,
     AssessmentReadinessService,
     AssessmentPublicationService,
+    AssessmentAttemptStartService,
+    AssessmentAttemptSnapshotService,
+    AssessmentAttemptWorkspaceService,
+    AssessmentAttemptAnswerService,
+    AssessmentAttemptProgressService,
+    AssessmentAttemptStateService,
   ],
   exports: [AssessmentLifecycleService, AssessmentRepository, AssessmentCategoryRepository],
 })

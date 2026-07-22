@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth } from '@/providers/auth-context';
 import { createAssessment } from '@/lib/api-client';
 
 export default function NewAssessmentPage() {

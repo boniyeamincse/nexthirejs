@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/providers/auth-context';
-import { getAssessmentDetail, ApiClientError } from '@/lib/api-client';
+import { getAssessmentDetail, ApiClientError, startOrResumeAssessmentAttempt, getActiveAssessmentAttempt } from '@/lib/api-client';
 import type { AssessmentCatalogDetail } from '@nexthire/types';
 
 export default function AssessmentDetailPage() {
@@ -15,8 +15,10 @@ export default function AssessmentDetailPage() {
   const assessmentId = typeof params.assessmentId === 'string' ? params.assessmentId : '';
 
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [assessment, setAssessment] = useState<AssessmentCatalogDetail | null>(null);
+  const [activeAttemptId, setActiveAttemptId] = useState<string | null>(null);
 
   const fetchDetail = useCallback(async () => {
     const token = getAccessToken();
@@ -32,6 +34,14 @@ export default function AssessmentDetailPage() {
     try {
       const result = await getAssessmentDetail(token, assessmentId);
       setAssessment(result);
+      try {
+        const active = await getActiveAssessmentAttempt(token, assessmentId);
+        if (active && active.attemptId) {
+          setActiveAttemptId(active.attemptId);
+        }
+      } catch {
+        // non-critical
+      }
     } catch (err) {
       if (err instanceof ApiClientError) {
         if (err.statusCode === 401) {
@@ -51,6 +61,20 @@ export default function AssessmentDetailPage() {
       setLoading(false);
     }
   }, [getAccessToken, logout, router, assessmentId]);
+
+  const handleStartOrResume = async () => {
+    const token = getAccessToken();
+    if (!token) return;
+    setActionLoading('starting');
+    try {
+      const result = await startOrResumeAssessmentAttempt(token, assessmentId);
+      router.push(`/assessments/attempts/${result.attemptId}`);
+    } catch (err: any) {
+      setError(err.message || 'Failed to start assessment.');
+    } finally {
+      setActionLoading(null);
+    }
+  };
 
   useEffect(() => {
     if (authStatus === 'authenticated') {
@@ -200,9 +224,41 @@ export default function AssessmentDetailPage() {
           }}
         >
           {isAvailable ? (
-            <p style={{ color: '#94a3b8', margin: 0 }}>
-              Assessment attempts will be enabled in a later step.
-            </p>
+            activeAttemptId ? (
+              <button
+                onClick={handleStartOrResume}
+                disabled={actionLoading === 'starting'}
+                style={{
+                  padding: '0.75rem 2rem',
+                  background: '#f59e0b',
+                  color: '#0f172a',
+                  border: 'none',
+                  borderRadius: '0.5rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                }}
+              >
+                {actionLoading === 'starting' ? 'Resuming...' : 'Resume Assessment'}
+              </button>
+            ) : (
+              <button
+                onClick={handleStartOrResume}
+                disabled={actionLoading === 'starting'}
+                style={{
+                  padding: '0.75rem 2rem',
+                  background: '#22c55e',
+                  color: '#0f172a',
+                  border: 'none',
+                  borderRadius: '0.5rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                }}
+              >
+                {actionLoading === 'starting' ? 'Starting...' : 'Start Assessment'}
+              </button>
+            )
           ) : (
             <p style={{ color: '#f59e0b', margin: 0 }}>
               {assessment.availability === 'COMING_SOON'

@@ -12,7 +12,7 @@ import {
   ApiClientError,
 } from '@/lib/api-client';
 import type { DataExportStatusResult } from '@/lib/api-client';
-import styles from '../../(auth)/auth.module.css';
+import styles from '@/app/(auth)/auth.module.css';
 
 type ExportStatus = 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED' | 'EXPIRED';
 

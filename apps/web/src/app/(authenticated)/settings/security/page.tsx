@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { useAuth } from '@/providers/auth-context';
 import { getMyAccountSecuritySummary, changePassword, ApiClientError } from '@/lib/api-client';
 import type { CandidateAccountSecuritySummary } from '@/lib/api-client';
-import styles from '../../(auth)/auth.module.css';
+import styles from '@/app/(auth)/auth.module.css';
 
 export default function AccountSecurityPage() {
   const { getAccessToken, logout, status: authStatus } = useAuth();

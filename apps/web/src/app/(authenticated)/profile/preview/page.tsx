@@ -8,7 +8,7 @@ import { getMyProfilePreview } from '@/lib/api-client';
 import { ApiClientError } from '@/lib/api-client';
 import type { OwnerProfilePreview } from '@nexthire/types';
 import { ProfilePreview } from '@/features/candidate-profile/preview/ProfilePreview';
-import styles from '../../(auth)/auth.module.css';
+import styles from '@/app/(auth)/auth.module.css';
 
 export default function ProfilePreviewPage() {
   const { getAccessToken, logout, status: authStatus } = useAuth();

@@ -9,7 +9,7 @@ import {
 } from '@/lib/api-client';
 import type { Country, CandidateProfileCompletion } from '@nexthire/types';
 import type { CandidatePreferenceInput } from '@nexthire/validation';
-import styles from '../../../(auth)/auth.module.css';
+import styles from '@/app/(auth)/auth.module.css';
 
 export default function PreferencesPage() {
   const { getAccessToken } = useAuth();

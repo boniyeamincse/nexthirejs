@@ -76,6 +76,7 @@ model User {
   profilePrivacy          CandidateProfilePrivacy?
   shareToken              CandidateProfileShareToken?
   dataExportRequests      CandidateDataExportRequest[]
+  assessmentAttempts      AssessmentAttempt[]
 }
 
 model Role {
@@ -553,6 +554,7 @@ model Assessment {
   category    AssessmentCategory             @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   sections    AssessmentSection[]
   assignments AssessmentQuestionAssignment[]
+  attempts    AssessmentAttempt[]
 
   @@index([status, visibility, availability])
   @@index([categoryId, status])
@@ -675,4 +677,117 @@ model AssessmentQuestionOption {
 
   @@unique([questionId, sortOrder])
   @@index([questionId])
+}
+
+enum AssessmentAttemptStatus {
+  IN_PROGRESS
+  EXPIRED
+  SUBMITTED
+  CANCELLED
+}
+
+model AssessmentAttempt {
+  id                           String                  @id @default(uuid()) @db.Uuid
+  assessmentId                 String                  @db.Uuid
+  candidateId                  String                  @db.Uuid
+  assessmentPublicationVersion Int
+  assessmentTitleSnapshot      String                  @db.VarChar(200)
+  assessmentSlugSnapshot       String                  @db.VarChar(220)
+  instructionsSnapshot         String?                 @db.Text
+  durationMinutesSnapshot      Int
+  passingScoreSnapshot         Int
+  totalPointsSnapshot          Decimal                 @db.Decimal(10, 2)
+  questionCountSnapshot        Int
+  status                       AssessmentAttemptStatus @default(IN_PROGRESS)
+  startedAt                    DateTime                @default(now())
+  deadlineAt                   DateTime
+  lastActivityAt               DateTime                @default(now())
+  expiredAt                    DateTime?
+  submittedAt                  DateTime?
+  createdAt                    DateTime                @default(now())
+  updatedAt                    DateTime                @updatedAt
+
+  assessment Assessment                  @relation(fields: [assessmentId], references: [id], onDelete: Restrict)
+  candidate  User                        @relation(fields: [candidateId], references: [id], onDelete: Restrict)
+  sections   AssessmentAttemptSection[]
+  questions  AssessmentAttemptQuestion[]
+  answers    AssessmentAttemptAnswer[]
+
+  @@index([candidateId, status])
+  @@index([assessmentId, candidateId])
+  @@index([status, deadlineAt])
+}
+
+model AssessmentAttemptSection {
+  id                   String   @id @default(uuid()) @db.Uuid
+  attemptId            String   @db.Uuid
+  sourceSectionId      String?  @db.Uuid
+  titleSnapshot        String   @db.VarChar(200)
+  descriptionSnapshot  String?  @db.Text
+  instructionsSnapshot String?  @db.Text
+  sortOrder            Int
+  isRequired           Boolean  @default(true)
+  createdAt            DateTime @default(now())
+
+  attempt   AssessmentAttempt           @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  questions AssessmentAttemptQuestion[]
+
+  @@unique([attemptId, sortOrder])
+  @@index([attemptId])
+}
+
+model AssessmentAttemptQuestion {
+  id                  String                 @id @default(uuid()) @db.Uuid
+  attemptId           String                 @db.Uuid
+  attemptSectionId    String                 @db.Uuid
+  sourceQuestionId    String?                @db.Uuid
+  typeSnapshot        AssessmentQuestionType
+  promptSnapshot      String                 @db.Text
+  explanationSnapshot String?                @db.Text
+  acceptedAnswersJson Json?
+  pointsSnapshot      Decimal                @db.Decimal(8, 2)
+  isRequired          Boolean                @default(true)
+  sortOrder           Int
+  createdAt           DateTime               @default(now())
+
+  attempt AssessmentAttempt                 @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  section AssessmentAttemptSection          @relation(fields: [attemptSectionId], references: [id], onDelete: Cascade)
+  options AssessmentAttemptQuestionOption[]
+  answer  AssessmentAttemptAnswer?
+
+  @@unique([attemptId, sourceQuestionId])
+  @@unique([attemptSectionId, sortOrder])
+  @@index([attemptId])
+}
+
+model AssessmentAttemptQuestionOption {
+  id                String   @id @default(uuid()) @db.Uuid
+  attemptQuestionId String   @db.Uuid
+  sourceOptionId    String?  @db.Uuid
+  labelSnapshot     String   @db.Text
+  isCorrectSnapshot Boolean
+  sortOrder         Int
+  createdAt         DateTime @default(now())
+
+  question AssessmentAttemptQuestion @relation(fields: [attemptQuestionId], references: [id], onDelete: Cascade)
+
+  @@unique([attemptQuestionId, sortOrder])
+  @@index([attemptQuestionId])
+}
+
+model AssessmentAttemptAnswer {
+  id                String    @id @default(uuid()) @db.Uuid
+  attemptId         String    @db.Uuid
+  attemptQuestionId String    @unique @db.Uuid
+  selectedOptionIds String[]
+  shortTextAnswer   String?   @db.Text
+  answeredAt        DateTime?
+  lastSavedAt       DateTime  @default(now())
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  attempt  AssessmentAttempt         @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question AssessmentAttemptQuestion @relation(fields: [attemptQuestionId], references: [id], onDelete: Cascade)
+
+  @@index([attemptId])
 }
