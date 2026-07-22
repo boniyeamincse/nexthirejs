@@ -3,6 +3,10 @@ import {
   SaveAssessmentDraftAnswerInputSchema,
   SubmitAssessmentAttemptInputSchema,
   AssessmentResultHistoryQuerySchema,
+  AssessmentPerformanceQuerySchema,
+  AssessmentLeaderboardQuerySchema,
+  CategoryLeaderboardQuerySchema,
+  UpdateLeaderboardParticipationInputSchema,
 } from '../src/assessments/attempts';
 
 describe('SaveAssessmentDraftAnswerInputSchema', () => {
@@ -158,5 +162,98 @@ describe('SubmitAssessmentAttemptInputSchema', () => {
       confirmation: 'submit',
     });
     expect(result.success).toBe(false);
+  });
+});
+
+describe('AssessmentPerformanceQuerySchema', () => {
+  it('valid report query passes', () => {
+    const result = AssessmentPerformanceQuerySchema.safeParse({});
+    expect(result.success).toBe(true);
+  });
+
+  it('valid report query with all filters passes', () => {
+    const result = AssessmentPerformanceQuerySchema.safeParse({
+      dateFrom: '2024-01-01',
+      dateTo: '2024-12-31',
+      assessmentType: 'PRACTICE',
+      difficulty: 'INTERMEDIATE',
+      category: '550e8400-e29b-41d4-a716-446655440000',
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('invalid date range fails', () => {
+    const result = AssessmentPerformanceQuerySchema.safeParse({
+      dateFrom: '2024-06-01',
+      dateTo: '2024-01-01',
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('invalid enum filter fails', () => {
+    const result = AssessmentPerformanceQuerySchema.safeParse({
+      assessmentType: 'INVALID',
+    });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe('AssessmentLeaderboardQuerySchema', () => {
+  it('valid leaderboard query passes', () => {
+    const result = AssessmentLeaderboardQuerySchema.safeParse({});
+    expect(result.success).toBe(true);
+  });
+
+  it('invalid page fails (< 1)', () => {
+    const result = AssessmentLeaderboardQuerySchema.safeParse({ page: 0 });
+    expect(result.success).toBe(false);
+  });
+
+  it('oversized page size fails (> 100)', () => {
+    const result = AssessmentLeaderboardQuerySchema.safeParse({ pageSize: 200 });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe('CategoryLeaderboardQuerySchema', () => {
+  it('valid category leaderboard query passes', () => {
+    const result = CategoryLeaderboardQuerySchema.safeParse({});
+    expect(result.success).toBe(true);
+  });
+});
+
+describe('UpdateLeaderboardParticipationInputSchema', () => {
+  it('valid settings input passes', () => {
+    const result = UpdateLeaderboardParticipationInputSchema.safeParse({
+      enabled: true,
+      displayName: 'Security Learner',
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('valid settings without alias passes', () => {
+    const result = UpdateLeaderboardParticipationInputSchema.safeParse({
+      enabled: true,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('unsafe/oversized alias fails', () => {
+    const result = UpdateLeaderboardParticipationInputSchema.safeParse({
+      enabled: true,
+      displayName: 'a',
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('unexpected fields are stripped', () => {
+    const result = UpdateLeaderboardParticipationInputSchema.safeParse({
+      enabled: true,
+      extraField: 'should be stripped',
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect((result.data as Record<string, unknown>).extraField).toBeUndefined();
+    }
   });
 });

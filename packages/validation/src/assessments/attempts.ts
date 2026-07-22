@@ -45,3 +45,39 @@ export const AssessmentResultHistoryQuerySchema = z.object({
 );
 
 export type AssessmentResultHistoryQueryInput = z.infer<typeof AssessmentResultHistoryQuerySchema>;
+
+export const AssessmentPerformanceQuerySchema = z.object({
+  dateFrom: z.string().regex(/^\d{4}-\d{2}-\d{2}/).optional(),
+  dateTo: z.string().regex(/^\d{4}-\d{2}-\d{2}/).optional(),
+  assessmentType: assessmentTypeEnum.optional(),
+  difficulty: difficultyEnum.optional(),
+  category: z.string().uuid().optional(),
+}).refine(
+  (data) => {
+    if (data.dateFrom && data.dateTo) {
+      return new Date(data.dateFrom) <= new Date(data.dateTo);
+    }
+    return true;
+  },
+  { message: 'dateFrom must be before or equal to dateTo' },
+);
+
+export const AssessmentLeaderboardQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).optional().default(1),
+  pageSize: z.coerce.number().int().min(1).max(100).optional().default(25),
+});
+
+export const CategoryLeaderboardQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).optional().default(1),
+  pageSize: z.coerce.number().int().min(1).max(100).optional().default(25),
+});
+
+export const UpdateLeaderboardParticipationInputSchema = z.object({
+  enabled: z.boolean(),
+  displayName: z.string().trim().min(2).max(80).nullable().optional(),
+});
+
+export type AssessmentPerformanceQueryInput = z.infer<typeof AssessmentPerformanceQuerySchema>;
+export type AssessmentLeaderboardQueryInput = z.infer<typeof AssessmentLeaderboardQuerySchema>;
+export type CategoryLeaderboardQueryInput = z.infer<typeof CategoryLeaderboardQuerySchema>;
+export type UpdateLeaderboardParticipationInputType = z.infer<typeof UpdateLeaderboardParticipationInputSchema>;

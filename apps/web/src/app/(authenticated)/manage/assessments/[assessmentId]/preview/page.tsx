@@ -13,7 +13,7 @@ import {
 
 export default function PreviewPublishPage({ params }: { params: { assessmentId: string } }) {
   const router = useRouter();
-  const { session } = useAuth();
+  const { getAccessToken } = useAuth();
   
   const [assessment, setAssessment] = useState<any>(null);
   const [readiness, setReadiness] = useState<any>(null);
@@ -22,12 +22,13 @@ export default function PreviewPublishPage({ params }: { params: { assessmentId:
   const [error, setError] = useState<string | null>(null);
 
   const load = async () => {
-    if (!session?.accessToken) return;
+    const accessToken = getAccessToken();
+    if (!accessToken) return;
     setLoading(true);
     try {
-      const data = await getManagedAssessment(session.accessToken, params.assessmentId);
+      const data = await getManagedAssessment(accessToken, params.assessmentId);
       setAssessment(data);
-      const readData = await getAssessmentReadiness(session.accessToken, params.assessmentId);
+      const readData = await getAssessmentReadiness(accessToken, params.assessmentId);
       setReadiness(readData);
     } catch (err: any) {
       setError(err.message || 'Failed to load readiness data');
@@ -37,18 +38,20 @@ export default function PreviewPublishPage({ params }: { params: { assessmentId:
   };
 
   useEffect(() => {
-    load();
-  }, [session, params.assessmentId]);
+    void load();
+  }, [getAccessToken, params.assessmentId]);
 
   const handlePublish = async () => {
     setActionLoading(true);
     try {
+      const accessToken = getAccessToken();
+      if (!accessToken) throw new Error('Not authenticated');
       if (assessment.status === 'ARCHIVED') {
-        await republishAssessment(session!.accessToken, params.assessmentId);
+        await republishAssessment(accessToken, params.assessmentId);
       } else {
-        await publishAssessment(session!.accessToken, params.assessmentId);
+        await publishAssessment(accessToken, params.assessmentId);
       }
-      load();
+      await load();
     } catch (err: any) {
       alert(err.message);
     } finally {
@@ -60,8 +63,10 @@ export default function PreviewPublishPage({ params }: { params: { assessmentId:
     if (!confirm('Are you sure you want to archive this assessment?')) return;
     setActionLoading(true);
     try {
-      await archiveAssessment(session!.accessToken, params.assessmentId);
-      load();
+      const accessToken = getAccessToken();
+      if (!accessToken) throw new Error('Not authenticated');
+      await archiveAssessment(accessToken, params.assessmentId);
+      await load();
     } catch (err: any) {
       alert(err.message);
     } finally {

@@ -27,3 +27,5 @@ export * from './assessments/assessment-lifecycle.js';
 export * from './assessments/management.js';
 export * from './assessments/authoring.js';
 export * from './assessments/attempts.js';
+export * from './assessments/retakes.js';
+export * from './assessments/certificates.js';

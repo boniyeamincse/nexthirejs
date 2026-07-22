@@ -8,6 +8,11 @@ import type {
   SubmitAssessmentAttemptInput,
   AssessmentResultHistoryResponse,
   AssessmentAttemptResultDetail,
+  AssessmentPerformanceReport,
+  LeaderboardParticipationSettings,
+  UpdateLeaderboardParticipationInput,
+  AssessmentLeaderboardResponse,
+  CategoryLeaderboardResponse,
 } from '@nexthire/types';
 
 interface ApiErrorDetail {
@@ -1686,6 +1691,12 @@ export async function deactivateMyAccount(
 import type {
   PaginatedAssessmentCatalogResult,
   AssessmentCatalogDetail,
+  AssessmentRetakeEligibility,
+  AssessmentRetakePolicy,
+  AssessmentCertificateListItem,
+  AssessmentCertificateDetail,
+  AssessmentCertificateDownloadResult,
+  AssessmentCertificateVerificationResult,
 } from '@nexthire/types';
 
 export async function listAssessments(
@@ -2088,4 +2099,356 @@ export async function getMyAssessmentResult(
   }
 
   return response.json();
+}
+
+// --- Assessment Performance & Leaderboards ---
+
+export async function getMyAssessmentPerformance(
+  accessToken: string,
+  queryString: string,
+): Promise<AssessmentPerformanceReport> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/candidates/me/assessment-performance?${queryString}`,
+    {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      cache: 'no-store',
+    },
+  );
+
+  if (!response.ok) {
+    let errorBody = null;
+    try { errorBody = await response.json(); } catch {}
+    throw new Error(
+      errorBody?.message ?? `Failed to fetch performance report: ${response.status}`,
+    );
+  }
+
+  return response.json();
+}
+
+export async function getMyLeaderboardSettings(
+  accessToken: string,
+): Promise<LeaderboardParticipationSettings> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/candidates/me/leaderboard-settings`,
+    {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      cache: 'no-store',
+    },
+  );
+
+  if (!response.ok) {
+    let errorBody = null;
+    try { errorBody = await response.json(); } catch {}
+    throw new Error(
+      errorBody?.message ?? `Failed to fetch leaderboard settings: ${response.status}`,
+    );
+  }
+
+  return response.json();
+}
+
+export async function updateMyLeaderboardSettings(
+  accessToken: string,
+  input: UpdateLeaderboardParticipationInput,
+): Promise<LeaderboardParticipationSettings> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/candidates/me/leaderboard-settings`,
+    {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(input),
+    },
+  );
+
+  if (!response.ok) {
+    let errorBody = null;
+    try { errorBody = await response.json(); } catch {}
+    throw new Error(
+      errorBody?.message ?? `Failed to update leaderboard settings: ${response.status}`,
+    );
+  }
+
+  return response.json();
+}
+
+export async function getAssessmentLeaderboard(
+  accessToken: string,
+  assessmentIdOrSlug: string,
+  queryString: string,
+): Promise<AssessmentLeaderboardResponse> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/assessment-leaderboards/assessments/${encodeURIComponent(assessmentIdOrSlug)}?${queryString}`,
+    {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      cache: 'no-store',
+    },
+  );
+
+  if (!response.ok) {
+    let errorBody = null;
+    try { errorBody = await response.json(); } catch {}
+    throw new Error(
+      errorBody?.message ?? `Failed to fetch leaderboard: ${response.status}`,
+    );
+  }
+
+  return response.json();
+}
+
+export async function getCategoryLeaderboard(
+  accessToken: string,
+  categoryIdOrSlug: string,
+  queryString: string,
+): Promise<CategoryLeaderboardResponse> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/assessment-leaderboards/categories/${encodeURIComponent(categoryIdOrSlug)}?${queryString}`,
+    {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      cache: 'no-store',
+    },
+  );
+
+  if (!response.ok) {
+    let errorBody = null;
+    try { errorBody = await response.json(); } catch {}
+    throw new Error(
+      errorBody?.message ?? `Failed to fetch category leaderboard: ${response.status}`,
+    );
+  }
+
+  return response.json();
+}
+
+// --- Assessment Certificates & Retake ---
+
+export async function getAssessmentRetakeEligibility(
+  accessToken: string,
+  assessmentIdOrSlug: string,
+): Promise<AssessmentRetakeEligibility> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/assessments/${encodeURIComponent(assessmentIdOrSlug)}/retake-eligibility`,
+    {
+      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    },
+  );
+
+  if (response.ok) {
+    return response.json() as Promise<AssessmentRetakeEligibility>;
+  }
+
+  let errorBody: ApiErrorResponse | null = null;
+  try {
+    errorBody = (await response.json()) as ApiErrorResponse;
+  } catch {
+    // ignore
+  }
+
+  throw new ApiClientError(
+    errorBody?.message ?? `Failed to fetch retake eligibility (${response.status})`,
+    response.status,
+    errorBody?.errors,
+    errorBody?.requestId,
+  );
+}
+
+export async function updateAssessmentRetakeCertificatePolicy(
+  accessToken: string,
+  assessmentId: string,
+  input: any,
+): Promise<AssessmentRetakePolicy> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/retake-certificate-policy`,
+    {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(input),
+    },
+  );
+
+  if (response.ok) {
+    return response.json() as Promise<AssessmentRetakePolicy>;
+  }
+
+  let errorBody: ApiErrorResponse | null = null;
+  try {
+    errorBody = (await response.json()) as ApiErrorResponse;
+  } catch {
+    // ignore
+  }
+
+  throw new ApiClientError(
+    errorBody?.message ?? `Failed to update retake certificate policy (${response.status})`,
+    response.status,
+    errorBody?.errors,
+    errorBody?.requestId,
+  );
+}
+
+export async function getMyCertificates(
+  accessToken: string,
+  params?: { page?: number; pageSize?: number; status?: string },
+): Promise<{ items: AssessmentCertificateListItem[]; pagination: { page: number; pageSize: number; totalItems: number; totalPages: number } }> {
+  const queryParts: string[] = [];
+  if (params?.page !== undefined) queryParts.push(`page=${params.page}`);
+  if (params?.pageSize !== undefined) queryParts.push(`pageSize=${params.pageSize}`);
+  if (params?.status) queryParts.push(`status=${encodeURIComponent(params.status)}`);
+  const queryString = queryParts.length > 0 ? `?${queryParts.join('&')}` : '';
+
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/candidates/me/certificates${queryString}`,
+    {
+      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+      cache: 'no-store',
+    },
+  );
+
+  if (response.ok) {
+    return response.json();
+  }
+
+  let errorBody: ApiErrorResponse | null = null;
+  try {
+    errorBody = (await response.json()) as ApiErrorResponse;
+  } catch {
+    // ignore
+  }
+
+  throw new ApiClientError(
+    errorBody?.message ?? `Failed to fetch certificates (${response.status})`,
+    response.status,
+    errorBody?.errors,
+    errorBody?.requestId,
+  );
+}
+
+export async function getMyCertificate(
+  accessToken: string,
+  certificateId: string,
+): Promise<AssessmentCertificateDetail> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/candidates/me/certificates/${encodeURIComponent(certificateId)}`,
+    {
+      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+      cache: 'no-store',
+    },
+  );
+
+  if (response.ok) {
+    return response.json() as Promise<AssessmentCertificateDetail>;
+  }
+
+  let errorBody: ApiErrorResponse | null = null;
+  try {
+    errorBody = (await response.json()) as ApiErrorResponse;
+  } catch {
+    // ignore
+  }
+
+  throw new ApiClientError(
+    errorBody?.message ?? `Failed to fetch certificate (${response.status})`,
+    response.status,
+    errorBody?.errors,
+    errorBody?.requestId,
+  );
+}
+
+export async function getMyCertificateDownload(
+  accessToken: string,
+  certificateId: string,
+): Promise<AssessmentCertificateDownloadResult> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/candidates/me/certificates/${encodeURIComponent(certificateId)}/download`,
+    {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    },
+  );
+
+  if (response.ok) {
+    return response.json() as Promise<AssessmentCertificateDownloadResult>;
+  }
+
+  let errorBody: ApiErrorResponse | null = null;
+  try {
+    errorBody = (await response.json()) as ApiErrorResponse;
+  } catch {
+    // ignore
+  }
+
+  throw new ApiClientError(
+    errorBody?.message ?? `Failed to get certificate download (${response.status})`,
+    response.status,
+    errorBody?.errors,
+    errorBody?.requestId,
+  );
+}
+
+export async function retryMyCertificate(
+  accessToken: string,
+  certificateId: string,
+): Promise<{ status: string }> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/candidates/me/certificates/${encodeURIComponent(certificateId)}/retry`,
+    {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    },
+  );
+
+  if (response.ok) {
+    return response.json() as Promise<{ status: string }>;
+  }
+
+  let errorBody: ApiErrorResponse | null = null;
+  try {
+    errorBody = (await response.json()) as ApiErrorResponse;
+  } catch {
+    // ignore
+  }
+
+  throw new ApiClientError(
+    errorBody?.message ?? `Failed to retry certificate (${response.status})`,
+    response.status,
+    errorBody?.errors,
+    errorBody?.requestId,
+  );
+}
+
+export async function verifyCertificate(
+  accessToken: string | undefined,
+  verificationCode: string,
+): Promise<AssessmentCertificateVerificationResult> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (accessToken) {
+    headers.Authorization = `Bearer ${accessToken}`;
+  }
+
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/public/certificates/verify/${encodeURIComponent(verificationCode)}`,
+    {
+      headers,
+    },
+  );
+
+  if (response.ok) {
+    return response.json() as Promise<AssessmentCertificateVerificationResult>;
+  }
+
+  let errorBody: ApiErrorResponse | null = null;
+  try {
+    errorBody = (await response.json()) as ApiErrorResponse;
+  } catch {
+    // ignore
+  }
+
+  throw new ApiClientError(
+    errorBody?.message ?? `Failed to verify certificate (${response.status})`,
+    response.status,
+    errorBody?.errors,
+    errorBody?.requestId,
+  );
 }

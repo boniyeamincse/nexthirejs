@@ -13,17 +13,18 @@ import {
 
 export default function QuestionsBuilderPage({ params }: { params: { assessmentId: string } }) {
   const router = useRouter();
-  const { session } = useAuth();
+  const { getAccessToken } = useAuth();
   
   const [assessment, setAssessment] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const load = async () => {
-    if (!session?.accessToken) return;
+    const accessToken = getAccessToken();
+    if (!accessToken) return;
     setLoading(true);
     try {
-      const data = await getManagedAssessment(session.accessToken, params.assessmentId);
+      const data = await getManagedAssessment(accessToken, params.assessmentId);
       setAssessment(data);
     } catch (err: any) {
       setError(err.message || 'Failed to load assessment');
@@ -33,18 +34,20 @@ export default function QuestionsBuilderPage({ params }: { params: { assessmentI
   };
 
   useEffect(() => {
-    load();
-  }, [session, params.assessmentId]);
+    void load();
+  }, [getAccessToken, params.assessmentId]);
 
   const handleCreateSection = async () => {
     const title = prompt('Enter section title:');
     if (!title) return;
     try {
-      await createAssessmentSection(session!.accessToken, params.assessmentId, {
+      const accessToken = getAccessToken();
+      if (!accessToken) throw new Error('Not authenticated');
+      await createAssessmentSection(accessToken, params.assessmentId, {
         title,
         isRequired: true,
       });
-      load();
+      await load();
     } catch (err: any) {
       alert(err.message);
     }
@@ -53,8 +56,10 @@ export default function QuestionsBuilderPage({ params }: { params: { assessmentI
   const handleDeleteSection = async (sectionId: string) => {
     if (!confirm('Are you sure you want to delete this section?')) return;
     try {
-      await deleteAssessmentSection(session!.accessToken, params.assessmentId, sectionId);
-      load();
+      const accessToken = getAccessToken();
+      if (!accessToken) throw new Error('Not authenticated');
+      await deleteAssessmentSection(accessToken, params.assessmentId, sectionId);
+      await load();
     } catch (err: any) {
       alert(err.message);
     }
@@ -64,12 +69,14 @@ export default function QuestionsBuilderPage({ params }: { params: { assessmentI
     const questionId = prompt('Enter Question ID (UUID):');
     if (!questionId) return;
     try {
-      await assignAssessmentQuestions(session!.accessToken, params.assessmentId, {
+      const accessToken = getAccessToken();
+      if (!accessToken) throw new Error('Not authenticated');
+      await assignAssessmentQuestions(accessToken, params.assessmentId, {
         sectionId,
         questionIds: [questionId],
         points: 1,
       });
-      load();
+      await load();
     } catch (err: any) {
       alert(err.message);
     }
@@ -78,8 +85,10 @@ export default function QuestionsBuilderPage({ params }: { params: { assessmentI
   const handleRemoveQuestion = async (assignmentId: string) => {
     if (!confirm('Remove question from section?')) return;
     try {
-      await deleteAssessmentQuestionAssignment(session!.accessToken, params.assessmentId, assignmentId);
-      load();
+      const accessToken = getAccessToken();
+      if (!accessToken) throw new Error('Not authenticated');
+      await deleteAssessmentQuestionAssignment(accessToken, params.assessmentId, assignmentId);
+      await load();
     } catch (err: any) {
       alert(err.message);
     }

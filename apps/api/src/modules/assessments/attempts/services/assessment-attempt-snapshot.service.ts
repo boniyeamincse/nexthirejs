@@ -68,16 +68,25 @@ export class AssessmentAttemptSnapshotService {
         throw new ConflictException(ASSESSMENT_ERROR_CODES.ASSESSMENT_ATTEMPT_ALREADY_ACTIVE);
       }
 
-      // 4. Calculate deadline
+      // 4. Calculate attempt number
+      const lastAttempt = await tx.assessmentAttempt.findFirst({
+        where: { candidateId, assessmentId },
+        orderBy: { attemptNumber: 'desc' },
+        select: { attemptNumber: true },
+      });
+      const attemptNumber = (lastAttempt?.attemptNumber ?? 0) + 1;
+
+      // 5. Calculate deadline
       const now = new Date();
       const durationMinutes = assessment.estimatedDurationMinutes;
       const deadlineAt = new Date(now.getTime() + durationMinutes * 60000);
 
-      // 5. Create attempt
+      // 6. Create attempt
       const attempt = await tx.assessmentAttempt.create({
         data: {
           assessmentId,
           candidateId,
+          attemptNumber,
           assessmentPublicationVersion: assessment.publicationVersion,
           assessmentTitleSnapshot: assessment.title,
           assessmentSlugSnapshot: assessment.slug,
@@ -93,7 +102,7 @@ export class AssessmentAttemptSnapshotService {
         },
       });
 
-      // 6. Copy ordered sections and questions
+      // 7. Copy ordered sections and questions
       for (const section of assessment.sections) {
         const attemptSection = await tx.assessmentAttemptSection.create({
           data: {

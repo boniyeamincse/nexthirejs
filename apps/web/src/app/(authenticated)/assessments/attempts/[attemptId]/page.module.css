@@ -66,6 +66,21 @@
   background-color: #1d4ed8;
 }
 
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.secondaryButton {
+  padding: 0.5rem 1rem;
+  background-color: white;
+  color: #1f2937;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
 .progressBar {
   width: 100%;
   height: 0.5rem;
@@ -197,4 +212,82 @@
 .errorTitle {
   color: #ef4444;
   margin: 0 0 1rem 0;
+}
+
+.statusCard,
+.summaryCard {
+  border: 1px solid #d1d5db;
+  background: #f8fafc;
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.summaryTitle {
+  margin: 0 0 0.75rem;
+  font-size: 1.1rem;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+}
+
+.summaryItem {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+}
+
+.summaryLabel {
+  display: block;
+  color: #6b7280;
+  font-size: 0.8rem;
+  margin-bottom: 0.25rem;
+}
+
+.summaryNote,
+.saveState,
+.dialogText {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.saveState {
+  margin: 0.75rem 0 0;
+}
+
+.dialogBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 30;
+}
+
+.dialog {
+  width: min(520px, 100%);
+  background: white;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);
+}
+
+.dialogWarning {
+  color: #991b1b;
+  background: #fee2e2;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  margin: 1rem 0;
+}
+
+.dialogActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
 }

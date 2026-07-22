@@ -4,6 +4,7 @@ import { AuditService } from '../../../audit/audit.service';
 import { AuditActorType, StartAssessmentAttemptResult, AssessmentAttemptStatus } from '@nexthire/types';
 import { ASSESSMENT_ERROR_CODES } from '@nexthire/constants';
 import { AssessmentAttemptSnapshotService } from './assessment-attempt-snapshot.service';
+import { RetakeEligibilityService } from '../../retakes/services/retake-eligibility.service';
 
 @Injectable()
 export class AssessmentAttemptStartService {
@@ -13,6 +14,7 @@ export class AssessmentAttemptStartService {
     private readonly prisma: PrismaService,
     private readonly auditService: AuditService,
     private readonly snapshotService: AssessmentAttemptSnapshotService,
+    private readonly retakeEligibilityService: RetakeEligibilityService,
   ) {}
 
   async startOrResumeAttempt(
@@ -22,7 +24,7 @@ export class AssessmentAttemptStartService {
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     const assessment = await this.prisma.assessment.findFirst({
       where: uuidRegex.test(assessmentIdOrSlug) ? { id: assessmentIdOrSlug } : { slug: assessmentIdOrSlug },
-      select: { id: true, status: true, availability: true },
+      select: { id: true, status: true, availability: true, retakeEnabled: true, maximumAttempts: true, retakeCooldownHours: true },
     });
 
     if (!assessment) {
@@ -43,12 +45,6 @@ export class AssessmentAttemptStartService {
     });
 
     if (existing) {
-      const isOverdue = existing.deadlineAt < new Date();
-      if (isOverdue) {
-        // Handled by state service later, but let's just return it as EXPIRED conceptually, or let the state service handle it.
-        // Actually, if it's overdue, they shouldn't be able to resume it. They should get the workspace which will show it's expired.
-      }
-
       await this.auditService.recordBestEffort({
         actorType: AuditActorType.USER,
         actorUserId: candidateId,
@@ -66,6 +62,21 @@ export class AssessmentAttemptStartService {
       };
     }
 
+    // Enforce retake policy for attempt 2+
+    const eligibility = await this.retakeEligibilityService.getEligibility(candidateId, assessment.id);
+    if (!eligibility.eligible) {
+      if (eligibility.reason === 'ACTIVE_ATTEMPT_EXISTS') {
+        throw new ConflictException(ASSESSMENT_ERROR_CODES.ASSESSMENT_ATTEMPT_ALREADY_ACTIVE);
+      }
+      if (eligibility.reason === 'ATTEMPT_LIMIT_REACHED') {
+        throw new ConflictException(ASSESSMENT_ERROR_CODES.ASSESSMENT_ATTEMPT_LIMIT_REACHED);
+      }
+      if (eligibility.reason === 'COOLDOWN_ACTIVE') {
+        throw new ForbiddenException(ASSESSMENT_ERROR_CODES.ASSESSMENT_RETAKE_COOLDOWN_ACTIVE);
+      }
+      throw new ForbiddenException(ASSESSMENT_ERROR_CODES.ASSESSMENT_RETAKE_NOT_ALLOWED);
+    }
+
     // No active attempt, create a new one transactionally
     const attemptId = await this.snapshotService.createSnapshotTransactionally(candidateId, assessment.id);
 
@@ -76,10 +87,15 @@ export class AssessmentAttemptStartService {
     await this.auditService.recordBestEffort({
       actorType: AuditActorType.USER,
       actorUserId: candidateId,
-      action: 'assessment.attempt.started',
+      action: eligibility.reason === 'FIRST_ATTEMPT_AVAILABLE' ? 'assessment.attempt.started' : 'assessment.retake.started',
       targetType: 'AssessmentAttempt',
       targetId: attemptId,
-      metadata: { assessmentId: assessment.id },
+      metadata: {
+        assessmentId: assessment.id,
+        attemptNumber: newAttempt.attemptNumber,
+        attemptsUsed: eligibility.attemptsUsed,
+        maximumAttempts: eligibility.maximumAttempts,
+      },
     });
 
     return {

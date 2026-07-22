@@ -77,6 +77,7 @@ model User {
   shareToken              CandidateProfileShareToken?
   dataExportRequests      CandidateDataExportRequest[]
   assessmentAttempts      AssessmentAttempt[]
+  assessmentCertificates  AssessmentCertificate[]
 }
 
 model Role {
@@ -373,21 +374,26 @@ enum CandidateSectionVisibility {
 }
 
 model CandidateProfilePrivacy {
-  id                        String                     @id @default(uuid()) @db.Uuid
-  userId                    String                     @unique @db.Uuid
-  overallDiscoverability    CandidateDiscoverability   @default(PRIVATE)
-  basicProfile              CandidateSectionVisibility @default(PLATFORM_ONLY)
-  locationAndPreferences    CandidateSectionVisibility @default(HIDDEN)
-  education                 CandidateSectionVisibility @default(PLATFORM_ONLY)
-  workExperience            CandidateSectionVisibility @default(PLATFORM_ONLY)
-  skillsAndLanguages        CandidateSectionVisibility @default(PLATFORM_ONLY)
-  certificationsAndTraining CandidateSectionVisibility @default(PLATFORM_ONLY)
-  achievementsAndLinks      CandidateSectionVisibility @default(PLATFORM_ONLY)
-  policyVersion             String                     @db.VarChar(50)
-  createdAt                 DateTime                   @default(now())
-  updatedAt                 DateTime                   @updatedAt
+  id                              String                     @id @default(uuid()) @db.Uuid
+  userId                          String                     @unique @db.Uuid
+  overallDiscoverability          CandidateDiscoverability   @default(PRIVATE)
+  basicProfile                    CandidateSectionVisibility @default(PLATFORM_ONLY)
+  locationAndPreferences          CandidateSectionVisibility @default(HIDDEN)
+  education                       CandidateSectionVisibility @default(PLATFORM_ONLY)
+  workExperience                  CandidateSectionVisibility @default(PLATFORM_ONLY)
+  skillsAndLanguages              CandidateSectionVisibility @default(PLATFORM_ONLY)
+  certificationsAndTraining       CandidateSectionVisibility @default(PLATFORM_ONLY)
+  achievementsAndLinks            CandidateSectionVisibility @default(PLATFORM_ONLY)
+  leaderboardParticipationEnabled Boolean                    @default(false)
+  leaderboardDisplayName          String?                    @db.VarChar(80)
+  leaderboardEnabledAt            DateTime?
+  policyVersion                   String                     @db.VarChar(50)
+  createdAt                       DateTime                   @default(now())
+  updatedAt                       DateTime                   @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([leaderboardParticipationEnabled])
 }
 
 enum ProfessionalLinkType {
@@ -541,6 +547,10 @@ model Assessment {
   estimatedDurationMinutes Int
   passingScorePercentage   Int                    @default(60)
   maximumAttempts          Int?
+  retakeEnabled            Boolean                @default(false)
+  retakeCooldownHours      Int                    @default(0)
+  certificateEnabled       Boolean                @default(false)
+  certificateValidityDays  Int?
   totalPoints              Decimal                @default(0) @db.Decimal(10, 2)
   questionCount            Int                    @default(0)
   publishedAt              DateTime?
@@ -551,10 +561,11 @@ model Assessment {
   createdAt                DateTime               @default(now())
   updatedAt                DateTime               @updatedAt
 
-  category    AssessmentCategory             @relation(fields: [categoryId], references: [id], onDelete: Restrict)
-  sections    AssessmentSection[]
-  assignments AssessmentQuestionAssignment[]
-  attempts    AssessmentAttempt[]
+  category               AssessmentCategory             @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  sections               AssessmentSection[]
+  assignments            AssessmentQuestionAssignment[]
+  attempts               AssessmentAttempt[]
+  assessmentCertificates AssessmentCertificate[]
 
   @@index([status, visibility, availability])
   @@index([categoryId, status])
@@ -686,36 +697,61 @@ enum AssessmentAttemptStatus {
   CANCELLED
 }
 
+enum AssessmentAttemptResultStatus {
+  PASSED
+  FAILED
+}
+
+enum AssessmentAttemptFinalizationReason {
+  CANDIDATE_SUBMITTED
+  DEADLINE_REACHED
+  ADMIN_FINALIZED
+}
+
 model AssessmentAttempt {
-  id                           String                  @id @default(uuid()) @db.Uuid
-  assessmentId                 String                  @db.Uuid
-  candidateId                  String                  @db.Uuid
+  id                           String                               @id @default(uuid()) @db.Uuid
+  assessmentId                 String                               @db.Uuid
+  candidateId                  String                               @db.Uuid
+  attemptNumber                Int                                  @default(1)
   assessmentPublicationVersion Int
-  assessmentTitleSnapshot      String                  @db.VarChar(200)
-  assessmentSlugSnapshot       String                  @db.VarChar(220)
-  instructionsSnapshot         String?                 @db.Text
+  assessmentTitleSnapshot      String                               @db.VarChar(200)
+  assessmentSlugSnapshot       String                               @db.VarChar(220)
+  instructionsSnapshot         String?                              @db.Text
   durationMinutesSnapshot      Int
   passingScoreSnapshot         Int
-  totalPointsSnapshot          Decimal                 @db.Decimal(10, 2)
+  totalPointsSnapshot          Decimal                              @db.Decimal(10, 2)
   questionCountSnapshot        Int
-  status                       AssessmentAttemptStatus @default(IN_PROGRESS)
-  startedAt                    DateTime                @default(now())
+  status                       AssessmentAttemptStatus              @default(IN_PROGRESS)
+  finalizationReason           AssessmentAttemptFinalizationReason?
+  scoreEarned                  Decimal?                             @db.Decimal(10, 2)
+  scorePossible                Decimal?                             @db.Decimal(10, 2)
+  scorePercentage              Decimal?                             @db.Decimal(5, 2)
+  resultStatus                 AssessmentAttemptResultStatus?
+  correctCount                 Int?
+  incorrectCount               Int?
+  unansweredCount              Int?
+  scoringVersion               Int?
+  scoringCompletedAt           DateTime?
+  startedAt                    DateTime                             @default(now())
   deadlineAt                   DateTime
-  lastActivityAt               DateTime                @default(now())
+  lastActivityAt               DateTime                             @default(now())
   expiredAt                    DateTime?
   submittedAt                  DateTime?
-  createdAt                    DateTime                @default(now())
-  updatedAt                    DateTime                @updatedAt
+  createdAt                    DateTime                             @default(now())
+  updatedAt                    DateTime                             @updatedAt
 
-  assessment Assessment                  @relation(fields: [assessmentId], references: [id], onDelete: Restrict)
-  candidate  User                        @relation(fields: [candidateId], references: [id], onDelete: Restrict)
-  sections   AssessmentAttemptSection[]
-  questions  AssessmentAttemptQuestion[]
-  answers    AssessmentAttemptAnswer[]
+  assessment            Assessment                  @relation(fields: [assessmentId], references: [id], onDelete: Restrict)
+  candidate             User                        @relation(fields: [candidateId], references: [id], onDelete: Restrict)
+  sections              AssessmentAttemptSection[]
+  questions             AssessmentAttemptQuestion[]
+  answers               AssessmentAttemptAnswer[]
+  assessmentCertificate AssessmentCertificate?
 
+  @@unique([candidateId, assessmentId, attemptNumber])
   @@index([candidateId, status])
   @@index([assessmentId, candidateId])
   @@index([status, deadlineAt])
+  @@index([status, scoringCompletedAt])
 }
 
 model AssessmentAttemptSection {
@@ -775,12 +811,58 @@ model AssessmentAttemptQuestionOption {
   @@index([attemptQuestionId])
 }
 
+enum AssessmentCertificateStatus {
+  PENDING
+  GENERATING
+  READY
+  FAILED
+  REVOKED
+  EXPIRED
+}
+
+model AssessmentCertificate {
+  id                      String                      @id @default(uuid()) @db.Uuid
+  candidateId             String                      @db.Uuid
+  assessmentId            String                      @db.Uuid
+  attemptId               String                      @unique @db.Uuid
+  certificateNumber       String                      @unique @db.VarChar(80)
+  verificationCodeHash    String                      @unique @db.VarChar(128)
+  verificationCodeHint    String?                     @db.VarChar(20)
+  status                  AssessmentCertificateStatus @default(PENDING)
+  holderNameSnapshot      String                      @db.VarChar(200)
+  assessmentTitleSnapshot String                      @db.VarChar(200)
+  assessmentSlugSnapshot  String                      @db.VarChar(220)
+  scorePercentageSnapshot Decimal                     @db.Decimal(5, 2)
+  issuedAt                DateTime?
+  expiresAt               DateTime?
+  generatedAt             DateTime?
+  failedAt                DateTime?
+  failureCategory         String?                     @db.VarChar(100)
+  revokedAt               DateTime?
+  storageKey              String?                     @db.VarChar(500)
+  fileSizeBytes           BigInt?
+  checksumSha256          String?                     @db.VarChar(64)
+  createdAt               DateTime                    @default(now())
+  updatedAt               DateTime                    @updatedAt
+
+  candidate  User              @relation(fields: [candidateId], references: [id], onDelete: Restrict)
+  assessment Assessment        @relation(fields: [assessmentId], references: [id], onDelete: Restrict)
+  attempt    AssessmentAttempt @relation(fields: [attemptId], references: [id], onDelete: Restrict)
+
+  @@index([candidateId, status, issuedAt])
+  @@index([assessmentId, issuedAt])
+  @@index([status, expiresAt])
+}
+
 model AssessmentAttemptAnswer {
   id                String    @id @default(uuid()) @db.Uuid
   attemptId         String    @db.Uuid
   attemptQuestionId String    @unique @db.Uuid
   selectedOptionIds String[]
   shortTextAnswer   String?   @db.Text
+  awardedPoints     Decimal?  @db.Decimal(8, 2)
+  isCorrect         Boolean?
+  scoredAt          DateTime?
   answeredAt        DateTime?
   lastSavedAt       DateTime  @default(now())
   createdAt         DateTime  @default(now())

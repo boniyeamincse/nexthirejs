@@ -7,7 +7,7 @@ import { getManagedAssessment, updateAssessment } from '@/lib/api-client';
 
 export default function EditAssessmentPage({ params }: { params: { assessmentId: string } }) {
   const router = useRouter();
-  const { session } = useAuth();
+  const { getAccessToken } = useAuth();
   
   const [formData, setFormData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -16,9 +16,10 @@ export default function EditAssessmentPage({ params }: { params: { assessmentId:
 
   useEffect(() => {
     async function load() {
-      if (!session?.accessToken) return;
+      const accessToken = getAccessToken();
+      if (!accessToken) return;
       try {
-        const assessment = await getManagedAssessment(session.accessToken, params.assessmentId);
+        const assessment = await getManagedAssessment(accessToken, params.assessmentId);
         setFormData({
           categoryId: assessment.categoryId,
           title: assessment.title,
@@ -41,14 +42,15 @@ export default function EditAssessmentPage({ params }: { params: { assessmentId:
       }
     }
     load();
-  }, [session, params.assessmentId]);
+  }, [getAccessToken, params.assessmentId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     setError(null);
     try {
-      if (!session?.accessToken) throw new Error('Not authenticated');
+      const accessToken = getAccessToken();
+      if (!accessToken) throw new Error('Not authenticated');
       
       const payload: any = { ...formData };
       if (!payload.description) payload.description = null;
@@ -58,7 +60,7 @@ export default function EditAssessmentPage({ params }: { params: { assessmentId:
       payload.estimatedDurationMinutes = Number(payload.estimatedDurationMinutes);
       payload.passingScorePercentage = Number(payload.passingScorePercentage);
 
-      await updateAssessment(session.accessToken, params.assessmentId, payload);
+      await updateAssessment(accessToken, params.assessmentId, payload);
       router.push(`/manage/assessments/${params.assessmentId}/questions`);
     } catch (err: any) {
       setError(err.message || 'Failed to update assessment');

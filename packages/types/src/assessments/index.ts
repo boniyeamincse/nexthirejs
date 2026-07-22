@@ -87,3 +87,6 @@ export interface PaginatedAssessmentCatalogResult {
 export * from './management.js';
 export * from './authoring.js';
 export * from './attempts.js';
+export * from './analytics.js';
+export * from './retakes.js';
+export * from './certificates.js';

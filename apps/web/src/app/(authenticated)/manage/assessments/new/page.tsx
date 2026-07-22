@@ -7,7 +7,7 @@ import { createAssessment } from '@/lib/api-client';
 
 export default function NewAssessmentPage() {
   const router = useRouter();
-  const { session } = useAuth();
+  const { getAccessToken } = useAuth();
   
   const [formData, setFormData] = useState({
     categoryId: 'c0b8b6fc-500b-4f9f-a2e6-8c4d2847a9f7', // Fallback UUID, should fetch real categories
@@ -33,7 +33,8 @@ export default function NewAssessmentPage() {
     setLoading(true);
     setError(null);
     try {
-      if (!session?.accessToken) throw new Error('Not authenticated');
+      const accessToken = getAccessToken();
+      if (!accessToken) throw new Error('Not authenticated');
       
       const payload: any = { ...formData };
       if (!payload.description) payload.description = null;
@@ -43,7 +44,7 @@ export default function NewAssessmentPage() {
       payload.estimatedDurationMinutes = Number(payload.estimatedDurationMinutes);
       payload.passingScorePercentage = Number(payload.passingScorePercentage);
 
-      const created = await createAssessment(session.accessToken, payload);
+      const created = await createAssessment(accessToken, payload);
       router.push(`/manage/assessments/${created.id}/questions`);
     } catch (err: any) {
       setError(err.message || 'Failed to create assessment');

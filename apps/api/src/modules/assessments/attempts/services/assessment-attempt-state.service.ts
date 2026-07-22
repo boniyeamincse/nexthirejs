@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../../../database/prisma.service';
-import { AuditService } from '../../../audit/audit.service';
-import { AssessmentAttemptStatus, AuditActorType } from '@nexthire/types';
+import { AssessmentAttemptStatus } from '@nexthire/types';
+import { AssessmentAttemptFinalizationService } from './assessment-attempt-finalization.service';
 
 @Injectable()
 export class AssessmentAttemptStateService {
@@ -9,7 +9,7 @@ export class AssessmentAttemptStateService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly auditService: AuditService,
+    private readonly finalizationService: AssessmentAttemptFinalizationService,
   ) {}
 
   async enforceDeadlineAndStatus(
@@ -35,33 +35,19 @@ export class AssessmentAttemptStateService {
     const isOverdue = attempt.deadlineAt < now;
 
     if (attempt.status === AssessmentAttemptStatus.IN_PROGRESS && isOverdue) {
-      this.logger.log(`Attempt ${attemptId} for candidate ${candidateId} is overdue. Marking as EXPIRED.`);
-      
-      const updated = await this.prisma.assessmentAttempt.update({
-        where: { id: attemptId, status: AssessmentAttemptStatus.IN_PROGRESS },
-        data: {
-          status: AssessmentAttemptStatus.EXPIRED,
-          expiredAt: now,
-          updatedAt: now,
-        },
-      });
+      this.logger.log(`Attempt ${attemptId} for candidate ${candidateId} is overdue. Finalizing.`);
 
-      await this.auditService.recordBestEffort({
-        actorType: AuditActorType.USER,
-        actorUserId: candidateId,
-        action: 'assessment.attempt.expired',
-        targetType: 'AssessmentAttempt',
-        targetId: attemptId,
-        metadata: {
-          assessmentId: attempt.assessmentId,
-          expiredAt: now.toISOString(),
-        },
-      });
-
-      return { status: AssessmentAttemptStatus.EXPIRED, isExpired: true };
+      const finalized = await this.finalizationService.finalizeOverdueAttempt(candidateId, attemptId);
+      if (finalized) {
+        return { status: finalized.status, isExpired: true };
+      }
     }
 
-    const isExpired = attempt.status === AssessmentAttemptStatus.EXPIRED || attempt.status === AssessmentAttemptStatus.SUBMITTED || attempt.status === AssessmentAttemptStatus.CANCELLED || isOverdue;
+    const isExpired =
+      attempt.status === AssessmentAttemptStatus.EXPIRED ||
+      attempt.status === AssessmentAttemptStatus.SUBMITTED ||
+      attempt.status === AssessmentAttemptStatus.CANCELLED ||
+      isOverdue;
 
     return { status: attempt.status as AssessmentAttemptStatus, isExpired };
   }

@@ -1,9 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../../../database/prisma.service';
-import { AssessmentAttemptWorkspace, AssessmentQuestionType } from '@nexthire/types';
+import {
+  AssessmentAttemptFinalizationReason,
+  AssessmentAttemptWorkspace,
+  AssessmentQuestionType,
+} from '@nexthire/types';
 import { ASSESSMENT_ERROR_CODES } from '@nexthire/constants';
 import { AssessmentAttemptStateService } from './assessment-attempt-state.service';
 import { AssessmentAttemptProgressService } from './assessment-attempt-progress.service';
+import { AssessmentAttemptFinalizationService } from './assessment-attempt-finalization.service';
 
 @Injectable()
 export class AssessmentAttemptWorkspaceService {
@@ -11,6 +16,7 @@ export class AssessmentAttemptWorkspaceService {
     private readonly prisma: PrismaService,
     private readonly stateService: AssessmentAttemptStateService,
     private readonly progressService: AssessmentAttemptProgressService,
+    private readonly finalizationService: AssessmentAttemptFinalizationService,
   ) {}
 
   async getWorkspace(
@@ -45,6 +51,11 @@ export class AssessmentAttemptWorkspaceService {
     const remainingSeconds = Math.max(0, Math.floor((attempt.deadlineAt.getTime() - now.getTime()) / 1000));
 
     const progress = await this.progressService.calculateProgress(attemptId);
+    const isFinalized = attempt.status === 'SUBMITTED' || attempt.status === 'EXPIRED';
+    const submissionSummary =
+      isFinalized && attempt.scoringCompletedAt
+        ? await this.finalizationService.getSubmissionSummary(candidateId, attemptId)
+        : null;
 
     return {
       attempt: {
@@ -57,9 +68,13 @@ export class AssessmentAttemptWorkspaceService {
         startedAt: attempt.startedAt.toISOString(),
         deadlineAt: attempt.deadlineAt.toISOString(),
         serverNow: now.toISOString(),
-        remainingSeconds,
+        remainingSeconds: isFinalized ? 0 : remainingSeconds,
         questionCount: attempt.questionCountSnapshot,
         totalPoints: attempt.totalPointsSnapshot.toNumber(),
+        submittedAt: attempt.submittedAt?.toISOString() ?? null,
+        finalizationReason:
+          attempt.finalizationReason as AssessmentAttemptFinalizationReason | null,
+        scoringVersion: attempt.scoringVersion,
       },
       sections: attempt.sections.map(section => ({
         id: section.id,
@@ -89,6 +104,7 @@ export class AssessmentAttemptWorkspaceService {
         })),
       })),
       progress,
+      submissionSummary,
     };
   }
 }

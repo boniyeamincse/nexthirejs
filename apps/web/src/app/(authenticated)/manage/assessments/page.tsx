@@ -11,7 +11,7 @@ export default function AssessmentListPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchAssessments = async () => {
+    const load = async () => {
       const accessToken = getAccessToken();
       if (!accessToken) {
         setLoading(false);
@@ -32,9 +32,9 @@ export default function AssessmentListPage() {
       } finally {
         setLoading(false);
       }
-    }
-    load();
-  }, [session]);
+    };
+    void load();
+  }, [getAccessToken]);
 
   if (loading) return <div className="p-8">Loading assessments...</div>;
 

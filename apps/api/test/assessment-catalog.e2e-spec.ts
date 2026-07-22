@@ -8,6 +8,7 @@ import { PrismaService } from '../src/database/prisma.service';
 import { ConfigModule } from '@nestjs/config';
 import * as crypto from 'node:crypto';
 
+jest.setTimeout(30000);
 describe('AssessmentCatalogController (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaService;
