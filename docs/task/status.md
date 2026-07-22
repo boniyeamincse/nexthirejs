@@ -420,11 +420,11 @@ next_task:
 | NH-P1-T001 | Implement Candidate Email Registration                    | Phase 1 | COMPLETED | 2026-07-21 16:15:00 +06 |
 | NH-P1-T002 | Implement Candidate Email Verification                    | Phase 1 | COMPLETED | 2026-07-21 16:40:00 +06 |
 | NH-P1-T003 | Implement Candidate Login and Session Foundation          | Phase 1 | COMPLETED | 2026-07-21 17:00:00 +06 |
+| NH-P1-T004 | Implement Session Management and Logout All Devices       | Phase 1 | COMPLETED | 2026-07-23 02:00:00 +06 |
 | NH-P1-T006 | Implement Candidate Profile Basics                        | Phase 1 | COMPLETED | 2026-07-21 17:40:00 +06 |
 | NH-P1-T007 | Implement Candidate Location and Career Prefs             | Phase 1 | COMPLETED | 2026-07-21 17:55:00 +06 |
 | NH-P1-T008 | Implement Candidate Education Records                     | Phase 1 | COMPLETED | 2026-07-21 12:14:00 +06 |
 | NH-P1-T009 | Implement Candidate Work Experience Records               | Phase 1 | COMPLETED | 2026-07-21 13:05:00 +06 |
-| NH-P1-T007 | Candidate Location and Career Preferences                 | Phase 1 | COMPLETED | 2026-07-21 17:55:00 +06 |
 | NH-P1-T011 | Candidate Certifications and Training                     | Phase 1 | COMPLETED | 2026-07-22T00:30:00Z    |
 | NH-P1-T012 | Candidate Achievements and Professional Links             | Phase 1 | COMPLETED | 2026-07-22T01:01:00Z    |
 | NH-P1-T014 | Implement Candidate Public Profile Preview                | Phase 1 | COMPLETED | 2026-07-21T19:50:00Z    |
