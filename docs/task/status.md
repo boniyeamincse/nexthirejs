@@ -66,6 +66,34 @@
   - Storage uses MinIO/S3-compatible client with local filesystem fallback for dev.
   - Signed URLs valid for 5 minutes; never persisted.
   - Rate limits: eligibility 60/min, policy update 30/min, certificate list 60/min, download 10/hour, retry 3/day, verification 30/min.
+
+## Task Update — NH-SEC-T001
+
+- Status: IN_PROGRESS (BLOCKED)
+- Started At: 2026-07-22T23:00:00Z
+- Summary: Initiated TOTP 2FA implementation. Added Prisma database models (UserMfa, MfaRecoveryCode, MfaChallenge, MfaTrustedDevice) with migration 20260722173141_add_totp_mfa. Created MFA types (MfaSecurityStatus, enrollment/challenge/trust-device contracts) and constants in shared packages. Fixed ESLint v9+ infrastructure blocker by adding root eslint.config.mjs. Pre-commit hooks operational.
+- Files Added:
+  - `apps/api/prisma/migrations/20260722173141_add_totp_mfa/migration.sql`
+  - `packages/types/src/auth/mfa.ts` — MFA types and contracts
+  - `packages/constants/src/auth/mfa.ts` — MFA error codes and config constants
+  - `eslint.config.mjs` — root ESLint v9+ config (infrastructure fix)
+- Files Modified:
+  - `apps/api/prisma/schema.prisma` — added MFA models and User relations
+  - `packages/constants/src/index.ts` — export MFA constants
+- Blockers:
+  - Task specification file (docs/task/NH-SEC-T001.md) missing from repository — was untracked, lost during git reset
+  - Remaining implementation requires: encryption service (AES-256-GCM), MFA service core logic (~800 lines), policy service, controller endpoints, frontend pages (2FA login/settings), validation schemas, comprehensive test suite
+  - Estimated effort: 4-6 hours development + 10k tokens
+- Decisions:
+  - Schema uses AES-256-GCM for secret encryption, SHA-256 for code/token hashing
+  - TOTP validation via otplib RFC 6238 (SHA-1, 30s period, 6 digits, ±1 window)
+  - Challenge TTL 5 min, max 5 failed attempts, enrollment TTL 10 min, trusted device TTL 30 days
+  - Recovery codes: 10 per user, 12 chars, one-time use, Argon2id hashed
+- Next Steps: Recover/recreate NH-SEC-T001.md task spec, implement services/encryption/controller/frontend, then proceed to NH-P3-T001
+- Git Commits:
+  - `b2b0123` fix(eslint): add root eslint.config.mjs for v9+ compatibility
+  - `4f051a9` chore(mfa): add database models and migration for TOTP foundation
+
 ## Task Update — NH-P2-T009
 
 - Status: COMPLETED
@@ -254,7 +282,6 @@
   - Switched `@nexthire/validation` declaration generation to `tsc` plus `.d.mts` emission so app/package type resolution remains stable with ESM `.mjs` runtime artifacts.
 - Next Task: NH-P2-T005 remains blocked until local verification access is granted and the mandatory quality gates can be completed.
 
-
 ## Task Update — NH-P2-T003
 
 - Status: COMPLETED
@@ -280,8 +307,6 @@
 - Blockers: None
 - Decisions: Decoupled readiness check into its own service (`AssessmentReadinessService`) to allow pre-flight UI validation without mutating state. Used Prisma transactions to ensure aggregate fields (`totalPoints`, `questionCount`) on the Assessment model stay synchronized with assignment mutations.
 - Next Task: NH-P2-T004 — Implement Assessment Taker Experience
-
-
 
 ## 1. Current Project Status
 
@@ -369,7 +394,7 @@ dependencies:
 blockers: []
 git_commit:
   hash: null
-  message: "feat(assessment): add performance reports and leaderboards [NH-P2-T007]"
+  message: 'feat(assessment): add performance reports and leaderboards [NH-P2-T007]'
 phase_status:
   phase: Phase 2
   status: IN_PROGRESS
@@ -382,34 +407,34 @@ next_task:
 
 ## 6. Completed Tasks
 
-| Task ID    | Task Title                                       | Phase   | Status    | Completed At            |
-| ---------- | ------------------------------------------------ | ------- | --------- | ----------------------- |
-| NH-P2-T003 | Assessment Authoring Module                      | Phase 2 | COMPLETED | 2026-07-22T08:46:04Z    |
-| NH-P0-T001 | Initialize NextHire monorepo structure           | Phase 0 | COMPLETED | 2026-07-18 18:50:31 +06 |
-| NH-P0-T002 | Configure local Docker infrastructure            | Phase 0 | COMPLETED | 2026-07-18 22:04:12 +06 |
-| NH-P0-T003 | Create NestJS API application baseline           | Phase 0 | COMPLETED | 2026-07-18 22:16:30 +06 |
-| NH-P0-T005 | Configure PostgreSQL and Prisma baseline         | Phase 0 | COMPLETED | 2026-07-18 23:03:00 +06 |
-| NH-P0-T006 | Configure Redis and BullMQ foundation            | Phase 0 | COMPLETED | 2026-07-18 23:16:00 +06 |
-| NH-P0-T007 | Add shared TypeScript packages                   | Phase 0 | COMPLETED | 2026-07-18 23:35:00 +06 |
-| NH-P0-T008 | Add linting, formatting, and commit standards    | Phase 0 | COMPLETED | 2026-07-18 23:57:00 +06 |
-| NH-P1-T001 | Implement Candidate Email Registration           | Phase 1 | COMPLETED | 2026-07-21 16:15:00 +06 |
-| NH-P1-T002 | Implement Candidate Email Verification           | Phase 1 | COMPLETED | 2026-07-21 16:40:00 +06 |
-| NH-P1-T003 | Implement Candidate Login and Session Foundation | Phase 1 | COMPLETED | 2026-07-21 17:00:00 +06 |
-| NH-P1-T006 | Implement Candidate Profile Basics               | Phase 1 | COMPLETED | 2026-07-21 17:40:00 +06 |
-| NH-P1-T007 | Implement Candidate Location and Career Prefs    | Phase 1 | COMPLETED | 2026-07-21 17:55:00 +06 |
-| NH-P1-T008 | Implement Candidate Education Records            | Phase 1 | COMPLETED | 2026-07-21 12:14:00 +06 |
-| NH-P1-T009 | Implement Candidate Work Experience Records      | Phase 1 | COMPLETED | 2026-07-21 13:05:00 +06 |
-| NH-P1-T007 | Candidate Location and Career Preferences        | Phase 1 | COMPLETED | 2026-07-21 17:55:00 +06 |
-| NH-P1-T011 | Candidate Certifications and Training            | Phase 1 | COMPLETED | 2026-07-22T00:30:00Z    |
-| NH-P1-T012 | Candidate Achievements and Professional Links    | Phase 1 | COMPLETED | 2026-07-22T01:01:00Z    |
-| NH-P1-T014 | Implement Candidate Public Profile Preview       | Phase 1 | COMPLETED | 2026-07-21T19:50:00Z    |
-| NH-P1-T016 | Candidate Account and Security Settings          | Phase 1 | COMPLETED | 2026-07-22T04:20:00Z    |
-| NH-P1-T017 | Candidate Account Deactivation and Data Export   | Phase 1 | COMPLETED | 2026-07-22T10:40:00Z    |
-| NH-P1-T018 | Phase 1 Integration and Security Quality Gate    | Phase 1 | COMPLETED | 2026-07-22T11:45:00Z    |
-| NH-P2-T001 | Establish Assessment Domain Foundation           | Phase 2 | COMPLETED | 2026-07-22T07:54:00Z    |
-| NH-P2-T002 | Establish Assessment Take Domain Foundation      | Phase 2 | COMPLETED | 2026-07-22T08:22:00Z    |
-| NH-P2-T004 | Implement Assessment Taker Experience            | Phase 2 | COMPLETED | 2026-07-22T13:30:00Z    |
-| NH-P2-T006 | Implement Assessment Results and Attempt History | Phase 2 | COMPLETED | 2026-07-22T16:55:00Z    |
+| Task ID    | Task Title                                                | Phase   | Status    | Completed At            |
+| ---------- | --------------------------------------------------------- | ------- | --------- | ----------------------- |
+| NH-P2-T003 | Assessment Authoring Module                               | Phase 2 | COMPLETED | 2026-07-22T08:46:04Z    |
+| NH-P0-T001 | Initialize NextHire monorepo structure                    | Phase 0 | COMPLETED | 2026-07-18 18:50:31 +06 |
+| NH-P0-T002 | Configure local Docker infrastructure                     | Phase 0 | COMPLETED | 2026-07-18 22:04:12 +06 |
+| NH-P0-T003 | Create NestJS API application baseline                    | Phase 0 | COMPLETED | 2026-07-18 22:16:30 +06 |
+| NH-P0-T005 | Configure PostgreSQL and Prisma baseline                  | Phase 0 | COMPLETED | 2026-07-18 23:03:00 +06 |
+| NH-P0-T006 | Configure Redis and BullMQ foundation                     | Phase 0 | COMPLETED | 2026-07-18 23:16:00 +06 |
+| NH-P0-T007 | Add shared TypeScript packages                            | Phase 0 | COMPLETED | 2026-07-18 23:35:00 +06 |
+| NH-P0-T008 | Add linting, formatting, and commit standards             | Phase 0 | COMPLETED | 2026-07-18 23:57:00 +06 |
+| NH-P1-T001 | Implement Candidate Email Registration                    | Phase 1 | COMPLETED | 2026-07-21 16:15:00 +06 |
+| NH-P1-T002 | Implement Candidate Email Verification                    | Phase 1 | COMPLETED | 2026-07-21 16:40:00 +06 |
+| NH-P1-T003 | Implement Candidate Login and Session Foundation          | Phase 1 | COMPLETED | 2026-07-21 17:00:00 +06 |
+| NH-P1-T006 | Implement Candidate Profile Basics                        | Phase 1 | COMPLETED | 2026-07-21 17:40:00 +06 |
+| NH-P1-T007 | Implement Candidate Location and Career Prefs             | Phase 1 | COMPLETED | 2026-07-21 17:55:00 +06 |
+| NH-P1-T008 | Implement Candidate Education Records                     | Phase 1 | COMPLETED | 2026-07-21 12:14:00 +06 |
+| NH-P1-T009 | Implement Candidate Work Experience Records               | Phase 1 | COMPLETED | 2026-07-21 13:05:00 +06 |
+| NH-P1-T007 | Candidate Location and Career Preferences                 | Phase 1 | COMPLETED | 2026-07-21 17:55:00 +06 |
+| NH-P1-T011 | Candidate Certifications and Training                     | Phase 1 | COMPLETED | 2026-07-22T00:30:00Z    |
+| NH-P1-T012 | Candidate Achievements and Professional Links             | Phase 1 | COMPLETED | 2026-07-22T01:01:00Z    |
+| NH-P1-T014 | Implement Candidate Public Profile Preview                | Phase 1 | COMPLETED | 2026-07-21T19:50:00Z    |
+| NH-P1-T016 | Candidate Account and Security Settings                   | Phase 1 | COMPLETED | 2026-07-22T04:20:00Z    |
+| NH-P1-T017 | Candidate Account Deactivation and Data Export            | Phase 1 | COMPLETED | 2026-07-22T10:40:00Z    |
+| NH-P1-T018 | Phase 1 Integration and Security Quality Gate             | Phase 1 | COMPLETED | 2026-07-22T11:45:00Z    |
+| NH-P2-T001 | Establish Assessment Domain Foundation                    | Phase 2 | COMPLETED | 2026-07-22T07:54:00Z    |
+| NH-P2-T002 | Establish Assessment Take Domain Foundation               | Phase 2 | COMPLETED | 2026-07-22T08:22:00Z    |
+| NH-P2-T004 | Implement Assessment Taker Experience                     | Phase 2 | COMPLETED | 2026-07-22T13:30:00Z    |
+| NH-P2-T006 | Implement Assessment Results and Attempt History          | Phase 2 | COMPLETED | 2026-07-22T16:55:00Z    |
 | NH-P2-T007 | Implement Assessment Performance Reports and Leaderboards | Phase 2 | COMPLETED | 2026-07-22T17:13:00Z    |
 
 ---

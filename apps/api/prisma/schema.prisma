@@ -78,6 +78,10 @@ model User {
   dataExportRequests      CandidateDataExportRequest[]
   assessmentAttempts      AssessmentAttempt[]
   assessmentCertificates  AssessmentCertificate[]
+  mfa                     UserMfa?
+  mfaRecoveryCodes        MfaRecoveryCode[]
+  mfaChallenges           MfaChallenge[]
+  mfaTrustedDevices       MfaTrustedDevice[]
 }
 
 model Role {
@@ -872,4 +876,82 @@ model AssessmentAttemptAnswer {
   question AssessmentAttemptQuestion @relation(fields: [attemptQuestionId], references: [id], onDelete: Cascade)
 
   @@index([attemptId])
+}
+
+enum MfaStatus {
+  DISABLED
+  PENDING
+  ENABLED
+}
+
+model UserMfa {
+  id                       String    @id @default(uuid()) @db.Uuid
+  userId                   String    @unique @db.Uuid
+  status                   MfaStatus @default(DISABLED)
+  encryptedTotpSecret      String?   @db.Text
+  secretEncryptionVersion  Int?
+  enrollmentExpiresAt      DateTime?
+  enabledAt                DateTime?
+  disabledAt               DateTime?
+  lastVerifiedAt           DateTime?
+  recoveryCodesGeneratedAt DateTime?
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model MfaRecoveryCode {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
+  codeHash  String    @unique @db.VarChar(255)
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, usedAt])
+}
+
+enum MfaChallengeStatus {
+  PENDING
+  VERIFIED
+  EXPIRED
+  CONSUMED
+  REVOKED
+}
+
+model MfaChallenge {
+  id                 String             @id @default(uuid()) @db.Uuid
+  userId             String             @db.Uuid
+  status             MfaChallengeStatus @default(PENDING)
+  challengeTokenHash String             @unique @db.VarChar(255)
+  expiresAt          DateTime
+  verifiedAt         DateTime?
+  consumedAt         DateTime?
+  failedAttempts     Int                @default(0)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status, expiresAt])
+}
+
+model MfaTrustedDevice {
+  id             String    @id @default(uuid()) @db.Uuid
+  userId         String    @db.Uuid
+  tokenHash      String    @unique @db.VarChar(255)
+  deviceName     String?   @db.VarChar(120)
+  browserSummary String?   @db.VarChar(200)
+  trustedAt      DateTime  @default(now())
+  lastUsedAt     DateTime?
+  expiresAt      DateTime
+  revokedAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, revokedAt, expiresAt])
 }
