@@ -142,3 +142,61 @@ The `AuthGuard` is registered globally:
 ```
 
 Error codes use the `AUTH_` prefix and never expose internal details, token values, or hashes.
+
+---
+
+## Account Security Settings (NH-P1-T016)
+
+### Get Account Security Summary
+
+```
+GET /api/v1/candidates/me/account-security
+```
+
+Auth: Bearer token (candidate role required)
+
+Response 200:
+```json
+{
+  "email": "candidate@example.com",
+  "accountStatus": "ACTIVE",
+  "emailVerified": true,
+  "activeSessionCount": 3,
+  "currentSessionCreatedAt": "2026-07-22T10:00:00.000Z",
+  "currentSessionLastUsedAt": "2026-07-22T10:30:00.000Z",
+  "passwordLastChangedAt": null,
+  "securityLinks": {
+    "sessions": "/settings/security/sessions",
+    "privacy": "/settings/privacy"
+  }
+}
+```
+
+Controlled errors: 401, 403 (CANDIDATE_ROLE_REQUIRED, AUTH_ACCOUNT_UNAVAILABLE)
+
+### Change Password
+
+```
+POST /api/v1/auth/change-password
+```
+
+Auth: Bearer token (authenticated user)
+
+Request:
+```json
+{
+  "currentPassword": "CurrentPass#2026",
+  "newPassword": "NewStrongPass#2026",
+  "confirmNewPassword": "NewStrongPass#2026"
+}
+```
+
+Response 200:
+```json
+{
+  "changed": true,
+  "revokedOtherSessionCount": 2
+}
+```
+
+Controlled errors: 400 (AUTH_CHANGE_PASSWORD_VALIDATION_FAILED, AUTH_NEW_PASSWORD_REUSED), 401 (AUTH_CURRENT_PASSWORD_INVALID, AUTH_ACCESS_TOKEN_INVALID), 403 (AUTH_ACCOUNT_UNAVAILABLE), 429 (AUTH_CHANGE_PASSWORD_RATE_LIMITED)

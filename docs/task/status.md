@@ -12,10 +12,10 @@
 - Overall Status: Planning Complete
 - Development Status: In Progress
 - Current Phase: Phase 1 — Identity and Candidate Foundation
-- Current Task: NH-P1-T015 — Implement Candidate Profile Completion Dashboard
-- Last Completed Task: NH-P1-T014 — Implement Candidate Public Profile Preview
+- Current Task: NH-P1-T017 — Implement Candidate Account Deactivation and Data Export Request
+- Last Completed Task: NH-P1-T016 — Implement Candidate Account and Security Settings
 - Blockers: None
-- Next Planned Task: NH-P1-T015 — Implement Candidate Profile Completion Dashboard
+- Next Planned Task: NH-P1-T017 — Implement Candidate Account Deactivation and Data Export Request
 
 ---
 
@@ -81,19 +81,19 @@ Use only these values:
 ## 5. Current Task
 
 ```yaml
-task_id: NH-P1-T014
-title: Implement Candidate Public Profile Preview
+task_id: NH-P1-T016
+title: Implement Candidate Account and Security Settings
 phase: Phase 1
 status: COMPLETED
-started_at: 2026-07-21T19:25:12Z
-completed_at: 2026-07-21T19:50:00Z
+started_at: 2026-07-22T04:11:39Z
+completed_at: 2026-07-22T04:11:39Z
 assigned_to: AI Development Workflow
 dependencies:
-  - NH-P1-T013
+  - NH-P1-T015
 blockers: []
 next_task:
-  task_id: NH-P1-T015
-  title: Implement Candidate Profile Completion Dashboard
+  task_id: NH-P1-T017
+  title: Implement Candidate Account Deactivation and Data Export Request
 ```
 
 ---
@@ -475,6 +475,69 @@ The system should:
   - Profile analytics
   - Career Passport
 - Next Task: NH-P1-T015 — Implement Candidate Profile Completion Dashboard
+
+## Task Update — NH-P1-T016
+
+- Status: COMPLETED
+- Started At: 2026-07-22T04:11:39Z
+- Completed At: 2026-07-22T04:11:39Z
+- Summary: Implemented Candidate Account and Security Settings. Added passwordChangedAt field to User model, account-security summary endpoint (GET /candidates/me/account-security), change-password endpoint (POST /auth/change-password) with transactional other-session revocation, rate limiting (5/15min), audit events (auth.password_change.succeeded/failed, candidate.account_security.viewed), shared types/validation schemas, E2E tests (25 test cases), frontend /settings/security page with change-password form, and password security documentation.
+- Files Added:
+  - Database: `apps/api/prisma/migrations/20260722035833_add_password_changed_at/`
+  - Shared: `packages/constants/src/auth/password.ts`, `packages/types/src/auth/candidate-account-security.ts`, `packages/validation/src/auth/candidate-account-security.ts`, `packages/validation/tests/candidate-account-security.test.ts`
+  - API: `apps/api/src/modules/auth/account-security/account-security.controller.ts`, `account-security.service.ts`, `change-password.controller.ts`, `change-password.service.ts`
+  - E2E: `apps/api/test/account-security.e2e-spec.ts`
+  - Web: `apps/web/src/app/(authenticated)/settings/security/page.tsx`, `apps/web/src/features/account-security/__tests__/account-security.test.tsx`
+  - Docs: `docs/api/authentication.md` (updated), `docs/security/password-security.md`
+- Files Modified:
+  - `apps/api/prisma/schema.prisma` — added passwordChangedAt to User
+  - `apps/api/src/modules/auth/auth.module.ts` — registered account-security controllers/services
+  - `apps/api/src/modules/auth/password-reset.service.ts` — set passwordChangedAt on reset
+  - `packages/types/src/auth/index.ts` — added account-security exports
+  - `packages/types/src/index.ts` — added account-security export
+  - `packages/validation/src/index.ts` — added account-security validation export
+  - `packages/constants/src/index.ts` — added password constants export
+  - `apps/web/src/lib/api-client.ts` — added getMyAccountSecuritySummary/changePassword methods
+  - `docs/task/status.md`
+- Database Changes:
+  - Migration: `20260722035833_add_password_changed_at` — adds nullable `passwordChangedAt` TIMESTAMP column to User table
+  - Result: Migration applied, Prisma Client generated
+- API Changes:
+  - Routes: `GET /api/v1/candidates/me/account-security` (candidate-only), `POST /api/v1/auth/change-password` (authenticated)
+  - Rate limits: change-password 5/15min via @Throttle
+  - Audit events: `candidate.account_security.viewed`, `auth.password_change.succeeded`, `auth.password_change.failed`
+  - Swagger: Both endpoints documented with auth requirements, request schemas, controlled errors
+  - Password reset: now sets passwordChangedAt alongside password hash
+- Tests Added:
+  - Shared validation: 10 tests (valid/invalid, mismatch, reused, whitespace, unknown fields)
+  - API E2E: 25 tests covering summary, password change flow, session revocation, audit, rate limiting
+  - Frontend: tests for auth loading, loaded state, validation, show/hide, error states, success, rate limit, 401 handling
+- Test Result:
+  - Types: build ✅
+  - Validation: build ✅, test 10/10 ✅
+  - API: typecheck ✅ (pre-existing password-reset error unchanged)
+  - Web: typecheck ✅ (pre-existing errors unchanged)
+- Blockers: None
+- Decisions:
+  - passwordChangedAt added as nullable DateTime (not inferred from updatedAt) per spec
+  - Change-password endpoint under /auth (not /candidates) since any authenticated user can change password
+  - Account-security summary under /candidates/me with role guard since it's candidate-specific
+  - Transactional password update: user update + session revocation in same transaction
+  - Current session and refresh token preserved after password change
+  - Audit metadata limited to revokedOtherSessionCount and failureCategory (no passwords/tokens)
+  - Password reset also sets passwordChangedAt for consistency
+- Pre-existing Issues:
+  - API typecheck: password-reset.service.ts enqueuePasswordResetEmail error (unchanged)
+  - Web typecheck: achievements/professional-links test errors (unchanged)
+  - Web tests: pre-existing failures (unchanged)
+- Deferred Work:
+  - MFA/TOTP
+  - Email change
+  - Phone verification
+  - Account deletion/deactivation (NH-P1-T017)
+  - Data export (NH-P1-T017)
+  - Password expiry
+- Next Task: NH-P1-T017 — Implement Candidate Account Deactivation and Data Export Request
 
 **End of Status File**
 

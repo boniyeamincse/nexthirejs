@@ -1462,3 +1462,46 @@ export async function getMyProfileCompletionDashboard(accessToken: string): Prom
   }
   return response.json() as Promise<CandidateProfileCompletionDashboard>;
 }
+
+// --- Account Security ---
+
+export interface CandidateAccountSecuritySummary {
+  email: string;
+  accountStatus: 'ACTIVE';
+  emailVerified: boolean;
+  activeSessionCount: number;
+  currentSessionCreatedAt: string;
+  currentSessionLastUsedAt: string | null;
+  passwordLastChangedAt: string | null;
+  securityLinks: {
+    sessions: string;
+    privacy: string;
+  };
+}
+
+export interface ChangePasswordResponse {
+  changed: boolean;
+  revokedOtherSessionCount: number;
+}
+
+export async function getMyAccountSecuritySummary(accessToken: string): Promise<CandidateAccountSecuritySummary> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/account-security`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (response.ok) return response.json() as Promise<CandidateAccountSecuritySummary>;
+  throw new Error(`Failed to fetch account security summary: ${response.status}`);
+}
+
+export async function changePassword(
+  accessToken: string,
+  data: { currentPassword: string; newPassword: string; confirmNewPassword: string },
+): Promise<ChangePasswordResponse> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/auth/change-password`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (response.ok) return response.json() as Promise<ChangePasswordResponse>;
+  const errorText = await response.text().catch(() => 'Unknown error');
+  throw new Error(`Failed to change password: ${response.status} ${errorText}`);
+}

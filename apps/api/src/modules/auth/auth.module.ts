@@ -15,10 +15,21 @@ import { SessionController } from './session.controller';
 import { TokenService } from './token.service';
 import { SessionService } from './session.service';
 import { AuthGuard } from './auth.guard';
+import { AccountSecurityController } from './account-security/account-security.controller';
+import { AccountSecurityService } from './account-security/account-security.service';
+import { ChangePasswordController } from './account-security/change-password.controller';
+import { ChangePasswordService } from './account-security/change-password.service';
 
 @Module({
   imports: [DatabaseModule, AuditModule, EmailModule],
-  controllers: [RegistrationController, EmailVerificationController, LoginController, SessionController],
+  controllers: [
+    RegistrationController,
+    EmailVerificationController,
+    LoginController,
+    SessionController,
+    AccountSecurityController,
+    ChangePasswordController,
+  ],
   providers: [
     PasswordHashingService,
     RegistrationService,
@@ -28,6 +39,8 @@ import { AuthGuard } from './auth.guard';
     TokenService,
     SessionService,
     AuthGuard,
+    AccountSecurityService,
+    ChangePasswordService,
     {
       provide: APP_GUARD,
       useClass: AuthGuard,

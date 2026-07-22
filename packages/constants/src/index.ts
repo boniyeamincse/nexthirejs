@@ -10,3 +10,4 @@ export * from './currencies.js';
 export * from './languages.js';
 export * from './http.js';
 export * from './auth/auth-errors.js';
+export * from './auth/password.js';

@@ -13,6 +13,7 @@ export * from './auth/candidate-registration.js';
 export * from './auth/candidate-login.js';
 export * from './auth/account-state.js';
 export * from './auth/session-management.js';
+export * from './auth/candidate-account-security.js';
 export * from './audit.js';
 export * from './candidates/index.js';
 export * from './configuration/country.js';
