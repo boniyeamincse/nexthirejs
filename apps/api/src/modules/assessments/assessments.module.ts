@@ -12,6 +12,15 @@ import { AssessmentCategoryManagementService } from './management/services/asses
 import { AssessmentQuestionManagementController } from './management/controllers/assessment-question-management.controller';
 import { AssessmentQuestionManagementService } from './management/services/assessment-question-management.service';
 
+import { AssessmentManagementController } from './management/controllers/assessment-management.controller';
+import { AssessmentSectionController } from './management/controllers/assessment-section.controller';
+import { AssessmentAssignmentController } from './management/controllers/assessment-assignment.controller';
+
+import { AssessmentAuthoringService } from './management/services/assessment-authoring.service';
+import { AssessmentSectionService } from './management/services/assessment-section.service';
+import { AssessmentAssignmentService } from './management/services/assessment-assignment.service';
+import { AssessmentReadinessService, AssessmentPublicationService } from './management/services/assessment-publication.service';
+
 import { AuthModule } from '../auth/auth.module';
 
 @Module({
@@ -20,6 +29,9 @@ import { AuthModule } from '../auth/auth.module';
     AssessmentCatalogController,
     AssessmentCategoryManagementController,
     AssessmentQuestionManagementController,
+    AssessmentManagementController,
+    AssessmentSectionController,
+    AssessmentAssignmentController,
   ],
   providers: [
     AssessmentCatalogService,
@@ -28,6 +40,11 @@ import { AuthModule } from '../auth/auth.module';
     AssessmentCategoryRepository,
     AssessmentCategoryManagementService,
     AssessmentQuestionManagementService,
+    AssessmentAuthoringService,
+    AssessmentSectionService,
+    AssessmentAssignmentService,
+    AssessmentReadinessService,
+    AssessmentPublicationService,
   ],
   exports: [AssessmentLifecycleService, AssessmentRepository, AssessmentCategoryRepository],
 })

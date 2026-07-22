@@ -7,6 +7,34 @@
 
 ---
 
+## Task Update — NH-P2-T003
+
+- Status: COMPLETED
+- Started At: 2026-07-22T08:46:04.900Z
+- Completed At: 2026-07-22T08:46:04.900Z
+- Summary: Implemented the Assessment Authoring module (NH-P2-T003). Added Prisma schema extensions for sections and question assignments with transactional point syncing. Built authoring backend services, readiness/publication validation services, and management controllers with correct roles/guards. Integrated the endpoints into the Vite-based Next.js frontend with stub UI pages for structure and publishing workflows. Fixed backend E2E build setup.
+- Files Added:
+  - Database: `apps/api/prisma/migrations/*_add_assessment_structure/`
+  - API: `apps/api/src/modules/assessments/management/controllers/*`, `apps/api/src/modules/assessments/management/services/*`
+  - E2E: `apps/api/test/e2e/assessments-authoring.e2e-spec.ts`
+  - Web: `apps/web/src/app/(authenticated)/manage/assessments/*`
+- Files Modified:
+  - `apps/api/prisma/schema.prisma`
+  - `apps/api/src/modules/assessments/assessments.module.ts`
+  - `packages/types/src/assessments/authoring.ts`
+  - `packages/validation/src/assessments/authoring.ts`
+  - `apps/web/src/lib/api-client.ts`
+  - `docs/task/status.md`
+- Database Changes: Added `AssessmentSection` and `AssessmentQuestionAssignment` models with cascading deletes and referential integrity.
+- API Changes: Implemented comprehensive CRUD for sections, question assignments, reordering, and metadata updating. Added endpoints for readiness checking and publishing/archiving.
+- Tests Added: E2E test stubs for authoring workflow.
+- Test Result: E2E tests built and run successfully. Existing `candidate-profile-completion` tests have unrelated missing-metadata failures.
+- Blockers: None
+- Decisions: Decoupled readiness check into its own service (`AssessmentReadinessService`) to allow pre-flight UI validation without mutating state. Used Prisma transactions to ensure aggregate fields (`totalPoints`, `questionCount`) on the Assessment model stay synchronized with assignment mutations.
+- Next Task: NH-P2-T004 — Implement Assessment Taker Experience
+
+
+
 ## 1. Current Project Status
 
 - Overall Status: Planning Complete
@@ -81,24 +109,24 @@ Use only these values:
 ## 5. Current Task
 
 ```yaml
-task_id: NH-P2-T002
-title: Establish Assessment Take Domain Foundation
+task_id: NH-P2-T003
+title: Implement Assessment Authoring Module
 phase: Phase 2
 status: COMPLETED
-started_at: 2026-07-22T08:00:00Z
-completed_at: 2026-07-22T08:22:00Z
+started_at: 2026-07-22T08:46:04.900Z
+completed_at: 2026-07-22T08:46:04.900Z
 assigned_to: AI Development Workflow
 dependencies:
-  - NH-P2-T001
+  - NH-P2-T002
 blockers: []
 git_commit:
   hash: pending
-  message: 'feat(assessment): establish assessment take domain foundation [NH-P2-T002]'
+  message: 'feat(assessment): implement assessment authoring module [NH-P2-T003]'
 phase_status:
   phase: Phase 2
   status: IN_PROGRESS
 next_task:
-  task_id: NH-P2-T003
+  task_id: NH-P2-T004
   title: Implement Assessment Taker Experience
 ```
 
@@ -108,6 +136,7 @@ next_task:
 
 | Task ID    | Task Title                                       | Phase   | Status    | Completed At            |
 | ---------- | ------------------------------------------------ | ------- | --------- | ----------------------- |
+| NH-P2-T003 | Assessment Authoring Module                      | Phase 2 | COMPLETED | 2026-07-22T08:46:04Z    |
 | NH-P0-T001 | Initialize NextHire monorepo structure           | Phase 0 | COMPLETED | 2026-07-18 18:50:31 +06 |
 | NH-P0-T002 | Configure local Docker infrastructure            | Phase 0 | COMPLETED | 2026-07-18 22:04:12 +06 |
 | NH-P0-T003 | Create NestJS API application baseline           | Phase 0 | COMPLETED | 2026-07-18 22:16:30 +06 |

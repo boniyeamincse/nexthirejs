@@ -509,14 +509,14 @@ enum AssessmentAvailability {
 }
 
 model AssessmentCategory {
-  id          String       @id @default(uuid()) @db.Uuid
-  name        String       @db.VarChar(120)
-  slug        String       @unique @db.VarChar(140)
-  description String?      @db.Text
-  sortOrder   Int          @default(0)
-  isActive    Boolean      @default(true)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @db.VarChar(120)
+  slug        String   @unique @db.VarChar(140)
+  description String?  @db.Text
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   assessments Assessment[]
   questions   AssessmentQuestion[]
@@ -538,19 +538,65 @@ model Assessment {
   visibility               AssessmentVisibility   @default(CANDIDATE_CATALOG)
   availability             AssessmentAvailability @default(COMING_SOON)
   estimatedDurationMinutes Int
+  passingScorePercentage   Int                    @default(60)
+  maximumAttempts          Int?
+  totalPoints              Decimal                @default(0) @db.Decimal(10, 2)
   questionCount            Int                    @default(0)
   publishedAt              DateTime?
+  archivedAt               DateTime?
+  publicationVersion       Int                    @default(0)
   createdById              String?                @db.Uuid
   updatedById              String?                @db.Uuid
   createdAt                DateTime               @default(now())
   updatedAt                DateTime               @updatedAt
 
-  category AssessmentCategory @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  category    AssessmentCategory             @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  sections    AssessmentSection[]
+  assignments AssessmentQuestionAssignment[]
 
   @@index([status, visibility, availability])
   @@index([categoryId, status])
   @@index([difficulty, type])
   @@index([publishedAt])
+}
+
+model AssessmentSection {
+  id           String   @id @default(uuid()) @db.Uuid
+  assessmentId String   @db.Uuid
+  title        String   @db.VarChar(200)
+  description  String?  @db.Text
+  instructions String?  @db.Text
+  sortOrder    Int
+  isRequired   Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  assessment Assessment                     @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  questions  AssessmentQuestionAssignment[]
+
+  @@unique([assessmentId, sortOrder])
+  @@index([assessmentId])
+}
+
+model AssessmentQuestionAssignment {
+  id           String   @id @default(uuid()) @db.Uuid
+  assessmentId String   @db.Uuid
+  sectionId    String   @db.Uuid
+  questionId   String   @db.Uuid
+  sortOrder    Int
+  points       Decimal  @db.Decimal(8, 2)
+  isRequired   Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  assessment Assessment         @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  section    AssessmentSection  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  question   AssessmentQuestion @relation(fields: [questionId], references: [id], onDelete: Restrict)
+
+  @@unique([assessmentId, questionId])
+  @@unique([sectionId, sortOrder])
+  @@index([assessmentId, sectionId])
+  @@index([questionId])
 }
 
 model CandidateDataExportRequest {
@@ -590,25 +636,26 @@ enum AssessmentQuestionStatus {
 }
 
 model AssessmentQuestion {
-  id                  String                   @id @default(uuid()) @db.Uuid
-  categoryId          String                   @db.Uuid
-  type                AssessmentQuestionType
-  status              AssessmentQuestionStatus @default(DRAFT)
-  difficulty          AssessmentDifficulty
-  prompt              String                   @db.Text
-  explanation         String?                  @db.Text
-  acceptedAnswers     String[]
-  tags                String[]
-  sourceReference     String?                  @db.VarChar(300)
-  estimatedSeconds    Int?
-  createdById         String?                  @db.Uuid
-  updatedById         String?                  @db.Uuid
-  archivedAt          DateTime?
-  createdAt           DateTime                 @default(now())
-  updatedAt           DateTime                 @updatedAt
+  id               String                   @id @default(uuid()) @db.Uuid
+  categoryId       String                   @db.Uuid
+  type             AssessmentQuestionType
+  status           AssessmentQuestionStatus @default(DRAFT)
+  difficulty       AssessmentDifficulty
+  prompt           String                   @db.Text
+  explanation      String?                  @db.Text
+  acceptedAnswers  String[]
+  tags             String[]
+  sourceReference  String?                  @db.VarChar(300)
+  estimatedSeconds Int?
+  createdById      String?                  @db.Uuid
+  updatedById      String?                  @db.Uuid
+  archivedAt       DateTime?
+  createdAt        DateTime                 @default(now())
+  updatedAt        DateTime                 @updatedAt
 
-  category AssessmentCategory       @relation(fields: [categoryId], references: [id], onDelete: Restrict)
-  options  AssessmentQuestionOption[]
+  category    AssessmentCategory             @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  options     AssessmentQuestionOption[]
+  assignments AssessmentQuestionAssignment[]
 
   @@index([categoryId, status])
   @@index([type, difficulty, status])

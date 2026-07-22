@@ -1741,3 +1741,161 @@ export async function getAssessmentDetail(
     errorBody?.requestId,
   );
 }
+
+// --- Assessment Management (Authoring) ---
+import type {
+  CreateAssessmentInput,
+  UpdateAssessmentInput,
+  CreateAssessmentSectionInput,
+  UpdateAssessmentSectionInput,
+  AssignAssessmentQuestionsInput,
+  UpdateAssessmentQuestionAssignmentInput,
+  AssessmentManagementDetail,
+  AssessmentPublicationReadiness,
+} from '@nexthire/types';
+
+export async function createAssessment(accessToken: string, data: CreateAssessmentInput): Promise<AssessmentManagementDetail> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/manage/assessments`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to create assessment: ${response.status}`);
+}
+
+export async function getManagedAssessment(accessToken: string, id: string): Promise<AssessmentManagementDetail> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/manage/assessments/${id}`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to get managed assessment: ${response.status}`);
+}
+
+export async function updateAssessment(accessToken: string, id: string, data: UpdateAssessmentInput): Promise<AssessmentManagementDetail> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/manage/assessments/${id}`, {
+    method: 'PUT',
+    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to update assessment: ${response.status}`);
+}
+
+export async function createAssessmentSection(accessToken: string, assessmentId: string, data: CreateAssessmentSectionInput): Promise<void> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/sections`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (response.ok) return;
+  throw new Error(`Failed to create section: ${response.status}`);
+}
+
+export async function updateAssessmentSection(accessToken: string, assessmentId: string, sectionId: string, data: UpdateAssessmentSectionInput): Promise<void> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/sections/${sectionId}`, {
+    method: 'PUT',
+    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (response.ok) return;
+  throw new Error(`Failed to update section: ${response.status}`);
+}
+
+export async function deleteAssessmentSection(accessToken: string, assessmentId: string, sectionId: string): Promise<void> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/sections/${sectionId}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (response.ok) return;
+  throw new Error(`Failed to delete section: ${response.status}`);
+}
+
+export async function reorderAssessmentSections(accessToken: string, assessmentId: string, orderedIds: string[]): Promise<void> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/sections/reorder`, {
+    method: 'PUT',
+    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ orderedIds }),
+  });
+  if (response.ok) return;
+  throw new Error(`Failed to reorder sections: ${response.status}`);
+}
+
+export async function assignAssessmentQuestions(accessToken: string, assessmentId: string, data: AssignAssessmentQuestionsInput): Promise<void> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/questions/assign`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (response.ok) return;
+  throw new Error(`Failed to assign questions: ${response.status}`);
+}
+
+export async function updateAssessmentQuestionAssignment(accessToken: string, assessmentId: string, assignmentId: string, data: UpdateAssessmentQuestionAssignmentInput): Promise<void> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/questions/${assignmentId}`, {
+    method: 'PUT',
+    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (response.ok) return;
+  throw new Error(`Failed to update assignment: ${response.status}`);
+}
+
+export async function deleteAssessmentQuestionAssignment(accessToken: string, assessmentId: string, assignmentId: string): Promise<void> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/questions/${assignmentId}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (response.ok) return;
+  throw new Error(`Failed to delete assignment: ${response.status}`);
+}
+
+export async function reorderAssessmentSectionQuestions(accessToken: string, assessmentId: string, sectionId: string, orderedIds: string[]): Promise<void> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/sections/${sectionId}/questions/reorder`, {
+    method: 'PUT',
+    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ orderedIds }),
+  });
+  if (response.ok) return;
+  throw new Error(`Failed to reorder questions: ${response.status}`);
+}
+
+export async function getAssessmentReadiness(accessToken: string, assessmentId: string): Promise<AssessmentPublicationReadiness> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/readiness`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (response.ok) return response.json();
+  throw new Error(`Failed to check readiness: ${response.status}`);
+}
+
+export async function publishAssessment(accessToken: string, assessmentId: string): Promise<void> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/publish`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (response.ok) return;
+  
+  let errorBody = null;
+  try { errorBody = await response.json(); } catch {}
+  throw new Error(errorBody?.message ?? `Failed to publish assessment: ${response.status}`);
+}
+
+export async function archiveAssessment(accessToken: string, assessmentId: string): Promise<void> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/archive`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (response.ok) return;
+  throw new Error(`Failed to archive assessment: ${response.status}`);
+}
+
+export async function republishAssessment(accessToken: string, assessmentId: string): Promise<void> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/republish`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (response.ok) return;
+  let errorBody = null;
+  try { errorBody = await response.json(); } catch {}
+  throw new Error(errorBody?.message ?? `Failed to republish assessment: ${response.status}`);
+}
