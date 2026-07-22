@@ -92,7 +92,7 @@ dependencies:
   - NH-P1-T017
 blockers: []
 git_commit:
-  hash: <pending>
+  hash: 7841ebd
   message: 'chore(phase-1): complete integration and security quality gate [NH-P1-T018]'
 phase_status:
   phase: Phase 1
