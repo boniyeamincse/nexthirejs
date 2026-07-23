@@ -99,6 +99,10 @@ model User {
   expertApplications        ExpertApplication[]
   expertBookingsAsExpert    ExpertBooking[]            @relation("ExpertBookingExpert")
   expertBookingsAsCandidate ExpertBooking[]            @relation("ExpertBookingCandidate")
+  sessionEvaluationsGiven   ExpertSessionEvaluation[]  @relation("ExpertSessionEvaluationExpert")
+  sessionEvaluationsReceived ExpertSessionEvaluation[] @relation("ExpertSessionEvaluationCandidate")
+  expertReviewsReceived     ExpertReview[]             @relation("ExpertReviewExpert")
+  expertReviewsGiven        ExpertReview[]             @relation("ExpertReviewCandidate")
 }
 
 model Role {
@@ -1812,10 +1816,67 @@ model ExpertBooking {
   expertUser    User          @relation("ExpertBookingExpert", fields: [expertUserId], references: [id], onDelete: Cascade)
   expertService ExpertService @relation(fields: [expertServiceId], references: [id], onDelete: Restrict)
   candidate     User          @relation("ExpertBookingCandidate", fields: [candidateId], references: [id], onDelete: Cascade)
+  evaluation    ExpertSessionEvaluation?
+  review        ExpertReview?
 
   @@index([expertUserId, status])
   @@index([candidateId, status])
   @@index([slotStartUtc])
+}
+
+/// NH-M16: the expert's private feedback on the candidate's session performance
+/// (mock-interview coaching notes), visible only to that candidate — not a
+/// public review of the expert. See ExpertReview for the reverse direction.
+model ExpertSessionEvaluation {
+  id                 String   @id @default(uuid()) @db.Uuid
+  bookingId          String   @unique @db.Uuid
+  expertUserId       String   @db.Uuid
+  candidateId        String   @db.Uuid
+  communication      Int
+  technicalKnowledge Int
+  confidence         Int
+  problemSolving     Int
+  overallScore       Int
+  strengths          String?  @db.Text
+  improvements       String?  @db.Text
+  nextSteps          String?  @db.Text
+  submittedAt        DateTime
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  booking    ExpertBooking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  expertUser User          @relation("ExpertSessionEvaluationExpert", fields: [expertUserId], references: [id], onDelete: Cascade)
+  candidate  User          @relation("ExpertSessionEvaluationCandidate", fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@index([expertUserId])
+  @@index([candidateId])
+}
+
+/// NH-M16: the candidate's public review/rating of the expert after a
+/// COMPLETED booking — the aggregate-rating data source NH-M13 deferred
+/// (it shipped with no fabricated ratings since none existed yet).
+/// isHidden/hiddenAt/hiddenReason are the "moderation hooks" from the spec;
+/// a full moderation center is NH-M32's scope, not built here.
+model ExpertReview {
+  id           String    @id @default(uuid()) @db.Uuid
+  bookingId    String    @unique @db.Uuid
+  expertUserId String    @db.Uuid
+  candidateId  String    @db.Uuid
+  rating       Int
+  comment      String?   @db.Text
+  isHidden     Boolean   @default(false)
+  hiddenAt     DateTime?
+  hiddenReason String?   @db.VarChar(300)
+  submittedAt  DateTime
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  booking    ExpertBooking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  expertUser User          @relation("ExpertReviewExpert", fields: [expertUserId], references: [id], onDelete: Cascade)
+  candidate  User          @relation("ExpertReviewCandidate", fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@index([expertUserId, isHidden])
+  @@index([candidateId])
 }
 
 enum CourseStatus {

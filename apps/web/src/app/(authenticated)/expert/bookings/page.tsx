@@ -2,13 +2,22 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 
 import { useCallback, useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useAuth } from '@/providers/auth-context';
 import {
   ApiClientError,
   listReceivedExpertBookings,
   updateReceivedExpertBooking,
+  getExpertBookingEvaluation,
+  getExpertBookingReview,
+  createExpertBookingEvaluation,
 } from '@/lib/api-client';
-import type { ExpertBookingResult, ExpertBookingStatus } from '@nexthire/types';
+import type {
+  ExpertBookingResult,
+  ExpertBookingStatus,
+  ExpertReviewResult,
+  ExpertSessionEvaluationResult,
+} from '@nexthire/types';
 import { EXPERT_BOOKING_STATUSES } from '@nexthire/constants';
 
 const STATUS_TABS = ['All', ...EXPERT_BOOKING_STATUSES] as const;
@@ -20,6 +29,287 @@ const STATUS_BADGE: Record<ExpertBookingStatus, { bg: string; text: string; labe
   EXPIRED: { bg: 'rgba(239,68,68,0.15)', text: '#fca5a5', label: 'Expired' },
   COMPLETED: { bg: 'rgba(99,102,241,0.15)', text: '#a5b4fc', label: 'Completed' },
 };
+
+const SCORE_FIELDS = [
+  ['communication', 'Communication'],
+  ['technicalKnowledge', 'Technical knowledge'],
+  ['confidence', 'Confidence'],
+  ['problemSolving', 'Problem solving'],
+] as const;
+
+type ScoreField = (typeof SCORE_FIELDS)[number][0];
+
+function ExpertFeedbackSection({
+  booking,
+  getAccessToken,
+}: {
+  booking: ExpertBookingResult;
+  getAccessToken: () => string | null;
+}) {
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+  const [review, setReview] = useState<ExpertReviewResult | null>(null);
+  const [evaluation, setEvaluation] = useState<ExpertSessionEvaluationResult | null>(null);
+  const [scores, setScores] = useState<Record<ScoreField, number>>({
+    communication: 4,
+    technicalKnowledge: 4,
+    confidence: 4,
+    problemSolving: 4,
+  });
+  const [strengths, setStrengths] = useState('');
+  const [improvements, setImprovements] = useState('');
+  const [nextSteps, setNextSteps] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function toggle() {
+    if (loaded) {
+      setOpen((o) => !o);
+      return;
+    }
+    const token = getAccessToken();
+    if (!token) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const [e, r] = await Promise.all([
+        getExpertBookingEvaluation(token, booking.id),
+        getExpertBookingReview(token, booking.id),
+      ]);
+      setEvaluation(e);
+      setReview(r);
+      setLoaded(true);
+      setOpen(true);
+    } catch {
+      setError('Failed to load feedback. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleSubmit() {
+    const token = getAccessToken();
+    if (!token) return;
+    setSubmitting(true);
+    setError(null);
+    try {
+      const created = await createExpertBookingEvaluation(token, booking.id, {
+        ...scores,
+        strengths: strengths.trim() || undefined,
+        improvements: improvements.trim() || undefined,
+        nextSteps: nextSteps.trim() || undefined,
+      });
+      setEvaluation(created);
+    } catch (err) {
+      setError(err instanceof ApiClientError ? err.message : 'Failed to submit evaluation.');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid #334155' }}>
+      <button
+        onClick={toggle}
+        disabled={loading}
+        style={{
+          padding: '0.3rem 0.7rem',
+          background: 'rgba(99,102,241,0.15)',
+          color: '#a5b4fc',
+          border: '1px solid rgba(99,102,241,0.3)',
+          borderRadius: '0.375rem',
+          fontSize: '0.8rem',
+          fontWeight: 500,
+          cursor: loading ? 'not-allowed' : 'pointer',
+        }}
+      >
+        {loading ? 'Loading...' : open ? 'Hide feedback' : 'Feedback'}
+      </button>
+
+      {open && (
+        <div
+          style={{ marginTop: '0.6rem', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}
+        >
+          <div
+            style={{
+              padding: '0.6rem 0.75rem',
+              background: '#0f172a',
+              border: '1px solid #334155',
+              borderRadius: '0.5rem',
+            }}
+          >
+            <p style={{ margin: 0, color: '#e2e8f0', fontSize: '0.83rem' }}>
+              Candidate review:{' '}
+              {review
+                ? `${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}`
+                : 'Not yet submitted'}
+            </p>
+            {review?.comment && (
+              <p style={{ margin: '0.3rem 0 0', color: '#cbd5e1', fontSize: '0.82rem' }}>
+                {review.comment}
+              </p>
+            )}
+          </div>
+
+          {evaluation ? (
+            <div
+              style={{
+                padding: '0.6rem 0.75rem',
+                background: '#0f172a',
+                border: '1px solid #334155',
+                borderRadius: '0.5rem',
+              }}
+            >
+              <p
+                style={{
+                  margin: '0 0 0.3rem',
+                  color: '#e2e8f0',
+                  fontSize: '0.83rem',
+                  fontWeight: 600,
+                }}
+              >
+                Your evaluation — overall {evaluation.overallScore}/5
+              </p>
+              <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.8rem' }}>
+                Communication {evaluation.communication}/5 · Technical{' '}
+                {evaluation.technicalKnowledge}/5 · Confidence {evaluation.confidence}/5 · Problem
+                solving {evaluation.problemSolving}/5
+              </p>
+            </div>
+          ) : (
+            <div
+              style={{
+                padding: '0.6rem 0.75rem',
+                background: '#0f172a',
+                border: '1px solid #334155',
+                borderRadius: '0.5rem',
+              }}
+            >
+              <p
+                style={{
+                  margin: '0 0 0.5rem',
+                  color: '#e2e8f0',
+                  fontSize: '0.83rem',
+                  fontWeight: 600,
+                }}
+              >
+                Evaluate this session
+              </p>
+              {SCORE_FIELDS.map(([field, label]) => (
+                <label
+                  key={field}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    color: '#cbd5e1',
+                    fontSize: '0.82rem',
+                    marginBottom: '0.35rem',
+                  }}
+                >
+                  {label}
+                  <select
+                    value={scores[field]}
+                    onChange={(e) =>
+                      setScores((prev) => ({ ...prev, [field]: Number(e.target.value) }))
+                    }
+                    style={{
+                      padding: '0.2rem 0.4rem',
+                      background: '#1e293b',
+                      color: '#e2e8f0',
+                      border: '1px solid #334155',
+                      borderRadius: '0.35rem',
+                    }}
+                  >
+                    {[1, 2, 3, 4, 5].map((n) => (
+                      <option key={n} value={n}>
+                        {n}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ))}
+              <textarea
+                value={strengths}
+                onChange={(e) => setStrengths(e.target.value)}
+                placeholder="Strengths"
+                rows={2}
+                style={{
+                  width: '100%',
+                  padding: '0.4rem 0.5rem',
+                  background: '#1e293b',
+                  color: '#e2e8f0',
+                  border: '1px solid #334155',
+                  borderRadius: '0.35rem',
+                  fontSize: '0.82rem',
+                  marginBottom: '0.4rem',
+                  resize: 'vertical',
+                }}
+              />
+              <textarea
+                value={improvements}
+                onChange={(e) => setImprovements(e.target.value)}
+                placeholder="Areas to improve"
+                rows={2}
+                style={{
+                  width: '100%',
+                  padding: '0.4rem 0.5rem',
+                  background: '#1e293b',
+                  color: '#e2e8f0',
+                  border: '1px solid #334155',
+                  borderRadius: '0.35rem',
+                  fontSize: '0.82rem',
+                  marginBottom: '0.4rem',
+                  resize: 'vertical',
+                }}
+              />
+              <textarea
+                value={nextSteps}
+                onChange={(e) => setNextSteps(e.target.value)}
+                placeholder="Next steps"
+                rows={2}
+                style={{
+                  width: '100%',
+                  padding: '0.4rem 0.5rem',
+                  background: '#1e293b',
+                  color: '#e2e8f0',
+                  border: '1px solid #334155',
+                  borderRadius: '0.35rem',
+                  fontSize: '0.82rem',
+                  marginBottom: '0.5rem',
+                  resize: 'vertical',
+                }}
+              />
+              <button
+                onClick={handleSubmit}
+                disabled={submitting}
+                style={{
+                  padding: '0.35rem 0.8rem',
+                  background: '#2563eb',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '0.4rem',
+                  fontSize: '0.82rem',
+                  fontWeight: 600,
+                  cursor: submitting ? 'not-allowed' : 'pointer',
+                }}
+              >
+                {submitting ? '...' : 'Submit evaluation'}
+              </button>
+            </div>
+          )}
+
+          {error && (
+            <p role="alert" style={{ color: '#fca5a5', fontSize: '0.8rem', margin: 0 }}>
+              {error}
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function ExpertBookingsPage() {
   const { getAccessToken, logout, status: authStatus } = useAuth();
@@ -100,9 +390,16 @@ export default function ExpertBookingsPage() {
 
   return (
     <div>
-      <h1 style={{ color: '#f1f5f9', fontSize: '1.6rem', fontWeight: 700, margin: '0 0 0.35rem' }}>
-        Bookings
-      </h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+        <h1
+          style={{ color: '#f1f5f9', fontSize: '1.6rem', fontWeight: 700, margin: '0 0 0.35rem' }}
+        >
+          Bookings
+        </h1>
+        <Link href="/expert/reviews" style={{ color: '#93c5fd', fontSize: '0.85rem' }}>
+          View my reviews →
+        </Link>
+      </div>
       <p style={{ color: '#94a3b8', margin: '0 0 1.25rem' }}>
         Sessions candidates have reserved with you.
       </p>
@@ -167,8 +464,11 @@ export default function ExpertBookingsPage() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         {filtered.map((booking) => {
           const badge = STATUS_BADGE[booking.status];
+          // Intentionally time-relative: gates Mark complete against the slot's end time.
+          // eslint-disable-next-line react-hooks/purity
+          const nowMs = Date.now();
           const canComplete =
-            booking.status === 'CONFIRMED' && new Date(booking.slotEndUtc).getTime() <= Date.now();
+            booking.status === 'CONFIRMED' && new Date(booking.slotEndUtc).getTime() <= nowMs;
           const canCancel = booking.status === 'HELD' || booking.status === 'CONFIRMED';
           const canEditMeetingUrl = booking.status === 'HELD' || booking.status === 'CONFIRMED';
           return (
@@ -312,6 +612,9 @@ export default function ExpertBookingsPage() {
                 >
                   Meeting link
                 </a>
+              )}
+              {booking.status === 'COMPLETED' && (
+                <ExpertFeedbackSection booking={booking} getAccessToken={getAccessToken} />
               )}
             </div>
           );

@@ -7,14 +7,26 @@ describe('ExpertPublicDirectoryService', () => {
     listPublic: jest.fn(),
     findPublicBySlug: jest.fn(),
     findPublicServiceBySlug: jest.fn(),
+    findPublicUserIdBySlug: jest.fn(),
   };
   const slotService = {
     previewSlots: jest.fn(),
   };
+  const reviewService = {
+    getAggregatesForExperts: jest.fn(),
+    getAggregateForExpert: jest.fn(),
+    listPublicForExpert: jest.fn(),
+  };
 
   beforeEach(() => {
     jest.resetAllMocks();
-    service = new ExpertPublicDirectoryService(repo as never, slotService as never);
+    reviewService.getAggregatesForExperts.mockResolvedValue(new Map());
+    reviewService.getAggregateForExpert.mockResolvedValue({ average: null, count: 0 });
+    service = new ExpertPublicDirectoryService(
+      repo as never,
+      slotService as never,
+      reviewService as never,
+    );
   });
 
   describe('list', () => {
@@ -23,6 +35,7 @@ describe('ExpertPublicDirectoryService', () => {
         total: 1,
         rows: [
           {
+            id: 'user-1',
             expertProfile: {
               publicSlug: 'senior-backend-engineer-abc123ef',
               professionalTitle: 'Senior Backend Engineer',
@@ -55,7 +68,39 @@ describe('ExpertPublicDirectoryService', () => {
         city: 'Remote',
         interviewLanguages: ['en'],
         primaryExpertise: [{ areaName: 'Backend Development', areaSlug: 'backend-development' }],
+        rating: { average: null, count: 0 },
       });
+    });
+
+    it('enriches each row with its aggregate rating', async () => {
+      repo.listPublic.mockResolvedValue({
+        total: 1,
+        rows: [
+          {
+            id: 'user-1',
+            expertProfile: {
+              publicSlug: 'senior-backend-engineer-abc123ef',
+              professionalTitle: 'Senior Backend Engineer',
+              professionalSummary: 'Ten years of distributed systems.',
+              yearsOfExperience: 10,
+              currentCompany: 'Acme',
+              currentPosition: 'Staff Engineer',
+              countryId: 'c1',
+              city: 'Remote',
+              interviewLanguages: ['en'],
+            },
+            expertExpertise: [],
+          },
+        ],
+      });
+      reviewService.getAggregatesForExperts.mockResolvedValue(
+        new Map([['user-1', { average: 4.5, count: 8 }]]),
+      );
+
+      const result = await service.list({ page: 1, pageSize: 20 });
+
+      expect(reviewService.getAggregatesForExperts).toHaveBeenCalledWith(['user-1']);
+      expect(result.data[0]?.rating).toEqual({ average: 4.5, count: 8 });
     });
 
     it('falls back to defaults for a garbage pageSize instead of rejecting', async () => {
@@ -142,6 +187,58 @@ describe('ExpertPublicDirectoryService', () => {
     it('404s for a malformed slug without querying the repository', async () => {
       await expect(service.getBySlug('has spaces!!')).rejects.toBeInstanceOf(NotFoundException);
       expect(repo.findPublicBySlug).not.toHaveBeenCalled();
+    });
+
+    it('includes the aggregate rating for the resolved expert', async () => {
+      repo.findPublicBySlug.mockResolvedValue({
+        profile: {
+          userId: 'expert-1',
+          publicSlug: 'senior-backend-engineer-abc123ef',
+          professionalTitle: 'Senior Backend Engineer',
+          professionalSummary: 'Ten years.',
+          yearsOfExperience: 10,
+          currentCompany: null,
+          currentPosition: null,
+          highestEducation: null,
+          linkedinUrl: null,
+          portfolioUrl: null,
+          personalWebsiteUrl: null,
+          interviewLanguages: [],
+          countryId: 'c1',
+          city: null,
+        },
+        user: { expertExpertise: [], expertServices: [] },
+      });
+      reviewService.getAggregateForExpert.mockResolvedValue({ average: 4.2, count: 5 });
+
+      const result = await service.getBySlug('senior-backend-engineer-abc123ef');
+
+      expect(reviewService.getAggregateForExpert).toHaveBeenCalledWith('expert-1');
+      expect(result.rating).toEqual({ average: 4.2, count: 5 });
+    });
+  });
+
+  describe('getReviews', () => {
+    it('resolves the slug to an expert and lists their public reviews', async () => {
+      repo.findPublicUserIdBySlug.mockResolvedValue('expert-1');
+      reviewService.listPublicForExpert.mockResolvedValue({
+        data: [],
+        aggregate: { average: null, count: 0 },
+        pagination: { page: 1, pageSize: 20, total: 0, totalPages: 1 },
+      });
+
+      await service.getReviews('senior-backend-engineer-abc123ef', { page: 1, pageSize: 20 });
+
+      expect(repo.findPublicUserIdBySlug).toHaveBeenCalledWith('senior-backend-engineer-abc123ef');
+      expect(reviewService.listPublicForExpert).toHaveBeenCalledWith('expert-1', {
+        page: 1,
+        pageSize: 20,
+      });
+    });
+
+    it('404s when the slug does not resolve to a public expert', async () => {
+      repo.findPublicUserIdBySlug.mockResolvedValue(null);
+      await expect(service.getReviews('nope', {})).rejects.toBeInstanceOf(NotFoundException);
     });
   });
 

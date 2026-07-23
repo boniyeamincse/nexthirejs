@@ -9,8 +9,16 @@ import {
   listMyExpertBookings,
   confirmMyExpertBooking,
   cancelMyExpertBooking,
+  getMyBookingReview,
+  getMyBookingEvaluation,
+  createMyBookingReview,
 } from '@/lib/api-client';
-import type { ExpertBookingResult, ExpertBookingStatus } from '@nexthire/types';
+import type {
+  ExpertBookingResult,
+  ExpertBookingStatus,
+  ExpertReviewResult,
+  ExpertSessionEvaluationResult,
+} from '@nexthire/types';
 import { EXPERT_BOOKING_STATUSES } from '@nexthire/constants';
 
 const STATUS_TABS = ['All', ...EXPERT_BOOKING_STATUSES] as const;
@@ -28,6 +36,231 @@ const pageStyle: React.CSSProperties = {
   margin: '0 auto',
   padding: '2rem 1.5rem',
 };
+
+function EvaluationSummary({ evaluation }: { evaluation: ExpertSessionEvaluationResult }) {
+  return (
+    <div
+      style={{
+        marginTop: '0.6rem',
+        padding: '0.6rem 0.75rem',
+        background: '#0f172a',
+        border: '1px solid #334155',
+        borderRadius: '0.5rem',
+      }}
+    >
+      <p style={{ margin: '0 0 0.3rem', color: '#e2e8f0', fontSize: '0.83rem', fontWeight: 600 }}>
+        Expert feedback on your session — overall {evaluation.overallScore}/5
+      </p>
+      <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.8rem' }}>
+        Communication {evaluation.communication}/5 · Technical {evaluation.technicalKnowledge}/5 ·
+        Confidence {evaluation.confidence}/5 · Problem solving {evaluation.problemSolving}/5
+      </p>
+      {evaluation.strengths && (
+        <p style={{ margin: '0.4rem 0 0', color: '#cbd5e1', fontSize: '0.82rem' }}>
+          <strong>Strengths:</strong> {evaluation.strengths}
+        </p>
+      )}
+      {evaluation.improvements && (
+        <p style={{ margin: '0.3rem 0 0', color: '#cbd5e1', fontSize: '0.82rem' }}>
+          <strong>Areas to improve:</strong> {evaluation.improvements}
+        </p>
+      )}
+      {evaluation.nextSteps && (
+        <p style={{ margin: '0.3rem 0 0', color: '#cbd5e1', fontSize: '0.82rem' }}>
+          <strong>Next steps:</strong> {evaluation.nextSteps}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function CandidateFeedbackSection({
+  booking,
+  getAccessToken,
+}: {
+  booking: ExpertBookingResult;
+  getAccessToken: () => string | null;
+}) {
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [review, setReview] = useState<ExpertReviewResult | null>(null);
+  const [evaluation, setEvaluation] = useState<ExpertSessionEvaluationResult | null>(null);
+  const [loaded, setLoaded] = useState(false);
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function toggle() {
+    if (loaded) {
+      setOpen((o) => !o);
+      return;
+    }
+    const token = getAccessToken();
+    if (!token) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const [r, e] = await Promise.all([
+        getMyBookingReview(token, booking.id),
+        getMyBookingEvaluation(token, booking.id),
+      ]);
+      setReview(r);
+      setEvaluation(e);
+      setLoaded(true);
+      setOpen(true);
+    } catch {
+      setError('Failed to load feedback. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleSubmitReview() {
+    const token = getAccessToken();
+    if (!token) return;
+    setSubmitting(true);
+    setError(null);
+    try {
+      const created = await createMyBookingReview(token, booking.id, {
+        rating,
+        comment: comment.trim() || undefined,
+      });
+      setReview(created);
+    } catch (err) {
+      setError(err instanceof ApiClientError ? err.message : 'Failed to submit review.');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid #334155' }}>
+      <button
+        onClick={toggle}
+        disabled={loading}
+        style={{
+          padding: '0.3rem 0.7rem',
+          background: 'rgba(99,102,241,0.15)',
+          color: '#a5b4fc',
+          border: '1px solid rgba(99,102,241,0.3)',
+          borderRadius: '0.375rem',
+          fontSize: '0.8rem',
+          fontWeight: 500,
+          cursor: loading ? 'not-allowed' : 'pointer',
+        }}
+      >
+        {loading ? 'Loading...' : open ? 'Hide feedback' : 'Feedback'}
+      </button>
+
+      {open && (
+        <div style={{ marginTop: '0.6rem' }}>
+          {evaluation && <EvaluationSummary evaluation={evaluation} />}
+
+          {review ? (
+            <div
+              style={{
+                marginTop: '0.6rem',
+                padding: '0.6rem 0.75rem',
+                background: '#0f172a',
+                border: '1px solid #334155',
+                borderRadius: '0.5rem',
+              }}
+            >
+              <p style={{ margin: 0, color: '#e2e8f0', fontSize: '0.83rem' }}>
+                Your review: {'★'.repeat(review.rating)}
+                {'☆'.repeat(5 - review.rating)}
+              </p>
+              {review.comment && (
+                <p style={{ margin: '0.3rem 0 0', color: '#cbd5e1', fontSize: '0.82rem' }}>
+                  {review.comment}
+                </p>
+              )}
+            </div>
+          ) : (
+            <div
+              style={{
+                marginTop: '0.6rem',
+                padding: '0.6rem 0.75rem',
+                background: '#0f172a',
+                border: '1px solid #334155',
+                borderRadius: '0.5rem',
+              }}
+            >
+              <label
+                style={{
+                  display: 'block',
+                  color: '#cbd5e1',
+                  fontSize: '0.82rem',
+                  marginBottom: '0.3rem',
+                }}
+              >
+                Rate this session
+                <select
+                  value={rating}
+                  onChange={(e) => setRating(Number(e.target.value))}
+                  style={{
+                    marginLeft: '0.5rem',
+                    padding: '0.25rem 0.5rem',
+                    background: '#1e293b',
+                    color: '#e2e8f0',
+                    border: '1px solid #334155',
+                    borderRadius: '0.35rem',
+                  }}
+                >
+                  {[5, 4, 3, 2, 1].map((n) => (
+                    <option key={n} value={n}>
+                      {n} star{n === 1 ? '' : 's'}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <textarea
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="Optional comment about your session"
+                rows={2}
+                style={{
+                  width: '100%',
+                  padding: '0.4rem 0.5rem',
+                  background: '#1e293b',
+                  color: '#e2e8f0',
+                  border: '1px solid #334155',
+                  borderRadius: '0.35rem',
+                  fontSize: '0.82rem',
+                  marginBottom: '0.5rem',
+                  resize: 'vertical',
+                }}
+              />
+              <button
+                onClick={handleSubmitReview}
+                disabled={submitting}
+                style={{
+                  padding: '0.35rem 0.8rem',
+                  background: '#2563eb',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '0.4rem',
+                  fontSize: '0.82rem',
+                  fontWeight: 600,
+                  cursor: submitting ? 'not-allowed' : 'pointer',
+                }}
+              >
+                {submitting ? '...' : 'Submit review'}
+              </button>
+            </div>
+          )}
+
+          {error && (
+            <p role="alert" style={{ color: '#fca5a5', fontSize: '0.8rem', margin: '0.5rem 0 0' }}>
+              {error}
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function MyBookingsPage() {
   const { getAccessToken, logout, status: authStatus } = useAuth();
@@ -121,7 +354,7 @@ export default function MyBookingsPage() {
         My Bookings
       </h1>
       <p style={{ color: '#94a3b8', margin: '0 0 1.25rem' }}>
-        Sessions you've reserved with experts.
+        Sessions you&apos;ve reserved with experts.
       </p>
 
       {pageError && (
@@ -184,10 +417,14 @@ export default function MyBookingsPage() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         {filtered.map((booking) => {
           const badge = STATUS_BADGE[booking.status];
+          // Intentionally time-relative: gates the Confirm button against the hold's expiry.
+          // A stale render just surfaces the backend's HOLD_EXPIRED error on click.
+          // eslint-disable-next-line react-hooks/purity
+          const nowMs = Date.now();
           const canConfirm =
             booking.status === 'HELD' &&
             !!booking.holdExpiresAt &&
-            new Date(booking.holdExpiresAt).getTime() > Date.now();
+            new Date(booking.holdExpiresAt).getTime() > nowMs;
           const canCancel = booking.status === 'HELD' || booking.status === 'CONFIRMED';
           return (
             <div
@@ -294,6 +531,9 @@ export default function MyBookingsPage() {
                   )}
                 </div>
               </div>
+              {booking.status === 'COMPLETED' && (
+                <CandidateFeedbackSection booking={booking} getAccessToken={getAccessToken} />
+              )}
             </div>
           );
         })}

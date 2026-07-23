@@ -26,6 +26,16 @@ export class ExpertPublicController {
   }
 
   @Public()
+  @Get(':slug/reviews')
+  @ApiOperation({
+    summary: 'List public (non-hidden) reviews for an expert, with aggregate rating',
+  })
+  @ApiResponse({ status: 200, description: 'Paginated reviews plus aggregate rating' })
+  async reviews(@Param('slug') slug: string, @Query() query: unknown) {
+    return this.directoryService.getReviews(slug, query);
+  }
+
+  @Public()
   @Get(':slug/services/:serviceId/slots')
   @ApiOperation({ summary: "Preview bookable slots for one of a public expert's services" })
   @ApiResponse({ status: 200, description: 'Computed slot preview, conflicts excluded' })

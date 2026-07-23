@@ -1,16 +1,19 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { ExpertPublicDirectoryRepository } from '../repositories/expert-public-directory.repository';
 import { ExpertSlotService } from '../availability/expert-slot.service';
+import { ExpertReviewService } from '../feedback/expert-review.service';
 import {
   publicExpertListQuerySchema,
   publicExpertSlugParamSchema,
   publicExpertServiceSlotQuerySchema,
+  expertReviewListQuerySchema,
 } from '@nexthire/validation';
 import { EXPERT_ERROR_CODES, EXPERT_BOOKING_ERROR_CODES } from '@nexthire/constants';
 import type {
   ExpertAvailabilitySlotPreviewResult,
   ExpertExpertiseLevel,
   ExpertServiceType,
+  PaginatedExpertReviewResult,
   PaginatedPublicExpertResult,
   PublicExpertListQuery,
   PublicExpertProfileDetail,
@@ -22,6 +25,7 @@ interface ExpertiseAreaRef {
 }
 
 interface DirectoryListRow {
+  id: string;
   expertProfile: {
     publicSlug: string | null;
     professionalTitle: string;
@@ -58,6 +62,7 @@ export class ExpertPublicDirectoryService {
   constructor(
     private readonly repository: ExpertPublicDirectoryRepository,
     private readonly slotService: ExpertSlotService,
+    private readonly reviewService: ExpertReviewService,
   ) {}
 
   async list(query: unknown): Promise<PaginatedPublicExpertResult> {
@@ -75,9 +80,11 @@ export class ExpertPublicDirectoryService {
     const q = parsed.data as Required<Pick<PublicExpertListQuery, 'page' | 'pageSize'>> &
       PublicExpertListQuery;
     const { total, rows } = await this.repository.listPublic(q);
+    const typedRows = rows as unknown as DirectoryListRow[];
+    const ratings = await this.reviewService.getAggregatesForExperts(typedRows.map((r) => r.id));
 
     return {
-      data: (rows as unknown as DirectoryListRow[]).map((row) => {
+      data: typedRows.map((row) => {
         const profile = row.expertProfile!;
         return {
           publicSlug: profile.publicSlug!,
@@ -93,6 +100,7 @@ export class ExpertPublicDirectoryService {
             areaName: e.expertiseArea.name,
             areaSlug: e.expertiseArea.slug,
           })),
+          rating: ratings.get(row.id) ?? { average: null, count: 0 },
         };
       }),
       pagination: {
@@ -116,6 +124,7 @@ export class ExpertPublicDirectoryService {
     }
     const { profile, user } = found;
     const u = user as unknown as DirectoryDetailUser;
+    const rating = await this.reviewService.getAggregateForExpert(profile.userId);
 
     return {
       publicSlug: profile.publicSlug!,
@@ -145,7 +154,33 @@ export class ExpertPublicDirectoryService {
         durationMinutes: s.durationMinutes,
         price: { amount: s.priceAmount.toString(), currency: s.priceCurrency },
       })),
+      rating,
     };
+  }
+
+  async getReviews(rawSlug: string, query: unknown): Promise<PaginatedExpertReviewResult> {
+    const parsedSlug = publicExpertSlugParamSchema.safeParse(rawSlug);
+    if (!parsedSlug.success) {
+      throw new NotFoundException(EXPERT_ERROR_CODES.PUBLIC_PROFILE_NOT_FOUND);
+    }
+
+    const parsedQuery = expertReviewListQuerySchema.safeParse(query ?? {});
+    if (!parsedQuery.success) {
+      throw new BadRequestException({
+        code: EXPERT_ERROR_CODES.PROFILE_VALIDATION_FAILED,
+        details: parsedQuery.error.issues.map((i) => ({
+          field: i.path.join('.'),
+          message: i.message,
+        })),
+      });
+    }
+
+    const expertUserId = await this.repository.findPublicUserIdBySlug(parsedSlug.data);
+    if (!expertUserId) {
+      throw new NotFoundException(EXPERT_ERROR_CODES.PUBLIC_PROFILE_NOT_FOUND);
+    }
+
+    return this.reviewService.listPublicForExpert(expertUserId, parsedQuery.data);
   }
 
   async getServiceSlots(

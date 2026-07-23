@@ -45,6 +45,13 @@ const heldBooking: ExpertBookingResult = {
   counterparty: { id: 'expert-1', displayName: 'Jane Expert' },
 };
 
+const completedBooking: ExpertBookingResult = {
+  ...heldBooking,
+  status: 'COMPLETED',
+  holdExpiresAt: null,
+  completedAt: '2026-08-03T09:30:00.000Z',
+};
+
 beforeEach(() => {
   vi.clearAllMocks();
   mockGetAccessToken.mockReturnValue('test-token');
@@ -113,6 +120,74 @@ describe('MyBookingsPage', () => {
     render(<MyBookingsPage />);
     await waitFor(() => {
       expect(screen.getByText('No bookings found.')).toBeInTheDocument();
+    });
+  });
+
+  describe('feedback panel on a completed booking', () => {
+    beforeEach(() => {
+      vi.spyOn(apiClient, 'listMyExpertBookings').mockResolvedValue([completedBooking]);
+    });
+
+    it('loads and shows the expert evaluation plus a form to submit a review', async () => {
+      vi.spyOn(apiClient, 'getMyBookingReview').mockResolvedValue(null);
+      vi.spyOn(apiClient, 'getMyBookingEvaluation').mockResolvedValue({
+        id: 'eval-1',
+        bookingId: 'booking-1',
+        expertUserId: 'expert-1',
+        candidateId: 'candidate-1',
+        communication: 4,
+        technicalKnowledge: 3,
+        confidence: 5,
+        problemSolving: 4,
+        overallScore: 4,
+        strengths: 'Clear structure',
+        improvements: null,
+        nextSteps: null,
+        submittedAt: '2026-08-03T09:35:00.000Z',
+        createdAt: '2026-08-03T09:35:00.000Z',
+      });
+
+      render(<MyBookingsPage />);
+      await waitFor(() => screen.getByText('Feedback'));
+      fireEvent.click(screen.getByText('Feedback'));
+
+      await waitFor(() => {
+        expect(screen.getByText(/overall 4\/5/)).toBeInTheDocument();
+      });
+      expect(screen.getByText('Clear structure', { exact: false })).toBeInTheDocument();
+      expect(screen.getByText('Submit review')).toBeInTheDocument();
+    });
+
+    it('submits a review and shows it as read-only afterwards', async () => {
+      vi.spyOn(apiClient, 'getMyBookingReview').mockResolvedValue(null);
+      vi.spyOn(apiClient, 'getMyBookingEvaluation').mockResolvedValue(null);
+      vi.spyOn(apiClient, 'createMyBookingReview').mockResolvedValue({
+        id: 'review-1',
+        bookingId: 'booking-1',
+        expertUserId: 'expert-1',
+        candidateId: 'candidate-1',
+        rating: 5,
+        comment: 'Great session',
+        isHidden: false,
+        hiddenReason: null,
+        submittedAt: '2026-08-03T09:40:00.000Z',
+        createdAt: '2026-08-03T09:40:00.000Z',
+      });
+
+      render(<MyBookingsPage />);
+      await waitFor(() => screen.getByText('Feedback'));
+      fireEvent.click(screen.getByText('Feedback'));
+      await waitFor(() => screen.getByText('Submit review'));
+
+      fireEvent.click(screen.getByText('Submit review'));
+
+      await waitFor(() => {
+        expect(apiClient.createMyBookingReview).toHaveBeenCalledWith('test-token', 'booking-1', {
+          rating: 5,
+          comment: undefined,
+        });
+      });
+      expect(await screen.findByText('Great session')).toBeInTheDocument();
     });
   });
 });

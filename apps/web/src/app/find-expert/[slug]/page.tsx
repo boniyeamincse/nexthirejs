@@ -9,6 +9,7 @@ import {
   ApiClientError,
   getPublicExpertProfile,
   getPublicExpertServiceSlots,
+  getPublicExpertReviews,
   createMyExpertBooking,
   confirmMyExpertBooking,
   cancelMyExpertBooking,
@@ -17,6 +18,7 @@ import type {
   PublicExpertProfileDetail,
   ExpertAvailabilitySlot,
   ExpertBookingResult,
+  ExpertReviewResult,
 } from '@nexthire/types';
 
 const LEVEL_LABELS: Record<string, string> = {
@@ -278,6 +280,67 @@ function BookingPanel({ slug, serviceId, isCandidate, getAccessToken }: BookingP
   );
 }
 
+function PublicReviewsSection({ slug }: { slug: string }) {
+  const [loading, setLoading] = useState(true);
+  const [reviews, setReviews] = useState<ExpertReviewResult[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    getPublicExpertReviews(slug)
+      .then((result) => {
+        if (!cancelled) setReviews(result.data);
+      })
+      .catch(() => {
+        // best-effort — the aggregate rating already renders above this section
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [slug]);
+
+  if (loading || reviews.length === 0) return null;
+
+  return (
+    <section
+      style={{
+        padding: '1.25rem',
+        background: '#1e293b',
+        border: '1px solid #334155',
+        borderRadius: '0.75rem',
+        marginTop: '1.5rem',
+      }}
+    >
+      <h2 style={{ color: '#f1f5f9', fontSize: '1.05rem', margin: '0 0 0.75rem' }}>Reviews</h2>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+        {reviews.map((review) => (
+          <div
+            key={review.id}
+            style={{
+              padding: '0.75rem 0.9rem',
+              background: '#0f172a',
+              border: '1px solid #334155',
+              borderRadius: '0.5rem',
+            }}
+          >
+            <span style={{ color: '#fcd34d', fontSize: '0.9rem' }}>
+              {'★'.repeat(review.rating)}
+              {'☆'.repeat(5 - review.rating)}
+            </span>
+            {review.comment && (
+              <p style={{ margin: '0.3rem 0 0', color: '#cbd5e1', fontSize: '0.85rem' }}>
+                {review.comment}
+              </p>
+            )}
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default function PublicExpertProfilePage() {
   const params = useParams<{ slug: string }>();
   const { user, getAccessToken } = useAuth();
@@ -362,8 +425,13 @@ export default function PublicExpertProfilePage() {
       >
         {detail.professionalTitle}
       </h1>
-      <p style={{ color: '#94a3b8', margin: '0 0 1.5rem' }}>
+      <p style={{ color: '#94a3b8', margin: '0 0 0.4rem' }}>
         {[detail.currentPosition, detail.currentCompany].filter(Boolean).join(' at ')}
+      </p>
+      <p style={{ color: '#fcd34d', fontSize: '0.9rem', margin: '0 0 1.5rem' }}>
+        {detail.rating.average !== null
+          ? `${'★'.repeat(Math.round(detail.rating.average))}${'☆'.repeat(5 - Math.round(detail.rating.average))} ${detail.rating.average.toFixed(1)} (${detail.rating.count} review${detail.rating.count === 1 ? '' : 's'})`
+          : 'No reviews yet'}
       </p>
 
       <section
@@ -551,6 +619,8 @@ export default function PublicExpertProfilePage() {
           </div>
         </section>
       )}
+
+      <PublicReviewsSection slug={params.slug} />
     </div>
   );
 }

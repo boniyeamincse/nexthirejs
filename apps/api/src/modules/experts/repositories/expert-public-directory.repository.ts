@@ -76,6 +76,17 @@ export class ExpertPublicDirectoryRepository {
     return { profile, user };
   }
 
+  async findPublicUserIdBySlug(slug: string): Promise<string | null> {
+    const profile = await this.prisma.expertProfile.findUnique({
+      where: { publicSlug: slug },
+      select: { userId: true, isPublic: true },
+    });
+    if (!profile || !profile.isPublic) {
+      return null;
+    }
+    return profile.userId;
+  }
+
   async findPublicServiceBySlug(slug: string, serviceId: string) {
     const profile = await this.prisma.expertProfile.findUnique({
       where: { publicSlug: slug },

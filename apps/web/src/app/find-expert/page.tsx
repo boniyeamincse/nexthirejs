@@ -192,6 +192,11 @@ export default function FindExpertPage() {
                 <div className={styles.cardFooter}>
                   <div className={styles.price}>
                     <span className={styles.priceLabel}>{expert.city ?? 'Remote'}</span>
+                    {expert.rating.average !== null && (
+                      <span style={{ color: '#fcd34d', fontSize: '0.82rem', marginLeft: '0.5rem' }}>
+                        ★ {expert.rating.average.toFixed(1)} ({expert.rating.count})
+                      </span>
+                    )}
                   </div>
                   <Link href={`/find-expert/${expert.publicSlug}`} className={styles.bookButton}>
                     View Profile
@@ -216,7 +221,10 @@ export default function FindExpertPage() {
               className={styles.filterPill}
               disabled={page <= 1}
               onClick={() => setPage((p) => p - 1)}
-              style={{ opacity: page <= 1 ? 0.5 : 1, cursor: page <= 1 ? 'not-allowed' : 'pointer' }}
+              style={{
+                opacity: page <= 1 ? 0.5 : 1,
+                cursor: page <= 1 ? 'not-allowed' : 'pointer',
+              }}
             >
               Previous
             </button>

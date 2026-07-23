@@ -34,6 +34,11 @@ import type {
   CreateExpertBookingInput,
   ExpertBookingResult,
   UpdateExpertBookingByExpertInput,
+  CreateExpertSessionEvaluationInput,
+  ExpertSessionEvaluationResult,
+  CreateExpertReviewInput,
+  ExpertReviewResult,
+  PaginatedExpertReviewResult,
 } from '@nexthire/types';
 
 interface ApiErrorDetail {
@@ -2767,6 +2772,20 @@ export async function getPublicExpertProfile(slug: string): Promise<PublicExpert
   throw await parseApiError(response, 'Failed to load expert profile');
 }
 
+export async function getPublicExpertReviews(
+  slug: string,
+  page = 1,
+  pageSize = 20,
+): Promise<PaginatedExpertReviewResult> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/expert/public/${encodeURIComponent(slug)}/reviews?page=${page}&pageSize=${pageSize}`,
+  );
+  if (response.ok) {
+    return response.json() as Promise<PaginatedExpertReviewResult>;
+  }
+  throw await parseApiError(response, 'Failed to load reviews');
+}
+
 export async function getPublicExpertServiceSlots(
   slug: string,
   serviceId: string,
@@ -2877,6 +2896,111 @@ export async function updateReceivedExpertBooking(
     return response.json() as Promise<ExpertBookingResult>;
   }
   throw await parseApiError(response, 'Failed to update booking');
+}
+
+// --- Candidate: session evaluation (read-only) + reviews ---
+
+export async function getMyBookingEvaluation(
+  accessToken: string,
+  bookingId: string,
+): Promise<ExpertSessionEvaluationResult | null> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/candidates/me/bookings/${encodeURIComponent(bookingId)}/evaluation`,
+    { headers: expertAuthHeaders(accessToken) },
+  );
+  if (response.ok) {
+    return response.json() as Promise<ExpertSessionEvaluationResult | null>;
+  }
+  throw await parseApiError(response, 'Failed to load evaluation');
+}
+
+export async function getMyBookingReview(
+  accessToken: string,
+  bookingId: string,
+): Promise<ExpertReviewResult | null> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/candidates/me/bookings/${encodeURIComponent(bookingId)}/review`,
+    { headers: expertAuthHeaders(accessToken) },
+  );
+  if (response.ok) {
+    return response.json() as Promise<ExpertReviewResult | null>;
+  }
+  throw await parseApiError(response, 'Failed to load review');
+}
+
+export async function createMyBookingReview(
+  accessToken: string,
+  bookingId: string,
+  input: CreateExpertReviewInput,
+): Promise<ExpertReviewResult> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/candidates/me/bookings/${encodeURIComponent(bookingId)}/review`,
+    { method: 'POST', headers: expertAuthHeaders(accessToken), body: JSON.stringify(input) },
+  );
+  if (response.ok) {
+    return response.json() as Promise<ExpertReviewResult>;
+  }
+  throw await parseApiError(response, 'Failed to submit review');
+}
+
+// --- Expert: session evaluation (submit) + received reviews ---
+
+export async function getExpertBookingEvaluation(
+  accessToken: string,
+  bookingId: string,
+): Promise<ExpertSessionEvaluationResult | null> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/expert/bookings/${encodeURIComponent(bookingId)}/evaluation`,
+    { headers: expertAuthHeaders(accessToken) },
+  );
+  if (response.ok) {
+    return response.json() as Promise<ExpertSessionEvaluationResult | null>;
+  }
+  throw await parseApiError(response, 'Failed to load evaluation');
+}
+
+export async function createExpertBookingEvaluation(
+  accessToken: string,
+  bookingId: string,
+  input: CreateExpertSessionEvaluationInput,
+): Promise<ExpertSessionEvaluationResult> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/expert/bookings/${encodeURIComponent(bookingId)}/evaluation`,
+    { method: 'POST', headers: expertAuthHeaders(accessToken), body: JSON.stringify(input) },
+  );
+  if (response.ok) {
+    return response.json() as Promise<ExpertSessionEvaluationResult>;
+  }
+  throw await parseApiError(response, 'Failed to submit evaluation');
+}
+
+export async function getExpertBookingReview(
+  accessToken: string,
+  bookingId: string,
+): Promise<ExpertReviewResult | null> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/expert/bookings/${encodeURIComponent(bookingId)}/review`,
+    { headers: expertAuthHeaders(accessToken) },
+  );
+  if (response.ok) {
+    return response.json() as Promise<ExpertReviewResult | null>;
+  }
+  throw await parseApiError(response, 'Failed to load review');
+}
+
+export async function listMyReceivedExpertReviews(
+  accessToken: string,
+  page = 1,
+  pageSize = 20,
+): Promise<PaginatedExpertReviewResult> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/expert/reviews?page=${page}&pageSize=${pageSize}`,
+    { headers: expertAuthHeaders(accessToken) },
+  );
+  if (response.ok) {
+    return response.json() as Promise<PaginatedExpertReviewResult>;
+  }
+  throw await parseApiError(response, 'Failed to load reviews');
 }
 
 // --- Applicant: Expert application ---

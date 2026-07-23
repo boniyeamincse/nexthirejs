@@ -24,6 +24,7 @@ import { ExpertServiceModule } from './services/expert-service.module';
 import { ExpertAvailabilityModule } from './availability/expert-availability.module';
 import { ExpertPublicModule } from './public/expert-public.module';
 import { ExpertBookingModule } from './booking/expert-booking.module';
+import { ExpertFeedbackModule } from './feedback/expert-feedback.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { ExpertBookingModule } from './booking/expert-booking.module';
     ExpertAvailabilityModule,
     ExpertPublicModule,
     ExpertBookingModule,
+    ExpertFeedbackModule,
   ],
   controllers: [
     ExpertProfileController,

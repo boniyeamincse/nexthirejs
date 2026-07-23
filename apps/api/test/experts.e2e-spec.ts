@@ -60,6 +60,9 @@ describe('Experts (e2e)', () => {
 
     it('GET /api/v1/expert/public/:slug 404s for an unknown slug without auth', () =>
       http().get('/api/v1/expert/public/does-not-exist-00000000').expect(404));
+
+    it('GET /api/v1/expert/public/:slug/reviews 404s for an unknown slug without auth', () =>
+      http().get('/api/v1/expert/public/does-not-exist-00000000/reviews').expect(404));
   });
 
   describe('availability slot preview', () => {
@@ -117,6 +120,42 @@ describe('Experts (e2e)', () => {
 
     it('PATCH /api/v1/expert/bookings/:id requires auth', () =>
       http().patch('/api/v1/expert/bookings/some-id').send({}).expect(401));
+  });
+
+  describe('session evaluation (candidate view / expert submit)', () => {
+    it('GET /api/v1/candidates/me/bookings/:id/evaluation requires auth', () =>
+      http().get('/api/v1/candidates/me/bookings/some-id/evaluation').expect(401));
+
+    it('GET /api/v1/expert/bookings/:id/evaluation requires auth', () =>
+      http().get('/api/v1/expert/bookings/some-id/evaluation').expect(401));
+
+    it('POST /api/v1/expert/bookings/:id/evaluation requires auth', () =>
+      http().post('/api/v1/expert/bookings/some-id/evaluation').send({}).expect(401));
+  });
+
+  describe('reviews (candidate submit / expert view)', () => {
+    it('GET /api/v1/candidates/me/bookings/:id/review requires auth', () =>
+      http().get('/api/v1/candidates/me/bookings/some-id/review').expect(401));
+
+    it('POST /api/v1/candidates/me/bookings/:id/review requires auth', () =>
+      http().post('/api/v1/candidates/me/bookings/some-id/review').send({}).expect(401));
+
+    it('GET /api/v1/expert/bookings/:id/review requires auth', () =>
+      http().get('/api/v1/expert/bookings/some-id/review').expect(401));
+
+    it('GET /api/v1/expert/reviews requires auth', () =>
+      http().get('/api/v1/expert/reviews').expect(401));
+  });
+
+  describe('review moderation (admin)', () => {
+    it('GET /api/v1/manage/experts/reviews requires auth', () =>
+      http().get('/api/v1/manage/experts/reviews').expect(401));
+
+    it('POST /api/v1/manage/experts/reviews/:id/hide requires auth', () =>
+      http().post('/api/v1/manage/experts/reviews/some-id/hide').send({}).expect(401));
+
+    it('POST /api/v1/manage/experts/reviews/:id/unhide requires auth', () =>
+      http().post('/api/v1/manage/experts/reviews/some-id/unhide').send({}).expect(401));
   });
 
   describe('public service slot preview', () => {

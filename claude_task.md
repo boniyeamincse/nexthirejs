@@ -2,7 +2,7 @@
 
 **Last Updated:** 2026-07-23
 **Current Version:** api `0.0.1` / web `0.1.0` (pre-release; monorepo, no unified version tag)
-**Overall Progress:** ~45% (weighted: 14/40 NH-M modules COMPLETED, 5 IN_PROGRESS, 0 UNVERIFIED, 20 NOT_STARTED — see `docs/task/status.md` ledger, reconciled 2026-07-23T10:45:00Z + NH-M09/NH-M10/NH-M12/NH-M13/NH-M14 work, treated as authoritative over `TODO.md`. NH-M07's COMPLETED status should be treated as unverified pending a routing sweep — see Bugs → Critical.)
+**Overall Progress:** ~47% (weighted: 15/40 NH-M modules COMPLETED, 4 IN_PROGRESS, 0 UNVERIFIED, 20 NOT_STARTED — see `docs/task/status.md` ledger, reconciled 2026-07-23T10:45:00Z + NH-M09/NH-M10/NH-M12/NH-M13/NH-M14/NH-M16 work, treated as authoritative over `TODO.md`. NH-M07's COMPLETED status should be treated as unverified pending a routing sweep — see Bugs → Critical.)
 
 This file is the single source of truth for engineering status. It synthesizes `docs/task/status.md` (verified ledger), `TODO.md` (checklist view — currently has a stale summary table, see Bugs), `docs/phase-1/known-limitations.md`, `docs/phase-2/known-limitations.md`, and a fresh scan of uncommitted working-tree changes (`git status`) not yet reflected in any doc.
 
@@ -25,6 +25,7 @@ This file is the single source of truth for engineering status. It synthesizes `
 - [x] Expert Availability and Slot Engine — `ExpertSlotService` computes concrete bookable slots from weekly windows + overrides (NH-M12); added `luxon` for DST-safe IANA-timezone conversion (new dependency), new `GET expert/availability/slots/preview` endpoint, "Preview Slots" panel on `/expert/availability`. Deliberately scoped to raw availability only — no Booking-table conflict exclusion, since `Booking` belongs to the separate `trainers` domain, not `ExpertProfile` (deferred to the flagged trainers/experts reconciliation). 11 unit tests cover real 2026 DST transition dates (spring-forward correctly yields fewer real slots, fall-back correctly yields one extra). Found and fixed the same path-drift bug class as NH-M10 but wider: NH-M11's frontend (expertise/services) and the public expertise-areas catalog were also calling the wrong backend paths — fixed and live-verified. Also found and fixed: the availability page's `load()` caught each of its three initial fetches individually and always resolved to defaults, so its error banner and 401-redirect were dead code; reworked so a 401 logs out and a genuine failure shows a retryable banner instead of silently rendering blank. 8 frontend tests (was 0).
 - [x] Expert Discovery and Public Profile — real public directory built from scratch (NH-M13): `/find-expert` was 100% hardcoded mock data before this (search/filters didn't even work), `/find-expert/:id` didn't exist, `trainers.controller.ts` had zero `@Public()` routes. Chose to build on `ExpertProfile` (the NH-M10–M12 pipeline), not legacy `TrainerProfile`, per explicit decision — see Pending Tasks for the now-narrower trainers/experts reconciliation still owed. Added `isPublic`/`publicSlug` to `ExpertProfile` (migration), a collision-safe slug generator, an `expert`-role-gated visibility toggle, and a new public `expert/public` module (search/list + slug detail) that projects only what the expert published — no fabricated ratings/reviews, since no rating data source exists for this domain yet. Rewired `/find-expert` + built `/find-expert/[slug]` + added the toggle to `/expert/profile`. 11 backend unit + 3 e2e + 21 frontend tests, all new. **Found and fixed a second severe pre-existing bug in NH-M10's admin review API along the way** (see that entry above) while sourcing a real applicant display name for this feature.
 - [x] Expert Booking and Scheduling — real reservation system built from scratch (NH-M14), on `ExpertProfile`/`ExpertService`/`ExpertSlotService` (not legacy `trainers`/`Booking`, same domain-fork decision as NH-M13, now made explicitly for M14 too). New `ExpertBooking` model + migration with a raw-SQL partial unique index on `(expertUserId, slotStartUtc)` (scoped to HELD/CONFIRMED) as the race-safe reservation guard. `ExpertSlotService.previewSlots` (NH-M12) now excludes slots overlapping an active booking — closes the conflict-exclusion gap explicitly deferred since NH-M12/M13. New `candidates/me/bookings` (create/list/get/confirm/cancel) and `expert/bookings` (list/get/update — meeting link, complete, cancel) controllers, plus a public `expert/public/:slug/services/:serviceId/slots` endpoint so candidates can browse real availability pre-login. Reservation/expiration: booking created HELD with a 15-minute hold; a delayed BullMQ job expires it if the candidate never confirms — `confirm()` stands in for the payment step NH-M29 hasn't built yet (documented as such). Frontend: booking panel on `/find-expert/[slug]`, new `/bookings` candidate page, new `/expert/bookings` page. 23 new backend unit tests + 3 slot-exclusion tests + 6 new e2e smoke tests (28/28 total, was 21) + 20 new frontend tests, all new.
+- [x] Feedback, Evaluation, Ratings, and Reviews — built on `ExpertBooking` (NH-M16, same domain-fork as M13/M14). Two new models: `ExpertSessionEvaluation` (expert's private feedback on the candidate's session performance) and `ExpertReview` (candidate's public rating/review of the expert — the aggregate-rating data source M13 explicitly deferred). One per COMPLETED booking each direction, eligibility enforced via booking ownership + status. `isHidden`/`hiddenReason` on `ExpertReview` are the spec's "moderation hooks"; a `manage/experts/reviews` admin controller (hide/unhide) covers them — a full moderation center is still NH-M32's scope. Wired real `rating: {average, count}` into `expert/public` list/detail (closing M13's placeholder) plus a new public `expert/public/:slug/reviews` endpoint. New endpoints for candidate (view evaluation, submit/view review) and expert (submit/view evaluation, view review, list own reviews + aggregate). Frontend: feedback panels on `/bookings` and `/expert/bookings`, new `/expert/reviews` page, rating + reviews shown on `/find-expert` and `/find-expert/[slug]`. 24 new backend unit tests + 4 rating tests + 11 new e2e smoke tests (39/39 total, was 28) + 10 new frontend tests, all new.
 
 Only modules verified end-to-end are listed here. Partially-delivered modules (even if a majority of their scope is done) are kept in **In Progress** below until the full module is verified.
 
@@ -32,7 +33,6 @@ Only modules verified end-to-end are listed here. Partially-delivered modules (e
 
 # In Progress
 
-- [ ] NH-M16 Feedback, Evaluation, Ratings, Reviews (~35%) — backend-only `evaluation.controller/service`; no frontend, eligibility/aggregates unverified
 - [ ] NH-M17 Expert Earnings, Wallet, Payout (~30%) — backend wallet controller (init, payout accounts/requests); zero frontend, commission/reconciliation unverified
 - [ ] NH-M30 Secure File and Media Management (~50%) — per-feature secure storage exists (expert docs, certificates, MinIO); no unified upload/presign module or reusable frontend uploader
 - [ ] NH-M32 Verification and Moderation Center (~35%) — expert application review queue + admin UI exist (piggybacks on M10); no unified center, no company queue, no moderation
@@ -66,10 +66,10 @@ Only modules verified end-to-end are listed here. Partially-delivered modules (e
 ## Expert/Trainer Marketplace (NH-M12–M18)
 
 - [x] ~~Slot computation/preview engine, DST-safe generation~~ — done 2026-07-23, see Completed Features (M12)
-- [ ] Reconcile `trainers` vs `experts` domain duplication before building further on either (flagged since NH-M00) — narrower now that M13/M14 both chose `ExpertProfile`; only `Evaluation`/`Wallet`/legacy `Booking` still need reconciling (M16/M17)
+- [ ] Reconcile `trainers` vs `experts` domain duplication before building further on either (flagged since NH-M00) — narrower now that M13/M14/M16 all chose `ExpertProfile`/`ExpertBooking`; only `Wallet`/legacy `Booking` still need reconciling (M17)
 - [x] ~~Public expert profile slug/projection/search verification~~ — done 2026-07-23, see Completed Features (M13)
 - [x] ~~Booking frontend + slot-engine integration + reservation/expiration logic~~ — done 2026-07-23, see Completed Features (M14). Booking-conflict exclusion is now wired into the M12 slot engine as part of this.
-- [ ] Evaluation/review frontend (M16)
+- [x] ~~Evaluation/review frontend~~ — done 2026-07-23, see Completed Features (M16)
 - [ ] Wallet/payout frontend, commission/reconciliation logic (M17)
 - [ ] Expert Dashboard and Reports — not started (M18)
 
@@ -231,8 +231,11 @@ Status: Done (uncommitted small fix) — added missing `Experience` and `Educati
 **Expert booking frontend** (M14)
 Status: Done 2026-07-23 — `/find-expert/[slug]` booking panel, `/bookings` (candidate), `/expert/bookings` (expert)
 
-**Evaluation, wallet frontends** (M16, M17)
-Status: Not started — backend-only, zero frontend for either
+**Evaluation/review frontend** (M16)
+Status: Done 2026-07-23 — feedback panels on `/bookings` and `/expert/bookings`, new `/expert/reviews`, rating shown on `/find-expert` + `/find-expert/[slug]`
+
+**Wallet frontend** (M17)
+Status: Not started — backend-only, zero frontend
 
 ---
 
@@ -240,7 +243,7 @@ Status: Not started — backend-only, zero frontend for either
 
 - Learning: wire `LearningModule`, restore missing publication/readiness service file, add enrollment + lesson-progress services (see Pending Tasks → Learning)
 - Admin: replace mocked revenue/report data with real queries once payment/payout domain exists (blocked on NH-M29/M34)
-- Expert marketplace: slot computation engine (M12) with booking-conflict exclusion (M14); reconcile remaining `trainers`/`experts` duplication (M16/M17)
+- Expert marketplace: slot computation engine (M12) with booking-conflict exclusion (M14); evaluation/review + moderation hooks (M16); reconcile remaining `trainers`/`experts` duplication (M17)
 - RBAC: `Permission`/`RolePermission` models + seed (M04 remainder)
 
 ---
@@ -280,7 +283,7 @@ Status: Not started — backend-only, zero frontend for either
 # Technical Debt
 
 - Learning module scaffolding was committed to the working tree ahead of being wired up or made to compile — needs a decision: finish it now (small lift: create the missing service, register the module, seed the role) or shelve it cleanly until NH-M08 is actually next in the queue.
-- `trainers`/`experts` duplication (repeated flag since NH-M00) — M13/M14 both landed on `ExpertProfile`, narrowing what's left; the longer `Evaluation`/`Wallet` stay unreconciled, the more expensive it gets as M16/M17 frontends get built on top of one or the other.
+- `trainers`/`experts` duplication (repeated flag since NH-M00) — M13/M14/M16 all landed on `ExpertProfile`/`ExpertBooking`, narrowing what's left; only `Wallet` still needs reconciling before M17's frontend gets built on top of one domain or the other.
 - Pre-existing lint debt (per `docs/phase-1/known-limitations.md`): ~20 API ESLint errors (audit/storage services, unused vars, `any` types), ~15 web lint errors (unescaped entities, `any`, setState-in-effect).
 
 ---
@@ -299,11 +302,11 @@ Status: Not started — backend-only, zero frontend for either
 10. ~~Complete NH-M09 verification pass~~ — done 2026-07-23, see Completed Features.
 11. ~~Complete NH-M10 final verification pass~~ — done 2026-07-23, see Completed Features. Surfaced a critical follow-on: sweep the same double-`v1` routing bug across NH-M07's 7 controllers (now top of this list in practice — do this before trusting any assessments-module route).
 12. ~~Build the NH-M12 slot computation/preview engine~~ — done 2026-07-23, see Completed Features. Also fixed the same path-drift bug in NH-M11's frontend (expertise/services/expertise-areas) found along the way.
-13. ~~Reconcile `trainers` vs `experts` domain duplication for booking~~ — resolved by NH-M14's domain-fork decision (built `ExpertBooking` on `ExpertProfile`, not `trainers`); `Evaluation`/`Wallet` reconciliation still owed before M16/M17.
+13. ~~Reconcile `trainers` vs `experts` domain duplication for booking + evaluation~~ — resolved by NH-M14/NH-M16's domain-fork decisions (built `ExpertBooking`/`ExpertSessionEvaluation`/`ExpertReview` on `ExpertProfile`, not `trainers`); `Wallet` reconciliation still owed before M17.
 14. Fix 9 stale unit specs + 1 stale validation spec + 1 stale E2E assertion.
 15. ~~Ship NH-M13 public expert discovery/search~~ — done 2026-07-23, see Completed Features.
 16. ~~Build NH-M14 booking frontend + slot-engine integration~~ — done 2026-07-23, see Completed Features. Booking-conflict exclusion now wired into the M12 slot engine.
-17. Build NH-M16 evaluation/review frontend.
+17. ~~Build NH-M16 evaluation/review frontend~~ — done 2026-07-23, see Completed Features. Real aggregate ratings now wired into `/find-expert` and `/find-expert/[slug]` (closes M13's placeholder), plus admin moderation hooks (`manage/experts/reviews` hide/unhide).
 18. Build NH-M17 wallet/payout frontend.
 19. Complete RBAC remainder: `Permission`/`RolePermission` models + full seed (NH-M04 remainder).
 20. Begin NH-M19 (Company Profile) — first module of the untouched Company/Recruiter phase.

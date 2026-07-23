@@ -51,6 +51,7 @@ const detail: PublicExpertProfileDetail = {
       price: { amount: '50.00', currency: 'USD' },
     },
   ],
+  rating: { average: 4.5, count: 8 },
 };
 
 const heldBooking: ExpertBookingResult = {
@@ -82,10 +83,15 @@ beforeEach(() => {
   vi.clearAllMocks();
   mockUser = null;
   mockGetAccessToken.mockReturnValue('test-token');
+  vi.spyOn(apiClient, 'getPublicExpertReviews').mockResolvedValue({
+    data: [],
+    aggregate: { average: null, count: 0 },
+    pagination: { page: 1, pageSize: 20, total: 0, totalPages: 1 },
+  });
 });
 
 describe('PublicExpertProfilePage', () => {
-  it('renders the profile, expertise, and services', async () => {
+  it('renders the profile, expertise, services, and aggregate rating', async () => {
     vi.spyOn(apiClient, 'getPublicExpertProfile').mockResolvedValue(detail);
     render(<PublicExpertProfilePage />);
 
@@ -97,6 +103,35 @@ describe('PublicExpertProfilePage', () => {
     expect(screen.getByText('Backend mock interview')).toBeInTheDocument();
     expect(screen.getByText('USD 50.00')).toBeInTheDocument();
     expect(screen.getByText('LinkedIn')).toHaveAttribute('href', 'https://linkedin.com/in/jane');
+    expect(screen.getByText(/4.5 \(8 reviews\)/)).toBeInTheDocument();
+  });
+
+  it('renders public reviews once loaded', async () => {
+    vi.spyOn(apiClient, 'getPublicExpertProfile').mockResolvedValue(detail);
+    vi.spyOn(apiClient, 'getPublicExpertReviews').mockResolvedValue({
+      data: [
+        {
+          id: 'review-1',
+          bookingId: 'booking-1',
+          expertUserId: 'expert-1',
+          candidateId: 'candidate-1',
+          rating: 5,
+          comment: 'Excellent coaching session',
+          isHidden: false,
+          hiddenReason: null,
+          submittedAt: '2026-08-03T10:00:00.000Z',
+          createdAt: '2026-08-03T10:00:00.000Z',
+        },
+      ],
+      aggregate: { average: 5, count: 1 },
+      pagination: { page: 1, pageSize: 20, total: 1, totalPages: 1 },
+    });
+
+    render(<PublicExpertProfilePage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Excellent coaching session')).toBeInTheDocument();
+    });
   });
 
   it('shows a not-found message with a link back on a 404', async () => {

@@ -15,6 +15,7 @@ export type ExpertVerificationDocumentTypeValue =
   | 'OTHER_SUPPORTING_DOCUMENT';
 
 export * from './expert-offerings.js';
+export * from './expert-feedback.js';
 export interface ExpertProfileInput {
   professionalTitle: string;
   professionalSummary: string;
@@ -73,6 +74,7 @@ export interface PublicExpertListItem {
   city: string | null;
   interviewLanguages: string[];
   primaryExpertise: { areaName: string; areaSlug: string }[];
+  rating: { average: number | null; count: number };
 }
 
 export interface PublicExpertListQuery {
@@ -122,6 +124,7 @@ export interface PublicExpertProfileDetail {
     durationMinutes: number;
     price: { amount: string; currency: string };
   }[];
+  rating: { average: number | null; count: number };
 }
 
 export interface ExpertApplicationSummary {

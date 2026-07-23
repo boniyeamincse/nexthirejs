@@ -17,13 +17,21 @@ const oneExpert: PaginatedPublicExpertResult = {
       city: 'Remote',
       interviewLanguages: ['en'],
       primaryExpertise: [{ areaName: 'Backend Development', areaSlug: 'backend-development' }],
+      rating: { average: 4.5, count: 8 },
     },
   ],
   pagination: { page: 1, pageSize: 12, total: 1, totalPages: 1 },
 };
 
 const areas: ExpertiseAreaResult[] = [
-  { id: 'area-1', slug: 'backend-development', name: 'Backend Development', description: null, isActive: true, sortOrder: 1 },
+  {
+    id: 'area-1',
+    slug: 'backend-development',
+    name: 'Backend Development',
+    description: null,
+    isActive: true,
+    sortOrder: 1,
+  },
 ];
 
 beforeEach(() => {
@@ -44,6 +52,7 @@ describe('FindExpertPage', () => {
       'href',
       '/find-expert/senior-backend-engineer-abc123ef',
     );
+    expect(screen.getByText('★ 4.5 (8)')).toBeInTheDocument();
   });
 
   it('renders expertise-area filter pills fetched from the API', async () => {
