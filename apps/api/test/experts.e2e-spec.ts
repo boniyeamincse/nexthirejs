@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication, ValidationPipe, VersioningType } from '@nestjs/common';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 
@@ -7,6 +7,15 @@ import { AppModule } from '../src/app.module';
  * Route + guard coverage for the expert profile / application / review APIs.
  * These assert authentication and authorization boundaries without requiring
  * seeded authenticated state, matching the project's e2e smoke-test style.
+ *
+ * Bootstrap must mirror `main.ts` exactly (global prefix + URI versioning) —
+ * a prior version of this file omitted both, so it exercised bare `/v1/...`
+ * paths that only existed in this artificially under-configured app. That
+ * masked a real bug: `expert-application.controller.ts`,
+ * `expert-application-admin.controller.ts`, and `expert-profile.controller.ts`
+ * hardcoded a literal `v1/` segment in their `@Controller()` path on top of
+ * Nest's auto-added version prefix, producing `/api/v1/v1/...` in production
+ * while every frontend call targeted `/api/v1/...` — a 404 on every request.
  */
 describe('Experts (e2e)', () => {
   let app: INestApplication;
@@ -17,6 +26,11 @@ describe('Experts (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+      defaultVersion: '1',
+    });
     app.useGlobalPipes(
       new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
     );
@@ -30,57 +44,82 @@ describe('Experts (e2e)', () => {
   const http = () => request(app.getHttpServer());
 
   describe('profile', () => {
-    it('GET /v1/experts/me/profile requires auth', () =>
-      http().get('/v1/experts/me/profile').expect(401));
+    it('GET /api/v1/experts/me/profile requires auth', () =>
+      http().get('/api/v1/experts/me/profile').expect(401));
 
-    it('PUT /v1/experts/me/profile requires auth', () =>
-      http().put('/v1/experts/me/profile').send({}).expect(401));
+    it('PUT /api/v1/experts/me/profile requires auth', () =>
+      http().put('/api/v1/experts/me/profile').send({}).expect(401));
+
+    it('PUT /api/v1/experts/me/profile/visibility requires auth', () =>
+      http().put('/api/v1/experts/me/profile/visibility').send({}).expect(401));
+  });
+
+  describe('public directory', () => {
+    it('GET /api/v1/expert/public is reachable without auth', () =>
+      http().get('/api/v1/expert/public').expect(200));
+
+    it('GET /api/v1/expert/public/:slug 404s for an unknown slug without auth', () =>
+      http().get('/api/v1/expert/public/does-not-exist-00000000').expect(404));
+  });
+
+  describe('availability slot preview', () => {
+    it('GET /api/v1/expert/availability/slots/preview requires auth', () =>
+      http()
+        .get('/api/v1/expert/availability/slots/preview?from=2026-08-01&to=2026-08-07')
+        .expect(401));
   });
 
   describe('application', () => {
-    it('GET /v1/experts/me/application requires auth', () =>
-      http().get('/v1/experts/me/application').expect(401));
+    it('GET /api/v1/experts/me/application requires auth', () =>
+      http().get('/api/v1/experts/me/application').expect(401));
 
-    it('POST /v1/experts/me/application requires auth', () =>
-      http().post('/v1/experts/me/application').send({}).expect(401));
+    it('POST /api/v1/experts/me/application requires auth', () =>
+      http().post('/api/v1/experts/me/application').send({}).expect(401));
 
-    it('GET /v1/experts/me/application/readiness requires auth', () =>
-      http().get('/v1/experts/me/application/readiness').expect(401));
+    it('GET /api/v1/experts/me/application/readiness requires auth', () =>
+      http().get('/api/v1/experts/me/application/readiness').expect(401));
 
-    it('POST /v1/experts/me/application/submit requires auth', () =>
-      http().post('/v1/experts/me/application/submit').send({}).expect(401));
+    it('POST /api/v1/experts/me/application/submit requires auth', () =>
+      http().post('/api/v1/experts/me/application/submit').send({}).expect(401));
 
-    it('POST /v1/experts/me/application/withdraw requires auth', () =>
-      http().post('/v1/experts/me/application/withdraw').send({}).expect(401));
+    it('POST /api/v1/experts/me/application/withdraw requires auth', () =>
+      http().post('/api/v1/experts/me/application/withdraw').send({}).expect(401));
   });
 
   describe('documents', () => {
     it('GET documents requires auth', () =>
-      http().get('/v1/experts/me/application/documents').expect(401));
+      http().get('/api/v1/experts/me/application/documents').expect(401));
 
     it('POST documents requires auth', () =>
-      http().post('/v1/experts/me/application/documents').expect(401));
+      http().post('/api/v1/experts/me/application/documents').expect(401));
 
     it('DELETE document requires auth', () =>
-      http().delete('/v1/experts/me/application/documents/some-id').expect(401));
+      http().delete('/api/v1/experts/me/application/documents/some-id').expect(401));
   });
 
   describe('admin review', () => {
-    it('GET queue requires auth', () => http().get('/v1/manage/experts/applications').expect(401));
+    it('GET queue requires auth', () =>
+      http().get('/api/v1/manage/experts/applications').expect(401));
 
     it('GET application detail requires auth', () =>
-      http().get('/v1/manage/experts/applications/app-1').expect(401));
+      http().get('/api/v1/manage/experts/applications/app-1').expect(401));
+
+    it('POST start-review requires auth', () =>
+      http().post('/api/v1/manage/experts/applications/app-1/start-review').send({}).expect(401));
 
     it('POST approve requires auth', () =>
-      http().post('/v1/manage/experts/applications/app-1/approve').send({}).expect(401));
+      http().post('/api/v1/manage/experts/applications/app-1/approve').send({}).expect(401));
 
     it('POST reject requires auth', () =>
-      http().post('/v1/manage/experts/applications/app-1/reject').send({}).expect(401));
+      http().post('/api/v1/manage/experts/applications/app-1/reject').send({}).expect(401));
 
     it('POST request-changes requires auth', () =>
-      http().post('/v1/manage/experts/applications/app-1/request-changes').send({}).expect(401));
+      http()
+        .post('/api/v1/manage/experts/applications/app-1/request-changes')
+        .send({})
+        .expect(401));
 
     it('GET signed document endpoint requires auth', () =>
-      http().get('/v1/manage/experts/documents?key=x&expires=1&signature=y').expect(401));
+      http().get('/api/v1/manage/experts/documents?key=x&expires=1&signature=y').expect(401));
   });
 });

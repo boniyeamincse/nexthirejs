@@ -3,7 +3,6 @@ import { Outfit } from 'next/font/google';
 import './globals.css';
 import { SkipLink } from '@/components/ui/skip-link';
 import { SiteHeader } from '@/components/layout/site-header';
-import { SiteFooter } from '@/components/layout/site-footer';
 import { AuthProvider } from '@/providers/auth-context';
 
 const outfit = Outfit({
@@ -34,7 +33,6 @@ export default function RootLayout({
           <main id="main-content" className="flex-1">
             {children}
           </main>
-          <SiteFooter />
         </AuthProvider>
       </body>
     </html>

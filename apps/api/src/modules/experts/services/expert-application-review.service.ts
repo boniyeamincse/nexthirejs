@@ -74,17 +74,44 @@ export class ExpertApplicationReviewService {
     };
   }
 
-  async getDetail(reviewerId: string, applicationId: string) {
-    const application = await this.applicationRepository.findByIdWithProfile(applicationId);
-    if (!application) {
-      throw new NotFoundException(EXPERT_ERROR_CODES.APPLICATION_NOT_FOUND);
-    }
-
+  /**
+   * Builds the flat review-detail shape the frontend consumes directly
+   * (`ExpertApplicationReviewDetail` in api-client.ts: application-detail
+   * fields at the top level, plus `applicant`/`profile`/`documents`) — every
+   * mutating action (approve/reject/request-changes/start-review) must
+   * return this same shape, since the frontend replaces its whole `detail`
+   * state with whatever comes back.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private buildReviewDetail(application: any) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const documents = (application.documents as any[]).map((doc) => ({
       ...mapDocument(doc),
       signedUrl: this.storage.createSignedUrl(doc.storageKey, SIGNED_URL_TTL_SECONDS),
     }));
+
+    return {
+      ...mapApplicationDetail(application, { includeReviewerNote: true }),
+      applicant: {
+        displayName:
+          application.user?.candidateProfile?.fullName || application.user?.email || 'Unknown',
+        countryId: application.expertProfile?.countryId ?? '',
+      },
+      profile: application.expertProfile,
+      documents,
+    };
+  }
+
+  private async loadFullDetail(applicationId: string) {
+    const application = await this.applicationRepository.findByIdWithProfile(applicationId);
+    if (!application) {
+      throw new NotFoundException(EXPERT_ERROR_CODES.APPLICATION_NOT_FOUND);
+    }
+    return this.buildReviewDetail(application);
+  }
+
+  async getDetail(reviewerId: string, applicationId: string) {
+    const detail = await this.loadFullDetail(applicationId);
 
     await this.auditService.recordBestEffort({
       actorType: AuditActorType.USER,
@@ -95,14 +122,33 @@ export class ExpertApplicationReviewService {
       outcome: AuditOutcome.SUCCESS,
     });
 
-    return {
-      application: mapApplicationDetail(application, { includeReviewerNote: true }),
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      applicant: { id: (application as any).user?.id, email: (application as any).user?.email },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      profile: (application as any).expertProfile,
-      documents,
-    };
+    return detail;
+  }
+
+  async startReview(reviewerId: string, applicationId: string) {
+    const application = await this.applicationRepository.findByIdWithProfile(applicationId);
+    if (!application) {
+      throw new NotFoundException(EXPERT_ERROR_CODES.APPLICATION_NOT_FOUND);
+    }
+    if (application.status !== 'SUBMITTED') {
+      throw new ConflictException(EXPERT_ERROR_CODES.APPLICATION_TRANSITION_INVALID);
+    }
+
+    await this.applicationRepository.updateStatus(applicationId, {
+      status: 'UNDER_REVIEW',
+      reviewStartedAt: new Date(),
+    });
+
+    await this.auditService.recordBestEffort({
+      actorType: AuditActorType.USER,
+      actorUserId: reviewerId,
+      action: 'expert.application.review_started',
+      targetType: 'ExpertApplication',
+      targetId: applicationId,
+      outcome: AuditOutcome.SUCCESS,
+    });
+
+    return this.loadFullDetail(applicationId);
   }
 
   private async loadReviewable(applicationId: string) {
@@ -154,10 +200,10 @@ export class ExpertApplicationReviewService {
     });
 
     const refreshed = await this.applicationRepository.findByIdWithProfile(applicationId);
-    return {
-      application: mapApplicationDetail(refreshed, { includeReviewerNote: true }),
-      roleAssigned: true,
-    };
+    if (!refreshed) {
+      throw new NotFoundException(EXPERT_ERROR_CODES.APPLICATION_NOT_FOUND);
+    }
+    return { ...this.buildReviewDetail(refreshed), roleAssigned: true };
   }
 
   async reject(
@@ -173,7 +219,7 @@ export class ExpertApplicationReviewService {
     const application = await this.loadReviewable(applicationId);
 
     const now = new Date();
-    const updated = await this.applicationRepository.updateStatus(applicationId, {
+    await this.applicationRepository.updateStatus(applicationId, {
       status: 'REJECTED',
       reviewedById: reviewerId,
       reviewedAt: now,
@@ -196,7 +242,7 @@ export class ExpertApplicationReviewService {
       },
     });
 
-    return { application: mapApplicationDetail(updated, { includeReviewerNote: true }) };
+    return this.loadFullDetail(applicationId);
   }
 
   async requestChanges(
@@ -212,7 +258,7 @@ export class ExpertApplicationReviewService {
     const application = await this.loadReviewable(applicationId);
 
     const now = new Date();
-    const updated = await this.applicationRepository.updateStatus(applicationId, {
+    await this.applicationRepository.updateStatus(applicationId, {
       status: 'CHANGES_REQUESTED',
       reviewedById: reviewerId,
       reviewedAt: now,
@@ -231,7 +277,7 @@ export class ExpertApplicationReviewService {
       metadata: { applicantUserId: application.userId, ipAddress: context?.ipAddress },
     });
 
-    return { application: mapApplicationDetail(updated, { includeReviewerNote: true }) };
+    return this.loadFullDetail(applicationId);
   }
 
   /**

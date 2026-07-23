@@ -1,11 +1,12 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { ExpertProfileRepository } from '../repositories/expert-profile.repository';
 import { AuditService } from '../../audit/audit.service';
-import { expertProfileSchema } from '@nexthire/validation';
+import { expertProfileSchema, expertProfileVisibilitySchema } from '@nexthire/validation';
 import { EXPERT_ERROR_CODES } from '@nexthire/constants';
 import { AuditActorType, AuditOutcome } from '@nexthire/types';
-import type { ExpertProfileResult } from '@nexthire/types';
+import type { ExpertProfileResult, ExpertProfileVisibilityResult } from '@nexthire/types';
 import { mapProfile } from '../shared/expert-mappers';
+import { generateUniqueExpertSlug } from '../shared/slug.util';
 
 /**
  * Manages the expert's own professional profile (get + upsert).
@@ -66,5 +67,46 @@ export class ExpertProfileService {
     });
 
     return mapProfile(result);
+  }
+
+  async setPublicVisibility(userId: string, body: unknown): Promise<ExpertProfileVisibilityResult> {
+    const parsed = expertProfileVisibilitySchema.safeParse(body);
+    if (!parsed.success) {
+      throw new BadRequestException({
+        code: EXPERT_ERROR_CODES.PROFILE_VALIDATION_FAILED,
+        details: parsed.error.issues.map((i) => ({
+          field: i.path.join('.'),
+          message: i.message,
+        })),
+      });
+    }
+
+    const profile = await this.repository.findByUserId(userId);
+    if (!profile) {
+      throw new NotFoundException(EXPERT_ERROR_CODES.PROFILE_NOT_FOUND);
+    }
+
+    let publicSlug = profile.publicSlug;
+    if (parsed.data.isPublic && !publicSlug) {
+      publicSlug = await generateUniqueExpertSlug(profile.professionalTitle, (slug) =>
+        this.repository.slugExists(slug),
+      );
+    }
+
+    const updated = await this.repository.setVisibility(userId, {
+      isPublic: parsed.data.isPublic,
+      publicSlug,
+    });
+
+    await this.auditService.recordRequired({
+      actorType: AuditActorType.USER,
+      actorUserId: userId,
+      action: parsed.data.isPublic ? 'expert.profile.made_public' : 'expert.profile.made_private',
+      targetType: 'ExpertProfile',
+      targetId: profile.id,
+      outcome: AuditOutcome.SUCCESS,
+    });
+
+    return { isPublic: updated.isPublic, publicSlug: updated.publicSlug };
   }
 }

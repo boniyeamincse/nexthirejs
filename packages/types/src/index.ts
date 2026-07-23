@@ -18,5 +18,6 @@ export * from './auth/mfa.js';
 export * from './audit.js';
 export * from './candidates/index.js';
 export * from './assessments/index.js';
+export * from './learning/index.js';
 export * from './configuration/country.js';
 export * from './experts/index.js';

@@ -12,14 +12,32 @@ import {
   getMyAvailabilityOverrides,
   createMyAvailabilityOverride,
   deleteMyAvailabilityOverride,
+  previewMyAvailabilitySlots,
 } from '@/lib/api-client';
 import type {
   ExpertAvailabilityProfileResult,
   ExpertWeeklyAvailabilityWindowResult,
   ExpertAvailabilityOverrideResult,
   ExpertAvailabilityOverrideType,
+  ExpertAvailabilitySlot,
 } from '@nexthire/types';
-import { EXPERT_AVAILABILITY_OVERRIDE_TYPES, EXPERT_OFFERING_LIMITS } from '@nexthire/constants';
+import {
+  EXPERT_AVAILABILITY_OVERRIDE_TYPES,
+  EXPERT_OFFERING_LIMITS,
+  EXPERT_SERVICE_ALLOWED_DURATIONS,
+} from '@nexthire/constants';
+
+const PREVIEW_RANGE_DAYS = 13;
+
+function todayIsoDate(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function addDaysIso(isoDate: string, days: number): string {
+  const d = new Date(`${isoDate}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
 
 const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const DAY_ABBR = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -65,17 +83,47 @@ export default function AvailabilityPage() {
     { startLocalTime: string; endLocalTime: string }[]
   >([]);
 
+  const [previewDuration, setPreviewDuration] = useState<number>(
+    EXPERT_SERVICE_ALLOWED_DURATIONS[0],
+  );
+  const [previewSlots, setPreviewSlots] = useState<ExpertAvailabilitySlot[] | null>(null);
+  const [previewTimezone, setPreviewTimezone] = useState<string | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewError, setPreviewError] = useState<string | null>(null);
+
   const load = useCallback(async () => {
     const token = getAccessToken();
     if (!token) return;
     setLoading(true);
     setPageError(null);
+
+    let sessionExpired = false;
+    let hadFailure = false;
+
+    async function safe<T>(request: Promise<T>, fallback: T): Promise<T> {
+      try {
+        return await request;
+      } catch (err) {
+        if (err instanceof ApiClientError && err.statusCode === 401) {
+          sessionExpired = true;
+        } else {
+          hadFailure = true;
+        }
+        return fallback;
+      }
+    }
+
     try {
       const [profile, weekly, overridesData] = await Promise.all([
-        getMyAvailabilityProfile(token).catch(() => null),
-        getMyWeeklyAvailability(token).catch(() => null),
-        getMyAvailabilityOverrides(token).catch(() => []),
+        safe(getMyAvailabilityProfile(token), null),
+        safe(getMyWeeklyAvailability(token), null),
+        safe(getMyAvailabilityOverrides(token), []),
       ]);
+
+      if (sessionExpired) {
+        await logout();
+        return;
+      }
 
       if (profile) {
         setTimezone(profile.timezone);
@@ -107,6 +155,10 @@ export default function AvailabilityPage() {
       }
 
       setOverrides(overridesData);
+
+      if (hadFailure) {
+        setPageError('Failed to load availability data. Please try again.');
+      }
     } catch (err) {
       if (err instanceof ApiClientError && err.statusCode === 401) {
         await logout();
@@ -248,6 +300,32 @@ export default function AvailabilityPage() {
         return;
       }
       setSaveError(err instanceof Error ? err.message : 'Failed to delete override.');
+    }
+  }
+
+  async function handlePreviewSlots() {
+    const token = getAccessToken();
+    if (!token) return;
+    setPreviewLoading(true);
+    setPreviewError(null);
+    try {
+      const from = todayIsoDate();
+      const to = addDaysIso(from, PREVIEW_RANGE_DAYS);
+      const result = await previewMyAvailabilitySlots(token, {
+        from,
+        to,
+        durationMinutes: previewDuration,
+      });
+      setPreviewSlots(result.slots);
+      setPreviewTimezone(result.timezone);
+    } catch (err) {
+      if (err instanceof ApiClientError && err.statusCode === 401) {
+        await logout();
+        return;
+      }
+      setPreviewError(err instanceof Error ? err.message : 'Failed to preview slots.');
+    } finally {
+      setPreviewLoading(false);
     }
   }
 
@@ -772,6 +850,127 @@ export default function AvailabilityPage() {
               </button>
             </div>
           </form>
+        )}
+      </section>
+
+      {/* Slot Preview */}
+      <section
+        style={{
+          padding: '1.25rem',
+          background: '#1e293b',
+          border: '1px solid #334155',
+          borderRadius: '0.75rem',
+          marginTop: '1.5rem',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '0.75rem',
+            flexWrap: 'wrap',
+            gap: '0.75rem',
+          }}
+        >
+          <div>
+            <h2 style={{ color: '#f1f5f9', fontSize: '1.1rem', fontWeight: 600, margin: 0 }}>
+              Preview Slots
+            </h2>
+            <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: '0.25rem 0 0' }}>
+              Computed from your weekly windows and overrides for the next {PREVIEW_RANGE_DAYS + 1}{' '}
+              days. This does not check existing bookings.
+            </p>
+          </div>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <select
+              value={previewDuration}
+              onChange={(e) => setPreviewDuration(Number(e.target.value))}
+              style={{ ...inputSx, width: 'auto' }}
+            >
+              {EXPERT_SERVICE_ALLOWED_DURATIONS.map((d) => (
+                <option key={d} value={d}>
+                  {d} min
+                </option>
+              ))}
+            </select>
+            <button
+              onClick={handlePreviewSlots}
+              disabled={previewLoading}
+              style={{
+                padding: '0.55rem 1.2rem',
+                background: '#2563eb',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '0.5rem',
+                fontWeight: 600,
+                fontSize: '0.88rem',
+                cursor: previewLoading ? 'not-allowed' : 'pointer',
+                opacity: previewLoading ? 0.5 : 1,
+              }}
+            >
+              {previewLoading ? 'Computing...' : 'Preview'}
+            </button>
+          </div>
+        </div>
+
+        {previewError && (
+          <p role="alert" style={{ color: '#fca5a5', fontSize: '0.85rem', margin: '0 0 0.75rem' }}>
+            {previewError}
+          </p>
+        )}
+
+        {previewSlots && previewSlots.length === 0 && (
+          <p style={{ color: '#64748b', fontSize: '0.88rem' }}>
+            No bookable slots in this range. Check your weekly windows, overrides, and minimum
+            notice.
+          </p>
+        )}
+
+        {previewSlots && previewSlots.length > 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+            {previewTimezone && (
+              <p style={{ color: '#64748b', fontSize: '0.78rem', margin: 0 }}>
+                Times shown in {previewTimezone}.
+              </p>
+            )}
+            {Object.entries(
+              previewSlots.reduce<Record<string, ExpertAvailabilitySlot[]>>((acc, slot) => {
+                (acc[slot.localDate] ??= []).push(slot);
+                return acc;
+              }, {}),
+            ).map(([date, daySlots]) => (
+              <div key={date}>
+                <p
+                  style={{
+                    color: '#e2e8f0',
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    margin: '0 0 0.35rem',
+                  }}
+                >
+                  {date}
+                </p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                  {daySlots.map((slot) => (
+                    <span
+                      key={slot.startUtc}
+                      style={{
+                        padding: '0.3rem 0.65rem',
+                        background: '#0f172a',
+                        border: '1px solid #334155',
+                        borderRadius: '0.4rem',
+                        color: '#cbd5e1',
+                        fontSize: '0.8rem',
+                      }}
+                    >
+                      {slot.startLocalTime}–{slot.endLocalTime}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
         )}
       </section>
     </div>

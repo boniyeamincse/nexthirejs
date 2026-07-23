@@ -121,6 +121,30 @@ export default function ProfilePage() {
               Preferences →
             </Link>
             <Link
+              href="/profile/experience"
+              className={dashboardStyles.retryBtn}
+              style={{
+                textDecoration: 'none',
+                background: 'rgba(99, 102, 241, 0.15)',
+                borderColor: 'rgba(99, 102, 241, 0.3)',
+                color: '#a5b4fc',
+              }}
+            >
+              Experience →
+            </Link>
+            <Link
+              href="/profile/education"
+              className={dashboardStyles.retryBtn}
+              style={{
+                textDecoration: 'none',
+                background: 'rgba(99, 102, 241, 0.15)',
+                borderColor: 'rgba(99, 102, 241, 0.3)',
+                color: '#a5b4fc',
+              }}
+            >
+              Education →
+            </Link>
+            <Link
               href="/profile/skills"
               className={dashboardStyles.retryBtn}
               style={{

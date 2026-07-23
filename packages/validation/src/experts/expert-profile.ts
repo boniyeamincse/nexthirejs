@@ -67,3 +67,7 @@ export const expertProfileSchema = z
   .strict();
 
 export type ExpertProfileSchemaInput = z.infer<typeof expertProfileSchema>;
+
+export const expertProfileVisibilitySchema = z.object({
+  isPublic: z.boolean(),
+});

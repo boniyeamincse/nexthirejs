@@ -211,3 +211,34 @@ export const expertAvailabilityOverrideSchema = z
 export const serviceLifecycleActionSchema = z.object({
   action: z.enum(['activate', 'deactivate', 'archive']),
 });
+
+const isoDateRegex = /^\d{4}-\d{2}-\d{2}$/;
+
+export const expertAvailabilitySlotPreviewQuerySchema = z
+  .object({
+    from: z.string().regex(isoDateRegex, 'from must be in YYYY-MM-DD format'),
+    to: z.string().regex(isoDateRegex, 'to must be in YYYY-MM-DD format'),
+    durationMinutes: z.coerce
+      .number()
+      .int()
+      .refine((v) => (EXPERT_SERVICE_ALLOWED_DURATIONS as readonly number[]).includes(v), {
+        message: 'Duration must be 30, 35, or 40 minutes',
+      })
+      .default(30),
+  })
+  .refine((data) => data.from <= data.to, {
+    message: 'from must not be after to',
+    path: ['to'],
+  })
+  .refine(
+    (data) => {
+      const fromDate = new Date(`${data.from}T00:00:00Z`);
+      const toDate = new Date(`${data.to}T00:00:00Z`);
+      const rangeDays = (toDate.getTime() - fromDate.getTime()) / 86_400_000;
+      return rangeDays <= EXPERT_OFFERING_LIMITS.SLOT_PREVIEW_MAX_RANGE_DAYS;
+    },
+    {
+      message: `Preview range must not exceed ${EXPERT_OFFERING_LIMITS.SLOT_PREVIEW_MAX_RANGE_DAYS} days`,
+      path: ['to'],
+    },
+  );

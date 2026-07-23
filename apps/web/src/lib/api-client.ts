@@ -25,6 +25,12 @@ import type {
   ExpertWeeklyAvailabilityInput,
   ExpertAvailabilityOverrideResult,
   ExpertAvailabilityOverrideInput,
+  ExpertAvailabilitySlotPreviewResult,
+  ExpertProfileVisibilityInput,
+  ExpertProfileVisibilityResult,
+  PublicExpertListQuery,
+  PaginatedPublicExpertResult,
+  PublicExpertProfileDetail,
 } from '@nexthire/types';
 
 interface ApiErrorDetail {
@@ -2716,6 +2722,50 @@ export async function updateMyExpertProfile(
   throw await parseApiError(response, 'Failed to save expert profile');
 }
 
+export async function updateMyExpertProfileVisibility(
+  accessToken: string,
+  input: ExpertProfileVisibilityInput,
+): Promise<ExpertProfileVisibilityResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/experts/me/profile/visibility`, {
+    method: 'PUT',
+    headers: expertAuthHeaders(accessToken),
+    body: JSON.stringify(input),
+  });
+  if (response.ok) {
+    return response.json() as Promise<ExpertProfileVisibilityResult>;
+  }
+  throw await parseApiError(response, 'Failed to update profile visibility');
+}
+
+// --- Public: Expert directory (no auth) ---
+
+export async function getPublicExperts(
+  query: PublicExpertListQuery = {},
+): Promise<PaginatedPublicExpertResult> {
+  const params = new URLSearchParams();
+  if (query.page) params.set('page', String(query.page));
+  if (query.pageSize) params.set('pageSize', String(query.pageSize));
+  if (query.search) params.set('search', query.search);
+  if (query.expertiseAreaId) params.set('expertiseAreaId', query.expertiseAreaId);
+  if (query.country) params.set('country', query.country);
+  const qs = params.toString();
+  const response = await fetch(`${publicEnv.apiBaseUrl}/expert/public${qs ? `?${qs}` : ''}`);
+  if (response.ok) {
+    return response.json() as Promise<PaginatedPublicExpertResult>;
+  }
+  throw await parseApiError(response, 'Failed to load experts');
+}
+
+export async function getPublicExpertProfile(slug: string): Promise<PublicExpertProfileDetail> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/expert/public/${encodeURIComponent(slug)}`,
+  );
+  if (response.ok) {
+    return response.json() as Promise<PublicExpertProfileDetail>;
+  }
+  throw await parseApiError(response, 'Failed to load expert profile');
+}
+
 // --- Applicant: Expert application ---
 
 export async function getMyExpertApplication(
@@ -2970,7 +3020,7 @@ export async function getExpertVerificationDocumentAccess(
 // --- Expert: Expertise areas ---
 
 export async function getExpertiseAreas(): Promise<ExpertiseAreaResult[]> {
-  const response = await fetch(`${publicEnv.apiBaseUrl}/expertise-areas`);
+  const response = await fetch(`${publicEnv.apiBaseUrl}/expert/expertise-areas`);
   if (response.ok) {
     return response.json() as Promise<ExpertiseAreaResult[]>;
   }
@@ -2978,7 +3028,7 @@ export async function getExpertiseAreas(): Promise<ExpertiseAreaResult[]> {
 }
 
 export async function getMyExpertExpertise(accessToken: string): Promise<ExpertExpertiseResult> {
-  const response = await fetch(`${publicEnv.apiBaseUrl}/experts/me/expertise`, {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/expert/expertise`, {
     headers: expertAuthHeaders(accessToken),
   });
   if (response.ok) {
@@ -2991,7 +3041,7 @@ export async function setMyExpertExpertise(
   accessToken: string,
   input: ExpertExpertiseInput,
 ): Promise<ExpertExpertiseResult> {
-  const response = await fetch(`${publicEnv.apiBaseUrl}/experts/me/expertise`, {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/expert/expertise`, {
     method: 'PUT',
     headers: expertAuthHeaders(accessToken),
     body: JSON.stringify(input),
@@ -3004,7 +3054,7 @@ export async function setMyExpertExpertise(
 
 export async function deleteMyExpertExpertiseItem(accessToken: string, id: string): Promise<void> {
   const response = await fetch(
-    `${publicEnv.apiBaseUrl}/experts/me/expertise/${encodeURIComponent(id)}`,
+    `${publicEnv.apiBaseUrl}/expert/expertise/${encodeURIComponent(id)}`,
     {
       method: 'DELETE',
       headers: expertAuthHeaders(accessToken),
@@ -3023,7 +3073,7 @@ export async function getMyExpertServices(
   status?: string,
 ): Promise<ExpertServiceResult[]> {
   const params = status ? `?status=${encodeURIComponent(status)}` : '';
-  const response = await fetch(`${publicEnv.apiBaseUrl}/experts/me/services${params}`, {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/expert/services${params}`, {
     headers: expertAuthHeaders(accessToken),
   });
   if (response.ok) {
@@ -3036,7 +3086,7 @@ export async function createExpertService(
   accessToken: string,
   input: ExpertServiceInput,
 ): Promise<ExpertServiceResult> {
-  const response = await fetch(`${publicEnv.apiBaseUrl}/experts/me/services`, {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/expert/services`, {
     method: 'POST',
     headers: expertAuthHeaders(accessToken),
     body: JSON.stringify(input),
@@ -3052,7 +3102,7 @@ export async function getExpertService(
   id: string,
 ): Promise<ExpertServiceResult> {
   const response = await fetch(
-    `${publicEnv.apiBaseUrl}/experts/me/services/${encodeURIComponent(id)}`,
+    `${publicEnv.apiBaseUrl}/expert/services/${encodeURIComponent(id)}`,
     { headers: expertAuthHeaders(accessToken) },
   );
   if (response.ok) {
@@ -3067,7 +3117,7 @@ export async function updateExpertService(
   input: Partial<ExpertServiceInput>,
 ): Promise<ExpertServiceResult> {
   const response = await fetch(
-    `${publicEnv.apiBaseUrl}/experts/me/services/${encodeURIComponent(id)}`,
+    `${publicEnv.apiBaseUrl}/expert/services/${encodeURIComponent(id)}`,
     {
       method: 'PUT',
       headers: expertAuthHeaders(accessToken),
@@ -3086,7 +3136,7 @@ export async function lifecycleExpertService(
   action: string,
 ): Promise<ExpertServiceResult> {
   const response = await fetch(
-    `${publicEnv.apiBaseUrl}/experts/me/services/${encodeURIComponent(id)}/${encodeURIComponent(action)}`,
+    `${publicEnv.apiBaseUrl}/expert/services/${encodeURIComponent(id)}/${encodeURIComponent(action)}`,
     {
       method: 'POST',
       headers: expertAuthHeaders(accessToken),
@@ -3103,7 +3153,7 @@ export async function getExpertServiceReadiness(
   id: string,
 ): Promise<ExpertServiceReadiness> {
   const response = await fetch(
-    `${publicEnv.apiBaseUrl}/experts/me/services/${encodeURIComponent(id)}/readiness`,
+    `${publicEnv.apiBaseUrl}/expert/services/${encodeURIComponent(id)}/readiness`,
     { headers: expertAuthHeaders(accessToken) },
   );
   if (response.ok) {
@@ -3117,7 +3167,7 @@ export async function getExpertServiceReadiness(
 export async function getMyAvailabilityProfile(
   accessToken: string,
 ): Promise<ExpertAvailabilityProfileResult> {
-  const response = await fetch(`${publicEnv.apiBaseUrl}/experts/me/availability/profile`, {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/expert/availability/profile`, {
     headers: expertAuthHeaders(accessToken),
   });
   if (response.ok) {
@@ -3130,7 +3180,7 @@ export async function updateMyAvailabilityProfile(
   accessToken: string,
   input: ExpertAvailabilityProfileInput,
 ): Promise<ExpertAvailabilityProfileResult> {
-  const response = await fetch(`${publicEnv.apiBaseUrl}/experts/me/availability/profile`, {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/expert/availability/profile`, {
     method: 'PUT',
     headers: expertAuthHeaders(accessToken),
     body: JSON.stringify(input),
@@ -3144,7 +3194,7 @@ export async function updateMyAvailabilityProfile(
 export async function getMyWeeklyAvailability(
   accessToken: string,
 ): Promise<ExpertWeeklyAvailabilityResult> {
-  const response = await fetch(`${publicEnv.apiBaseUrl}/experts/me/availability/weekly`, {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/expert/availability/weekly`, {
     headers: expertAuthHeaders(accessToken),
   });
   if (response.ok) {
@@ -3157,7 +3207,7 @@ export async function setMyWeeklyAvailability(
   accessToken: string,
   input: ExpertWeeklyAvailabilityInput,
 ): Promise<ExpertWeeklyAvailabilityResult> {
-  const response = await fetch(`${publicEnv.apiBaseUrl}/experts/me/availability/weekly`, {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/expert/availability/weekly`, {
     method: 'PUT',
     headers: expertAuthHeaders(accessToken),
     body: JSON.stringify(input),
@@ -3178,7 +3228,7 @@ export async function getMyAvailabilityOverrides(
   if (to) params.set('to', to);
   const qs = params.toString();
   const response = await fetch(
-    `${publicEnv.apiBaseUrl}/experts/me/availability/overrides${qs ? `?${qs}` : ''}`,
+    `${publicEnv.apiBaseUrl}/expert/availability/overrides${qs ? `?${qs}` : ''}`,
     { headers: expertAuthHeaders(accessToken) },
   );
   if (response.ok) {
@@ -3191,7 +3241,7 @@ export async function createMyAvailabilityOverride(
   accessToken: string,
   input: ExpertAvailabilityOverrideInput,
 ): Promise<ExpertAvailabilityOverrideResult> {
-  const response = await fetch(`${publicEnv.apiBaseUrl}/experts/me/availability/overrides`, {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/expert/availability/overrides`, {
     method: 'POST',
     headers: expertAuthHeaders(accessToken),
     body: JSON.stringify(input),
@@ -3204,7 +3254,7 @@ export async function createMyAvailabilityOverride(
 
 export async function deleteMyAvailabilityOverride(accessToken: string, id: string): Promise<void> {
   const response = await fetch(
-    `${publicEnv.apiBaseUrl}/experts/me/availability/overrides/${encodeURIComponent(id)}`,
+    `${publicEnv.apiBaseUrl}/expert/availability/overrides/${encodeURIComponent(id)}`,
     {
       method: 'DELETE',
       headers: expertAuthHeaders(accessToken),
@@ -3214,6 +3264,22 @@ export async function deleteMyAvailabilityOverride(accessToken: string, id: stri
     return;
   }
   throw await parseApiError(response, 'Failed to delete availability override');
+}
+
+export async function previewMyAvailabilitySlots(
+  accessToken: string,
+  params: { from: string; to: string; durationMinutes?: number },
+): Promise<ExpertAvailabilitySlotPreviewResult> {
+  const query = new URLSearchParams({ from: params.from, to: params.to });
+  if (params.durationMinutes) query.set('durationMinutes', String(params.durationMinutes));
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/expert/availability/slots/preview?${query.toString()}`,
+    { headers: expertAuthHeaders(accessToken) },
+  );
+  if (response.ok) {
+    return response.json() as Promise<ExpertAvailabilitySlotPreviewResult>;
+  }
+  throw await parseApiError(response, 'Failed to preview availability slots');
 }
 
 // --- MFA (two-factor authentication) ---
@@ -3767,3 +3833,323 @@ export async function downloadCvExportBlob(
   }
   return fileResponse.blob();
 }
+
+async function fetchApi(path: string, init?: RequestInit) {
+  const response = await fetch(`${publicEnv.apiBaseUrl}${path}`, {
+    ...init,
+    headers: { 'Content-Type': 'application/json', ...init?.headers },
+  });
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw Object.assign(new Error(body.message || `Request failed: ${response.status}`), {
+      statusCode: response.status,
+      errors: body.errors,
+    });
+  }
+  return response.json();
+}
+
+// ==========================================
+// Admin Dashboard endpoints
+// ==========================================
+export async function getAdminStats(token: string) {
+  return fetchApi('/admin/dashboard/stats', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export async function getAdminOverview(token: string) {
+  return fetchApi('/admin/dashboard/overview', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export async function getAdminActivity(token: string) {
+  return fetchApi('/admin/dashboard/activity', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export async function getAdminAlerts(token: string) {
+  return fetchApi('/admin/dashboard/alerts', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export async function getAdminGrowthUsers(token: string) {
+  return fetchApi('/admin/analytics/growth/users', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export async function getAdminRevenueTrends(token: string) {
+  return fetchApi('/admin/analytics/revenue/trends', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export async function getAdminGrowthRoles(token: string) {
+  return fetchApi('/admin/analytics/growth/roles', { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminGrowthCountries(token: string) {
+  return fetchApi('/admin/analytics/growth/countries', { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminGrowthRetention(token: string) {
+  return fetchApi('/admin/analytics/growth/retention', { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminGrowthFunnel(token: string) {
+  return fetchApi('/admin/analytics/growth/funnel', { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminRevenueSources(token: string) {
+  return fetchApi('/admin/analytics/revenue/sources', { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminRevenueCountries(token: string) {
+  return fetchApi('/admin/analytics/revenue/countries', { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminRevenuePayments(token: string) {
+  return fetchApi('/admin/analytics/revenue/payments', { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminRevenueCommission(token: string) {
+  return fetchApi('/admin/analytics/revenue/commission', { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminRevenueRefunds(token: string) {
+  return fetchApi('/admin/analytics/revenue/refunds', { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminPerformanceApi(token: string) {
+  return fetchApi('/admin/analytics/performance/api', { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminPerformanceQueue(token: string) {
+  return fetchApi('/admin/analytics/performance/queue', { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminPerformanceErrors(token: string) {
+  return fetchApi('/admin/analytics/performance/errors', { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminPerformanceSystem(token: string) {
+  return fetchApi('/admin/analytics/performance/system', { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminPerformanceDatabase(token: string) {
+  return fetchApi('/admin/analytics/performance/database', { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminPerformanceUptime(token: string) {
+  return fetchApi('/admin/analytics/performance/uptime', { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminUsers(token: string, params?: Record<string, string>) {
+  const qs = params ? '?' + new URLSearchParams(params).toString() : '';
+  return fetchApi(`/admin/users${qs}`, { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminUser(token: string, id: string) {
+  return fetchApi(`/admin/users/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function updateAdminUserStatus(token: string, id: string, status: string, reason?: string) {
+  return fetchApi(`/admin/users/${id}/status`, {
+    method: 'PUT',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ status, reason }),
+  });
+}
+
+export async function forceAdminUserLogout(token: string, id: string) {
+  return fetchApi(`/admin/users/${id}/logout`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export async function deleteAdminUser(token: string, id: string) {
+  return fetchApi(`/admin/users/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminSuspendedUsers(token: string, page = '1', limit = '20') {
+  return fetchApi(`/admin/users/suspended?page=${page}&limit=${limit}`, { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function activateAdminSuspendedUser(token: string, id: string) {
+  return fetchApi(`/admin/users/suspended/${id}/activate`, {
+    method: 'PUT',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export async function getAdminPendingVerifications(token: string, page = '1', limit = '20') {
+  return fetchApi(`/admin/users/verification/pending?page=${page}&limit=${limit}`, { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminVerifiedAccounts(token: string, page = '1', limit = '20') {
+  return fetchApi(`/admin/users/verification/verified?page=${page}&limit=${limit}`, { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function verifyAdminUser(token: string, id: string) {
+  return fetchApi(`/admin/users/verification/${id}/verify`, {
+    method: 'PUT',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export async function rejectAdminVerification(token: string, id: string) {
+  return fetchApi(`/admin/users/verification/${id}/reject`, {
+    method: 'PUT',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export async function getAdminRoles(token: string) {
+  return fetchApi('/admin/roles', { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function createAdminRole(token: string, data: { code: string; name: string; description?: string }) {
+  return fetchApi('/admin/roles', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify(data),
+  });
+}
+
+export async function getAdminRole(token: string, id: string) {
+  return fetchApi(`/admin/roles/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function deleteAdminRole(token: string, id: string) {
+  return fetchApi(`/admin/roles/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function assignAdminUserRole(token: string, userId: string, roleCode: string) {
+  return fetchApi(`/admin/users/${userId}/roles`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ roleCode }),
+  });
+}
+
+export async function removeAdminUserRole(token: string, userId: string, roleId: string) {
+  return fetchApi(`/admin/users/${userId}/roles/${roleId}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export async function getAdminCandidates(token: string, params?: Record<string, string>) {
+  const qs = params ? '?' + new URLSearchParams(params).toString() : '';
+  return fetchApi(`/admin/candidates${qs}`, { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminCandidate(token: string, id: string) {
+  return fetchApi(`/admin/candidates/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminCandidateProfile(token: string, id: string) {
+  return fetchApi(`/admin/candidates/${id}/profile`, { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminCandidatePassport(token: string, id: string) {
+  return fetchApi(`/admin/candidates/${id}/passport`, { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminCandidateAssessments(token: string, id: string) {
+  return fetchApi(`/admin/candidates/${id}/assessments`, { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminCandidateActivity(token: string, id: string) {
+  return fetchApi(`/admin/candidates/${id}/activity`, { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminCandidateProjects(token: string, id: string) {
+  return fetchApi(`/admin/candidates/${id}/projects`, { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminCandidateSkillsPending(token: string) {
+  return fetchApi('/admin/candidates/skills/pending', { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function verifyAdminCandidateSkill(token: string, id: string) {
+  return fetchApi(`/admin/candidates/skills/${id}/verify`, {
+    method: 'PUT',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export async function getAdminCandidateReadiness(token: string) {
+  return fetchApi('/admin/candidates/readiness/distribution', { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminCandidateReportsRegistration(token: string) {
+  return fetchApi('/admin/candidates/reports/registration', { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminCandidateReportsCountries(token: string) {
+  return fetchApi('/admin/candidates/reports/countries', { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminExperts(token: string, params?: Record<string, string>) {
+  const qs = params ? '?' + new URLSearchParams(params).toString() : '';
+  return fetchApi(`/admin/experts${qs}`, { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminExpert(token: string, id: string) {
+  return fetchApi(`/admin/experts/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminExpertProfile(token: string, id: string) {
+  return fetchApi(`/admin/experts/${id}/profile`, { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminExpertServices(token: string, id: string) {
+  return fetchApi(`/admin/experts/${id}/services`, { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminExpertBookings(token: string, id: string) {
+  return fetchApi(`/admin/experts/${id}/bookings`, { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminExpertVerificationPending(token: string, page = '1', limit = '20') {
+  return fetchApi(`/admin/experts/verification/pending?page=${page}&limit=${limit}`, { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminExpertVerificationDetail(token: string, id: string) {
+  return fetchApi(`/admin/experts/verification/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function approveAdminExpertVerification(token: string, id: string, note?: string) {
+  return fetchApi(`/admin/experts/verification/${id}/approve`, {
+    method: 'PUT',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ note }),
+  });
+}
+
+export async function rejectAdminExpertVerification(token: string, id: string, reason?: string) {
+  return fetchApi(`/admin/experts/verification/${id}/reject`, {
+    method: 'PUT',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ reason }),
+  });
+}
+
+export async function getAdminExpertTop(token: string, limit = '10') {
+  return fetchApi(`/admin/experts/performance/top?limit=${limit}`, { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminExpertComplaints(token: string, page = '1', limit = '20') {
+  return fetchApi(`/admin/experts/complaints?page=${page}&limit=${limit}`, { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminExpertReportsRegistration(token: string) {
+  return fetchApi('/admin/experts/reports/registration', { headers: { Authorization: `Bearer ${token}` } });
+}
+

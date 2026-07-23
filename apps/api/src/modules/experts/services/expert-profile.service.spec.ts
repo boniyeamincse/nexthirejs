@@ -1,4 +1,4 @@
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { ExpertProfileService } from './expert-profile.service';
 
 describe('ExpertProfileService', () => {
@@ -7,6 +7,8 @@ describe('ExpertProfileService', () => {
     findByUserId: jest.fn(),
     countryExists: jest.fn(),
     upsert: jest.fn(),
+    slugExists: jest.fn(),
+    setVisibility: jest.fn(),
   };
   const audit = { recordRequired: jest.fn() };
 
@@ -105,5 +107,60 @@ describe('ExpertProfileService', () => {
     expect(audit.recordRequired).toHaveBeenCalledWith(
       expect.objectContaining({ action: 'expert.profile.updated' }),
     );
+  });
+
+  describe('setPublicVisibility', () => {
+    it('404s when no profile exists yet', async () => {
+      repo.findByUserId.mockResolvedValue(null);
+      await expect(
+        service.setPublicVisibility('u1', { isPublic: true }),
+      ).rejects.toBeInstanceOf(NotFoundException);
+    });
+
+    it('rejects a non-boolean isPublic', async () => {
+      repo.findByUserId.mockResolvedValue({ id: 'p1', publicSlug: null });
+      await expect(
+        service.setPublicVisibility('u1', { isPublic: 'yes' }),
+      ).rejects.toBeInstanceOf(BadRequestException);
+    });
+
+    it('generates a slug the first time a profile is made public', async () => {
+      repo.findByUserId.mockResolvedValue({
+        id: 'p1',
+        professionalTitle: 'Senior Backend Engineer',
+        publicSlug: null,
+      });
+      repo.slugExists.mockResolvedValue(false);
+      repo.setVisibility.mockImplementation((_userId, data) =>
+        Promise.resolve({ isPublic: data.isPublic, publicSlug: data.publicSlug }),
+      );
+
+      const result = await service.setPublicVisibility('u1', { isPublic: true });
+
+      expect(result.isPublic).toBe(true);
+      expect(result.publicSlug).toMatch(/^senior-backend-engineer-[0-9a-f]{8}$/);
+      expect(audit.recordRequired).toHaveBeenCalledWith(
+        expect.objectContaining({ action: 'expert.profile.made_public' }),
+      );
+    });
+
+    it('reuses the existing slug on subsequent toggles instead of generating a new one', async () => {
+      repo.findByUserId.mockResolvedValue({
+        id: 'p1',
+        professionalTitle: 'Senior Backend Engineer',
+        publicSlug: 'senior-backend-engineer-aaaaaaaa',
+      });
+      repo.setVisibility.mockImplementation((_userId, data) =>
+        Promise.resolve({ isPublic: data.isPublic, publicSlug: data.publicSlug }),
+      );
+
+      const result = await service.setPublicVisibility('u1', { isPublic: false });
+
+      expect(repo.slugExists).not.toHaveBeenCalled();
+      expect(result).toEqual({ isPublic: false, publicSlug: 'senior-backend-engineer-aaaaaaaa' });
+      expect(audit.recordRequired).toHaveBeenCalledWith(
+        expect.objectContaining({ action: 'expert.profile.made_private' }),
+      );
+    });
   });
 });

@@ -8,6 +8,7 @@ import {
   ApiClientError,
   getMyExpertProfile,
   updateMyExpertProfile,
+  updateMyExpertProfileVisibility,
   listSupportedCountries,
 } from '@/lib/api-client';
 import type { ExpertProfileInput, ExpertProfileResult, Country } from '@nexthire/types';
@@ -16,7 +17,7 @@ import type { ExpertProfileFieldErrors } from '@/features/experts/lib/expert-pro
 import { ExpertNav } from '@/features/experts/components/ExpertNav';
 
 export default function ExpertProfilePage() {
-  const { getAccessToken, logout, status: authStatus } = useAuth();
+  const { getAccessToken, logout, status: authStatus, user } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -27,6 +28,11 @@ export default function ExpertProfilePage() {
   const [serverError, setServerError] = useState<string | null>(null);
   const [serverFieldErrors, setServerFieldErrors] = useState<ExpertProfileFieldErrors>({});
   const [savedAt, setSavedAt] = useState<string | null>(null);
+
+  const [visibilitySaving, setVisibilitySaving] = useState(false);
+  const [visibilityError, setVisibilityError] = useState<string | null>(null);
+
+  const isApprovedExpert = user?.roleCodes.includes('expert') ?? false;
 
   const load = useCallback(async () => {
     const token = getAccessToken();
@@ -97,6 +103,31 @@ export default function ExpertProfilePage() {
     }
   };
 
+  const handleToggleVisibility = async () => {
+    const token = getAccessToken();
+    if (!token || !profile) return;
+    setVisibilitySaving(true);
+    setVisibilityError(null);
+    try {
+      const result = await updateMyExpertProfileVisibility(token, {
+        isPublic: !profile.isPublic,
+      });
+      setProfile((prev) =>
+        prev ? { ...prev, isPublic: result.isPublic, publicSlug: result.publicSlug } : prev,
+      );
+    } catch (err) {
+      if (err instanceof ApiClientError && err.statusCode === 401) {
+        await logout();
+        return;
+      }
+      setVisibilityError(
+        err instanceof Error ? err.message : 'Could not update your visibility setting.',
+      );
+    } finally {
+      setVisibilitySaving(false);
+    }
+  };
+
   if (authStatus === 'unknown' || authStatus === 'loading' || loading) {
     return (
       <div className="max-w-3xl mx-auto p-6">
@@ -116,6 +147,60 @@ export default function ExpertProfilePage() {
       </p>
 
       <ExpertNav active="profile" />
+
+      {isApprovedExpert && profile && (
+        <section
+          style={{
+            margin: '1rem 0',
+            padding: '1rem 1.1rem',
+            background: '#1e293b',
+            border: '1px solid #334155',
+            borderRadius: '0.75rem',
+          }}
+        >
+          <h2 style={{ color: '#f1f5f9', fontSize: '1rem', margin: '0 0 0.5rem' }}>
+            Public Directory
+          </h2>
+          <p style={{ color: '#94a3b8', fontSize: '0.88rem', margin: '0 0 0.75rem' }}>
+            {profile.isPublic
+              ? 'Your profile is visible in the public expert directory.'
+              : 'Your profile is private and does not appear in the public directory.'}
+          </p>
+          {profile.isPublic && profile.publicSlug && (
+            <p style={{ margin: '0 0 0.75rem' }}>
+              <Link
+                href={`/find-expert/${profile.publicSlug}`}
+                target="_blank"
+                style={{ color: '#93c5fd', textDecoration: 'underline', fontSize: '0.85rem' }}
+              >
+                View your public profile →
+              </Link>
+            </p>
+          )}
+          {visibilityError && (
+            <p role="alert" style={{ color: '#fca5a5', fontSize: '0.85rem', margin: '0 0 0.75rem' }}>
+              {visibilityError}
+            </p>
+          )}
+          <button
+            onClick={() => void handleToggleVisibility()}
+            disabled={visibilitySaving}
+            style={{
+              padding: '0.5rem 1.1rem',
+              background: profile.isPublic ? 'transparent' : '#2563eb',
+              color: profile.isPublic ? '#cbd5e1' : '#fff',
+              border: profile.isPublic ? '1px solid #475569' : 'none',
+              borderRadius: '0.5rem',
+              fontWeight: 600,
+              fontSize: '0.85rem',
+              cursor: visibilitySaving ? 'not-allowed' : 'pointer',
+              opacity: visibilitySaving ? 0.6 : 1,
+            }}
+          >
+            {visibilitySaving ? 'Saving...' : profile.isPublic ? 'Make Private' : 'Make Public'}
+          </button>
+        </section>
+      )}
 
       {loadError && (
         <div

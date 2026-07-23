@@ -26,8 +26,10 @@ import {
   expertAvailabilityProfileSchema,
   expertWeeklyAvailabilitySchema,
   expertAvailabilityOverrideSchema,
+  expertAvailabilitySlotPreviewQuerySchema,
 } from '@nexthire/validation';
 import { EXPERT_OFFERING_RATE_LIMITS } from '@nexthire/constants';
+import { ExpertSlotService } from './expert-slot.service';
 
 const HOUR_MS = 3_600_000;
 
@@ -58,6 +60,7 @@ export class ExpertAvailabilityController {
   constructor(
     private readonly prisma: PrismaService,
     private readonly auditService: AuditService,
+    private readonly slotService: ExpertSlotService,
   ) {}
 
   @Get('profile')
@@ -403,5 +406,38 @@ export class ExpertAvailabilityController {
     });
 
     return { removed: true };
+  }
+
+  @Get('slots/preview')
+  @ApiOperation({
+    summary: 'Preview bookable slots computed from weekly windows and overrides',
+    description:
+      'Computes concrete slot instances (DST-safe, timezone-aware) from the recurring weekly ' +
+      'availability and per-date overrides. Does not check existing bookings.',
+  })
+  @ApiResponse({ status: 200, description: 'Computed slot preview' })
+  async previewSlots(
+    @Req() req: AuthenticatedRequest,
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+    @Query('durationMinutes') durationMinutes?: string,
+  ) {
+    const parsed = expertAvailabilitySlotPreviewQuerySchema.safeParse({
+      from,
+      to,
+      durationMinutes,
+    });
+    if (!parsed.success) {
+      throw new BadRequestException({
+        code: 'EXPERT_AVAILABILITY_VALIDATION_FAILED',
+        details: parsed.error.issues.map((i: { path: (string | number)[]; message: string }) => ({
+          field: i.path.join('.'),
+          message: i.message,
+        })),
+      });
+    }
+
+    const userId = req.principal.userId;
+    return this.slotService.previewSlots(userId, parsed.data);
   }
 }

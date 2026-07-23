@@ -46,8 +46,82 @@ export interface ExpertProfileResult {
   countryId: string;
   city?: string | null;
   profilePhotoFileId?: string | null;
+  isPublic: boolean;
+  publicSlug: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface ExpertProfileVisibilityInput {
+  isPublic: boolean;
+}
+
+export interface ExpertProfileVisibilityResult {
+  isPublic: boolean;
+  publicSlug: string | null;
+}
+
+/** Card projection for the public expert directory list — no PII beyond what the expert chose to publish. */
+export interface PublicExpertListItem {
+  publicSlug: string;
+  professionalTitle: string;
+  professionalSummary: string;
+  yearsOfExperience: number;
+  currentCompany: string | null;
+  currentPosition: string | null;
+  countryId: string;
+  city: string | null;
+  interviewLanguages: string[];
+  primaryExpertise: { areaName: string; areaSlug: string }[];
+}
+
+export interface PublicExpertListQuery {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  expertiseAreaId?: string;
+  country?: string;
+}
+
+export interface PaginatedPublicExpertResult {
+  data: PublicExpertListItem[];
+  pagination: {
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+/** Full public detail projection — adds bio, links, expertise, and active services. */
+export interface PublicExpertProfileDetail {
+  publicSlug: string;
+  professionalTitle: string;
+  professionalSummary: string;
+  yearsOfExperience: number;
+  currentCompany: string | null;
+  currentPosition: string | null;
+  highestEducation: string | null;
+  linkedinUrl: string | null;
+  portfolioUrl: string | null;
+  personalWebsiteUrl: string | null;
+  interviewLanguages: string[];
+  countryId: string;
+  city: string | null;
+  expertise: {
+    areaName: string;
+    areaSlug: string;
+    level: 'INTERMEDIATE' | 'ADVANCED' | 'EXPERT';
+    isPrimary: boolean;
+  }[];
+  services: {
+    id: string;
+    type: string;
+    title: string;
+    shortDescription: string;
+    durationMinutes: number;
+    price: { amount: string; currency: string };
+  }[];
 }
 
 export interface ExpertApplicationSummary {

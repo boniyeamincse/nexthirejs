@@ -23,6 +23,8 @@ import { ProjectModule } from './modules/projects/project.module';
 import { SkillModule } from './modules/skills/skill.module';
 import { TrainerModule } from './modules/trainers/trainer.module';
 
+import { AdminModule } from './modules/admin/admin.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -54,6 +56,7 @@ import { TrainerModule } from './modules/trainers/trainer.module';
     ProjectModule,
     SkillModule,
     TrainerModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [

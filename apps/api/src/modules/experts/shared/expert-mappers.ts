@@ -33,6 +33,8 @@ export function mapProfile(record: any): ExpertProfileResult {
     countryId: record.countryId,
     city: record.city,
     profilePhotoFileId: record.profilePhotoFileId ?? null,
+    isPublic: record.isPublic ?? false,
+    publicSlug: record.publicSlug ?? null,
     createdAt: record.createdAt.toISOString(),
     updatedAt: record.updatedAt.toISOString(),
   };

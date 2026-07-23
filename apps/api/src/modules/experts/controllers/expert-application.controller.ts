@@ -33,7 +33,7 @@ const MULTER_MAX_BYTES = EXPERT_LIMITS.MAX_DOCUMENT_SIZE_BYTES * 2;
 
 @ApiTags('Expert Application')
 @ApiBearerAuth('access-token')
-@Controller('v1/experts/me/application')
+@Controller('experts/me/application')
 @UseGuards(AuthGuard, RolesGuard)
 @RequireRoles('candidate')
 export class ExpertApplicationController {

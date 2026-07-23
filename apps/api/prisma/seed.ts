@@ -119,6 +119,51 @@ async function main() {
 
   console.log(`Seeded test expert reviewer: ${testReviewer.email}`);
 
+  const superAdminRole = await prisma.role.upsert({
+    where: { code: 'super_admin' },
+    update: {},
+    create: {
+      code: 'super_admin',
+      name: 'Super Admin',
+      description: 'Platform super administrator with full access',
+      isSystem: true,
+    },
+  });
+
+  console.log(`Seeded role: ${superAdminRole.code} (${superAdminRole.id})`);
+
+  const testSuperAdmin = await prisma.user.upsert({
+    where: { email: 'admin@nexthire.com' },
+    update: {},
+    create: {
+      email: 'admin@nexthire.com',
+      passwordHash:
+        '$argon2id$v=19$m=65536,p=4,t=3$iY1KhtmOrBMJuGNqRFyPmQ$e07Yj840R2y+CDoXmSTmlmSoDBDDoHQvfNztpbLqu5A',
+      status: 'ACTIVE',
+      emailVerifiedAt: new Date(),
+      roles: {
+        create: {
+          roleId: superAdminRole.id,
+        },
+      },
+    },
+  });
+
+  console.log(`Seeded super admin: ${testSuperAdmin.email}`);
+
+  const adminRole = await prisma.role.upsert({
+    where: { code: 'admin' },
+    update: {},
+    create: {
+      code: 'admin',
+      name: 'Admin',
+      description: 'Platform administrator with limited access',
+      isSystem: true,
+    },
+  });
+
+  console.log(`Seeded role: ${adminRole.code} (${adminRole.id})`);
+
   const bd = await prisma.country.upsert({
     where: { code: 'BD' },
     update: {},

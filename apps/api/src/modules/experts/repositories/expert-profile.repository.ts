@@ -41,4 +41,12 @@ export class ExpertProfileRepository {
       update: persistable,
     });
   }
+
+  slugExists(slug: string): Promise<boolean> {
+    return this.prisma.expertProfile.count({ where: { publicSlug: slug } }).then((n) => n > 0);
+  }
+
+  setVisibility(userId: string, data: { isPublic: boolean; publicSlug: string | null }) {
+    return this.prisma.expertProfile.update({ where: { userId }, data });
+  }
 }

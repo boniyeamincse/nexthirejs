@@ -12,7 +12,7 @@ const HOUR_MS = 3_600_000;
 
 @ApiTags('Expert Profile')
 @ApiBearerAuth('access-token')
-@Controller('v1/experts/me/profile')
+@Controller('experts/me/profile')
 @UseGuards(AuthGuard, RolesGuard)
 @RequireRoles('candidate')
 export class ExpertProfileController {
@@ -33,5 +33,15 @@ export class ExpertProfileController {
   @ApiResponse({ status: 400, description: 'EXPERT_PROFILE_VALIDATION_FAILED' })
   async upsertProfile(@Req() req: AuthenticatedRequest, @Body() body: unknown) {
     return this.profileService.upsertProfile(req.principal.userId, body);
+  }
+
+  @Put('visibility')
+  @RequireRoles('expert')
+  @Throttle({ default: { limit: EXPERT_RATE_LIMITS.PROFILE_UPDATE_PER_HOUR, ttl: HOUR_MS } })
+  @ApiOperation({ summary: 'Toggle public visibility of the expert profile in the directory' })
+  @ApiResponse({ status: 200, description: 'Visibility updated' })
+  @ApiResponse({ status: 404, description: 'EXPERT_PROFILE_NOT_FOUND' })
+  async setVisibility(@Req() req: AuthenticatedRequest, @Body() body: unknown) {
+    return this.profileService.setPublicVisibility(req.principal.userId, body);
   }
 }

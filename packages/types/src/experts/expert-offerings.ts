@@ -147,6 +147,20 @@ export interface ExpertAvailabilityOverrideResult {
   windows: { startLocalMinutes: number; endLocalMinutes: number }[];
 }
 
+export interface ExpertAvailabilitySlot {
+  startUtc: string;
+  endUtc: string;
+  localDate: string;
+  startLocalTime: string;
+  endLocalTime: string;
+}
+
+export interface ExpertAvailabilitySlotPreviewResult {
+  timezone: string;
+  durationMinutes: number;
+  slots: ExpertAvailabilitySlot[];
+}
+
 export interface ExpertServiceLifecycleTransition {
   from: ExpertServiceStatus;
   to: ExpertServiceStatus;

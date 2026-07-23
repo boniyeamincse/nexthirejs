@@ -30,7 +30,7 @@ const HOUR_MS = 3_600_000;
 
 @ApiTags('Expert Application Review')
 @ApiBearerAuth('access-token')
-@Controller('v1/manage/experts')
+@Controller('manage/experts')
 @UseGuards(AuthGuard, RolesGuard, MfaRequiredGuard)
 @RequireRoles('expert_application_reviewer')
 export class ExpertApplicationAdminController {
@@ -84,6 +84,19 @@ export class ExpertApplicationAdminController {
   @ApiResponse({ status: 404, description: 'EXPERT_APPLICATION_NOT_FOUND' })
   async detail(@Req() req: AuthenticatedRequest, @Param('applicationId') applicationId: string) {
     return this.reviewService.getDetail(req.principal.userId, applicationId);
+  }
+
+  @Post('applications/:applicationId/start-review')
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 120, ttl: HOUR_MS } })
+  @ApiOperation({ summary: 'Move a submitted application into under-review' })
+  @ApiResponse({ status: 200, description: 'Review started' })
+  @ApiResponse({ status: 409, description: 'Invalid transition' })
+  async startReview(
+    @Req() req: AuthenticatedRequest,
+    @Param('applicationId') applicationId: string,
+  ) {
+    return this.reviewService.startReview(req.principal.userId, applicationId);
   }
 
   @Post('applications/:applicationId/approve')

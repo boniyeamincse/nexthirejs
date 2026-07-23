@@ -18,21 +18,40 @@ const PAGE_TITLES: Record<string, string> = {
   '/expert/availability': 'Availability',
 };
 
+/**
+ * Pages an applicant must reach before they hold the 'expert' role (granted
+ * only on approval): profile/verification/application-status render their
+ * own ExpertNav stepper and gate themselves via useExpertApplicant. Only the
+ * post-approval workspace (expertise/services/availability) requires 'expert'.
+ */
+const APPLICANT_PATH_PREFIXES = [
+  '/expert/profile',
+  '/expert/verification',
+  '/expert/application-status',
+];
+
 export default function ExpertLayout({ children }: { children: React.ReactNode }) {
   const { getAccessToken, logout, user, status: authStatus } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  const isApplicantPath = APPLICANT_PATH_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+
   useEffect(() => {
     if (authStatus === 'unauthenticated') {
       router.push('/login');
       return;
     }
-    if (authStatus === 'authenticated' && user && !user.roleCodes.includes('EXPERT')) {
+    if (
+      authStatus === 'authenticated' &&
+      user &&
+      !isApplicantPath &&
+      !user.roleCodes.includes('expert')
+    ) {
       router.push('/');
     }
-  }, [authStatus, user, router]);
+  }, [authStatus, user, router, isApplicantPath]);
 
   if (authStatus === 'unknown' || authStatus === 'loading') {
     return (
@@ -43,10 +62,14 @@ export default function ExpertLayout({ children }: { children: React.ReactNode }
   }
 
   if (authStatus === 'unauthenticated') return null;
-  if (!user || !user.roleCodes.includes('EXPERT')) return null;
+  if (!user || (!isApplicantPath && !user.roleCodes.includes('expert'))) return null;
 
   const currentTitle =
     Object.entries(PAGE_TITLES).find(([path]) => pathname.startsWith(path))?.[1] ?? 'Expert';
+
+  if (isApplicantPath) {
+    return <div className="max-w-5xl mx-auto p-6">{children}</div>;
+  }
 
   return (
     <div className="flex min-h-[calc(100vh-72px)]">

@@ -87,6 +87,7 @@ model User {
   dataExportRequests        CandidateDataExportRequest[]
   assessmentAttempts        AssessmentAttempt[]
   assessmentCertificates    AssessmentCertificate[]
+  courseEnrollments         CourseEnrollment[]
   mfa                       UserMfa?
   mfaRecoveryCodes          MfaRecoveryCode[]
   mfaChallenges             MfaChallenge[]
@@ -1580,6 +1581,8 @@ model ExpertProfile {
   countryId           String   @db.Uuid
   city                String?  @db.VarChar(120)
   profilePhotoFileId  String?  @db.Uuid
+  isPublic            Boolean  @default(false)
+  publicSlug          String?  @unique @db.VarChar(160)
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
@@ -1587,6 +1590,7 @@ model ExpertProfile {
   applications ExpertApplication[]
 
   @@index([countryId])
+  @@index([isPublic])
 }
 
 model ExpertApplication {
@@ -1769,4 +1773,159 @@ model ExpertAvailabilityOverride {
 
   @@unique([availabilityProfileId, localDate])
   @@index([availabilityProfileId, localDate])
+}
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum CourseVisibility {
+  CANDIDATE_CATALOG
+  PRIVATE
+}
+
+enum CourseDifficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+enum LessonContentType {
+  ARTICLE
+  VIDEO
+}
+
+enum CourseEnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  DROPPED
+}
+
+enum LessonProgressStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+model CourseCategory {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @db.VarChar(120)
+  slug        String   @unique @db.VarChar(140)
+  description String?  @db.Text
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  courses Course[]
+
+  @@index([isActive, sortOrder])
+}
+
+model Course {
+  id                       String           @id @default(uuid()) @db.Uuid
+  categoryId               String           @db.Uuid
+  title                    String           @db.VarChar(200)
+  slug                     String           @unique @db.VarChar(220)
+  summary                  String           @db.VarChar(500)
+  description              String?          @db.Text
+  difficulty               CourseDifficulty
+  status                   CourseStatus     @default(DRAFT)
+  visibility               CourseVisibility @default(CANDIDATE_CATALOG)
+  estimatedDurationMinutes Int              @default(0)
+  moduleCount              Int              @default(0)
+  lessonCount              Int              @default(0)
+  publishedAt              DateTime?
+  archivedAt               DateTime?
+  publicationVersion       Int              @default(0)
+  createdById              String?          @db.Uuid
+  updatedById              String?          @db.Uuid
+  createdAt                DateTime         @default(now())
+  updatedAt                DateTime         @updatedAt
+
+  category    CourseCategory     @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  modules     CourseModule[]
+  enrollments CourseEnrollment[]
+
+  @@index([status, visibility])
+  @@index([categoryId, status])
+  @@index([publishedAt])
+}
+
+model CourseModule {
+  id          String   @id @default(uuid()) @db.Uuid
+  courseId    String   @db.Uuid
+  title       String   @db.VarChar(200)
+  description String?  @db.Text
+  sortOrder   Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  course  Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons Lesson[]
+
+  @@unique([courseId, sortOrder])
+  @@index([courseId])
+}
+
+model Lesson {
+  id              String            @id @default(uuid()) @db.Uuid
+  courseModuleId  String            @db.Uuid
+  title           String            @db.VarChar(200)
+  contentType     LessonContentType @default(ARTICLE)
+  bodyContent     String?           @db.Text
+  videoUrl        String?           @db.VarChar(500)
+  durationMinutes Int               @default(0)
+  sortOrder       Int
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  courseModule CourseModule     @relation(fields: [courseModuleId], references: [id], onDelete: Cascade)
+  progress     LessonProgress[]
+
+  @@unique([courseModuleId, sortOrder])
+  @@index([courseModuleId])
+}
+
+model CourseEnrollment {
+  id                 String                 @id @default(uuid()) @db.Uuid
+  candidateId        String                 @db.Uuid
+  courseId           String                 @db.Uuid
+  status             CourseEnrollmentStatus @default(ACTIVE)
+  progressPercentage Int                    @default(0)
+  enrolledAt         DateTime               @default(now())
+  completedAt        DateTime?
+  lastAccessedAt     DateTime?
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+
+  candidate      User             @relation(fields: [candidateId], references: [id], onDelete: Restrict)
+  course         Course           @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  lessonProgress LessonProgress[]
+
+  @@unique([candidateId, courseId])
+  @@index([candidateId, status])
+  @@index([courseId, status])
+}
+
+model LessonProgress {
+  id                  String               @id @default(uuid()) @db.Uuid
+  enrollmentId        String               @db.Uuid
+  lessonId            String               @db.Uuid
+  status              LessonProgressStatus @default(NOT_STARTED)
+  lastPositionSeconds Int?
+  startedAt           DateTime?
+  completedAt         DateTime?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+
+  enrollment CourseEnrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  lesson     Lesson           @relation(fields: [lessonId], references: [id], onDelete: Restrict)
+
+  @@unique([enrollmentId, lessonId])
+  @@index([enrollmentId])
+  @@index([lessonId])
 }

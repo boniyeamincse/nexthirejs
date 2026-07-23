@@ -42,7 +42,13 @@ export class ExpertApplicationRepository {
       include: {
         documents: DOCUMENT_SELECT,
         expertProfile: true,
-        user: { select: { id: true, email: true } },
+        user: {
+          select: {
+            id: true,
+            email: true,
+            candidateProfile: { select: { fullName: true } },
+          },
+        },
       },
     });
   }
