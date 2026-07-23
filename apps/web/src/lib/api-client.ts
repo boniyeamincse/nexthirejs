@@ -13,6 +13,18 @@ import type {
   UpdateLeaderboardParticipationInput,
   AssessmentLeaderboardResponse,
   CategoryLeaderboardResponse,
+  ExpertiseAreaResult,
+  ExpertExpertiseResult,
+  ExpertExpertiseInput,
+  ExpertServiceResult,
+  ExpertServiceInput,
+  ExpertServiceReadiness,
+  ExpertAvailabilityProfileResult,
+  ExpertAvailabilityProfileInput,
+  ExpertWeeklyAvailabilityResult,
+  ExpertWeeklyAvailabilityInput,
+  ExpertAvailabilityOverrideResult,
+  ExpertAvailabilityOverrideInput,
 } from '@nexthire/types';
 
 interface ApiErrorDetail {
@@ -2907,4 +2919,253 @@ export async function getExpertVerificationDocumentAccess(
     return response.json() as Promise<ExpertVerificationDocumentAccessResult>;
   }
   throw await parseApiError(response, 'Failed to obtain document access');
+}
+
+// --- Expert: Expertise areas ---
+
+export async function getExpertiseAreas(): Promise<ExpertiseAreaResult[]> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/expertise-areas`);
+  if (response.ok) {
+    return response.json() as Promise<ExpertiseAreaResult[]>;
+  }
+  throw await parseApiError(response, 'Failed to load expertise areas');
+}
+
+export async function getMyExpertExpertise(accessToken: string): Promise<ExpertExpertiseResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/experts/me/expertise`, {
+    headers: expertAuthHeaders(accessToken),
+  });
+  if (response.ok) {
+    return response.json() as Promise<ExpertExpertiseResult>;
+  }
+  throw await parseApiError(response, 'Failed to load expert expertise');
+}
+
+export async function setMyExpertExpertise(
+  accessToken: string,
+  input: ExpertExpertiseInput,
+): Promise<ExpertExpertiseResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/experts/me/expertise`, {
+    method: 'PUT',
+    headers: expertAuthHeaders(accessToken),
+    body: JSON.stringify(input),
+  });
+  if (response.ok) {
+    return response.json() as Promise<ExpertExpertiseResult>;
+  }
+  throw await parseApiError(response, 'Failed to save expert expertise');
+}
+
+export async function deleteMyExpertExpertiseItem(accessToken: string, id: string): Promise<void> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/experts/me/expertise/${encodeURIComponent(id)}`,
+    {
+      method: 'DELETE',
+      headers: expertAuthHeaders(accessToken),
+    },
+  );
+  if (response.ok || response.status === 204) {
+    return;
+  }
+  throw await parseApiError(response, 'Failed to delete expertise item');
+}
+
+// --- Expert: Services ---
+
+export async function getMyExpertServices(
+  accessToken: string,
+  status?: string,
+): Promise<ExpertServiceResult[]> {
+  const params = status ? `?status=${encodeURIComponent(status)}` : '';
+  const response = await fetch(`${publicEnv.apiBaseUrl}/experts/me/services${params}`, {
+    headers: expertAuthHeaders(accessToken),
+  });
+  if (response.ok) {
+    return response.json() as Promise<ExpertServiceResult[]>;
+  }
+  throw await parseApiError(response, 'Failed to load expert services');
+}
+
+export async function createExpertService(
+  accessToken: string,
+  input: ExpertServiceInput,
+): Promise<ExpertServiceResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/experts/me/services`, {
+    method: 'POST',
+    headers: expertAuthHeaders(accessToken),
+    body: JSON.stringify(input),
+  });
+  if (response.ok) {
+    return response.json() as Promise<ExpertServiceResult>;
+  }
+  throw await parseApiError(response, 'Failed to create expert service');
+}
+
+export async function getExpertService(
+  accessToken: string,
+  id: string,
+): Promise<ExpertServiceResult> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/experts/me/services/${encodeURIComponent(id)}`,
+    { headers: expertAuthHeaders(accessToken) },
+  );
+  if (response.ok) {
+    return response.json() as Promise<ExpertServiceResult>;
+  }
+  throw await parseApiError(response, 'Failed to load expert service');
+}
+
+export async function updateExpertService(
+  accessToken: string,
+  id: string,
+  input: Partial<ExpertServiceInput>,
+): Promise<ExpertServiceResult> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/experts/me/services/${encodeURIComponent(id)}`,
+    {
+      method: 'PUT',
+      headers: expertAuthHeaders(accessToken),
+      body: JSON.stringify(input),
+    },
+  );
+  if (response.ok) {
+    return response.json() as Promise<ExpertServiceResult>;
+  }
+  throw await parseApiError(response, 'Failed to update expert service');
+}
+
+export async function lifecycleExpertService(
+  accessToken: string,
+  id: string,
+  action: string,
+): Promise<ExpertServiceResult> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/experts/me/services/${encodeURIComponent(id)}/${encodeURIComponent(action)}`,
+    {
+      method: 'POST',
+      headers: expertAuthHeaders(accessToken),
+    },
+  );
+  if (response.ok) {
+    return response.json() as Promise<ExpertServiceResult>;
+  }
+  throw await parseApiError(response, 'Failed to update service lifecycle');
+}
+
+export async function getExpertServiceReadiness(
+  accessToken: string,
+  id: string,
+): Promise<ExpertServiceReadiness> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/experts/me/services/${encodeURIComponent(id)}/readiness`,
+    { headers: expertAuthHeaders(accessToken) },
+  );
+  if (response.ok) {
+    return response.json() as Promise<ExpertServiceReadiness>;
+  }
+  throw await parseApiError(response, 'Failed to check service readiness');
+}
+
+// --- Expert: Availability ---
+
+export async function getMyAvailabilityProfile(
+  accessToken: string,
+): Promise<ExpertAvailabilityProfileResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/experts/me/availability/profile`, {
+    headers: expertAuthHeaders(accessToken),
+  });
+  if (response.ok) {
+    return response.json() as Promise<ExpertAvailabilityProfileResult>;
+  }
+  throw await parseApiError(response, 'Failed to load availability profile');
+}
+
+export async function updateMyAvailabilityProfile(
+  accessToken: string,
+  input: ExpertAvailabilityProfileInput,
+): Promise<ExpertAvailabilityProfileResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/experts/me/availability/profile`, {
+    method: 'PUT',
+    headers: expertAuthHeaders(accessToken),
+    body: JSON.stringify(input),
+  });
+  if (response.ok) {
+    return response.json() as Promise<ExpertAvailabilityProfileResult>;
+  }
+  throw await parseApiError(response, 'Failed to save availability profile');
+}
+
+export async function getMyWeeklyAvailability(
+  accessToken: string,
+): Promise<ExpertWeeklyAvailabilityResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/experts/me/availability/weekly`, {
+    headers: expertAuthHeaders(accessToken),
+  });
+  if (response.ok) {
+    return response.json() as Promise<ExpertWeeklyAvailabilityResult>;
+  }
+  throw await parseApiError(response, 'Failed to load weekly availability');
+}
+
+export async function setMyWeeklyAvailability(
+  accessToken: string,
+  input: ExpertWeeklyAvailabilityInput,
+): Promise<ExpertWeeklyAvailabilityResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/experts/me/availability/weekly`, {
+    method: 'PUT',
+    headers: expertAuthHeaders(accessToken),
+    body: JSON.stringify(input),
+  });
+  if (response.ok) {
+    return response.json() as Promise<ExpertWeeklyAvailabilityResult>;
+  }
+  throw await parseApiError(response, 'Failed to save weekly availability');
+}
+
+export async function getMyAvailabilityOverrides(
+  accessToken: string,
+  from?: string,
+  to?: string,
+): Promise<ExpertAvailabilityOverrideResult[]> {
+  const params = new URLSearchParams();
+  if (from) params.set('from', from);
+  if (to) params.set('to', to);
+  const qs = params.toString();
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/experts/me/availability/overrides${qs ? `?${qs}` : ''}`,
+    { headers: expertAuthHeaders(accessToken) },
+  );
+  if (response.ok) {
+    return response.json() as Promise<ExpertAvailabilityOverrideResult[]>;
+  }
+  throw await parseApiError(response, 'Failed to load availability overrides');
+}
+
+export async function createMyAvailabilityOverride(
+  accessToken: string,
+  input: ExpertAvailabilityOverrideInput,
+): Promise<ExpertAvailabilityOverrideResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/experts/me/availability/overrides`, {
+    method: 'POST',
+    headers: expertAuthHeaders(accessToken),
+    body: JSON.stringify(input),
+  });
+  if (response.ok) {
+    return response.json() as Promise<ExpertAvailabilityOverrideResult>;
+  }
+  throw await parseApiError(response, 'Failed to create availability override');
+}
+
+export async function deleteMyAvailabilityOverride(accessToken: string, id: string): Promise<void> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/experts/me/availability/overrides/${encodeURIComponent(id)}`,
+    {
+      method: 'DELETE',
+      headers: expertAuthHeaders(accessToken),
+    },
+  );
+  if (response.ok || response.status === 204) {
+    return;
+  }
+  throw await parseApiError(response, 'Failed to delete availability override');
 }

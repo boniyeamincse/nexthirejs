@@ -62,36 +62,39 @@ model User {
   createdAt          DateTime   @default(now())
   updatedAt          DateTime   @updatedAt
 
-  roles                   UserRole[]
-  sessions                UserSession[]
-  emailVerificationTokens EmailVerificationToken[]
-  phoneVerificationOtps   PhoneVerificationOtp[]
-  passwordResetTokens     PasswordResetToken[]
-  candidateProfile        CandidateProfile?
-  candidatePreference     CandidatePreference?
-  cvs                     Cv[]
-  projects                Project[]
-  trainerProfile          TrainerProfile?
-  bookingsAsCandidate     Booking[]
-  educationRecords        EducationRecord[]
-  workExperienceRecords   WorkExperienceRecord[]
-  skills                  CandidateSkill[]
-  languages               CandidateLanguage[]
-  certifications          CandidateCertification[]
-  training                CandidateTraining[]
-  achievements            CandidateAchievement[]
-  professionalLinks       CandidateProfessionalLink[]
-  profilePrivacy          CandidateProfilePrivacy?
-  shareToken              CandidateProfileShareToken?
-  dataExportRequests      CandidateDataExportRequest[]
-  assessmentAttempts      AssessmentAttempt[]
-  assessmentCertificates  AssessmentCertificate[]
-  mfa                     UserMfa?
-  mfaRecoveryCodes        MfaRecoveryCode[]
-  mfaChallenges           MfaChallenge[]
-  mfaTrustedDevices       MfaTrustedDevice[]
-  expertProfile           ExpertProfile?
-  expertApplications      ExpertApplication[]
+  roles                     UserRole[]
+  sessions                  UserSession[]
+  emailVerificationTokens   EmailVerificationToken[]
+  phoneVerificationOtps     PhoneVerificationOtp[]
+  passwordResetTokens       PasswordResetToken[]
+  candidateProfile          CandidateProfile?
+  candidatePreference       CandidatePreference?
+  cvs                       Cv[]
+  projects                  Project[]
+  trainerProfile            TrainerProfile?
+  bookingsAsCandidate       Booking[]
+  educationRecords          EducationRecord[]
+  workExperienceRecords     WorkExperienceRecord[]
+  skills                    CandidateSkill[]
+  languages                 CandidateLanguage[]
+  certifications            CandidateCertification[]
+  training                  CandidateTraining[]
+  achievements              CandidateAchievement[]
+  professionalLinks         CandidateProfessionalLink[]
+  profilePrivacy            CandidateProfilePrivacy?
+  shareToken                CandidateProfileShareToken?
+  dataExportRequests        CandidateDataExportRequest[]
+  assessmentAttempts        AssessmentAttempt[]
+  assessmentCertificates    AssessmentCertificate[]
+  mfa                       UserMfa?
+  mfaRecoveryCodes          MfaRecoveryCode[]
+  mfaChallenges             MfaChallenge[]
+  mfaTrustedDevices         MfaTrustedDevice[]
+  expertExpertise           ExpertExpertise[]
+  expertServices            ExpertService[]
+  expertAvailabilityProfile ExpertAvailabilityProfile?
+  expertProfile             ExpertProfile?
+  expertApplications        ExpertApplication[]
 }
 
 model Role {
@@ -166,14 +169,14 @@ model EmailVerificationToken {
 }
 
 model PhoneVerificationOtp {
-  id        String    @id @default(uuid()) @db.Uuid
-  userId    String    @db.Uuid
-  phone     String    @db.VarChar(20)
-  otpHash   String    @db.VarChar(64)
-  expiresAt DateTime
-  consumedAt DateTime?
-  attemptCount Int    @default(0)
-  createdAt DateTime  @default(now())
+  id           String    @id @default(uuid()) @db.Uuid
+  userId       String    @db.Uuid
+  phone        String    @db.VarChar(20)
+  otpHash      String    @db.VarChar(64)
+  expiresAt    DateTime
+  consumedAt   DateTime?
+  attemptCount Int       @default(0)
+  createdAt    DateTime  @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -510,25 +513,25 @@ model Cv {
 }
 
 model CvSection {
-  id       String  @id @default(uuid()) @db.Uuid
-  cvId     String  @db.Uuid
-  type     String  @db.VarChar(50)
-  title    String  @db.VarChar(100)
-  enabled  Boolean @default(true)
-  sortOrder Int    @default(0)
+  id        String  @id @default(uuid()) @db.Uuid
+  cvId      String  @db.Uuid
+  type      String  @db.VarChar(50)
+  title     String  @db.VarChar(100)
+  enabled   Boolean @default(true)
+  sortOrder Int     @default(0)
 
   cv Cv @relation(fields: [cvId], references: [id], onDelete: Cascade)
 
-  @@index([cvId, sortOrder])
   @@unique([cvId, type])
+  @@index([cvId, sortOrder])
 }
 
 model CvSectionContent {
-  id        String   @id @default(uuid()) @db.Uuid
-  cvId      String   @db.Uuid
-  sectionType String  @db.VarChar(50)
-  content   Json
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(uuid()) @db.Uuid
+  cvId        String   @db.Uuid
+  sectionType String   @db.VarChar(50)
+  content     Json
+  updatedAt   DateTime @updatedAt
 
   cv Cv @relation(fields: [cvId], references: [id], onDelete: Cascade)
 
@@ -537,11 +540,11 @@ model CvSectionContent {
 }
 
 model CvVersion {
-  id        String   @id @default(uuid()) @db.Uuid
-  cvId      String   @db.Uuid
-  versionNumber Int   @default(1)
-  content   Json
-  createdAt DateTime @default(now())
+  id            String   @id @default(uuid()) @db.Uuid
+  cvId          String   @db.Uuid
+  versionNumber Int      @default(1)
+  content       Json
+  createdAt     DateTime @default(now())
 
   cv Cv @relation(fields: [cvId], references: [id], onDelete: Cascade)
 
@@ -572,37 +575,37 @@ enum ProjectVisibility {
 }
 
 model Project {
-  id                  String                   @id @default(uuid()) @db.Uuid
-  userId              String                   @db.Uuid
-  title               String                   @db.VarChar(200)
-  summary             String                   @db.VarChar(500)
-  description         String                   @db.Text
-  problemStatement    String?                  @db.Text
-  solution            String?                  @db.Text
-  candidateContribution String?                @db.Text
-  status              ProjectStatus            @default(IN_PROGRESS)
-  visibility          ProjectVisibility        @default(PRIVATE)
-  verificationLevel   ProjectVerificationLevel @default(SELF_SUBMITTED)
-  startDate           DateTime?                @db.Date
-  completionDate      DateTime?                @db.Date
-  teamSize            Int?
-  roleInProject       String?                  @db.VarChar(100)
-  githubUrl           String?                  @db.VarChar(500)
-  liveUrl             String?                  @db.VarChar(500)
-  documentationUrl    String?                  @db.VarChar(500)
-  challenges          String?                  @db.Text
-  lessonsLearned      String?                  @db.Text
-  futureImprovements  String?                  @db.Text
-  completionScore     Int                      @default(0)
-  createdAt           DateTime                 @default(now())
-  updatedAt           DateTime                 @updatedAt
+  id                    String                   @id @default(uuid()) @db.Uuid
+  userId                String                   @db.Uuid
+  title                 String                   @db.VarChar(200)
+  summary               String                   @db.VarChar(500)
+  description           String                   @db.Text
+  problemStatement      String?                  @db.Text
+  solution              String?                  @db.Text
+  candidateContribution String?                  @db.Text
+  status                ProjectStatus            @default(IN_PROGRESS)
+  visibility            ProjectVisibility        @default(PRIVATE)
+  verificationLevel     ProjectVerificationLevel @default(SELF_SUBMITTED)
+  startDate             DateTime?                @db.Date
+  completionDate        DateTime?                @db.Date
+  teamSize              Int?
+  roleInProject         String?                  @db.VarChar(100)
+  githubUrl             String?                  @db.VarChar(500)
+  liveUrl               String?                  @db.VarChar(500)
+  documentationUrl      String?                  @db.VarChar(500)
+  challenges            String?                  @db.Text
+  lessonsLearned        String?                  @db.Text
+  futureImprovements    String?                  @db.Text
+  completionScore       Int                      @default(0)
+  createdAt             DateTime                 @default(now())
+  updatedAt             DateTime                 @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  technologies ProjectTechnology[]
-  media        ProjectMedia[]
+  technologies  ProjectTechnology[]
+  media         ProjectMedia[]
   verifications ProjectVerification[]
-  reports      ProjectReport[]
+  reports       ProjectReport[]
 
   @@index([userId, visibility])
   @@index([verificationLevel])
@@ -617,8 +620,8 @@ model ProjectTechnology {
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
-  @@index([projectId])
   @@unique([projectId, name])
+  @@index([projectId])
 }
 
 model ProjectMedia {
@@ -636,13 +639,13 @@ model ProjectMedia {
 }
 
 model ProjectVerification {
-  id                String   @id @default(uuid()) @db.Uuid
-  projectId         String   @db.Uuid
-  verifiedBy        String?  @db.Uuid
-  verificationLevel String   @db.VarChar(50)
+  id                String    @id @default(uuid()) @db.Uuid
+  projectId         String    @db.Uuid
+  verifiedBy        String?   @db.Uuid
+  verificationLevel String    @db.VarChar(50)
   verifiedAt        DateTime?
-  comment           String?  @db.Text
-  createdAt         DateTime @default(now())
+  comment           String?   @db.Text
+  createdAt         DateTime  @default(now())
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
@@ -650,13 +653,13 @@ model ProjectVerification {
 }
 
 model ProjectReport {
-  id        String   @id @default(uuid()) @db.Uuid
-  projectId String   @db.Uuid
-  reason    String   @db.VarChar(200)
-  details   String?  @db.Text
-  reportedBy String  @db.Uuid
-  status    String   @db.VarChar(20) @default("PENDING")
-  createdAt DateTime @default(now())
+  id         String   @id @default(uuid()) @db.Uuid
+  projectId  String   @db.Uuid
+  reason     String   @db.VarChar(200)
+  details    String?  @db.Text
+  reportedBy String   @db.Uuid
+  status     String   @default("PENDING") @db.VarChar(20)
+  createdAt  DateTime @default(now())
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
@@ -698,11 +701,12 @@ model TrainerProfile {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  services   TrainerService[]
-  packages   TrainerPackage[]
+  services     TrainerService[]
+  packages     TrainerPackage[]
   availability AvailabilityRule[]
-  bookings   Booking[]
-  evaluations Evaluation[]
+  bookings     Booking[]
+  evaluations  Evaluation[]
+  wallet       WalletAccount?
 
   @@index([verificationStatus])
   @@index([averageRating])
@@ -715,11 +719,11 @@ model TrainerService {
   description String?  @db.Text
   category    String   @db.VarChar(50)
   basePrice   Decimal  @db.Decimal(10, 2)
-  currency    String   @db.Char(3) @default("USD")
+  currency    String   @default("USD") @db.Char(3)
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
 
-  trainer TrainerProfile @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  trainer  TrainerProfile   @relation(fields: [trainerId], references: [id], onDelete: Cascade)
   packages TrainerPackage[]
 
   @@index([trainerId])
@@ -727,22 +731,22 @@ model TrainerService {
 }
 
 model TrainerPackage {
-  id              String   @id @default(uuid()) @db.Uuid
-  trainerId       String   @db.Uuid
-  serviceId       String   @db.Uuid
-  title           String   @db.VarChar(200)
-  description     String?  @db.Text
-  numSessions     Int
-  duration        Int
-  price           Decimal  @db.Decimal(10, 2)
-  currency        String   @db.Char(3) @default("USD")
-  includesReview  Boolean  @default(false)
-  includesReport  Boolean  @default(false)
-  isActive        Boolean  @default(true)
-  createdAt       DateTime @default(now())
+  id             String   @id @default(uuid()) @db.Uuid
+  trainerId      String   @db.Uuid
+  serviceId      String   @db.Uuid
+  title          String   @db.VarChar(200)
+  description    String?  @db.Text
+  numSessions    Int
+  duration       Int
+  price          Decimal  @db.Decimal(10, 2)
+  currency       String   @default("USD") @db.Char(3)
+  includesReview Boolean  @default(false)
+  includesReport Boolean  @default(false)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
 
-  trainer TrainerProfile @relation(fields: [trainerId], references: [id], onDelete: Cascade)
-  service TrainerService @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  trainer  TrainerProfile @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  service  TrainerService @relation(fields: [serviceId], references: [id], onDelete: Cascade)
   bookings Booking[]
 
   @@index([trainerId])
@@ -750,14 +754,14 @@ model TrainerPackage {
 }
 
 model AvailabilityRule {
-  id           String   @id @default(uuid()) @db.Uuid
-  trainerId    String   @db.Uuid
-  dayOfWeek    Int
-  startTime    String   @db.VarChar(5)
-  endTime      String   @db.VarChar(5)
-  timezone     String   @db.VarChar(50)
-  isRecurring  Boolean  @default(true)
-  createdAt    DateTime @default(now())
+  id          String   @id @default(uuid()) @db.Uuid
+  trainerId   String   @db.Uuid
+  dayOfWeek   Int
+  startTime   String   @db.VarChar(5)
+  endTime     String   @db.VarChar(5)
+  timezone    String   @db.VarChar(50)
+  isRecurring Boolean  @default(true)
+  createdAt   DateTime @default(now())
 
   trainer TrainerProfile @relation(fields: [trainerId], references: [id], onDelete: Cascade)
 
@@ -765,22 +769,22 @@ model AvailabilityRule {
 }
 
 model Booking {
-  id              String          @id @default(uuid()) @db.Uuid
-  trainerId       String          @db.Uuid
-  packageId       String          @db.Uuid
-  candidateId     String          @db.Uuid
-  status          BookingStatus   @default(PENDING_PAYMENT)
-  scheduledAt     DateTime
-  endTime         DateTime
-  meetingUrl      String?         @db.VarChar(500)
-  notes           String?         @db.Text
-  recordingUrl    String?         @db.VarChar(500)
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  id           String        @id @default(uuid()) @db.Uuid
+  trainerId    String        @db.Uuid
+  packageId    String        @db.Uuid
+  candidateId  String        @db.Uuid
+  status       BookingStatus @default(PENDING_PAYMENT)
+  scheduledAt  DateTime
+  endTime      DateTime
+  meetingUrl   String?       @db.VarChar(500)
+  notes        String?       @db.Text
+  recordingUrl String?       @db.VarChar(500)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
-  trainer TrainerProfile @relation(fields: [trainerId], references: [id], onDelete: Cascade)
-  package TrainerPackage @relation(fields: [packageId], references: [id], onDelete: Restrict)
-  candidate User @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  trainer    TrainerProfile @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  package    TrainerPackage @relation(fields: [packageId], references: [id], onDelete: Restrict)
+  candidate  User           @relation(fields: [candidateId], references: [id], onDelete: Cascade)
   evaluation Evaluation?
 
   @@index([trainerId, status])
@@ -789,24 +793,136 @@ model Booking {
 }
 
 model Evaluation {
-  id              String   @id @default(uuid()) @db.Uuid
-  bookingId       String   @unique @db.Uuid
-  trainerId       String   @db.Uuid
-  communication   Int
+  id                 String   @id @default(uuid()) @db.Uuid
+  bookingId          String   @unique @db.Uuid
+  trainerId          String   @db.Uuid
+  communication      Int
   technicalKnowledge Int
-  confidence      Int
-  problemSolving  Int
-  overallScore    Int
-  strengths       String?  @db.Text
-  improvements    String?  @db.Text
-  nextSteps       String?  @db.Text
-  submittedAt     DateTime
-  createdAt       DateTime @default(now())
+  confidence         Int
+  problemSolving     Int
+  overallScore       Int
+  strengths          String?  @db.Text
+  improvements       String?  @db.Text
+  nextSteps          String?  @db.Text
+  submittedAt        DateTime
+  createdAt          DateTime @default(now())
 
-  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  booking Booking        @relation(fields: [bookingId], references: [id], onDelete: Cascade)
   trainer TrainerProfile @relation(fields: [trainerId], references: [id], onDelete: Cascade)
 
   @@index([trainerId])
+}
+
+enum WalletStatus {
+  ACTIVE
+  SUSPENDED
+  CLOSED
+}
+
+enum TransactionType {
+  BOOKING_PAYMENT_IN
+  BOOKING_REFUND
+  PAYOUT_OUT
+  COMMISSION_DEDUCTION
+  PLATFORM_FEE
+  BONUS
+  ADJUSTMENT
+}
+
+model WalletAccount {
+  id            String       @id @default(uuid()) @db.Uuid
+  trainerId     String       @unique @db.Uuid
+  balance       Decimal      @default(0) @db.Decimal(12, 2)
+  currency      String       @db.Char(3) @default("USD")
+  status        WalletStatus @default(ACTIVE)
+  totalEarnings Decimal      @default(0) @db.Decimal(12, 2)
+  totalPayouts  Decimal      @default(0) @db.Decimal(12, 2)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  trainer         TrainerProfile @relation(fields: [trainerId], references: [userId], onDelete: Cascade)
+  transactions    WalletLedger[]
+  payoutAccounts  PayoutAccount[]
+  commissions     Commission[]
+
+  @@index([status])
+}
+
+model WalletLedger {
+  id            String          @id @default(uuid()) @db.Uuid
+  walletId      String          @db.Uuid
+  type          TransactionType
+  amount        Decimal         @db.Decimal(12, 2)
+  description   String?         @db.VarChar(200)
+  bookingId     String?         @db.Uuid
+  referenceId   String?         @db.VarChar(100)
+  balanceBefore Decimal         @db.Decimal(12, 2)
+  balanceAfter  Decimal         @db.Decimal(12, 2)
+  createdAt     DateTime        @default(now())
+
+  wallet WalletAccount @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@index([walletId, createdAt])
+  @@index([type, createdAt])
+  @@index([bookingId])
+}
+
+model Commission {
+  id         String   @id @default(uuid()) @db.Uuid
+  walletId   String   @db.Uuid
+  bookingId  String   @db.Uuid
+  percentage Decimal  @db.Decimal(5, 2)
+  amount     Decimal  @db.Decimal(12, 2)
+  status     String   @db.VarChar(20) @default("PENDING")
+  createdAt  DateTime @default(now())
+
+  wallet WalletAccount @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@index([walletId, status])
+  @@index([bookingId])
+}
+
+enum PayoutStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+model PayoutAccount {
+  id            String       @id @default(uuid()) @db.Uuid
+  walletId      String       @db.Uuid
+  accountHolder String       @db.VarChar(200)
+  accountType   String       @db.VarChar(50)
+  accountNumber String       @db.VarChar(100)
+  routingNumber String?      @db.VarChar(50)
+  isDefault     Boolean      @default(false)
+  isVerified    Boolean      @default(false)
+  verifiedAt    DateTime?
+  createdAt     DateTime     @default(now())
+
+  wallet PayoutRequest[]
+  WalletAccount WalletAccount @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@index([walletId, isVerified])
+}
+
+model PayoutRequest {
+  id              String       @id @default(uuid()) @db.Uuid
+  payoutAccountId String       @db.Uuid
+  amount          Decimal      @db.Decimal(12, 2)
+  status          PayoutStatus @default(PENDING)
+  requestedAt     DateTime     @default(now())
+  processedAt     DateTime?
+  completedAt     DateTime?
+  failureReason   String?      @db.Text
+  referenceId     String?      @db.VarChar(100)
+
+  payoutAccount PayoutAccount @relation(fields: [payoutAccountId], references: [id], onDelete: Cascade)
+
+  @@index([status, requestedAt])
+  @@index([payoutAccountId])
 }
 
 model CandidateAchievement {
@@ -1357,51 +1473,51 @@ enum ExpertVerificationDocumentType {
 }
 
 model ExpertProfile {
-  id                  String    @id @default(uuid()) @db.Uuid
-  userId              String    @unique @db.Uuid
-  professionalTitle   String    @db.VarChar(150)
-  professionalSummary String    @db.Text
+  id                  String   @id @default(uuid()) @db.Uuid
+  userId              String   @unique @db.Uuid
+  professionalTitle   String   @db.VarChar(150)
+  professionalSummary String   @db.Text
   yearsOfExperience   Int
-  currentCompany      String?   @db.VarChar(150)
-  currentPosition     String?   @db.VarChar(150)
-  highestEducation    String?   @db.VarChar(200)
-  linkedinUrl         String?   @db.VarChar(500)
-  portfolioUrl        String?   @db.VarChar(500)
-  personalWebsiteUrl  String?   @db.VarChar(500)
+  currentCompany      String?  @db.VarChar(150)
+  currentPosition     String?  @db.VarChar(150)
+  highestEducation    String?  @db.VarChar(200)
+  linkedinUrl         String?  @db.VarChar(500)
+  portfolioUrl        String?  @db.VarChar(500)
+  personalWebsiteUrl  String?  @db.VarChar(500)
   interviewLanguages  Json
-  countryId           String    @db.Uuid
-  city                String?   @db.VarChar(120)
-  profilePhotoFileId  String?   @db.Uuid
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  countryId           String   @db.Uuid
+  city                String?  @db.VarChar(120)
+  profilePhotoFileId  String?  @db.Uuid
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
-  user         User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   applications ExpertApplication[]
 
   @@index([countryId])
 }
 
 model ExpertApplication {
-  id                String                  @id @default(uuid()) @db.Uuid
-  userId            String                  @db.Uuid
-  expertProfileId   String                  @db.Uuid
-  status            ExpertApplicationStatus @default(DRAFT)
-  submissionVersion Int                     @default(0)
-  submittedAt       DateTime?
-  reviewStartedAt   DateTime?
-  reviewedAt        DateTime?
-  reviewedById      String?                 @db.Uuid
-  decisionReasonCode String?                @db.VarChar(100)
-  reviewerNote      String?                 @db.Text
-  applicantResponse String?                 @db.Text
-  approvedAt        DateTime?
-  rejectedAt        DateTime?
-  withdrawnAt       DateTime?
-  createdAt         DateTime                @default(now())
-  updatedAt         DateTime                @updatedAt
+  id                 String                  @id @default(uuid()) @db.Uuid
+  userId             String                  @db.Uuid
+  expertProfileId    String                  @db.Uuid
+  status             ExpertApplicationStatus @default(DRAFT)
+  submissionVersion  Int                     @default(0)
+  submittedAt        DateTime?
+  reviewStartedAt    DateTime?
+  reviewedAt         DateTime?
+  reviewedById       String?                 @db.Uuid
+  decisionReasonCode String?                 @db.VarChar(100)
+  reviewerNote       String?                 @db.Text
+  applicantResponse  String?                 @db.Text
+  approvedAt         DateTime?
+  rejectedAt         DateTime?
+  withdrawnAt        DateTime?
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
 
-  user          User                          @relation(fields: [userId], references: [id], onDelete: Restrict)
-  expertProfile ExpertProfile                 @relation(fields: [expertProfileId], references: [id], onDelete: Restrict)
+  user          User                         @relation(fields: [userId], references: [id], onDelete: Restrict)
+  expertProfile ExpertProfile                @relation(fields: [expertProfileId], references: [id], onDelete: Restrict)
   documents     ExpertVerificationDocument[]
 
   @@index([userId, status])
@@ -1410,20 +1526,155 @@ model ExpertApplication {
 }
 
 model ExpertVerificationDocument {
-  id              String                         @id @default(uuid()) @db.Uuid
-  applicationId   String                         @db.Uuid
-  type            ExpertVerificationDocumentType
-  storageKey      String                         @unique @db.VarChar(500)
-  originalFileName String                        @db.VarChar(255)
-  mimeType        String                         @db.VarChar(120)
-  sizeBytes       BigInt
-  checksumSha256  String                         @db.VarChar(64)
-  uploadedAt      DateTime                       @default(now())
-  removedAt       DateTime?
-  createdAt       DateTime                       @default(now())
-  updatedAt       DateTime                       @updatedAt
+  id               String                         @id @default(uuid()) @db.Uuid
+  applicationId    String                         @db.Uuid
+  type             ExpertVerificationDocumentType
+  storageKey       String                         @unique @db.VarChar(500)
+  originalFileName String                         @db.VarChar(255)
+  mimeType         String                         @db.VarChar(120)
+  sizeBytes        BigInt
+  checksumSha256   String                         @db.VarChar(64)
+  uploadedAt       DateTime                       @default(now())
+  removedAt        DateTime?
+  createdAt        DateTime                       @default(now())
+  updatedAt        DateTime                       @updatedAt
 
   application ExpertApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
 
   @@index([applicationId, type, removedAt])
+}
+
+model ExpertiseArea {
+  id          String   @id @default(uuid()) @db.Uuid
+  slug        String   @unique @db.VarChar(120)
+  name        String   @db.VarChar(120)
+  description String?  @db.Text
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  expertExpertise ExpertExpertise[]
+  expertServices  ExpertService[]
+
+  @@index([isActive, sortOrder])
+}
+
+enum ExpertExpertiseLevel {
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+model ExpertExpertise {
+  id              String               @id @default(uuid()) @db.Uuid
+  userId          String               @db.Uuid
+  expertiseAreaId String               @db.Uuid
+  level           ExpertExpertiseLevel
+  yearsExperience Int?
+  isPrimary       Boolean              @default(false)
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expertiseArea ExpertiseArea @relation(fields: [expertiseAreaId], references: [id], onDelete: Restrict)
+
+  @@unique([userId, expertiseAreaId])
+  @@index([userId, isPrimary])
+  @@index([expertiseAreaId])
+}
+
+enum ExpertServiceType {
+  MOCK_INTERVIEW
+  CV_REVIEW
+  CAREER_COACHING
+  TECHNICAL_INTERVIEW_PREPARATION
+  BEHAVIORAL_INTERVIEW_PREPARATION
+  PORTFOLIO_REVIEW
+}
+
+enum ExpertServiceStatus {
+  DRAFT
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+model ExpertService {
+  id                      String              @id @default(uuid()) @db.Uuid
+  userId                  String              @db.Uuid
+  expertiseAreaId         String              @db.Uuid
+  type                    ExpertServiceType
+  title                   String              @db.VarChar(150)
+  shortDescription        String              @db.VarChar(300)
+  detailedDescription     String              @db.Text
+  durationMinutes         Int
+  priceAmount             Decimal             @db.Decimal(12, 2)
+  priceCurrency           String              @db.Char(3)
+  languageCodes           String[]
+  preparationInstructions String?             @db.Text
+  status                  ExpertServiceStatus @default(DRAFT)
+  activatedAt             DateTime?
+  deactivatedAt           DateTime?
+  archivedAt              DateTime?
+  createdAt               DateTime            @default(now())
+  updatedAt               DateTime            @updatedAt
+
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expertiseArea ExpertiseArea @relation(fields: [expertiseAreaId], references: [id], onDelete: Restrict)
+
+  @@index([userId, status])
+  @@index([expertiseAreaId, status])
+  @@index([type, status])
+}
+
+model ExpertAvailabilityProfile {
+  id                  String   @id @default(uuid()) @db.Uuid
+  userId              String   @unique @db.Uuid
+  timezone            String   @db.VarChar(100)
+  bufferBeforeMinutes Int      @default(0)
+  bufferAfterMinutes  Int      @default(0)
+  minimumNoticeHours  Int      @default(12)
+  bookingWindowDays   Int      @default(30)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  user      User                         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  weekly    ExpertWeeklyAvailability[]
+  overrides ExpertAvailabilityOverride[]
+}
+
+model ExpertWeeklyAvailability {
+  id                    String   @id @default(uuid()) @db.Uuid
+  availabilityProfileId String   @db.Uuid
+  dayOfWeek             Int
+  startLocalTime        String   @db.VarChar(5)
+  endLocalTime          String   @db.VarChar(5)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  availabilityProfile ExpertAvailabilityProfile @relation(fields: [availabilityProfileId], references: [id], onDelete: Cascade)
+
+  @@index([availabilityProfileId, dayOfWeek])
+}
+
+enum ExpertAvailabilityOverrideType {
+  UNAVAILABLE
+  CUSTOM_HOURS
+}
+
+model ExpertAvailabilityOverride {
+  id                    String                         @id @default(uuid()) @db.Uuid
+  availabilityProfileId String                         @db.Uuid
+  localDate             String                         @db.VarChar(10)
+  type                  ExpertAvailabilityOverrideType
+  reason                String?                        @db.VarChar(300)
+  windows               Json?
+  createdAt             DateTime                       @default(now())
+  updatedAt             DateTime                       @updatedAt
+
+  availabilityProfile ExpertAvailabilityProfile @relation(fields: [availabilityProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([availabilityProfileId, localDate])
+  @@index([availabilityProfileId, localDate])
 }

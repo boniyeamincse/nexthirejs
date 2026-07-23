@@ -336,6 +336,42 @@ async function main() {
     });
     console.log(`Seeded assessment: ${assessment.slug}`);
   }
+
+  const expertiseAreas = [
+    { name: 'Software Engineering', slug: 'software-engineering', sortOrder: 1 },
+    { name: 'Frontend Development', slug: 'frontend-development', sortOrder: 2 },
+    { name: 'Backend Development', slug: 'backend-development', sortOrder: 3 },
+    { name: 'Full-Stack Development', slug: 'full-stack-development', sortOrder: 4 },
+    { name: 'Mobile Development', slug: 'mobile-development', sortOrder: 5 },
+    { name: 'DevOps and Cloud', slug: 'devops-and-cloud', sortOrder: 6 },
+    { name: 'Cybersecurity', slug: 'cybersecurity', sortOrder: 7 },
+    { name: 'Data Engineering', slug: 'data-engineering', sortOrder: 8 },
+    { name: 'Data Science', slug: 'data-science', sortOrder: 9 },
+    { name: 'Machine Learning', slug: 'machine-learning', sortOrder: 10 },
+    { name: 'Product Management', slug: 'product-management', sortOrder: 11 },
+    { name: 'UI/UX Design', slug: 'ui-ux-design', sortOrder: 12 },
+    { name: 'Quality Assurance', slug: 'quality-assurance', sortOrder: 13 },
+    { name: 'Human Resources', slug: 'human-resources', sortOrder: 14 },
+    { name: 'Finance and Accounting', slug: 'finance-and-accounting', sortOrder: 15 },
+    { name: 'Sales and Marketing', slug: 'sales-and-marketing', sortOrder: 16 },
+    { name: 'Supply Chain', slug: 'supply-chain', sortOrder: 17 },
+    { name: 'Operations', slug: 'operations', sortOrder: 18 },
+    { name: 'Leadership and Management', slug: 'leadership-and-management', sortOrder: 19 },
+  ];
+
+  for (const area of expertiseAreas) {
+    await prisma.expertiseArea.upsert({
+      where: { slug: area.slug },
+      update: {},
+      create: {
+        name: area.name,
+        slug: area.slug,
+        sortOrder: area.sortOrder,
+        isActive: true,
+      },
+    });
+    console.log(`Seeded expertise area: ${area.slug}`);
+  }
 }
 
 main()

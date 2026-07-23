@@ -14,6 +14,7 @@ export type ExpertVerificationDocumentTypeValue =
   | 'EDUCATION_CERTIFICATE'
   | 'OTHER_SUPPORTING_DOCUMENT';
 
+export * from './expert-offerings.js';
 export interface ExpertProfileInput {
   professionalTitle: string;
   professionalSummary: string;

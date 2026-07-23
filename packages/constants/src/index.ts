@@ -14,3 +14,4 @@ export * from './auth/password.js';
 export * from './assessments/assessment-errors.js';
 export * from './auth/mfa.js';
 export * from './experts/expert-errors.js';
+export * from './experts/expert-offerings.js';

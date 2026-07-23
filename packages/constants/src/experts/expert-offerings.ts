@@ -1,0 +1,100 @@
+export const EXPERT_SERVICE_TYPES = [
+  'MOCK_INTERVIEW',
+  'CV_REVIEW',
+  'CAREER_COACHING',
+  'TECHNICAL_INTERVIEW_PREPARATION',
+  'BEHAVIORAL_INTERVIEW_PREPARATION',
+  'PORTFOLIO_REVIEW',
+] as const;
+
+export const EXPERT_SERVICE_STATUSES = ['DRAFT', 'ACTIVE', 'INACTIVE', 'ARCHIVED'] as const;
+
+export const EXPERT_EXPERTISE_LEVELS = ['INTERMEDIATE', 'ADVANCED', 'EXPERT'] as const;
+
+export const EXPERT_AVAILABILITY_OVERRIDE_TYPES = ['UNAVAILABLE', 'CUSTOM_HOURS'] as const;
+
+export const EXPERT_SERVICE_ALLOWED_DURATIONS = [30, 35, 40] as const;
+
+export const EXPERT_SERVICE_DURATION_MIN = 30;
+export const EXPERT_SERVICE_DURATION_MAX = 40;
+
+export const EXPERT_OFFERING_ERROR_CODES = {
+  EXPERTISE_VALIDATION_FAILED: 'EXPERT_EXPERTISE_VALIDATION_FAILED',
+  SERVICE_VALIDATION_FAILED: 'EXPERT_SERVICE_VALIDATION_FAILED',
+  SERVICE_NOT_READY: 'EXPERT_SERVICE_NOT_READY',
+  SERVICE_TRANSITION_INVALID: 'EXPERT_SERVICE_TRANSITION_INVALID',
+  AVAILABILITY_VALIDATION_FAILED: 'EXPERT_AVAILABILITY_VALIDATION_FAILED',
+  AVAILABILITY_OVERLAP: 'EXPERT_AVAILABILITY_OVERLAP',
+  AVAILABILITY_TIMEZONE_INVALID: 'EXPERT_AVAILABILITY_TIMEZONE_INVALID',
+  AVAILABILITY_OVERRIDE_INVALID: 'EXPERT_AVAILABILITY_OVERRIDE_INVALID',
+  ROLE_REQUIRED: 'EXPERT_ROLE_REQUIRED',
+  APPROVAL_REQUIRED: 'EXPERT_APPROVAL_REQUIRED',
+  RESOURCE_ACCESS_DENIED: 'EXPERT_RESOURCE_ACCESS_DENIED',
+  EXPERTISE_AREA_NOT_FOUND: 'EXPERTISE_AREA_NOT_FOUND',
+  SERVICE_NOT_FOUND: 'EXPERT_SERVICE_NOT_FOUND',
+  AVAILABILITY_OVERRIDE_NOT_FOUND: 'EXPERT_AVAILABILITY_OVERRIDE_NOT_FOUND',
+  EXPERTISE_IN_USE: 'EXPERT_EXPERTISE_IN_USE',
+  SERVICE_ALREADY_ACTIVE: 'EXPERT_SERVICE_ALREADY_ACTIVE',
+  AVAILABILITY_OVERRIDE_EXISTS: 'EXPERT_AVAILABILITY_OVERRIDE_EXISTS',
+  RATE_LIMITED: 'EXPERT_CONFIGURATION_RATE_LIMITED',
+} as const;
+
+export const EXPERT_OFFERING_LIMITS = {
+  MAX_EXPERTISE_AREAS: 20,
+  MAX_PRIMARY_EXPERTISE: 5,
+  MIN_EXPERTISE_AREAS_FOR_ACTIVE: 1,
+  YEARS_EXPERIENCE_MIN: 1,
+  YEARS_EXPERIENCE_MAX: 60,
+  SERVICE_TITLE_MIN: 5,
+  SERVICE_TITLE_MAX: 150,
+  SERVICE_SHORT_DESC_MIN: 30,
+  SERVICE_SHORT_DESC_MAX: 300,
+  SERVICE_DETAILED_DESC_MIN: 100,
+  SERVICE_DETAILED_DESC_MAX: 3000,
+  SERVICE_PREP_INSTRUCTIONS_MAX: 2000,
+  PRICE_MIN: '0.01',
+  PRICE_MAX: '1000000.00',
+  SERVICE_LANGUAGES_MIN: 1,
+  SERVICE_LANGUAGES_MAX: 10,
+  WEEKLY_WINDOWS_MAX_PER_DAY: 5,
+  WEEKLY_WINDOWS_MAX_TOTAL: 35,
+  WEEKLY_WINDOW_MIN_MINUTES: 30,
+  BUFFER_MIN: 0,
+  BUFFER_MAX: 60,
+  BUFFER_STEP: 5,
+  MINIMUM_NOTICE_HOURS_MIN: 0,
+  MINIMUM_NOTICE_HOURS_MAX: 168,
+  BOOKING_WINDOW_DAYS_MIN: 1,
+  BOOKING_WINDOW_DAYS_MAX: 180,
+  OVERRIDE_MAX_FUTURE_DAYS: 365,
+} as const;
+
+export const EXPERT_OFFERING_RATE_LIMITS = {
+  EXPERTISE_UPDATE_PER_HOUR: 20,
+  SERVICE_CREATE_UPDATE_PER_HOUR: 30,
+  SERVICE_LIFECYCLE_PER_HOUR: 30,
+  AVAILABILITY_PROFILE_UPDATE_PER_HOUR: 30,
+  OVERRIDE_CHANGES_PER_HOUR: 60,
+} as const;
+
+export const EXPERTISE_AREA_SEED_DATA = [
+  { name: 'Software Engineering', slug: 'software-engineering', sortOrder: 1 },
+  { name: 'Frontend Development', slug: 'frontend-development', sortOrder: 2 },
+  { name: 'Backend Development', slug: 'backend-development', sortOrder: 3 },
+  { name: 'Full-Stack Development', slug: 'full-stack-development', sortOrder: 4 },
+  { name: 'Mobile Development', slug: 'mobile-development', sortOrder: 5 },
+  { name: 'DevOps and Cloud', slug: 'devops-and-cloud', sortOrder: 6 },
+  { name: 'Cybersecurity', slug: 'cybersecurity', sortOrder: 7 },
+  { name: 'Data Engineering', slug: 'data-engineering', sortOrder: 8 },
+  { name: 'Data Science', slug: 'data-science', sortOrder: 9 },
+  { name: 'Machine Learning', slug: 'machine-learning', sortOrder: 10 },
+  { name: 'Product Management', slug: 'product-management', sortOrder: 11 },
+  { name: 'UI/UX Design', slug: 'ui-ux-design', sortOrder: 12 },
+  { name: 'Quality Assurance', slug: 'quality-assurance', sortOrder: 13 },
+  { name: 'Human Resources', slug: 'human-resources', sortOrder: 14 },
+  { name: 'Finance and Accounting', slug: 'finance-and-accounting', sortOrder: 15 },
+  { name: 'Sales and Marketing', slug: 'sales-and-marketing', sortOrder: 16 },
+  { name: 'Supply Chain', slug: 'supply-chain', sortOrder: 17 },
+  { name: 'Operations', slug: 'operations', sortOrder: 18 },
+  { name: 'Leadership and Management', slug: 'leadership-and-management', sortOrder: 19 },
+] as const;

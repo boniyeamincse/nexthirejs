@@ -8,11 +8,13 @@ import { BookingService } from './booking.service';
 import { BookingController } from './booking.controller';
 import { EvaluationService } from './evaluation.service';
 import { EvaluationController } from './evaluation.controller';
+import { WalletService } from './wallet.service';
+import { WalletController } from './wallet.controller';
 
 @Module({
   imports: [DatabaseModule, AuditModule, AuthModule],
-  controllers: [TrainerController, BookingController, EvaluationController],
-  providers: [TrainerService, BookingService, EvaluationService],
-  exports: [TrainerService, BookingService, EvaluationService],
+  controllers: [TrainerController, BookingController, EvaluationController, WalletController],
+  providers: [TrainerService, BookingService, EvaluationService, WalletService],
+  exports: [TrainerService, BookingService, EvaluationService, WalletService],
 })
 export class TrainerModule {}

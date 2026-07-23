@@ -19,8 +19,20 @@ import { ExpertProfileRepository } from './repositories/expert-profile.repositor
 import { ExpertApplicationRepository } from './repositories/expert-application.repository';
 import { ExpertDocumentRepository } from './repositories/expert-document.repository';
 
+import { ExpertiseModule } from './expertise/expertise.module';
+import { ExpertServiceModule } from './services/expert-service.module';
+import { ExpertAvailabilityModule } from './availability/expert-availability.module';
+
 @Module({
-  imports: [ConfigModule, DatabaseModule, AuditModule, AuthModule],
+  imports: [
+    ConfigModule,
+    DatabaseModule,
+    AuditModule,
+    AuthModule,
+    ExpertiseModule,
+    ExpertServiceModule,
+    ExpertAvailabilityModule,
+  ],
   controllers: [
     ExpertProfileController,
     ExpertApplicationController,
