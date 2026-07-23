@@ -42,7 +42,14 @@ function statusBadgeStyle(status: string) {
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        padding: '0.75rem 0',
+        borderBottom: '1px solid rgba(255,255,255,0.06)',
+      }}
+    >
       <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>{label}</span>
       <span style={{ color: '#e4e4e7', fontSize: '0.85rem', fontWeight: 500 }}>{value}</span>
     </div>
@@ -86,7 +93,7 @@ export default function CertificateDetailPage() {
           setError('Certificate not found.');
           return;
         }
-        setError(err.message);
+        setError(err instanceof Error ? err.message : String(err));
       } else {
         setError('Failed to load certificate. Please try again.');
       }
@@ -102,8 +109,10 @@ export default function CertificateDetailPage() {
     try {
       const result = await getMyCertificateDownload(token, certificateId);
       window.open(result.downloadUrl, '_blank', 'noopener,noreferrer');
-    } catch (err: any) {
-      setError(err.message || 'Failed to download certificate.');
+    } catch (err) {
+      setError(
+        (err instanceof Error ? err.message : String(err)) || 'Failed to download certificate.',
+      );
     } finally {
       setDownloadLoading(false);
     }
@@ -116,8 +125,11 @@ export default function CertificateDetailPage() {
     try {
       await retryMyCertificate(token, certificateId);
       void fetchDetail();
-    } catch (err: any) {
-      setError(err.message || 'Failed to retry certificate generation.');
+    } catch (err) {
+      setError(
+        (err instanceof Error ? err.message : String(err)) ||
+          'Failed to retry certificate generation.',
+      );
     } finally {
       setRetryLoading(false);
     }
@@ -174,7 +186,9 @@ export default function CertificateDetailPage() {
   if (error) {
     return (
       <div className="max-w-2xl mx-auto p-6 text-center">
-        <p className="text-red-400 mb-4" role="alert">{error}</p>
+        <p className="text-red-400 mb-4" role="alert">
+          {error}
+        </p>
         <button
           onClick={fetchDetail}
           className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-700"
@@ -218,7 +232,14 @@ export default function CertificateDetailPage() {
           padding: '2rem',
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            marginBottom: '1.5rem',
+          }}
+        >
           <div>
             <h1 className="text-xl font-bold" style={{ color: '#f1f5f9', margin: 0 }}>
               {cert.assessmentTitle}
@@ -250,9 +271,7 @@ export default function CertificateDetailPage() {
           <DetailRow label="Issued" value={formatDate(cert.issuedAt)} />
           <DetailRow label="Expires" value={formatDate(cert.expiresAt)} />
           <DetailRow label="Generated" value={formatDate(cert.generatedAt)} />
-          {cert.failedAt && (
-            <DetailRow label="Failed At" value={formatDate(cert.failedAt)} />
-          )}
+          {cert.failedAt && <DetailRow label="Failed At" value={formatDate(cert.failedAt)} />}
           {cert.failureCategory && (
             <DetailRow label="Failure Reason" value={cert.failureCategory} />
           )}
@@ -261,7 +280,9 @@ export default function CertificateDetailPage() {
           )}
         </div>
 
-        <div style={{ marginTop: '2rem', display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+        <div
+          style={{ marginTop: '2rem', display: 'flex', gap: '0.75rem', justifyContent: 'center' }}
+        >
           {cert.status === 'READY' && cert.downloadAvailable && (
             <button
               onClick={handleDownload}

@@ -138,6 +138,7 @@ import { AccountDeactivationService } from './account-lifecycle/account-deactiva
     CandidateLanguageService,
     CandidateCertificationService,
     CandidateTrainingService,
+    ProfileCompletionDashboardService,
   ],
 })
 export class CandidatesModule {}

@@ -1,17 +1,19 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { siteConfig } from '@/lib/site-config';
 import { useAuth } from '@/providers/auth-context';
+import { fetchMyPhotoObjectUrl } from '@/lib/api-client';
 import styles from './header.module.css';
 
 export function SiteHeader() {
-  const { status, logout, user } = useAuth();
+  const { status, logout, user, getAccessToken } = useAuth();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   const handleLogout = async () => {
     await logout();
@@ -28,6 +30,33 @@ export function SiteHeader() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const loadAvatar = useCallback(async (token: string) => {
+    try {
+      const url = await fetchMyPhotoObjectUrl(token);
+      setAvatarUrl((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return url;
+      });
+    } catch (e) {
+      // Photo might not exist
+    }
+  }, []);
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      const token = getAccessToken();
+      if (token) {
+        void loadAvatar(token);
+      }
+    }
+  }, [status, getAccessToken, loadAvatar]);
+
+  useEffect(() => {
+    return () => {
+      if (avatarUrl) URL.revokeObjectURL(avatarUrl);
+    };
+  }, [avatarUrl]);
 
   const displayName = user?.email ? (user.email.split('@')[0] ?? 'User') : 'User';
   const initial = displayName.charAt(0).toUpperCase();
@@ -77,7 +106,21 @@ export function SiteHeader() {
                   onClick={() => setMenuOpen(!menuOpen)}
                   aria-expanded={menuOpen}
                 >
-                  <div className={styles.headerAvatar}>{initial}</div>
+                  <div
+                    className={styles.headerAvatar}
+                    style={
+                      avatarUrl
+                        ? {
+                            backgroundImage: `url(${avatarUrl})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            color: 'transparent',
+                          }
+                        : undefined
+                    }
+                  >
+                    {avatarUrl ? null : initial}
+                  </div>
                   <svg
                     className={styles.dropdownArrow}
                     viewBox="0 0 24 24"

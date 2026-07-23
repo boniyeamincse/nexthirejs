@@ -20,7 +20,10 @@ import { AssessmentAssignmentController } from './management/controllers/assessm
 import { AssessmentAuthoringService } from './management/services/assessment-authoring.service';
 import { AssessmentSectionService } from './management/services/assessment-section.service';
 import { AssessmentAssignmentService } from './management/services/assessment-assignment.service';
-import { AssessmentReadinessService, AssessmentPublicationService } from './management/services/assessment-publication.service';
+import {
+  AssessmentReadinessService,
+  AssessmentPublicationService,
+} from './management/services/assessment-publication.service';
 
 import { AuthModule } from '../auth/auth.module';
 
@@ -128,6 +131,12 @@ import { CertificateStorageService } from '../../infrastructure/storage/certific
     CertificateWorker,
     CertificateStorageService,
   ],
-  exports: [AssessmentLifecycleService, AssessmentRepository, AssessmentCategoryRepository],
+  exports: [
+    AssessmentLifecycleService,
+    AssessmentRepository,
+    AssessmentCategoryRepository,
+    AssessmentPerformanceService,
+    CertificateService,
+  ],
 })
 export class AssessmentsModule {}

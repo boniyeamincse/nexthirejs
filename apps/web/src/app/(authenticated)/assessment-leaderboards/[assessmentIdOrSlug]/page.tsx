@@ -13,7 +13,9 @@ function LeaderboardDetailPageInner() {
   const searchParams = useSearchParams();
   const { getAccessToken, logout, status: authStatus } = useAuth();
 
-  const [data, setData] = useState<AssessmentLeaderboardResponse | CategoryLeaderboardResponse | null>(null);
+  const [data, setData] = useState<
+    AssessmentLeaderboardResponse | CategoryLeaderboardResponse | null
+  >(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -78,7 +80,13 @@ function LeaderboardDetailPageInner() {
   }
 
   if (authStatus === 'unauthenticated') {
-    return <div className="p-6 text-center"><Link href="/login" className="text-blue-600 underline">Sign in to view leaderboards</Link></div>;
+    return (
+      <div className="p-6 text-center">
+        <Link href="/login" className="text-blue-600 underline">
+          Sign in to view leaderboards
+        </Link>
+      </div>
+    );
   }
 
   if (error) {
@@ -87,7 +95,12 @@ function LeaderboardDetailPageInner() {
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
           <p className="font-semibold">Error</p>
           <p className="text-sm mt-1">{error}</p>
-          <button onClick={fetchData} className="mt-3 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-sm">Retry</button>
+          <button
+            onClick={fetchData}
+            className="mt-3 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-sm"
+          >
+            Retry
+          </button>
         </div>
       </div>
     );
@@ -97,7 +110,9 @@ function LeaderboardDetailPageInner() {
     return (
       <div className="p-6 space-y-4">
         <div className="h-8 bg-gray-200 rounded w-1/2 animate-pulse" />
-        {[1, 2, 3].map(i => <div key={i} className="h-16 bg-gray-100 rounded animate-pulse" />)}
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-16 bg-gray-100 rounded animate-pulse" />
+        ))}
       </div>
     );
   }
@@ -107,7 +122,9 @@ function LeaderboardDetailPageInner() {
   }
 
   const isAssessment = 'assessmentTitle' in data;
-  const title = isAssessment ? data.assessmentTitle : (data as CategoryLeaderboardResponse).categoryName;
+  const title = isAssessment
+    ? data.assessmentTitle
+    : (data as CategoryLeaderboardResponse).categoryName;
   const entries = data.entries;
   const pagination = data.pagination;
   const myRank = data.myRank;
@@ -116,7 +133,9 @@ function LeaderboardDetailPageInner() {
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <Link href="/assessment-leaderboards" className="text-blue-600 hover:underline text-sm">&larr; All Leaderboards</Link>
+          <Link href="/assessment-leaderboards" className="text-blue-600 hover:underline text-sm">
+            &larr; All Leaderboards
+          </Link>
           <h1 className="text-2xl font-bold mt-1">{title}</h1>
           {isAssessment && <p className="text-sm text-gray-500">Assessment Leaderboard</p>}
           {!isAssessment && <p className="text-sm text-gray-500">Category Leaderboard</p>}
@@ -130,7 +149,10 @@ function LeaderboardDetailPageInner() {
             {myRank.eligible
               ? `Your Rank: #${myRank.rank}`
               : 'You are not ranked. Complete assessments and enable leaderboard participation.'}
-            {!myRank.eligible && !isAssessment && entries.length > 0 && ' (take assessments in this category)'}
+            {!myRank.eligible &&
+              !isAssessment &&
+              entries.length > 0 &&
+              ' (take assessments in this category)'}
           </p>
         </div>
       )}
@@ -146,7 +168,9 @@ function LeaderboardDetailPageInner() {
       {entries.length === 0 ? (
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
           <p className="text-yellow-700">No ranked candidates yet.</p>
-          <p className="text-yellow-600 text-sm mt-1">Candidates need to opt in and complete assessments to appear here.</p>
+          <p className="text-yellow-600 text-sm mt-1">
+            Candidates need to opt in and complete assessments to appear here.
+          </p>
         </div>
       ) : (
         <div className="bg-white rounded-lg border overflow-hidden">
@@ -155,44 +179,79 @@ function LeaderboardDetailPageInner() {
               <caption className="sr-only">Ranked candidate list</caption>
               <thead>
                 <tr className="border-b bg-gray-50">
-                  <th className="text-left py-3 px-4" scope="col">Rank</th>
-                  <th className="text-left py-3 px-4" scope="col">Candidate</th>
-                  {isAssessment && <>
-                    <th className="text-right py-3 px-4" scope="col">Score</th>
-                    <th className="text-right py-3 px-4" scope="col">Unanswered</th>
-                    <th className="text-right py-3 px-4" scope="col">Duration</th>
-                    <th className="text-right py-3 px-4" scope="col">Submitted</th>
-                  </>}
-                  {!isAssessment && <>
-                    <th className="text-right py-3 px-4" scope="col">Avg</th>
-                    <th className="text-right py-3 px-4" scope="col">Best</th>
-                    <th className="text-right py-3 px-4" scope="col">Completed</th>
-                    <th className="text-right py-3 px-4" scope="col">Pass Rate</th>
-                  </>}
+                  <th className="text-left py-3 px-4" scope="col">
+                    Rank
+                  </th>
+                  <th className="text-left py-3 px-4" scope="col">
+                    Candidate
+                  </th>
+                  {isAssessment && (
+                    <>
+                      <th className="text-right py-3 px-4" scope="col">
+                        Score
+                      </th>
+                      <th className="text-right py-3 px-4" scope="col">
+                        Unanswered
+                      </th>
+                      <th className="text-right py-3 px-4" scope="col">
+                        Duration
+                      </th>
+                      <th className="text-right py-3 px-4" scope="col">
+                        Submitted
+                      </th>
+                    </>
+                  )}
+                  {!isAssessment && (
+                    <>
+                      <th className="text-right py-3 px-4" scope="col">
+                        Avg
+                      </th>
+                      <th className="text-right py-3 px-4" scope="col">
+                        Best
+                      </th>
+                      <th className="text-right py-3 px-4" scope="col">
+                        Completed
+                      </th>
+                      <th className="text-right py-3 px-4" scope="col">
+                        Pass Rate
+                      </th>
+                    </>
+                  )}
                 </tr>
               </thead>
               <tbody>
-                {entries.map(entry => (
-                  <tr key={entry.rank} className={`border-b hover:bg-gray-50 ${entry.isCurrentCandidate ? 'bg-blue-50' : ''}`}>
-                    <td className="py-3 px-4 font-medium" aria-label={`Rank ${entry.rank}`}>#{entry.rank}</td>
+                {entries.map((entry) => (
+                  <tr
+                    key={entry.rank}
+                    className={`border-b hover:bg-gray-50 ${entry.isCurrentCandidate ? 'bg-blue-50' : ''}`}
+                  >
+                    <td className="py-3 px-4 font-medium" aria-label={`Rank ${entry.rank}`}>
+                      #{entry.rank}
+                    </td>
                     <td className="py-3 px-4 flex items-center gap-2">
                       <span>{entry.displayName}</span>
-                      {entry.isCurrentCandidate && <span className="text-xs text-blue-600">(you)</span>}
+                      {entry.isCurrentCandidate && (
+                        <span className="text-xs text-blue-600">(you)</span>
+                      )}
                     </td>
                     {isAssessment && 'percentage' in entry && (
                       <>
                         <td className="text-right py-3 px-4">{entry.percentage}%</td>
-                        <td className="text-right py-3 px-4">{(entry as any).unansweredCount}</td>
-                        <td className="text-right py-3 px-4">{Math.round((entry as any).durationSeconds / 60)}m</td>
-                        <td className="text-right py-3 px-4 text-gray-500">{new Date((entry as any).submittedAt).toLocaleDateString()}</td>
+                        <td className="text-right py-3 px-4">{entry.unansweredCount}</td>
+                        <td className="text-right py-3 px-4">
+                          {Math.round(entry.durationSeconds / 60)}m
+                        </td>
+                        <td className="text-right py-3 px-4 text-gray-500">
+                          {new Date(entry.submittedAt).toLocaleDateString()}
+                        </td>
                       </>
                     )}
                     {!isAssessment && 'averagePercentage' in entry && (
                       <>
-                        <td className="text-right py-3 px-4">{(entry as any).averagePercentage}%</td>
-                        <td className="text-right py-3 px-4">{(entry as any).bestPercentage}%</td>
-                        <td className="text-right py-3 px-4">{(entry as any).completedAssessmentCount}</td>
-                        <td className="text-right py-3 px-4">{(entry as any).passRate}%</td>
+                        <td className="text-right py-3 px-4">{entry.averagePercentage}%</td>
+                        <td className="text-right py-3 px-4">{entry.bestPercentage}%</td>
+                        <td className="text-right py-3 px-4">{entry.completedAssessmentCount}</td>
+                        <td className="text-right py-3 px-4">{entry.passRate}%</td>
                       </>
                     )}
                   </tr>
@@ -229,7 +288,9 @@ function LeaderboardDetailPageInner() {
       )}
 
       <div className="text-center">
-        <Link href="/assessment-performance" className="text-blue-600 hover:underline text-sm">View Your Performance Report</Link>
+        <Link href="/assessment-performance" className="text-blue-600 hover:underline text-sm">
+          View Your Performance Report
+        </Link>
       </div>
     </div>
   );

@@ -3,11 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/providers/auth-context';
-import {
-  getAttemptWorkspace,
-  saveAttemptAnswer,
-  submitAssessmentAttempt,
-} from '@/lib/api-client';
+import { getAttemptWorkspace, saveAttemptAnswer, submitAssessmentAttempt } from '@/lib/api-client';
 import type {
   AssessmentAttemptQuestionResult,
   AssessmentAttemptSubmissionResult,
@@ -51,8 +47,11 @@ export default function AssessmentAttemptWorkspacePage() {
       setSubmissionSummary(data.submissionSummary);
       setRemainingSeconds(data.attempt.remainingSeconds);
       deadlineRef.current = data.attempt.remainingSeconds <= 0;
-    } catch (err: any) {
-      setError(err.message || 'Failed to load assessment workspace.');
+    } catch (err) {
+      setError(
+        (err instanceof Error ? err.message : String(err)) ||
+          'Failed to load assessment workspace.',
+      );
     } finally {
       setLoading(false);
       setDeadlineFinalizing(false);
@@ -134,9 +133,9 @@ export default function AssessmentAttemptWorkspacePage() {
           progress: data.progress,
         };
       });
-    } catch (err: any) {
-      setError(err.message || 'Failed to save answer.');
-      if (err.message === 'AUTH_ACCESS_TOKEN_INVALID') {
+    } catch (err) {
+      setError((err instanceof Error ? err.message : String(err)) || 'Failed to save answer.');
+      if ((err instanceof Error ? err.message : String(err)) === 'AUTH_ACCESS_TOKEN_INVALID') {
         await logout();
         router.push('/login');
       }
@@ -276,9 +275,11 @@ export default function AssessmentAttemptWorkspacePage() {
       );
       setRemainingSeconds(0);
       setShowSubmitDialog(false);
-    } catch (err: any) {
-      setError(err.message || 'Failed to submit assessment.');
-      if (err.message === 'AUTH_ACCESS_TOKEN_INVALID') {
+    } catch (err) {
+      setError(
+        (err instanceof Error ? err.message : String(err)) || 'Failed to submit assessment.',
+      );
+      if ((err instanceof Error ? err.message : String(err)) === 'AUTH_ACCESS_TOKEN_INVALID') {
         await logout();
         router.push('/login');
       }
@@ -379,14 +380,29 @@ export default function AssessmentAttemptWorkspacePage() {
         <div className={styles.summaryCard}>
           <h2 className={styles.summaryTitle}>Submission Summary</h2>
           <div className={styles.summaryGrid}>
-            <SummaryItem label="Score" value={`${submissionSummary.result.scoreEarned} / ${submissionSummary.result.scorePossible}`} />
+            <SummaryItem
+              label="Score"
+              value={`${submissionSummary.result.scoreEarned} / ${submissionSummary.result.scorePossible}`}
+            />
             <SummaryItem label="Percentage" value={`${submissionSummary.result.percentage}%`} />
             <SummaryItem label="Result" value={submissionSummary.result.resultStatus} />
             <SummaryItem label="Correct" value={String(submissionSummary.result.correctCount)} />
-            <SummaryItem label="Incorrect" value={String(submissionSummary.result.incorrectCount)} />
-            <SummaryItem label="Unanswered" value={String(submissionSummary.result.unansweredCount)} />
-            <SummaryItem label="Finalized by" value={formatReason(submissionSummary.finalizationReason)} />
-            <SummaryItem label="Submitted at" value={new Date(submissionSummary.submittedAt).toLocaleString()} />
+            <SummaryItem
+              label="Incorrect"
+              value={String(submissionSummary.result.incorrectCount)}
+            />
+            <SummaryItem
+              label="Unanswered"
+              value={String(submissionSummary.result.unansweredCount)}
+            />
+            <SummaryItem
+              label="Finalized by"
+              value={formatReason(submissionSummary.finalizationReason)}
+            />
+            <SummaryItem
+              label="Submitted at"
+              value={new Date(submissionSummary.submittedAt).toLocaleString()}
+            />
           </div>
           <p className={styles.summaryNote}>
             Detailed answer review will be available in the next step.
@@ -428,7 +444,9 @@ export default function AssessmentAttemptWorkspacePage() {
                             type="radio"
                             name={question.id}
                             value={option.id}
-                            checked={(question.draftAnswer?.selectedOptionIds ?? []).includes(option.id)}
+                            checked={(question.draftAnswer?.selectedOptionIds ?? []).includes(
+                              option.id,
+                            )}
                             onChange={() => handleOptionChange(question, option.id, true)}
                             className={styles.optionInput}
                             disabled={isReadOnly}
@@ -447,7 +465,9 @@ export default function AssessmentAttemptWorkspacePage() {
                             type="checkbox"
                             name={question.id}
                             value={option.id}
-                            checked={(question.draftAnswer?.selectedOptionIds ?? []).includes(option.id)}
+                            checked={(question.draftAnswer?.selectedOptionIds ?? []).includes(
+                              option.id,
+                            )}
                             onChange={(event) =>
                               handleOptionChange(question, option.id, event.target.checked)
                             }
@@ -486,7 +506,12 @@ export default function AssessmentAttemptWorkspacePage() {
 
       {showSubmitDialog && (
         <div className={styles.dialogBackdrop} role="presentation">
-          <div className={styles.dialog} role="dialog" aria-modal="true" aria-labelledby="submit-dialog-title">
+          <div
+            className={styles.dialog}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="submit-dialog-title"
+          >
             <h2 id="submit-dialog-title" className={styles.summaryTitle}>
               Submit assessment
             </h2>

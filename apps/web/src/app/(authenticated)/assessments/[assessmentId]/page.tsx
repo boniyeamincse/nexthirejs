@@ -5,7 +5,12 @@ import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/providers/auth-context';
-import { getAssessmentDetail, ApiClientError, startOrResumeAssessmentAttempt, getActiveAssessmentAttempt } from '@/lib/api-client';
+import {
+  getAssessmentDetail,
+  ApiClientError,
+  startOrResumeAssessmentAttempt,
+  getActiveAssessmentAttempt,
+} from '@/lib/api-client';
 import type { AssessmentCatalogDetail } from '@nexthire/types';
 
 export default function AssessmentDetailPage() {
@@ -53,7 +58,7 @@ export default function AssessmentDetailPage() {
           setError('Assessment not found.');
           return;
         }
-        setError(err.message);
+        setError(err instanceof Error ? err.message : String(err));
       } else {
         setError('Failed to load assessment. Please try again.');
       }
@@ -69,8 +74,8 @@ export default function AssessmentDetailPage() {
     try {
       const result = await startOrResumeAssessmentAttempt(token, assessmentId);
       router.push(`/assessments/attempts/${result.attemptId}`);
-    } catch (err: any) {
-      setError(err.message || 'Failed to start assessment.');
+    } catch (err) {
+      setError((err instanceof Error ? err.message : String(err)) || 'Failed to start assessment.');
     } finally {
       setActionLoading(null);
     }
@@ -86,7 +91,10 @@ export default function AssessmentDetailPage() {
 
   if (authStatus === 'unknown' || authStatus === 'loading') {
     return (
-      <div style={{ maxWidth: 720, margin: '0 auto', padding: '2rem', color: '#94a3b8' }} role="status">
+      <div
+        style={{ maxWidth: 720, margin: '0 auto', padding: '2rem', color: '#94a3b8' }}
+        role="status"
+      >
         Loading...
       </div>
     );
@@ -102,7 +110,10 @@ export default function AssessmentDetailPage() {
 
   if (loading) {
     return (
-      <div style={{ maxWidth: 720, margin: '0 auto', padding: '2rem', color: '#94a3b8' }} role="status">
+      <div
+        style={{ maxWidth: 720, margin: '0 auto', padding: '2rem', color: '#94a3b8' }}
+        role="status"
+      >
         Loading assessment...
       </div>
     );
@@ -114,7 +125,8 @@ export default function AssessmentDetailPage() {
         <div
           role="alert"
           style={{
-            background: error === 'Assessment not found.' ? 'rgba(245,158,11,0.1)' : 'rgba(239,68,68,0.1)',
+            background:
+              error === 'Assessment not found.' ? 'rgba(245,158,11,0.1)' : 'rgba(239,68,68,0.1)',
             border: `1px solid ${error === 'Assessment not found.' ? 'rgba(245,158,11,0.3)' : 'rgba(239,68,68,0.3)'}`,
             color: error === 'Assessment not found.' ? '#fbbf24' : '#fca5a5',
             padding: '1rem',
@@ -139,10 +151,7 @@ export default function AssessmentDetailPage() {
             </button>
           )}
           <div style={{ marginTop: '1rem' }}>
-            <Link
-              href="/assessments"
-              style={{ color: '#60a5fa', textDecoration: 'underline' }}
-            >
+            <Link href="/assessments" style={{ color: '#60a5fa', textDecoration: 'underline' }}>
               Back to catalog
             </Link>
           </div>
@@ -154,10 +163,20 @@ export default function AssessmentDetailPage() {
   if (!assessment) {
     return (
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '2rem' }}>
-        <div style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)', color: '#fbbf24', padding: '1rem', borderRadius: '0.5rem' }}>
+        <div
+          style={{
+            background: 'rgba(245,158,11,0.1)',
+            border: '1px solid rgba(245,158,11,0.3)',
+            color: '#fbbf24',
+            padding: '1rem',
+            borderRadius: '0.5rem',
+          }}
+        >
           <p>Assessment not found.</p>
           <div style={{ marginTop: '1rem' }}>
-            <Link href="/assessments" style={{ color: '#60a5fa', textDecoration: 'underline' }}>Back to catalog</Link>
+            <Link href="/assessments" style={{ color: '#60a5fa', textDecoration: 'underline' }}>
+              Back to catalog
+            </Link>
           </div>
         </div>
       </div>
@@ -170,19 +189,42 @@ export default function AssessmentDetailPage() {
     <div style={{ maxWidth: 720, margin: '0 auto', padding: '2rem' }}>
       <Link
         href="/assessments"
-        style={{ color: '#60a5fa', textDecoration: 'none', fontSize: '0.9rem', display: 'inline-block', marginBottom: '1.5rem' }}
+        style={{
+          color: '#60a5fa',
+          textDecoration: 'none',
+          fontSize: '0.9rem',
+          display: 'inline-block',
+          marginBottom: '1.5rem',
+        }}
       >
         &larr; Back to catalog
       </Link>
 
-      <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '0.75rem', padding: '2rem' }}>
+      <div
+        style={{
+          background: '#1e293b',
+          border: '1px solid #334155',
+          borderRadius: '0.75rem',
+          padding: '2rem',
+        }}
+      >
         <div style={{ marginBottom: '0.5rem' }}>
-          <span style={{ fontSize: '0.8rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b' }}>
+          <span
+            style={{
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              color: '#64748b',
+            }}
+          >
             {assessment.category.name}
           </span>
         </div>
 
-        <h1 style={{ fontSize: '1.75rem', fontWeight: 700, margin: '0 0 0.75rem', color: '#f1f5f9' }}>
+        <h1
+          style={{ fontSize: '1.75rem', fontWeight: 700, margin: '0 0 0.75rem', color: '#f1f5f9' }}
+        >
           {assessment.title}
         </h1>
 
@@ -197,21 +239,54 @@ export default function AssessmentDetailPage() {
         )}
 
         {assessment.instructions && (
-          <div style={{ background: '#0f172a', borderRadius: '0.5rem', padding: '1rem', marginBottom: '1.5rem' }}>
-            <h2 style={{ fontSize: '0.95rem', fontWeight: 600, color: '#f1f5f9', marginBottom: '0.5rem' }}>Instructions</h2>
-            <p style={{ color: '#94a3b8', lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>{assessment.instructions}</p>
+          <div
+            style={{
+              background: '#0f172a',
+              borderRadius: '0.5rem',
+              padding: '1rem',
+              marginBottom: '1.5rem',
+            }}
+          >
+            <h2
+              style={{
+                fontSize: '0.95rem',
+                fontWeight: 600,
+                color: '#f1f5f9',
+                marginBottom: '0.5rem',
+              }}
+            >
+              Instructions
+            </h2>
+            <p style={{ color: '#94a3b8', lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>
+              {assessment.instructions}
+            </p>
           </div>
         )}
 
         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
           <DetailBadge label="Type" value={assessment.type.replace(/_/g, ' ')} />
-          <DetailBadge label="Difficulty" value={assessment.difficulty.charAt(0) + assessment.difficulty.slice(1).toLowerCase()} />
+          <DetailBadge
+            label="Difficulty"
+            value={assessment.difficulty.charAt(0) + assessment.difficulty.slice(1).toLowerCase()}
+          />
           <DetailBadge label="Duration" value={`${assessment.estimatedDurationMinutes} minutes`} />
           <DetailBadge label="Questions" value={String(assessment.questionCount)} />
           <DetailBadge
             label="Availability"
-            value={assessment.availability === 'AVAILABLE' ? 'Available Now' : assessment.availability === 'COMING_SOON' ? 'Coming Soon' : 'Unavailable'}
-            color={isAvailable ? '#22c55e' : assessment.availability === 'COMING_SOON' ? '#f59e0b' : '#64748b'}
+            value={
+              assessment.availability === 'AVAILABLE'
+                ? 'Available Now'
+                : assessment.availability === 'COMING_SOON'
+                  ? 'Coming Soon'
+                  : 'Unavailable'
+            }
+            color={
+              isAvailable
+                ? '#22c55e'
+                : assessment.availability === 'COMING_SOON'
+                  ? '#f59e0b'
+                  : '#64748b'
+            }
           />
         </div>
 
@@ -275,12 +350,19 @@ export default function AssessmentDetailPage() {
 function DetailBadge({ label, value, color }: { label: string; value: string; color?: string }) {
   return (
     <div style={{ textAlign: 'center' }}>
-      <div style={{ fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b', marginBottom: '0.25rem' }}>
+      <div
+        style={{
+          fontSize: '0.7rem',
+          fontWeight: 600,
+          textTransform: 'uppercase',
+          letterSpacing: '0.05em',
+          color: '#64748b',
+          marginBottom: '0.25rem',
+        }}
+      >
         {label}
       </div>
-      <div style={{ fontSize: '0.9rem', color: color ?? '#cbd5e1', fontWeight: 500 }}>
-        {value}
-      </div>
+      <div style={{ fontSize: '0.9rem', color: color ?? '#cbd5e1', fontWeight: 500 }}>{value}</div>
     </div>
   );
 }

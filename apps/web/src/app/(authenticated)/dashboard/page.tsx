@@ -4,7 +4,12 @@
 import { useCallback, useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/providers/auth-context';
-import { getMyProfileCompletionDashboard, ApiClientError } from '@/lib/api-client';
+import {
+  getMyProfileCompletionDashboard,
+  ApiClientError,
+  uploadMyPhoto,
+  fetchMyPhotoObjectUrl,
+} from '@/lib/api-client';
 import type { CandidateProfileCompletionDashboard } from '@/lib/api-client';
 import Link from 'next/link';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from 'recharts';
@@ -28,17 +33,42 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [dashboard, setDashboard] = useState<CandidateProfileCompletionDashboard | null>(null);
   const [pageError, setPageError] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    return () => {
+      if (avatarUrl) URL.revokeObjectURL(avatarUrl);
+    };
+  }, [avatarUrl]);
 
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const loadAvatar = useCallback(async (token: string) => {
+    try {
+      const url = await fetchMyPhotoObjectUrl(token);
+      setAvatarUrl((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return url;
+      });
+    } catch (e) {
+      // Photo might not exist (404 is handled as null returned), or other error
+    }
+  }, []);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Mock UI behavior
-      alert(`Selected file: ${file.name} for upload.`);
+      const token = getAccessToken();
+      if (!token) return;
+      try {
+        await uploadMyPhoto(token, file);
+        await loadAvatar(token);
+      } catch (err) {
+        alert('Failed to upload photo. Ensure it is a valid JPEG/PNG under 2MB.');
+      }
     }
   };
 
@@ -53,7 +83,7 @@ export default function DashboardPage() {
     setPageError(null);
 
     try {
-      const data = await getMyProfileCompletionDashboard(token);
+      const [data] = await Promise.all([getMyProfileCompletionDashboard(token), loadAvatar(token)]);
       setDashboard(data);
     } catch (err) {
       if (err instanceof ApiClientError && err.statusCode === 401) {
@@ -65,7 +95,7 @@ export default function DashboardPage() {
     } finally {
       setLoading(false);
     }
-  }, [getAccessToken, logout, router]);
+  }, [getAccessToken, logout, router, loadAvatar]);
 
   useEffect(() => {
     void fetchDashboard();
@@ -155,8 +185,16 @@ export default function DashboardPage() {
                   if (e.key === 'Enter') handleAvatarClick();
                 }}
               >
-                <div className={styles.avatar} aria-hidden="true">
-                  {avatarInitial}
+                <div
+                  className={styles.avatar}
+                  aria-hidden="true"
+                  style={
+                    avatarUrl
+                      ? { backgroundImage: `url(${avatarUrl})`, color: 'transparent' }
+                      : undefined
+                  }
+                >
+                  {avatarUrl ? null : avatarInitial}
                 </div>
                 <div className={styles.avatarOverlay}>
                   <svg

@@ -6,7 +6,9 @@ import { getMyCandidateProfile, updateMyCandidateProfile } from '@/lib/api-clien
 import { ProfilePhotoCard } from '@/features/candidate-profile/photo/ProfilePhotoCard';
 import type { CandidateProfileCompletion } from '@nexthire/types';
 import type { CandidateProfileBasicsInput } from '@nexthire/validation';
-import styles from '@/app/(auth)/auth.module.css';
+import Link from 'next/link';
+import authStyles from '@/app/(auth)/auth.module.css';
+import dashboardStyles from '@/app/(authenticated)/dashboard/dashboard.module.css';
 
 export default function ProfilePage() {
   const { getAccessToken, user } = useAuth();
@@ -83,151 +85,120 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className={styles.container}>
-        <div className={styles.background}></div>
-        <div className={styles.glassCard} style={{ textAlign: 'center', padding: '4rem' }}>
-          <p className={styles.subtitle}>Loading profile...</p>
-        </div>
+      <div className={dashboardStyles.centerState} aria-live="polite" aria-busy="true">
+        <p>Loading profile...</p>
       </div>
     );
   }
 
   return (
-    <div
-      className={styles.container}
-      style={{ minHeight: 'calc(100vh - 72px)', padding: '2rem 1rem' }}
-    >
-      <div className={styles.background}></div>
-      <div className={styles.glassCard} style={{ maxWidth: '800px', margin: '0 auto' }}>
+    <div className={dashboardStyles.page}>
+      <div className={dashboardStyles.bgGlow} />
+
+      <div className={dashboardStyles.container} style={{ maxWidth: '800px' }}>
+        {/* Hero section equivalent for Profile */}
         <div
-          className={styles.header}
+          className={dashboardStyles.hero}
           style={{
+            padding: '2.5rem',
             marginBottom: '2rem',
-            textAlign: 'left',
             display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
+            flexDirection: 'column',
+            alignItems: 'flex-start',
           }}
         >
-          <div>
-            <h1 className={styles.title} style={{ fontSize: '2rem' }}>
-              Candidate Profile
-            </h1>
-            <p className={styles.subtitle}>
-              Update your basic information to complete your Career Passport.
-            </p>
-          </div>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <a
+          <h1 className={dashboardStyles.heroGreeting}>Candidate Profile</h1>
+          <p className={dashboardStyles.heroSubtitle}>
+            Update your basic information to complete your Career Passport.
+          </p>
+
+          <div style={{ display: 'flex', gap: '0.75rem', marginTop: '2rem', flexWrap: 'wrap' }}>
+            <Link
               href="/profile/preferences"
-              style={{
-                padding: '0.5rem 1rem',
-                background: 'rgba(255,255,255,0.1)',
-                color: '#fff',
-                textDecoration: 'none',
-                borderRadius: '0.5rem',
-                fontSize: '0.9rem',
-                border: '1px solid rgba(255,255,255,0.2)',
-              }}
+              className={dashboardStyles.retryBtn}
+              style={{ textDecoration: 'none' }}
             >
-              Edit Preferences →
-            </a>
-            <a
+              Preferences →
+            </Link>
+            <Link
               href="/profile/skills"
+              className={dashboardStyles.retryBtn}
               style={{
-                padding: '0.5rem 1rem',
-                background: 'rgba(99, 102, 241, 0.2)',
-                color: '#a5b4fc',
                 textDecoration: 'none',
-                borderRadius: '0.5rem',
-                fontSize: '0.9rem',
-                border: '1px solid rgba(99, 102, 241, 0.3)',
+                background: 'rgba(99, 102, 241, 0.15)',
+                borderColor: 'rgba(99, 102, 241, 0.3)',
+                color: '#a5b4fc',
               }}
             >
               Skills →
-            </a>
-            <a
+            </Link>
+            <Link
               href="/profile/languages"
+              className={dashboardStyles.retryBtn}
               style={{
-                padding: '0.5rem 1rem',
-                background: 'rgba(99, 102, 241, 0.2)',
-                color: '#a5b4fc',
                 textDecoration: 'none',
-                borderRadius: '0.5rem',
-                fontSize: '0.9rem',
-                border: '1px solid rgba(99, 102, 241, 0.3)',
+                background: 'rgba(99, 102, 241, 0.15)',
+                borderColor: 'rgba(99, 102, 241, 0.3)',
+                color: '#a5b4fc',
               }}
             >
               Languages →
-            </a>
-            <a
+            </Link>
+            <Link
               href="/profile/certifications"
+              className={dashboardStyles.retryBtn}
               style={{
-                padding: '0.5rem 1rem',
-                background: 'rgba(99, 102, 241, 0.2)',
-                color: '#a5b4fc',
                 textDecoration: 'none',
-                borderRadius: '0.5rem',
-                fontSize: '0.9rem',
-                border: '1px solid rgba(99, 102, 241, 0.3)',
+                background: 'rgba(99, 102, 241, 0.15)',
+                borderColor: 'rgba(99, 102, 241, 0.3)',
+                color: '#a5b4fc',
               }}
             >
               Certs &amp; Training →
-            </a>
-            <a
+            </Link>
+            <Link
               href="/profile/achievements"
+              className={dashboardStyles.retryBtn}
               style={{
-                padding: '0.5rem 1rem',
-                background: 'rgba(99, 102, 241, 0.2)',
-                color: '#a5b4fc',
                 textDecoration: 'none',
-                borderRadius: '0.5rem',
-                fontSize: '0.9rem',
-                border: '1px solid rgba(99, 102, 241, 0.3)',
+                background: 'rgba(99, 102, 241, 0.15)',
+                borderColor: 'rgba(99, 102, 241, 0.3)',
+                color: '#a5b4fc',
               }}
             >
               Achievements &amp; Links →
-            </a>
-            <a
+            </Link>
+            <Link
               href="/cv"
+              className={dashboardStyles.retryBtn}
               style={{
-                padding: '0.5rem 1rem',
-                background: 'rgba(99, 102, 241, 0.2)',
-                color: '#a5b4fc',
                 textDecoration: 'none',
-                borderRadius: '0.5rem',
-                fontSize: '0.9rem',
-                border: '1px solid rgba(99, 102, 241, 0.3)',
+                background: 'rgba(99, 102, 241, 0.15)',
+                borderColor: 'rgba(99, 102, 241, 0.3)',
+                color: '#a5b4fc',
               }}
             >
               CV Builder →
-            </a>
+            </Link>
           </div>
         </div>
 
+        {/* Profile Completion Indicator */}
         {completion && (
           <div
-            style={{
-              marginBottom: '2rem',
-              padding: '1.5rem',
-              background: 'rgba(255,255,255,0.03)',
-              borderRadius: '0.75rem',
-              border: '1px solid rgba(255,255,255,0.1)',
-            }}
+            className={dashboardStyles.card}
+            style={{ minHeight: 'auto', marginBottom: '1.5rem', padding: '1.5rem' }}
           >
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '0.75rem',
-              }}
-            >
-              <h3 style={{ color: '#f8fafc', fontWeight: 600, margin: 0 }}>Profile Completion</h3>
-              <span style={{ color: '#a5b4fc', fontWeight: 700, fontSize: '1.25rem' }}>
+            <div className={dashboardStyles.cardHeader} style={{ marginBottom: '1rem' }}>
+              <h2 className={dashboardStyles.cardTitle}>Profile Completion</h2>
+              <span
+                className={dashboardStyles.cardBadge}
+                style={{ fontSize: '1rem', color: '#a5b4fc' }}
+              >
                 {completion.percentage}%
               </span>
             </div>
+
             <div
               style={{
                 width: '100%',
@@ -244,128 +215,131 @@ export default function ProfilePage() {
                   background: 'linear-gradient(90deg, #6366f1, #a5b4fc)',
                   transition: 'width 0.5s ease',
                 }}
-              ></div>
+              />
             </div>
+
             {completion.missingFields.length > 0 && (
-              <p style={{ marginTop: '0.75rem', fontSize: '0.85rem', color: '#94a3b8' }}>
-                Missing fields: {completion.missingFields.join(', ')}
+              <p style={{ marginTop: '1rem', fontSize: '0.85rem', color: '#94a3b8' }}>
+                <strong>Missing fields:</strong> {completion.missingFields.join(', ')}
               </p>
             )}
-            <p style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: '#64748b' }}>
-              Note: Additional profile sections like Education and Work Experience will be added in
-              future updates.
-            </p>
           </div>
         )}
 
         <ProfilePhotoCard getAccessToken={getAccessToken} />
 
-        <form onSubmit={handleSubmit} className={styles.form}>
-          <div className={styles.formGroup}>
-            <label className={styles.label}>Email Address (Read-only)</label>
-            <input
-              type="text"
-              className={styles.input}
-              value={user?.email || ''}
-              disabled
-              style={{ opacity: 0.6, cursor: 'not-allowed' }}
-            />
+        {/* Form Card */}
+        <div className={dashboardStyles.card} style={{ minHeight: 'auto' }}>
+          <div className={dashboardStyles.cardHeader}>
+            <h2 className={dashboardStyles.cardTitle}>Basic Information</h2>
           </div>
 
-          <div className={styles.formGroup}>
-            <label htmlFor="fullName" className={styles.label}>
-              Full Name *
-            </label>
-            <input
-              id="fullName"
-              name="fullName"
-              type="text"
-              required
-              className={styles.input}
-              value={formData.fullName || ''}
-              onChange={handleChange}
-              placeholder="e.g. Jane Doe"
-            />
-          </div>
+          <form onSubmit={handleSubmit} className={authStyles.form}>
+            <div className={authStyles.formGroup}>
+              <label className={authStyles.label}>Email Address (Read-only)</label>
+              <input
+                type="text"
+                className={authStyles.input}
+                value={user?.email || ''}
+                disabled
+                style={{ opacity: 0.5, cursor: 'not-allowed' }}
+              />
+            </div>
 
-          <div className={styles.formGroup}>
-            <label htmlFor="professionalHeadline" className={styles.label}>
-              Professional Headline
-            </label>
-            <input
-              id="professionalHeadline"
-              name="professionalHeadline"
-              type="text"
-              className={styles.input}
-              value={formData.professionalHeadline || ''}
-              onChange={handleChange}
-              placeholder="e.g. Senior Frontend Developer"
-            />
-          </div>
+            <div className={authStyles.formGroup}>
+              <label htmlFor="fullName" className={authStyles.label}>
+                Full Name <span style={{ color: '#ef4444' }}>*</span>
+              </label>
+              <input
+                id="fullName"
+                name="fullName"
+                type="text"
+                required
+                className={authStyles.input}
+                value={formData.fullName || ''}
+                onChange={handleChange}
+                placeholder="e.g. Jane Doe"
+              />
+            </div>
 
-          <div className={styles.formGroup}>
-            <label htmlFor="professionalSummary" className={styles.label}>
-              Professional Summary
-            </label>
-            <textarea
-              id="professionalSummary"
-              name="professionalSummary"
-              className={styles.input}
-              style={{ minHeight: '120px', resize: 'vertical' }}
-              value={formData.professionalSummary || ''}
-              onChange={handleChange}
-              placeholder="A brief overview of your career and skills..."
-            />
-          </div>
+            <div className={authStyles.formGroup}>
+              <label htmlFor="professionalHeadline" className={authStyles.label}>
+                Professional Headline
+              </label>
+              <input
+                id="professionalHeadline"
+                name="professionalHeadline"
+                type="text"
+                className={authStyles.input}
+                value={formData.professionalHeadline || ''}
+                onChange={handleChange}
+                placeholder="e.g. Senior Frontend Developer"
+              />
+            </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem' }}>
-            <div className={styles.formGroup}>
-              <label htmlFor="dateOfBirth" className={styles.label}>
+            <div className={authStyles.formGroup}>
+              <label htmlFor="professionalSummary" className={authStyles.label}>
+                Professional Summary
+              </label>
+              <textarea
+                id="professionalSummary"
+                name="professionalSummary"
+                className={authStyles.input}
+                style={{ minHeight: '120px', resize: 'vertical' }}
+                value={formData.professionalSummary || ''}
+                onChange={handleChange}
+                placeholder="A brief overview of your career and skills..."
+              />
+            </div>
+
+            <div className={authStyles.formGroup}>
+              <label htmlFor="dateOfBirth" className={authStyles.label}>
                 Date of Birth
               </label>
               <input
                 id="dateOfBirth"
                 name="dateOfBirth"
                 type="date"
-                className={styles.input}
+                className={authStyles.input}
                 value={formData.dateOfBirth || ''}
                 onChange={handleChange}
                 max={new Date().toISOString().split('T')[0]}
               />
             </div>
-          </div>
 
-          {errorMsg && (
-            <div className={styles.errorContainer}>
-              <p className={styles.errorText}>{errorMsg}</p>
-            </div>
-          )}
+            {errorMsg && (
+              <div className={authStyles.alertError} style={{ marginTop: '1rem', marginBottom: 0 }}>
+                {errorMsg}
+              </div>
+            )}
 
-          {saveStatus === 'success' && (
-            <div
-              style={{
-                padding: '0.75rem',
-                background: 'rgba(34, 197, 94, 0.1)',
-                border: '1px solid rgba(34, 197, 94, 0.3)',
-                borderRadius: '0.5rem',
-                color: '#4ade80',
-                fontSize: '0.9rem',
-                textAlign: 'center',
-              }}
+            {saveStatus === 'success' && (
+              <div
+                style={{
+                  marginTop: '1rem',
+                  padding: '1rem',
+                  background: 'rgba(34, 197, 94, 0.1)',
+                  border: '1px solid rgba(34, 197, 94, 0.2)',
+                  borderRadius: '0.75rem',
+                  color: '#4ade80',
+                  fontSize: '0.9rem',
+                  textAlign: 'center',
+                }}
+              >
+                Profile updated successfully!
+              </div>
+            )}
+
+            <button
+              type="submit"
+              className={authStyles.submitButton}
+              disabled={saving}
+              style={{ marginTop: '1.5rem' }}
             >
-              Profile updated successfully!
-            </div>
-          )}
-
-          <button
-            type="submit"
-            className={styles.submitButton}
-            disabled={saving}
-            style={{ marginTop: '1rem' }}
-          >
-            {saving ? 'Saving...' : 'Save Profile'}
-          </button>
-        </form>
+              {saving ? 'Saving...' : 'Save Profile'}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );

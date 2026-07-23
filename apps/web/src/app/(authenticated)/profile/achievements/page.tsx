@@ -122,8 +122,8 @@ export default function AchievementsPage() {
       setAchievements(achResult.records);
       setLinks(linkResult.records);
       setCompletion(achResult.completion);
-    } catch (err: any) {
-      setError(err?.message || 'Failed to load data');
+    } catch (err) {
+      setError((err instanceof Error ? err.message : String(err)) || 'Failed to load data');
     } finally {
       setLoading(false);
     }
@@ -164,8 +164,10 @@ export default function AchievementsPage() {
         setAchievementFormOpen(false);
         if (result.completion) setCompletion(result.completion);
       }
-    } catch (err: any) {
-      setAchievementError(err?.message || 'Failed to save achievement');
+    } catch (err) {
+      setAchievementError(
+        (err instanceof Error ? err.message : String(err)) || 'Failed to save achievement',
+      );
     } finally {
       setAchievementSaving(false);
     }
@@ -179,8 +181,10 @@ export default function AchievementsPage() {
     try {
       await deleteAchievementRecord(token, id);
       setAchievements(achievements.filter((a) => a.id !== id));
-    } catch (err: any) {
-      setAchievementError(err?.message || 'Failed to delete achievement');
+    } catch (err) {
+      setAchievementError(
+        (err instanceof Error ? err.message : String(err)) || 'Failed to delete achievement',
+      );
     }
   };
 
@@ -196,8 +200,10 @@ export default function AchievementsPage() {
 
     try {
       await reorderAchievementRecords(token, { orderedIds: updated.map((r) => r.id) });
-    } catch (err: any) {
-      setAchievementError(err?.message || 'Failed to reorder achievements');
+    } catch (err) {
+      setAchievementError(
+        (err instanceof Error ? err.message : String(err)) || 'Failed to reorder achievements',
+      );
     }
   };
 
@@ -233,8 +239,8 @@ export default function AchievementsPage() {
         setLinkFormOpen(false);
         if (result.completion) setCompletion(result.completion);
       }
-    } catch (err: any) {
-      const msg = err?.message || '';
+    } catch (err) {
+      const msg = (err instanceof Error ? err.message : String(err)) || '';
       if (msg.includes('DUPLICATE') || msg.includes('409')) {
         setLinkDuplicateWarning('A link with this URL already exists.');
       } else {
@@ -253,8 +259,8 @@ export default function AchievementsPage() {
     try {
       await deleteProfessionalLinkRecord(token, id);
       setLinks(links.filter((l) => l.id !== id));
-    } catch (err: any) {
-      setLinkError(err?.message || 'Failed to delete link');
+    } catch (err) {
+      setLinkError((err instanceof Error ? err.message : String(err)) || 'Failed to delete link');
     }
   };
 
@@ -270,8 +276,8 @@ export default function AchievementsPage() {
 
     try {
       await reorderProfessionalLinkRecords(token, { orderedIds: updated.map((r) => r.id) });
-    } catch (err: any) {
-      setLinkError(err?.message || 'Failed to reorder links');
+    } catch (err) {
+      setLinkError((err instanceof Error ? err.message : String(err)) || 'Failed to reorder links');
     }
   };
 

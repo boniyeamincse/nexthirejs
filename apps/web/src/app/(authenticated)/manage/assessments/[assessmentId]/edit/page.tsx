@@ -4,12 +4,24 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/providers/auth-context';
 import { getManagedAssessment, updateAssessment } from '@/lib/api-client';
+import type { UpdateAssessmentInput } from '@nexthire/types';
+
+type AssessmentFormState = Omit<
+  UpdateAssessmentInput,
+  'maximumAttempts' | 'instructions' | 'description' | 'type' | 'difficulty'
+> & {
+  maximumAttempts: number | string;
+  instructions: string;
+  description: string;
+  type: string;
+  difficulty: string;
+};
 
 export default function EditAssessmentPage({ params }: { params: { assessmentId: string } }) {
   const router = useRouter();
   const { getAccessToken } = useAuth();
-  
-  const [formData, setFormData] = useState<any>(null);
+
+  const [formData, setFormData] = useState<AssessmentFormState | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,8 +47,8 @@ export default function EditAssessmentPage({ params }: { params: { assessmentId:
           passingScorePercentage: assessment.passingScorePercentage,
           maximumAttempts: assessment.maximumAttempts || '',
         });
-      } catch (err: any) {
-        setError(err.message || 'Failed to load assessment');
+      } catch (err) {
+        setError((err instanceof Error ? err.message : String(err)) || 'Failed to load assessment');
       } finally {
         setLoading(false);
       }
@@ -51,8 +63,8 @@ export default function EditAssessmentPage({ params }: { params: { assessmentId:
     try {
       const accessToken = getAccessToken();
       if (!accessToken) throw new Error('Not authenticated');
-      
-      const payload: any = { ...formData };
+
+      const payload: Record<string, unknown> = { ...formData };
       if (!payload.description) payload.description = null;
       if (!payload.instructions) payload.instructions = null;
       if (!payload.maximumAttempts) payload.maximumAttempts = null;
@@ -60,10 +72,14 @@ export default function EditAssessmentPage({ params }: { params: { assessmentId:
       payload.estimatedDurationMinutes = Number(payload.estimatedDurationMinutes);
       payload.passingScorePercentage = Number(payload.passingScorePercentage);
 
-      await updateAssessment(accessToken, params.assessmentId, payload);
+      await updateAssessment(
+        accessToken,
+        params.assessmentId,
+        payload as unknown as UpdateAssessmentInput,
+      );
       router.push(`/manage/assessments/${params.assessmentId}/questions`);
-    } catch (err: any) {
-      setError(err.message || 'Failed to update assessment');
+    } catch (err) {
+      setError((err instanceof Error ? err.message : String(err)) || 'Failed to update assessment');
     } finally {
       setSaving(false);
     }
@@ -76,7 +92,7 @@ export default function EditAssessmentPage({ params }: { params: { assessmentId:
     <div className="p-8 max-w-3xl mx-auto bg-white shadow rounded-lg mt-8">
       <h1 className="text-2xl font-bold mb-6">Edit Assessment</h1>
       {error && <div className="mb-4 text-red-600 bg-red-50 p-4 rounded">{error}</div>}
-      
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700">Category ID (UUID)</label>
@@ -85,7 +101,7 @@ export default function EditAssessmentPage({ params }: { params: { assessmentId:
             required
             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
             value={formData.categoryId}
-            onChange={e => setFormData({ ...formData, categoryId: e.target.value })}
+            onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
           />
         </div>
 
@@ -98,7 +114,7 @@ export default function EditAssessmentPage({ params }: { params: { assessmentId:
             maxLength={200}
             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
             value={formData.title}
-            onChange={e => setFormData({ ...formData, title: e.target.value })}
+            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
           />
         </div>
 
@@ -110,7 +126,7 @@ export default function EditAssessmentPage({ params }: { params: { assessmentId:
             pattern="[a-z0-9-]+"
             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-gray-50"
             value={formData.slug}
-            onChange={e => setFormData({ ...formData, slug: e.target.value })}
+            onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
           />
         </div>
 
@@ -122,7 +138,7 @@ export default function EditAssessmentPage({ params }: { params: { assessmentId:
             maxLength={500}
             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
             value={formData.shortDescription}
-            onChange={e => setFormData({ ...formData, shortDescription: e.target.value })}
+            onChange={(e) => setFormData({ ...formData, shortDescription: e.target.value })}
           />
         </div>
 
@@ -131,7 +147,7 @@ export default function EditAssessmentPage({ params }: { params: { assessmentId:
           <textarea
             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 h-32"
             value={formData.instructions}
-            onChange={e => setFormData({ ...formData, instructions: e.target.value })}
+            onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
           />
         </div>
 
@@ -141,7 +157,7 @@ export default function EditAssessmentPage({ params }: { params: { assessmentId:
             <select
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
               value={formData.type}
-              onChange={e => setFormData({ ...formData, type: e.target.value })}
+              onChange={(e) => setFormData({ ...formData, type: e.target.value })}
             >
               <option value="PRACTICE">Practice</option>
               <option value="CERTIFICATION">Certification</option>
@@ -154,7 +170,7 @@ export default function EditAssessmentPage({ params }: { params: { assessmentId:
             <select
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
               value={formData.difficulty}
-              onChange={e => setFormData({ ...formData, difficulty: e.target.value })}
+              onChange={(e) => setFormData({ ...formData, difficulty: e.target.value })}
             >
               <option value="BEGINNER">Beginner</option>
               <option value="INTERMEDIATE">Intermediate</option>
@@ -174,7 +190,9 @@ export default function EditAssessmentPage({ params }: { params: { assessmentId:
               max={480}
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
               value={formData.estimatedDurationMinutes}
-              onChange={e => setFormData({ ...formData, estimatedDurationMinutes: Number(e.target.value) })}
+              onChange={(e) =>
+                setFormData({ ...formData, estimatedDurationMinutes: Number(e.target.value) })
+              }
             />
           </div>
           <div>
@@ -186,7 +204,9 @@ export default function EditAssessmentPage({ params }: { params: { assessmentId:
               max={100}
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
               value={formData.passingScorePercentage}
-              onChange={e => setFormData({ ...formData, passingScorePercentage: Number(e.target.value) })}
+              onChange={(e) =>
+                setFormData({ ...formData, passingScorePercentage: Number(e.target.value) })
+              }
             />
           </div>
           <div>
@@ -197,7 +217,12 @@ export default function EditAssessmentPage({ params }: { params: { assessmentId:
               max={100}
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
               value={formData.maximumAttempts}
-              onChange={e => setFormData({ ...formData, maximumAttempts: e.target.value ? Number(e.target.value) : '' })}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  maximumAttempts: e.target.value ? Number(e.target.value) : '',
+                })
+              }
             />
           </div>
         </div>

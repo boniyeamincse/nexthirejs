@@ -8,7 +8,7 @@ interface PassportSection {
   id: string;
   type: string;
   title: string;
-  content?: any;
+  content?: unknown;
 }
 
 interface PassportData {
@@ -139,7 +139,7 @@ export default function PublicPassportPage() {
                       Achievements and awards
                     </p>
                   )}
-                  {section.content && (
+                  {section.content ? (
                     <div
                       style={{
                         marginTop: '10px',
@@ -152,7 +152,7 @@ export default function PublicPassportPage() {
                         ? section.content
                         : JSON.stringify(section.content, null, 2)}
                     </div>
-                  )}
+                  ) : null}
                 </div>
               ))}
             </div>

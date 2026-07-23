@@ -8,14 +8,15 @@ import {
   createAssessmentSection,
   assignAssessmentQuestions,
   deleteAssessmentSection,
-  deleteAssessmentQuestionAssignment
+  deleteAssessmentQuestionAssignment,
 } from '@/lib/api-client';
+import type { AssessmentManagementDetail } from '@nexthire/types';
 
 export default function QuestionsBuilderPage({ params }: { params: { assessmentId: string } }) {
   const router = useRouter();
   const { getAccessToken } = useAuth();
-  
-  const [assessment, setAssessment] = useState<any>(null);
+
+  const [assessment, setAssessment] = useState<AssessmentManagementDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,8 +27,8 @@ export default function QuestionsBuilderPage({ params }: { params: { assessmentI
     try {
       const data = await getManagedAssessment(accessToken, params.assessmentId);
       setAssessment(data);
-    } catch (err: any) {
-      setError(err.message || 'Failed to load assessment');
+    } catch (err) {
+      setError((err instanceof Error ? err.message : String(err)) || 'Failed to load assessment');
     } finally {
       setLoading(false);
     }
@@ -48,8 +49,8 @@ export default function QuestionsBuilderPage({ params }: { params: { assessmentI
         isRequired: true,
       });
       await load();
-    } catch (err: any) {
-      alert(err.message);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : String(err));
     }
   };
 
@@ -60,8 +61,8 @@ export default function QuestionsBuilderPage({ params }: { params: { assessmentI
       if (!accessToken) throw new Error('Not authenticated');
       await deleteAssessmentSection(accessToken, params.assessmentId, sectionId);
       await load();
-    } catch (err: any) {
-      alert(err.message);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : String(err));
     }
   };
 
@@ -77,8 +78,8 @@ export default function QuestionsBuilderPage({ params }: { params: { assessmentI
         points: 1,
       });
       await load();
-    } catch (err: any) {
-      alert(err.message);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : String(err));
     }
   };
 
@@ -89,8 +90,8 @@ export default function QuestionsBuilderPage({ params }: { params: { assessmentI
       if (!accessToken) throw new Error('Not authenticated');
       await deleteAssessmentQuestionAssignment(accessToken, params.assessmentId, assignmentId);
       await load();
-    } catch (err: any) {
-      alert(err.message);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : String(err));
     }
   };
 
@@ -102,7 +103,9 @@ export default function QuestionsBuilderPage({ params }: { params: { assessmentI
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold">{assessment.title} - Structure</h1>
-          <p className="text-gray-500">Total Points: {assessment.totalPoints} | Questions: {assessment.questionCount}</p>
+          <p className="text-gray-500">
+            Total Points: {assessment.totalPoints} | Questions: {assessment.questionCount}
+          </p>
         </div>
         <div className="space-x-4">
           <button
@@ -119,7 +122,7 @@ export default function QuestionsBuilderPage({ params }: { params: { assessmentI
           </button>
         </div>
       </div>
-      
+
       {error && <div className="mb-4 text-red-600 bg-red-50 p-4 rounded">{error}</div>}
 
       <div className="mb-6">
@@ -129,31 +132,42 @@ export default function QuestionsBuilderPage({ params }: { params: { assessmentI
       </div>
 
       <div className="space-y-6">
-        {assessment.sections.map((section: any) => (
+        {assessment.sections.map((section) => (
           <div key={section.id} className="bg-white shadow rounded-lg border p-6">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold">{section.title}</h3>
               <div className="space-x-2">
-                <button onClick={() => handleAddQuestion(section.id)} className="text-blue-600 text-sm">
+                <button
+                  onClick={() => handleAddQuestion(section.id)}
+                  className="text-blue-600 text-sm"
+                >
                   + Add Question
                 </button>
-                <button onClick={() => handleDeleteSection(section.id)} className="text-red-600 text-sm">
+                <button
+                  onClick={() => handleDeleteSection(section.id)}
+                  className="text-red-600 text-sm"
+                >
                   Delete Section
                 </button>
               </div>
             </div>
-            
+
             {section.questions.length === 0 ? (
               <p className="text-gray-400 text-sm italic">No questions assigned.</p>
             ) : (
               <ul className="divide-y border-t mt-4">
-                {section.questions.map((q: any) => (
+                {section.questions.map((q) => (
                   <li key={q.id} className="py-3 flex justify-between items-center">
                     <div>
                       <p className="font-medium">{q.question.prompt}</p>
-                      <p className="text-xs text-gray-500">ID: {q.question.id} | Points: {q.points}</p>
+                      <p className="text-xs text-gray-500">
+                        ID: {q.question.id} | Points: {q.points}
+                      </p>
                     </div>
-                    <button onClick={() => handleRemoveQuestion(q.id)} className="text-red-600 text-sm">
+                    <button
+                      onClick={() => handleRemoveQuestion(q.id)}
+                      className="text-red-600 text-sm"
+                    >
                       Remove
                     </button>
                   </li>

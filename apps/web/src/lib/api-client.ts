@@ -2003,7 +2003,9 @@ export async function publishAssessment(accessToken: string, assessmentId: strin
   let errorBody = null;
   try {
     errorBody = await response.json();
-  } catch {}
+  } catch {
+    // Ignore JSON parse error
+  }
   throw new Error(errorBody?.message ?? `Failed to publish assessment: ${response.status}`);
 }
 
@@ -2034,7 +2036,9 @@ export async function republishAssessment(
   let errorBody = null;
   try {
     errorBody = await response.json();
-  } catch {}
+  } catch {
+    // Ignore JSON parse error
+  }
   throw new Error(errorBody?.message ?? `Failed to republish assessment: ${response.status}`);
 }
 
@@ -2053,7 +2057,9 @@ export async function startOrResumeAssessmentAttempt(
     let errorBody = null;
     try {
       errorBody = await response.json();
-    } catch {}
+    } catch {
+      // Ignore JSON parse error
+    }
     throw new Error(errorBody?.message ?? `Failed to start assessment attempt: ${response.status}`);
   }
   return response.json();
@@ -2074,7 +2080,9 @@ export async function getActiveAssessmentAttempt(
     let errorBody = null;
     try {
       errorBody = await response.json();
-    } catch {}
+    } catch {
+      // Ignore JSON parse error
+    }
     throw new Error(errorBody?.message ?? `Failed to fetch active attempt: ${response.status}`);
   }
   return response.json();
@@ -2096,7 +2104,9 @@ export async function clearAttemptAnswer(
     let errorBody = null;
     try {
       errorBody = await response.json();
-    } catch {}
+    } catch {
+      // Ignore JSON parse error
+    }
     throw new Error(errorBody?.message ?? `Failed to clear answer: ${response.status}`);
   }
 }
@@ -2112,7 +2122,9 @@ export async function getAttemptWorkspace(
     let errorBody = null;
     try {
       errorBody = await response.json();
-    } catch {}
+    } catch {
+      // Ignore JSON parse error
+    }
     throw new Error(errorBody?.message ?? `Failed to fetch attempt workspace: ${response.status}`);
   }
   return response.json();
@@ -2139,7 +2151,9 @@ export async function saveAttemptAnswer(
     let errorBody = null;
     try {
       errorBody = await response.json();
-    } catch {}
+    } catch {
+      // Ignore JSON parse error
+    }
     throw new Error(errorBody?.message ?? `Failed to save answer: ${response.status}`);
   }
   return response.json();
@@ -2163,7 +2177,9 @@ export async function submitAssessmentAttempt(
     let errorBody = null;
     try {
       errorBody = await response.json();
-    } catch {}
+    } catch {
+      // Ignore JSON parse error
+    }
     throw new Error(errorBody?.message ?? `Failed to submit assessment: ${response.status}`);
   }
 
@@ -2185,7 +2201,9 @@ export async function getAssessmentSubmissionSummary(
     let errorBody = null;
     try {
       errorBody = await response.json();
-    } catch {}
+    } catch {
+      // Ignore JSON parse error
+    }
     throw new Error(errorBody?.message ?? `Failed to fetch submission summary: ${response.status}`);
   }
 
@@ -2208,7 +2226,9 @@ export async function listMyAssessmentResults(
     let errorBody = null;
     try {
       errorBody = await response.json();
-    } catch {}
+    } catch {
+      // Ignore JSON parse error
+    }
     throw new Error(errorBody?.message ?? `Failed to fetch assessment results: ${response.status}`);
   }
 
@@ -2228,7 +2248,9 @@ export async function getMyAssessmentResult(
     let errorBody = null;
     try {
       errorBody = await response.json();
-    } catch {}
+    } catch {
+      // Ignore JSON parse error
+    }
     throw new Error(errorBody?.message ?? `Failed to fetch assessment result: ${response.status}`);
   }
 
@@ -2253,7 +2275,9 @@ export async function getMyAssessmentPerformance(
     let errorBody = null;
     try {
       errorBody = await response.json();
-    } catch {}
+    } catch {
+      // Ignore JSON parse error
+    }
     throw new Error(errorBody?.message ?? `Failed to fetch performance report: ${response.status}`);
   }
 
@@ -2272,7 +2296,9 @@ export async function getMyLeaderboardSettings(
     let errorBody = null;
     try {
       errorBody = await response.json();
-    } catch {}
+    } catch {
+      // Ignore JSON parse error
+    }
     throw new Error(
       errorBody?.message ?? `Failed to fetch leaderboard settings: ${response.status}`,
     );
@@ -2298,7 +2324,9 @@ export async function updateMyLeaderboardSettings(
     let errorBody = null;
     try {
       errorBody = await response.json();
-    } catch {}
+    } catch {
+      // Ignore JSON parse error
+    }
     throw new Error(
       errorBody?.message ?? `Failed to update leaderboard settings: ${response.status}`,
     );
@@ -2324,7 +2352,9 @@ export async function getAssessmentLeaderboard(
     let errorBody = null;
     try {
       errorBody = await response.json();
-    } catch {}
+    } catch {
+      // Ignore JSON parse error
+    }
     throw new Error(errorBody?.message ?? `Failed to fetch leaderboard: ${response.status}`);
   }
 
@@ -2348,7 +2378,9 @@ export async function getCategoryLeaderboard(
     let errorBody = null;
     try {
       errorBody = await response.json();
-    } catch {}
+    } catch {
+      // Ignore JSON parse error
+    }
     throw new Error(
       errorBody?.message ?? `Failed to fetch category leaderboard: ${response.status}`,
     );
@@ -2392,7 +2424,7 @@ export async function getAssessmentRetakeEligibility(
 export async function updateAssessmentRetakeCertificatePolicy(
   accessToken: string,
   assessmentId: string,
-  input: any,
+  input: Partial<AssessmentRetakePolicy>,
 ): Promise<AssessmentRetakePolicy> {
   const response = await fetch(
     `${publicEnv.apiBaseUrl}/manage/assessments/${assessmentId}/retake-certificate-policy`,

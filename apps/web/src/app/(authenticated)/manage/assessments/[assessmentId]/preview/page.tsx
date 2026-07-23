@@ -8,15 +8,16 @@ import {
   getAssessmentReadiness,
   publishAssessment,
   archiveAssessment,
-  republishAssessment
+  republishAssessment,
 } from '@/lib/api-client';
+import type { AssessmentManagementDetail, AssessmentPublicationReadiness } from '@nexthire/types';
 
 export default function PreviewPublishPage({ params }: { params: { assessmentId: string } }) {
   const router = useRouter();
   const { getAccessToken } = useAuth();
-  
-  const [assessment, setAssessment] = useState<any>(null);
-  const [readiness, setReadiness] = useState<any>(null);
+
+  const [assessment, setAssessment] = useState<AssessmentManagementDetail | null>(null);
+  const [readiness, setReadiness] = useState<AssessmentPublicationReadiness | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -30,8 +31,10 @@ export default function PreviewPublishPage({ params }: { params: { assessmentId:
       setAssessment(data);
       const readData = await getAssessmentReadiness(accessToken, params.assessmentId);
       setReadiness(readData);
-    } catch (err: any) {
-      setError(err.message || 'Failed to load readiness data');
+    } catch (err) {
+      setError(
+        (err instanceof Error ? err.message : String(err)) || 'Failed to load readiness data',
+      );
     } finally {
       setLoading(false);
     }
@@ -46,14 +49,14 @@ export default function PreviewPublishPage({ params }: { params: { assessmentId:
     try {
       const accessToken = getAccessToken();
       if (!accessToken) throw new Error('Not authenticated');
-      if (assessment.status === 'ARCHIVED') {
+      if (assessment?.status === 'ARCHIVED') {
         await republishAssessment(accessToken, params.assessmentId);
       } else {
         await publishAssessment(accessToken, params.assessmentId);
       }
       await load();
-    } catch (err: any) {
-      alert(err.message);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : String(err));
     } finally {
       setActionLoading(false);
     }
@@ -67,8 +70,8 @@ export default function PreviewPublishPage({ params }: { params: { assessmentId:
       if (!accessToken) throw new Error('Not authenticated');
       await archiveAssessment(accessToken, params.assessmentId);
       await load();
-    } catch (err: any) {
-      alert(err.message);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : String(err));
     } finally {
       setActionLoading(false);
     }
@@ -82,7 +85,9 @@ export default function PreviewPublishPage({ params }: { params: { assessmentId:
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold">{assessment.title} - Publication</h1>
-          <p className="text-gray-500">Current Status: <strong className="text-indigo-600">{assessment.status}</strong></p>
+          <p className="text-gray-500">
+            Current Status: <strong className="text-indigo-600">{assessment.status}</strong>
+          </p>
         </div>
         <div className="space-x-4">
           <button
@@ -93,7 +98,7 @@ export default function PreviewPublishPage({ params }: { params: { assessmentId:
           </button>
         </div>
       </div>
-      
+
       {error && <div className="mb-4 text-red-600 bg-red-50 p-4 rounded">{error}</div>}
 
       <div className="grid grid-cols-2 gap-8">
@@ -110,22 +115,24 @@ export default function PreviewPublishPage({ params }: { params: { assessmentId:
               </div>
             )}
 
-            {readiness?.blockers?.length > 0 && (
+            {readiness && readiness.blockers.length > 0 && (
               <div className="mb-4">
                 <h4 className="font-semibold text-red-700">Blockers</h4>
                 <ul className="list-disc pl-5 mt-2 space-y-1 text-sm text-red-600">
-                  {readiness.blockers.map((b: any, i: number) => (
-                    <li key={i}>{b.message} ({b.code})</li>
+                  {readiness.blockers.map((b, i) => (
+                    <li key={i}>
+                      {b.message} ({b.code})
+                    </li>
                   ))}
                 </ul>
               </div>
             )}
-            
-            {readiness?.warnings?.length > 0 && (
+
+            {readiness && readiness.warnings.length > 0 && (
               <div>
                 <h4 className="font-semibold text-yellow-700">Warnings</h4>
                 <ul className="list-disc pl-5 mt-2 space-y-1 text-sm text-yellow-700">
-                  {readiness.warnings.map((w: any, i: number) => (
+                  {readiness.warnings.map((w, i) => (
                     <li key={i}>{w.message}</li>
                   ))}
                 </ul>
@@ -137,7 +144,7 @@ export default function PreviewPublishPage({ params }: { params: { assessmentId:
         <div className="space-y-6">
           <div className="bg-white p-6 rounded shadow">
             <h3 className="font-bold text-lg mb-4">Actions</h3>
-            
+
             {assessment.status === 'DRAFT' && (
               <div className="space-y-4">
                 <p className="text-sm text-gray-600">
@@ -156,7 +163,8 @@ export default function PreviewPublishPage({ params }: { params: { assessmentId:
             {assessment.status === 'PUBLISHED' && (
               <div className="space-y-4">
                 <p className="text-sm text-gray-600">
-                  This assessment is currently published. To edit its structure, you must archive it first.
+                  This assessment is currently published. To edit its structure, you must archive it
+                  first.
                 </p>
                 <button
                   onClick={handleArchive}
@@ -182,7 +190,7 @@ export default function PreviewPublishPage({ params }: { params: { assessmentId:
                 </button>
               </div>
             )}
-            
+
             {assessment.status === 'RETIRED' && (
               <div className="space-y-4">
                 <p className="text-sm text-gray-600 text-red-600">

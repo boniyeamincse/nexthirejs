@@ -88,7 +88,7 @@ export default function LoginPage() {
         setMfaError(null);
         return;
       }
-      router.push('/app');
+      router.push('/dashboard');
     } catch (error) {
       if (error instanceof ApiClientError) {
         const msg = error.message;
@@ -146,7 +146,7 @@ export default function LoginPage() {
         code: trimmed,
         trustDevice: trustDevice || undefined,
       });
-      router.push('/app');
+      router.push('/dashboard');
     } catch (error) {
       if (error instanceof ApiClientError) {
         const msg = error.message;

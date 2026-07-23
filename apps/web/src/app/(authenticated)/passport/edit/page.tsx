@@ -11,10 +11,10 @@ interface ProfileData {
     email: string;
     name?: string;
   };
-  resume?: any;
-  skills: any[];
-  projects: any[];
-  achievements: any[];
+  resume?: unknown;
+  skills: unknown[];
+  projects: unknown[];
+  achievements: unknown[];
   metadata: {
     skillCount: number;
     projectCount: number;
