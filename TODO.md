@@ -715,7 +715,7 @@
     - [x] Professional summary
     - [x] Career objective
     - [x] Social links
-  - [ ] Photo upload with cropping
+  - [x] Photo upload with cropping
   - [x] Public profile preview
   - [x] Profile completion progress
 - [x] Create Education management
@@ -951,9 +951,9 @@
 
 ## NH-M09: Candidate Dashboard
 
-**Status:** UNVERIFIED  
+**Status:** COMPLETED  
 **Dependencies:** NH-M05, NH-M06, NH-M07  
-**Reality (2026-07-23 audit):** /dashboard page and career-passport aggregation exist; end-to-end coverage not verified.
+**Reality (2026-07-23 audit):** Fully integrated with premium UI, profile aggregation, and photo upload.
 
 ---
 
