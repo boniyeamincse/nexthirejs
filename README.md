@@ -115,12 +115,18 @@ pnpm --filter @nexthire/web typecheck
 
 ## Test Accounts
 
-The following test accounts are available for local development and testing. You must seed the database to create them.
+The platform has 4 primary roles: **Admin**, **Company**, **Expert (Trainer)**, and **Candidate (User)**.
+The following test accounts cover all of them for local development and testing. You must seed the
+database to create them. All passwords are the same: `Password123!`.
 
-| Role                | Email                   | Password       | Notes                             |
-| ------------------- | ----------------------- | -------------- | --------------------------------- |
-| Candidate           | `candidate@example.com` | `Password123!` | Standard candidate account        |
-| Assessment Manager  | `manager@example.com`   | `Password123!` | Manager with publish permissions  |
+| Role                | Email                        | Password       | Role code(s)          | Notes                                                        |
+| ------------------- | ----------------------------- | -------------- | ---------------------- | ------------------------------------------------------------- |
+| Admin               | `admin@nexthire.com`          | `Password123`  | `super_admin`           | Full platform admin access                                     |
+| Company             | `company@example.com`         | `Password123!` | `company`               | Company/recruiter role — module not yet built (NH-M19–26)      |
+| Expert (Trainer)    | `expert@example.com`          | `Password123!` | `candidate`, `expert`   | Pre-approved expert — can access `/expert/*` and public directory |
+| Candidate (User)    | `candidate@example.com`       | `Password123!` | `candidate`             | Standard candidate account                                     |
+| Assessment Manager  | `manager@example.com`         | `Password123!` | `assessment_manager`    | Manager with assessment publish permissions                    |
+| Expert Reviewer     | `expert-reviewer@example.com` | `Password123!` | `expert_application_reviewer` | Reviews/approves expert applications                     |
 
 Seed command: `export DATABASE_URL="postgresql://..." && npx tsx apps/api/prisma/seed.ts`
 
