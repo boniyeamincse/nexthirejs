@@ -1,10 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe, VersioningType } from '@nestjs/common';
 import request from 'supertest';
+import { App } from 'supertest/types';
 import { AppModule } from '../src/app.module';
 
 describe('CandidateProfileController (e2e)', () => {
-  let app: INestApplication;
+  let app: INestApplication<App>;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -12,6 +13,11 @@ describe('CandidateProfileController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
+    app.useGlobalPipes(
+      new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
+    );
     await app.init();
   });
 
@@ -19,13 +25,13 @@ describe('CandidateProfileController (e2e)', () => {
     await app.close();
   });
 
-  it('/v1/candidates/me/profile (GET) - unauthorized', () => {
-    return request(app.getHttpServer()).get('/v1/candidates/me/profile').expect(401);
+  it('/api/v1/candidates/me/profile (GET) - unauthorized', () => {
+    return request(app.getHttpServer()).get('/api/v1/candidates/me/profile').expect(401);
   });
 
-  it('/v1/candidates/me/profile (PUT) - unauthorized', () => {
+  it('/api/v1/candidates/me/profile (PUT) - unauthorized', () => {
     return request(app.getHttpServer())
-      .put('/v1/candidates/me/profile')
+      .put('/api/v1/candidates/me/profile')
       .send({ fullName: 'John Doe' })
       .expect(401);
   });

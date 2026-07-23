@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/providers/auth-context';
 import { getMyCandidateProfile, updateMyCandidateProfile } from '@/lib/api-client';
+import { ProfilePhotoCard } from '@/features/candidate-profile/photo/ProfilePhotoCard';
 import type { CandidateProfileCompletion } from '@nexthire/types';
 import type { CandidateProfileBasicsInput } from '@nexthire/validation';
 import styles from '@/app/(auth)/auth.module.css';
@@ -242,6 +243,8 @@ export default function ProfilePage() {
             </p>
           </div>
         )}
+
+        <ProfilePhotoCard getAccessToken={getAccessToken} />
 
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.formGroup}>

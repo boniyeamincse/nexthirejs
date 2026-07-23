@@ -150,7 +150,7 @@ describe('CandidateCertificationsController (e2e)', () => {
           expect(res.body.record.credentialId).toBe('AWS-12345');
           expect(res.body.record.credentialUrl).toBe('https://aws.amazon.com/verify/12345');
           expect(res.body.completion.percentage).toBeDefined();
-          expect(res.body.completion.version).toBe('candidate-profile-v6');
+          expect(res.body.completion.version).toBe('candidate-profile-v7');
           certificationId = res.body.record.id;
         });
     });

@@ -3361,3 +3361,68 @@ export async function verifyMfaChallenge(
   }
   throw await parseApiError(response, 'Verification failed');
 }
+
+// --- Candidate profile photo ---
+
+export interface CandidatePhotoStatusResult {
+  hasPhoto: boolean;
+  mimeType: string | null;
+  sizeBytes: number | null;
+  updatedAt: string | null;
+}
+
+export async function getMyPhotoStatus(accessToken: string): Promise<CandidatePhotoStatusResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/profile/photo/status`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (response.ok) {
+    return response.json() as Promise<CandidatePhotoStatusResult>;
+  }
+  throw await parseApiError(response, 'Failed to load photo status');
+}
+
+export async function uploadMyPhoto(
+  accessToken: string,
+  file: File,
+): Promise<CandidatePhotoStatusResult> {
+  const formData = new FormData();
+  formData.append('file', file);
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/profile/photo`, {
+    method: 'PUT',
+    headers: { Authorization: `Bearer ${accessToken}` },
+    body: formData,
+  });
+  if (response.ok) {
+    return response.json() as Promise<CandidatePhotoStatusResult>;
+  }
+  throw await parseApiError(response, 'Failed to upload photo');
+}
+
+/**
+ * Fetches the private photo bytes and returns an object URL for rendering.
+ * Caller must revoke the URL when finished to avoid leaks.
+ */
+export async function fetchMyPhotoObjectUrl(accessToken: string): Promise<string | null> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/profile/photo`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (response.status === 404) {
+    return null;
+  }
+  if (response.ok) {
+    const blob = await response.blob();
+    return URL.createObjectURL(blob);
+  }
+  throw await parseApiError(response, 'Failed to load photo');
+}
+
+export async function deleteMyPhoto(accessToken: string): Promise<void> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/profile/photo`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (response.ok || response.status === 204) {
+    return;
+  }
+  throw await parseApiError(response, 'Failed to remove photo');
+}

@@ -128,3 +128,23 @@ All external public profile endpoints return `404 PUBLIC_CANDIDATE_PROFILE_NOT_F
 ### 4.6 Privacy Filtering
 
 The backend profile assembler applies section-level privacy filtering based on the viewer context (OWNER, LINK_HOLDER, PLATFORM_AUTHENTICATED). Hidden sections are omitted entirely from API responses. Sensitive fields (email, dateOfBirth, completion score, user ID, auth tokens) are never exposed externally.
+
+## 5. Profile Photo (NH-M05)
+
+All photo endpoints are owner-only (candidate role) under `/api/v1/candidates/me/profile/photo`.
+
+| Method | Path      | Purpose                                                 | Notes                                                          |
+| ------ | --------- | ------------------------------------------------------- | -------------------------------------------------------------- |
+| GET    | `/status` | `{ hasPhoto, mimeType, sizeBytes, updatedAt }`          | 60/min                                                         |
+| PUT    | ``        | Upload/replace via multipart `file` (JPEG/PNG, max 2MB) | 400 no profile/file, 413 too large, 415 bad content; 10/15 min |
+| GET    | ``        | Image bytes, `Cache-Control: private, no-store`         | 404 when absent                                                |
+| DELETE | ``        | Remove photo (clears metadata + storage object)         | 404 when absent; 10/15 min                                     |
+
+Security:
+
+- Content type verified from magic bytes (`detectFileType`) — the client MIME/filename is never trusted; only real JPEG/PNG accepted.
+- Objects stored in the private `nexthire-candidate-photos` prefix with opaque 24-byte random keys; keys are never exposed in API responses.
+- Replacing a photo deletes the previous object; deleting clears all photo metadata.
+- Access is strictly owner-scoped: the storage key is resolved from the caller's own profile row, so cross-user access is structurally impossible (verified by E2E).
+- Public/preview delivery of photos is deliberately deferred until a privacy-policy decision covers third-party photo visibility; photos stay private to the owner.
+- Audit events: `candidate.photo.uploaded` (with mimeType/sizeBytes/replaced), `candidate.photo.deleted`. No storage keys in audit metadata.

@@ -1,6 +1,9 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { CandidateProfileController } from './controllers/candidate-profile.controller';
+import { CandidatePhotoController } from './photo/candidate-photo.controller';
+import { CandidatePhotoService } from './photo/candidate-photo.service';
+import { CandidatePhotoStorageService } from './photo/candidate-photo-storage.service';
 import { CandidatePreferencesController } from './controllers/candidate-preferences.controller';
 import { CandidateEducationController } from './controllers/candidate-education.controller';
 import { CandidateWorkExperienceController } from './controllers/candidate-work-experience.controller';
@@ -85,9 +88,12 @@ import { AccountDeactivationService } from './account-lifecycle/account-deactiva
     ProfileCompletionController,
     CandidateDataExportController,
     AccountDeactivationController,
+    CandidatePhotoController,
   ],
   providers: [
     CandidateProfileService,
+    CandidatePhotoService,
+    CandidatePhotoStorageService,
     CandidatePreferencesService,
     CandidateProfileCompletionService,
     CandidateEducationService,

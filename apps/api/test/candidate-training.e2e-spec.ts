@@ -147,7 +147,7 @@ describe('CandidateTrainingController (e2e)', () => {
             'In-depth TypeScript course covering advanced types and patterns.',
           );
           expect(res.body.completion.percentage).toBeDefined();
-          expect(res.body.completion.version).toBe('candidate-profile-v6');
+          expect(res.body.completion.version).toBe('candidate-profile-v7');
           trainingId = res.body.record.id;
         });
     });

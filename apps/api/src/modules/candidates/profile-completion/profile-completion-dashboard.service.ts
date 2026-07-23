@@ -76,6 +76,7 @@ export class ProfileCompletionDashboardService {
         targetId: profileData.candidateProfile?.id ?? userId,
         outcome: AuditOutcome.SUCCESS,
         metadata: {
+          viewerContext: 'OWNER',
           completionPercentage: completion.percentage,
           completionVersion: completion.version,
           completedSectionCount: completedSections,

@@ -1,11 +1,17 @@
 import { Controller, Get, Put, Body, UseGuards, Req } from '@nestjs/common';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { CandidateProfileService } from '../services/candidate-profile.service';
 import { AuthGuard } from '../../auth/auth.guard';
 import type { AuthenticatedRequest } from '../../auth/auth.guard';
 import { RolesGuard } from '../../../common/guards/roles.guard';
 import { RequireRoles } from '../../../common/decorators/roles.decorator';
 
-@Controller('v1/candidates/me/profile')
+@ApiTags('Candidate Profile')
+@Controller({
+  path: 'candidates/me/profile',
+  version: '1',
+})
+@ApiBearerAuth()
 @UseGuards(AuthGuard, RolesGuard)
 @RequireRoles('candidate')
 export class CandidateProfileController {
