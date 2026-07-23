@@ -497,8 +497,9 @@ model Cv {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  sections CvSection[]
-  versions CvVersion[]
+  sections        CvSection[]
+  sectionContents CvSectionContent[]
+  versions        CvVersion[]
 
   @@index([userId, isDefault])
   @@index([visibility])
@@ -517,6 +518,19 @@ model CvSection {
 
   @@index([cvId, sortOrder])
   @@unique([cvId, type])
+}
+
+model CvSectionContent {
+  id        String   @id @default(uuid()) @db.Uuid
+  cvId      String   @db.Uuid
+  sectionType String  @db.VarChar(50)
+  content   Json
+  updatedAt DateTime @updatedAt
+
+  cv Cv @relation(fields: [cvId], references: [id], onDelete: Cascade)
+
+  @@unique([cvId, sectionType])
+  @@index([cvId])
 }
 
 model CvVersion {
