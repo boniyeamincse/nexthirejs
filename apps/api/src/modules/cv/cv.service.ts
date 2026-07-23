@@ -124,12 +124,8 @@ export class CvService {
       include: { sections: true },
     });
 
-    if (!cv) {
-      throw new NotFoundException('CV not found');
-    }
-
-    if (cv.userId !== userId) {
-      throw new BadRequestException('Unauthorized');
+    if (!cv || cv.userId !== userId) {
+      throw new NotFoundException('CV_NOT_FOUND');
     }
 
     return this.formatCvResponse(cv);
@@ -149,12 +145,8 @@ export class CvService {
       where: { id: cvId },
     });
 
-    if (!cv) {
-      throw new NotFoundException('CV not found');
-    }
-
-    if (cv.userId !== userId) {
-      throw new BadRequestException('Unauthorized');
+    if (!cv || cv.userId !== userId) {
+      throw new NotFoundException('CV_NOT_FOUND');
     }
 
     const updated = await this.prisma.cv.update({
@@ -183,12 +175,8 @@ export class CvService {
       where: { id: cvId },
     });
 
-    if (!cv) {
-      throw new NotFoundException('CV not found');
-    }
-
-    if (cv.userId !== userId) {
-      throw new BadRequestException('Unauthorized');
+    if (!cv || cv.userId !== userId) {
+      throw new NotFoundException('CV_NOT_FOUND');
     }
 
     // Unset all other CVs as default
@@ -220,12 +208,8 @@ export class CvService {
       where: { id: cvId },
     });
 
-    if (!cv) {
-      throw new NotFoundException('CV not found');
-    }
-
-    if (cv.userId !== userId) {
-      throw new BadRequestException('Unauthorized');
+    if (!cv || cv.userId !== userId) {
+      throw new NotFoundException('CV_NOT_FOUND');
     }
 
     if (cv.isDefault) {
@@ -254,12 +238,8 @@ export class CvService {
       include: { sections: true, versions: true },
     });
 
-    if (!sourceCv) {
-      throw new NotFoundException('Source CV not found');
-    }
-
-    if (sourceCv.userId !== userId) {
-      throw new BadRequestException('Unauthorized');
+    if (!sourceCv || sourceCv.userId !== userId) {
+      throw new NotFoundException('CV_NOT_FOUND');
     }
 
     const newCv = await this.prisma.cv.create({

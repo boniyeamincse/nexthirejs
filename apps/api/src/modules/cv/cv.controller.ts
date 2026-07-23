@@ -15,7 +15,10 @@ import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagg
 import type { Response } from 'express';
 import { CvService, CvResponse } from './cv.service';
 import { CvExportService } from './cv-export.service';
+import { CvReadinessService, CvReadinessResult } from './cv-readiness.service';
 import { AuthGuard } from '../auth/auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { RequireRoles } from '../../common/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { AuthenticatedPrincipal } from '../auth/interfaces/authenticated-principal.interface';
 import { CreateCvDto } from './dto/create-cv.dto';
@@ -24,12 +27,14 @@ import { DuplicateCvDto } from './dto/duplicate-cv.dto';
 
 @ApiTags('CV Builder')
 @Controller('cvs')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, RolesGuard)
+@RequireRoles('candidate')
 @ApiBearerAuth()
 export class CvController {
   constructor(
     private readonly cvService: CvService,
     private readonly cvExportService: CvExportService,
+    private readonly readinessService: CvReadinessService,
   ) {}
 
   @Post()
@@ -101,6 +106,16 @@ export class CvController {
     @Param('cvId') cvId: string,
   ): Promise<void> {
     return this.cvService.deleteCv(user.userId, cvId);
+  }
+
+  @Get(':cvId/readiness')
+  @ApiOperation({ summary: 'Check whether a CV is ready for PDF export' })
+  @ApiResponse({ status: 200, description: 'Readiness result' })
+  async getReadiness(
+    @CurrentUser() user: AuthenticatedPrincipal,
+    @Param('cvId') cvId: string,
+  ): Promise<CvReadinessResult> {
+    return this.readinessService.checkReadiness(user.userId, cvId);
   }
 
   @Get(':cvId/export/html')

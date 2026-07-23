@@ -511,6 +511,7 @@ model Cv {
   sections        CvSection[]
   sectionContents CvSectionContent[]
   versions        CvVersion[]
+  exports         CvExport[]
 
   @@index([userId, isDefault])
   @@index([visibility])
@@ -554,6 +555,32 @@ model CvVersion {
   cv Cv @relation(fields: [cvId], references: [id], onDelete: Cascade)
 
   @@index([cvId, versionNumber])
+}
+
+enum CvExportStatus {
+  PENDING
+  GENERATING
+  READY
+  FAILED
+}
+
+model CvExport {
+  id              String         @id @default(uuid()) @db.Uuid
+  cvId            String         @db.Uuid
+  userId          String         @db.Uuid
+  status          CvExportStatus @default(PENDING)
+  storageKey      String?        @db.VarChar(255)
+  checksumSha256  String?        @db.VarChar(64)
+  fileSizeBytes   Int?
+  failureCategory String?        @db.VarChar(100)
+  requestedAt     DateTime       @default(now())
+  generatedAt     DateTime?
+  failedAt        DateTime?
+
+  cv Cv @relation(fields: [cvId], references: [id], onDelete: Cascade)
+
+  @@index([cvId, requestedAt])
+  @@index([userId, requestedAt])
 }
 
 enum ProjectStatus {

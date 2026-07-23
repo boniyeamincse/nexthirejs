@@ -188,6 +188,20 @@ export default function ProfilePage() {
             >
               Achievements &amp; Links →
             </a>
+            <a
+              href="/cv"
+              style={{
+                padding: '0.5rem 1rem',
+                background: 'rgba(99, 102, 241, 0.2)',
+                color: '#a5b4fc',
+                textDecoration: 'none',
+                borderRadius: '0.5rem',
+                fontSize: '0.9rem',
+                border: '1px solid rgba(99, 102, 241, 0.3)',
+              }}
+            >
+              CV Builder →
+            </a>
           </div>
         </div>
 

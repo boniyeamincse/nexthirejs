@@ -3426,3 +3426,312 @@ export async function deleteMyPhoto(accessToken: string): Promise<void> {
   }
   throw await parseApiError(response, 'Failed to remove photo');
 }
+
+// --- CV Builder ---
+
+export interface CvResult {
+  id: string;
+  userId: string;
+  title: string;
+  template: string;
+  visibility: string;
+  isDefault: boolean;
+  completionScore: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CvReadinessResult {
+  ready: boolean;
+  missingSections: string[];
+  completionScore: number;
+}
+
+export interface CvSectionContentResult {
+  cvId: string;
+  sectionType: string;
+  content: Record<string, any>;
+  updatedAt: string;
+}
+
+export interface CvExportResult {
+  id: string;
+  cvId: string;
+  status: 'PENDING' | 'GENERATING' | 'READY' | 'FAILED';
+  fileSizeBytes: number | null;
+  failureCategory: string | null;
+  requestedAt: string;
+  generatedAt: string | null;
+  failedAt: string | null;
+}
+
+export const CV_SECTION_TYPES = [
+  'personal_info',
+  'professional_summary',
+  'education',
+  'work_experience',
+  'skills',
+  'projects',
+  'certifications',
+  'languages',
+  'achievements',
+] as const;
+
+export type CvSectionType = (typeof CV_SECTION_TYPES)[number];
+
+function cvAuthHeaders(accessToken: string): Record<string, string> {
+  return {
+    Authorization: `Bearer ${accessToken}`,
+    'Content-Type': 'application/json',
+  };
+}
+
+export async function listMyCvs(accessToken: string): Promise<CvResult[]> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/cvs`, {
+    headers: cvAuthHeaders(accessToken),
+  });
+  if (response.ok) {
+    return response.json() as Promise<CvResult[]>;
+  }
+  throw await parseApiError(response, 'Failed to load CVs');
+}
+
+export async function createCv(
+  accessToken: string,
+  input: { title: string; template?: string },
+): Promise<CvResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/cvs`, {
+    method: 'POST',
+    headers: cvAuthHeaders(accessToken),
+    body: JSON.stringify(input),
+  });
+  if (response.ok) {
+    return response.json() as Promise<CvResult>;
+  }
+  throw await parseApiError(response, 'Failed to create CV');
+}
+
+export async function getCv(accessToken: string, cvId: string): Promise<CvResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/cvs/${encodeURIComponent(cvId)}`, {
+    headers: cvAuthHeaders(accessToken),
+  });
+  if (response.ok) {
+    return response.json() as Promise<CvResult>;
+  }
+  throw await parseApiError(response, 'Failed to load CV');
+}
+
+export async function updateCv(
+  accessToken: string,
+  cvId: string,
+  input: { title?: string; template?: string; visibility?: string },
+): Promise<CvResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/cvs/${encodeURIComponent(cvId)}`, {
+    method: 'PUT',
+    headers: cvAuthHeaders(accessToken),
+    body: JSON.stringify(input),
+  });
+  if (response.ok) {
+    return response.json() as Promise<CvResult>;
+  }
+  throw await parseApiError(response, 'Failed to update CV');
+}
+
+export async function deleteCv(accessToken: string, cvId: string): Promise<void> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/cvs/${encodeURIComponent(cvId)}`, {
+    method: 'DELETE',
+    headers: cvAuthHeaders(accessToken),
+  });
+  if (response.ok || response.status === 204) {
+    return;
+  }
+  throw await parseApiError(response, 'Failed to delete CV');
+}
+
+export async function setDefaultCv(accessToken: string, cvId: string): Promise<void> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/cvs/${encodeURIComponent(cvId)}/set-default`,
+    { method: 'POST', headers: cvAuthHeaders(accessToken) },
+  );
+  if (response.ok || response.status === 204) {
+    return;
+  }
+  throw await parseApiError(response, 'Failed to set default CV');
+}
+
+export async function duplicateCv(
+  accessToken: string,
+  cvId: string,
+  title: string,
+): Promise<CvResult> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/cvs/${encodeURIComponent(cvId)}/duplicate`,
+    {
+      method: 'POST',
+      headers: cvAuthHeaders(accessToken),
+      body: JSON.stringify({ title }),
+    },
+  );
+  if (response.ok) {
+    return response.json() as Promise<CvResult>;
+  }
+  throw await parseApiError(response, 'Failed to duplicate CV');
+}
+
+export async function getCvReadiness(
+  accessToken: string,
+  cvId: string,
+): Promise<CvReadinessResult> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/cvs/${encodeURIComponent(cvId)}/readiness`,
+    { headers: cvAuthHeaders(accessToken) },
+  );
+  if (response.ok) {
+    return response.json() as Promise<CvReadinessResult>;
+  }
+  throw await parseApiError(response, 'Failed to load CV readiness');
+}
+
+export async function getCvExportPreviewHtml(accessToken: string, cvId: string): Promise<string> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/cvs/${encodeURIComponent(cvId)}/export/html`,
+    { headers: { Authorization: `Bearer ${accessToken}` } },
+  );
+  if (response.ok) {
+    return response.text();
+  }
+  throw await parseApiError(response, 'Failed to load CV preview');
+}
+
+export async function getAllCvSections(
+  accessToken: string,
+  cvId: string,
+): Promise<CvSectionContentResult[]> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/cvs/${encodeURIComponent(cvId)}/sections`, {
+    headers: cvAuthHeaders(accessToken),
+  });
+  if (response.ok) {
+    return response.json() as Promise<CvSectionContentResult[]>;
+  }
+  throw await parseApiError(response, 'Failed to load CV sections');
+}
+
+export async function updateCvSectionContent(
+  accessToken: string,
+  cvId: string,
+  sectionType: CvSectionType,
+  content: Record<string, any>,
+): Promise<CvSectionContentResult> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/cvs/${encodeURIComponent(cvId)}/sections/${encodeURIComponent(sectionType)}`,
+    {
+      method: 'PUT',
+      headers: cvAuthHeaders(accessToken),
+      body: JSON.stringify({ content }),
+    },
+  );
+  if (response.ok) {
+    return response.json() as Promise<CvSectionContentResult>;
+  }
+  throw await parseApiError(response, 'Failed to update CV section');
+}
+
+export async function importCvSectionFromProfile(
+  accessToken: string,
+  cvId: string,
+  sectionType: CvSectionType,
+): Promise<CvSectionContentResult> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/cvs/${encodeURIComponent(cvId)}/sections/${encodeURIComponent(sectionType)}/import-from-profile`,
+    { method: 'POST', headers: cvAuthHeaders(accessToken) },
+  );
+  if (response.ok) {
+    return response.json() as Promise<CvSectionContentResult>;
+  }
+  throw await parseApiError(response, 'Failed to import from profile');
+}
+
+export async function toggleCvSection(
+  accessToken: string,
+  cvId: string,
+  sectionType: CvSectionType,
+  enabled: boolean,
+): Promise<void> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/cvs/${encodeURIComponent(cvId)}/sections/${encodeURIComponent(sectionType)}/toggle`,
+    {
+      method: 'PATCH',
+      headers: cvAuthHeaders(accessToken),
+      body: JSON.stringify({ enabled }),
+    },
+  );
+  if (response.ok || response.status === 204) {
+    return;
+  }
+  throw await parseApiError(response, 'Failed to toggle CV section');
+}
+
+export async function requestCvExport(accessToken: string, cvId: string): Promise<CvExportResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/cvs/${encodeURIComponent(cvId)}/exports`, {
+    method: 'POST',
+    headers: cvAuthHeaders(accessToken),
+  });
+  if (response.ok) {
+    return response.json() as Promise<CvExportResult>;
+  }
+  throw await parseApiError(response, 'Failed to start CV export');
+}
+
+export async function listCvExports(accessToken: string, cvId: string): Promise<CvExportResult[]> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/cvs/${encodeURIComponent(cvId)}/exports`, {
+    headers: cvAuthHeaders(accessToken),
+  });
+  if (response.ok) {
+    return response.json() as Promise<CvExportResult[]>;
+  }
+  throw await parseApiError(response, 'Failed to load export history');
+}
+
+export async function getCvExport(
+  accessToken: string,
+  cvId: string,
+  exportId: string,
+): Promise<CvExportResult> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/cvs/${encodeURIComponent(cvId)}/exports/${encodeURIComponent(exportId)}`,
+    { headers: cvAuthHeaders(accessToken) },
+  );
+  if (response.ok) {
+    return response.json() as Promise<CvExportResult>;
+  }
+  throw await parseApiError(response, 'Failed to load export status');
+}
+
+export async function downloadCvExportBlob(
+  accessToken: string,
+  cvId: string,
+  exportId: string,
+): Promise<Blob> {
+  const downloadResponse = await fetch(
+    `${publicEnv.apiBaseUrl}/cvs/${encodeURIComponent(cvId)}/exports/${encodeURIComponent(exportId)}/download`,
+    { method: 'POST', headers: cvAuthHeaders(accessToken) },
+  );
+  if (!downloadResponse.ok) {
+    throw await parseApiError(downloadResponse, 'Failed to prepare CV download');
+  }
+  const { downloadUrl } = (await downloadResponse.json()) as { downloadUrl: string };
+
+  // downloadUrl is server-root-relative (e.g. /api/v1/cvs/:id/exports/:id/file);
+  // apiBaseUrl already includes /api/v1, so strip that shared prefix before joining.
+  const isAbsolute = /^https?:\/\//i.test(downloadUrl);
+  const apiRoot = publicEnv.apiBaseUrl.replace(/\/api\/v1\/?$/, '');
+  const fileUrl = isAbsolute ? downloadUrl : `${apiRoot}${downloadUrl}`;
+
+  const fileResponse = await fetch(fileUrl, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (!fileResponse.ok) {
+    throw await parseApiError(fileResponse, 'Failed to download CV');
+  }
+  return fileResponse.blob();
+}

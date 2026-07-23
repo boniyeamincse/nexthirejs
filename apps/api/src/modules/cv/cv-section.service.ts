@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { AuditActorType, AuditOutcome } from '@nexthire/types';
@@ -29,12 +29,8 @@ export class CvSectionService {
       select: { userId: true },
     });
 
-    if (!cv) {
-      throw new NotFoundException('CV not found');
-    }
-
-    if (cv.userId !== userId) {
-      throw new BadRequestException('Unauthorized');
+    if (!cv || cv.userId !== userId) {
+      throw new NotFoundException('CV_NOT_FOUND');
     }
 
     const content = await this.prisma.cvSectionContent.findUnique({
@@ -74,12 +70,8 @@ export class CvSectionService {
       select: { userId: true },
     });
 
-    if (!cv) {
-      throw new NotFoundException('CV not found');
-    }
-
-    if (cv.userId !== userId) {
-      throw new BadRequestException('Unauthorized');
+    if (!cv || cv.userId !== userId) {
+      throw new NotFoundException('CV_NOT_FOUND');
     }
 
     // Validate section type exists
@@ -139,12 +131,8 @@ export class CvSectionService {
       select: { userId: true },
     });
 
-    if (!cv) {
-      throw new NotFoundException('CV not found');
-    }
-
-    if (cv.userId !== userId) {
-      throw new BadRequestException('Unauthorized');
+    if (!cv || cv.userId !== userId) {
+      throw new NotFoundException('CV_NOT_FOUND');
     }
 
     const contents = await this.prisma.cvSectionContent.findMany({
@@ -169,12 +157,8 @@ export class CvSectionService {
       select: { userId: true },
     });
 
-    if (!cv) {
-      throw new NotFoundException('CV not found');
-    }
-
-    if (cv.userId !== userId) {
-      throw new BadRequestException('Unauthorized');
+    if (!cv || cv.userId !== userId) {
+      throw new NotFoundException('CV_NOT_FOUND');
     }
 
     // Update section order
@@ -215,12 +199,8 @@ export class CvSectionService {
       select: { userId: true },
     });
 
-    if (!cv) {
-      throw new NotFoundException('CV not found');
-    }
-
-    if (cv.userId !== userId) {
-      throw new BadRequestException('Unauthorized');
+    if (!cv || cv.userId !== userId) {
+      throw new NotFoundException('CV_NOT_FOUND');
     }
 
     await this.prisma.cvSection.updateMany({

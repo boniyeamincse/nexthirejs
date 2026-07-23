@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { AuditActorType, AuditOutcome } from '@nexthire/types';
@@ -21,12 +21,8 @@ export class CvExportService {
       },
     });
 
-    if (!cv) {
-      throw new NotFoundException('CV not found');
-    }
-
-    if (cv.userId !== userId) {
-      throw new BadRequestException('Unauthorized');
+    if (!cv || cv.userId !== userId) {
+      throw new NotFoundException('CV_NOT_FOUND');
     }
 
     const user = await this.prisma.user.findUnique({
@@ -66,9 +62,24 @@ export class CvExportService {
     return html;
   }
 
+  private escapeHtml(value: unknown): string {
+    if (value === null || value === undefined) return '';
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   private buildHtmlTemplate(cv: any, user: any, contents: Record<string, any>): string {
     const profile = user.candidateProfile;
     const preference = user.candidatePreference;
+    const cvTitle = this.escapeHtml(cv.title);
+    const fullName = this.escapeHtml(profile?.fullName || user.email);
+    const headline = this.escapeHtml(profile?.professionalHeadline);
+    const city = this.escapeHtml(preference?.currentCity);
+    const countryName = this.escapeHtml(preference?.country?.name);
 
     return `
 <!DOCTYPE html>
@@ -76,7 +87,7 @@ export class CvExportService {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${cv.title}</title>
+    <title>${cvTitle}</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -154,9 +165,9 @@ export class CvExportService {
 </head>
 <body>
     <div class="header">
-        <h1>${profile?.fullName || user.email}</h1>
-        ${profile?.professionalHeadline ? `<div class="subtitle">${profile.professionalHeadline}</div>` : ''}
-        ${preference?.currentCity ? `<div class="subtitle">${preference.currentCity}${preference.country ? ', ' + preference.country.name : ''}</div>` : ''}
+        <h1>${fullName}</h1>
+        ${headline ? `<div class="subtitle">${headline}</div>` : ''}
+        ${city ? `<div class="subtitle">${city}${countryName ? ', ' + countryName : ''}</div>` : ''}
     </div>
 
     ${this.renderSection('Professional Summary', contents.professional_summary)}
@@ -167,7 +178,7 @@ export class CvExportService {
     ${this.renderSection('Certifications', contents.certifications)}
 
     <div class="footer">
-        <p>Generated from ${cv.title} on ${new Date().toLocaleDateString()}</p>
+        <p>Generated from ${cvTitle} on ${this.escapeHtml(new Date().toLocaleDateString())}</p>
     </div>
 </body>
 </html>
@@ -179,11 +190,12 @@ export class CvExportService {
       return '';
     }
 
+    // Content is arbitrary candidate-authored JSON; render as escaped text, never raw HTML.
     return `
         <div class="section">
-            <div class="section-title">${title}</div>
+            <div class="section-title">${this.escapeHtml(title)}</div>
             <div class="section-content">
-                ${JSON.stringify(content)}
+                ${this.escapeHtml(JSON.stringify(content))}
             </div>
         </div>
     `;
