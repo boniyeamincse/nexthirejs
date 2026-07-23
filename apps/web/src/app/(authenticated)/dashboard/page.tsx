@@ -239,7 +239,16 @@ export default function DashboardPage() {
             >
               {pct >= 80 ? 'PRO' : 'BASIC'}
             </span>
-            <span className={`${styles.heroBadge} ${styles.badgeBasic}`}>{pct}% COMPLETED</span>
+            <span
+              className={`${styles.heroBadge} ${styles.badgeBasic}`}
+              role="progressbar"
+              aria-label={`Profile completion: ${pct}%`}
+              aria-valuenow={pct}
+              aria-valuemin={0}
+              aria-valuemax={100}
+            >
+              {pct}% COMPLETED
+            </span>
           </div>
         </div>
 
@@ -377,7 +386,14 @@ export default function DashboardPage() {
                         </div>
                       </td>
                       <td>
-                        <div className={styles.progressCell}>
+                        <div
+                          className={styles.progressCell}
+                          role="progressbar"
+                          aria-label={`${section.label} progress: ${section.percentage}%`}
+                          aria-valuenow={section.percentage}
+                          aria-valuemin={0}
+                          aria-valuemax={100}
+                        >
                           <div className={styles.progressTrack}>
                             <div
                               className={styles.progressFill}
@@ -408,7 +424,11 @@ export default function DashboardPage() {
                         </span>
                       </td>
                       <td className={styles.actionCell}>
-                        <Link href={section.route} className={styles.actionLink}>
+                        <Link
+                          href={section.route}
+                          className={styles.actionLink}
+                          aria-label={`Go to ${section.label}`}
+                        >
                           ⭢
                         </Link>
                       </td>

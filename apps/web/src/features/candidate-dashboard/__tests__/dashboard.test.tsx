@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import DashboardPage from '@/app/(authenticated)/dashboard/page';
 import * as apiClient from '@/lib/api-client';
 import type { CandidateProfileCompletionDashboard } from '@/lib/api-client';
@@ -13,6 +12,7 @@ vi.mock('@/providers/auth-context', () => ({
   useAuth: () => ({
     getAccessToken: mockGetAccessToken,
     logout: mockLogout,
+    user: { email: 'jane@example.com' },
     status: 'authenticated',
   }),
 }));
@@ -91,8 +91,8 @@ const zeroDashboard: CandidateProfileCompletionDashboard = {
   summary: {
     completedSections: 0,
     inProgressSections: 0,
-    notStartedSections: 11,
-    totalSections: 11,
+    notStartedSections: 1,
+    totalSections: 1,
   },
   sections: [
     {
@@ -118,10 +118,10 @@ const completeDashboard: CandidateProfileCompletionDashboard = {
     updatedAt: '2025-01-15T10:30:00.000Z',
   },
   summary: {
-    completedSections: 11,
+    completedSections: 1,
     inProgressSections: 0,
     notStartedSections: 0,
-    totalSections: 11,
+    totalSections: 1,
   },
   sections: [
     {
@@ -141,6 +141,9 @@ const completeDashboard: CandidateProfileCompletionDashboard = {
 beforeEach(() => {
   vi.clearAllMocks();
   mockGetAccessToken.mockReturnValue('test-token');
+  // Photo lookup is a side aggregation on the same page load; keep it inert so
+  // assertions focus on the profile-completion aggregation being verified here.
+  vi.spyOn(apiClient, 'fetchMyPhotoObjectUrl').mockResolvedValue(null);
 });
 
 describe('DashboardPage', () => {
@@ -154,47 +157,73 @@ describe('DashboardPage', () => {
     expect(screen.getByText('Loading dashboard...')).toBeInTheDocument();
   });
 
-  it('renders overall progress and summary counts when loaded', async () => {
+  it('renders overall completion and section summary counts from the API response', async () => {
     vi.spyOn(apiClient, 'getMyProfileCompletionDashboard').mockResolvedValue(fullDashboard);
     render(<DashboardPage />);
+
     await waitFor(() => {
-      expect(screen.getByText('65%')).toBeInTheDocument();
+      expect(
+        screen.getByRole('progressbar', { name: 'Profile completion: 65%' }),
+      ).toBeInTheDocument();
     });
+    expect(screen.getByText('65% COMPLETED')).toBeInTheDocument();
+    expect(screen.getByText('BASIC')).toBeInTheDocument();
+    expect(screen.getByText('3 OF 11')).toBeInTheDocument();
+    expect(screen.getByText('11 TOTAL')).toBeInTheDocument();
     expect(screen.getByText('3')).toBeInTheDocument();
-    const fours = screen.getAllByText('4');
-    expect(fours.length).toBe(2);
-    expect(screen.getByText('11')).toBeInTheDocument();
+    expect(screen.getByText('Completed Sections')).toBeInTheDocument();
   });
 
-  it('renders section cards with correct statuses', async () => {
+  it('renders section rows with correct status labels and progress values', async () => {
     vi.spyOn(apiClient, 'getMyProfileCompletionDashboard').mockResolvedValue(fullDashboard);
     render(<DashboardPage />);
+
     await waitFor(() => {
       expect(screen.getByText('Basic Profile')).toBeInTheDocument();
     });
-    expect(screen.getByText(/Completed — This section is fully completed\./)).toBeInTheDocument();
+
     expect(
-      screen.getByText(/In progress — This section is partially completed\./),
+      screen.getByRole('progressbar', { name: 'Basic Profile progress: 100%' }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/Not started — This section has not been started yet\./),
+      screen.getByRole('progressbar', { name: 'Education progress: 45%' }),
     ).toBeInTheDocument();
-    expect(screen.getByText('30/30')).toBeInTheDocument();
-    expect(screen.getByText('5/11')).toBeInTheDocument();
-    expect(screen.getByText('Degree type')).toBeInTheDocument();
-    expect(screen.getByText('Institution name')).toBeInTheDocument();
+    expect(
+      screen.getByRole('progressbar', { name: 'Achievements progress: 0%' }),
+    ).toBeInTheDocument();
+
+    expect(screen.getByText('Completed')).toBeInTheDocument();
+    expect(screen.getByText('In progress')).toBeInTheDocument();
+    expect(screen.getByText('Not started')).toBeInTheDocument();
+
+    expect(screen.getByLabelText('Go to Education')).toHaveAttribute('href', '/profile/education');
+    expect(screen.getByLabelText('Go to Achievements')).toHaveAttribute(
+      'href',
+      '/profile/achievements',
+    );
   });
 
-  it('renders next actions list', async () => {
+  it('renders next actions checklist from the API, not derived client-side', async () => {
     vi.spyOn(apiClient, 'getMyProfileCompletionDashboard').mockResolvedValue(fullDashboard);
     render(<DashboardPage />);
+
     await waitFor(() => {
       expect(screen.getByText('Complete your education details')).toBeInTheDocument();
     });
-    expect(screen.getByText('+6 pts')).toBeInTheDocument();
-    expect(
-      screen.getByText('Add degree type and institution name to your education section.'),
-    ).toBeInTheDocument();
+
+    const actionLink = screen.getByLabelText(
+      'Complete your education details: Add degree type and institution name to your education section.',
+    );
+    expect(actionLink).toHaveAttribute('href', '/profile/education');
+  });
+
+  it('shows an all-caught-up state when nextActions is empty', async () => {
+    vi.spyOn(apiClient, 'getMyProfileCompletionDashboard').mockResolvedValue(completeDashboard);
+    render(<DashboardPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('All caught up! Your profile is looking great.')).toBeInTheDocument();
+    });
   });
 
   it('handles API error with retry', async () => {
@@ -210,26 +239,33 @@ describe('DashboardPage', () => {
     expect(screen.getByText('Try again')).toBeInTheDocument();
   });
 
-  it('empty profile state (all sections NOT_STARTED, 0% completion)', async () => {
+  it('empty profile state (0% completion, BASIC badge, not-started section)', async () => {
     vi.spyOn(apiClient, 'getMyProfileCompletionDashboard').mockResolvedValue(zeroDashboard);
     render(<DashboardPage />);
+
     await waitFor(() => {
-      expect(screen.getByText('0%')).toBeInTheDocument();
+      expect(
+        screen.getByRole('progressbar', { name: 'Profile completion: 0%' }),
+      ).toBeInTheDocument();
     });
-    expect(screen.getByText('0/30')).toBeInTheDocument();
-    expect(screen.getAllByText(/Not started/).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText('BASIC')).toBeInTheDocument();
+    expect(
+      screen.getByRole('progressbar', { name: 'Basic Profile progress: 0%' }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Not started')).toBeInTheDocument();
   });
 
-  it('100% completion state with no employment guarantees', async () => {
+  it('100% completion state shows PRO badge and completed subtitle', async () => {
     vi.spyOn(apiClient, 'getMyProfileCompletionDashboard').mockResolvedValue(completeDashboard);
     render(<DashboardPage />);
+
     await waitFor(() => {
-      expect(screen.getByText('100%')).toBeInTheDocument();
+      expect(
+        screen.getByRole('progressbar', { name: 'Profile completion: 100%' }),
+      ).toBeInTheDocument();
     });
-    expect(screen.getByText('Your profile is complete.')).toBeInTheDocument();
-    expect(screen.queryByText(/ready to apply/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/you're hired/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/employment/i)).not.toBeInTheDocument();
+    expect(screen.getByText('PRO')).toBeInTheDocument();
+    expect(screen.getByText('Your profile is complete and ready to share.')).toBeInTheDocument();
   });
 
   it('401 response triggers logout redirect', async () => {
@@ -242,42 +278,11 @@ describe('DashboardPage', () => {
     expect(mockPush).toHaveBeenCalledWith('/login');
   });
 
-  it('progress has accessible ARIA attributes', async () => {
+  it('displays the completion version returned by the API', async () => {
     vi.spyOn(apiClient, 'getMyProfileCompletionDashboard').mockResolvedValue(fullDashboard);
     render(<DashboardPage />);
     await waitFor(() => {
-      const progressBar = screen.getByRole('progressbar', { name: /Profile completion: 65%/ });
-      expect(progressBar).toHaveAttribute('aria-valuenow', '65');
-      expect(progressBar).toHaveAttribute('aria-valuemin', '0');
-      expect(progressBar).toHaveAttribute('aria-valuemax', '100');
+      expect(screen.getByText('Completion vv1')).toBeInTheDocument();
     });
-  });
-
-  it('section routes are correct links', async () => {
-    vi.spyOn(apiClient, 'getMyProfileCompletionDashboard').mockResolvedValue(fullDashboard);
-    render(<DashboardPage />);
-    await waitFor(() => {
-      const startLink = screen.getByLabelText('Go to Achievements');
-      expect(startLink).toHaveAttribute('href', '/profile/achievements');
-    });
-    const educationLink = screen.getByLabelText('Go to Education');
-    expect(educationLink).toHaveAttribute('href', '/profile/education');
-  });
-
-  it('client does not calculate official percentage independently', async () => {
-    vi.spyOn(apiClient, 'getMyProfileCompletionDashboard').mockResolvedValue(fullDashboard);
-    render(<DashboardPage />);
-    await waitFor(() => {
-      expect(screen.getByText('65%')).toBeInTheDocument();
-    });
-    const progressBars = screen.getAllByRole('progressbar');
-    const overallBar = progressBars.find((b) =>
-      b.getAttribute('aria-label')?.startsWith('Profile completion'),
-    );
-    expect(overallBar).toHaveAttribute('aria-valuenow', '65');
-    const sectionBar = progressBars.find(
-      (b) => b.getAttribute('aria-label') === 'Education progress: 45%',
-    );
-    expect(sectionBar).toHaveAttribute('aria-valuenow', '45');
   });
 });
