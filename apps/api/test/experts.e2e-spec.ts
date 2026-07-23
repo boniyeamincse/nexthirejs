@@ -158,6 +158,37 @@ describe('Experts (e2e)', () => {
       http().post('/api/v1/manage/experts/reviews/some-id/unhide').send({}).expect(401));
   });
 
+  describe('wallet (expert)', () => {
+    it('POST /api/v1/expert/wallet/initialize requires auth', () =>
+      http().post('/api/v1/expert/wallet/initialize').expect(401));
+
+    it('GET /api/v1/expert/wallet requires auth', () =>
+      http().get('/api/v1/expert/wallet').expect(401));
+
+    it('POST /api/v1/expert/wallet/payout-accounts requires auth', () =>
+      http().post('/api/v1/expert/wallet/payout-accounts').send({}).expect(401));
+
+    it('GET /api/v1/expert/wallet/payout-accounts requires auth', () =>
+      http().get('/api/v1/expert/wallet/payout-accounts').expect(401));
+
+    it('POST /api/v1/expert/wallet/payout-requests requires auth', () =>
+      http().post('/api/v1/expert/wallet/payout-requests').send({}).expect(401));
+
+    it('GET /api/v1/expert/wallet/payout-requests requires auth', () =>
+      http().get('/api/v1/expert/wallet/payout-requests').expect(401));
+  });
+
+  describe('payout moderation (admin)', () => {
+    it('GET /api/v1/manage/experts/payout-requests requires auth', () =>
+      http().get('/api/v1/manage/experts/payout-requests').expect(401));
+
+    it('POST /api/v1/manage/experts/payout-accounts/:id/verify requires auth', () =>
+      http().post('/api/v1/manage/experts/payout-accounts/some-id/verify').expect(401));
+
+    it('POST /api/v1/manage/experts/payout-requests/:id/process requires auth', () =>
+      http().post('/api/v1/manage/experts/payout-requests/some-id/process').send({}).expect(401));
+  });
+
   describe('public service slot preview', () => {
     it('GET /api/v1/expert/public/:slug/services/:serviceId/slots 404s for an unknown slug without auth', () =>
       http()

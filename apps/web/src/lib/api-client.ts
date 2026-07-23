@@ -39,6 +39,11 @@ import type {
   CreateExpertReviewInput,
   ExpertReviewResult,
   PaginatedExpertReviewResult,
+  ExpertWalletResult,
+  CreateExpertPayoutAccountInput,
+  ExpertPayoutAccountResult,
+  CreateExpertPayoutRequestInput,
+  ExpertPayoutRequestResult,
 } from '@nexthire/types';
 
 interface ApiErrorDetail {
@@ -3001,6 +3006,83 @@ export async function listMyReceivedExpertReviews(
     return response.json() as Promise<PaginatedExpertReviewResult>;
   }
   throw await parseApiError(response, 'Failed to load reviews');
+}
+
+// --- Expert: Wallet and payouts ---
+
+export async function initializeMyExpertWallet(accessToken: string): Promise<ExpertWalletResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/expert/wallet/initialize`, {
+    method: 'POST',
+    headers: expertAuthHeaders(accessToken),
+  });
+  if (response.ok) {
+    return response.json() as Promise<ExpertWalletResult>;
+  }
+  throw await parseApiError(response, 'Failed to initialize wallet');
+}
+
+export async function getMyExpertWallet(accessToken: string): Promise<ExpertWalletResult | null> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/expert/wallet`, {
+    headers: expertAuthHeaders(accessToken),
+  });
+  if (response.ok) {
+    return response.json() as Promise<ExpertWalletResult | null>;
+  }
+  throw await parseApiError(response, 'Failed to load wallet');
+}
+
+export async function addMyExpertPayoutAccount(
+  accessToken: string,
+  input: CreateExpertPayoutAccountInput,
+): Promise<ExpertPayoutAccountResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/expert/wallet/payout-accounts`, {
+    method: 'POST',
+    headers: expertAuthHeaders(accessToken),
+    body: JSON.stringify(input),
+  });
+  if (response.ok) {
+    return response.json() as Promise<ExpertPayoutAccountResult>;
+  }
+  throw await parseApiError(response, 'Failed to add payout account');
+}
+
+export async function listMyExpertPayoutAccounts(
+  accessToken: string,
+): Promise<ExpertPayoutAccountResult[]> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/expert/wallet/payout-accounts`, {
+    headers: expertAuthHeaders(accessToken),
+  });
+  if (response.ok) {
+    return response.json() as Promise<ExpertPayoutAccountResult[]>;
+  }
+  throw await parseApiError(response, 'Failed to load payout accounts');
+}
+
+export async function requestMyExpertPayout(
+  accessToken: string,
+  input: CreateExpertPayoutRequestInput,
+): Promise<ExpertPayoutRequestResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/expert/wallet/payout-requests`, {
+    method: 'POST',
+    headers: expertAuthHeaders(accessToken),
+    body: JSON.stringify(input),
+  });
+  if (response.ok) {
+    return response.json() as Promise<ExpertPayoutRequestResult>;
+  }
+  throw await parseApiError(response, 'Failed to request payout');
+}
+
+export async function listMyExpertPayoutRequests(
+  accessToken: string,
+): Promise<ExpertPayoutRequestResult[]> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/expert/wallet/payout-requests`, {
+    headers: expertAuthHeaders(accessToken),
+  });
+  if (response.ok) {
+    return response.json() as Promise<ExpertPayoutRequestResult[]>;
+  }
+  throw await parseApiError(response, 'Failed to load payout requests');
 }
 
 // --- Applicant: Expert application ---

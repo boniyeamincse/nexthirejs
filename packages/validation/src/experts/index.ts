@@ -5,3 +5,4 @@ export * from './expert-documents.js';
 export * from './expert-offerings.js';
 export * from './expert-public.js';
 export * from './expert-feedback.js';
+export * from './expert-wallet.js';

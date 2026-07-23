@@ -103,6 +103,7 @@ model User {
   sessionEvaluationsReceived ExpertSessionEvaluation[] @relation("ExpertSessionEvaluationCandidate")
   expertReviewsReceived     ExpertReview[]             @relation("ExpertReviewExpert")
   expertReviewsGiven        ExpertReview[]             @relation("ExpertReviewCandidate")
+  expertWallet              ExpertWalletAccount?
 }
 
 model Role {
@@ -1877,6 +1878,84 @@ model ExpertReview {
 
   @@index([expertUserId, isHidden])
   @@index([candidateId])
+}
+
+/// NH-M17: an expert's earnings wallet, keyed directly to their userId (no
+/// TrainerProfile indirection like the legacy WalletAccount). Balance is
+/// real, not fabricated — nothing credits it yet because there is no
+/// payment-capture domain (NH-M29) to source real earnings from. The ledger
+/// plumbing (ExpertWalletLedger, recordTransaction-equivalent) exists and is
+/// ready to be wired to booking payment capture once NH-M29 lands.
+model ExpertWalletAccount {
+  id            String       @id @default(uuid()) @db.Uuid
+  userId        String       @unique @db.Uuid
+  balance       Decimal      @default(0) @db.Decimal(12, 2)
+  currency      String       @db.Char(3) @default("USD")
+  status        WalletStatus @default(ACTIVE)
+  totalEarnings Decimal      @default(0) @db.Decimal(12, 2)
+  totalPayouts  Decimal      @default(0) @db.Decimal(12, 2)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  user           User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions   ExpertWalletLedger[]
+  payoutAccounts ExpertPayoutAccount[]
+
+  @@index([status])
+}
+
+model ExpertWalletLedger {
+  id            String          @id @default(uuid()) @db.Uuid
+  walletId      String          @db.Uuid
+  type          TransactionType
+  amount        Decimal         @db.Decimal(12, 2)
+  description   String?         @db.VarChar(200)
+  bookingId     String?         @db.Uuid
+  referenceId   String?         @db.VarChar(100)
+  balanceBefore Decimal         @db.Decimal(12, 2)
+  balanceAfter  Decimal         @db.Decimal(12, 2)
+  createdAt     DateTime        @default(now())
+
+  wallet ExpertWalletAccount @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@index([walletId, createdAt])
+  @@index([type, createdAt])
+  @@index([bookingId])
+}
+
+model ExpertPayoutAccount {
+  id            String    @id @default(uuid()) @db.Uuid
+  walletId      String    @db.Uuid
+  accountHolder String    @db.VarChar(200)
+  accountType   String    @db.VarChar(50)
+  accountNumber String    @db.VarChar(100)
+  routingNumber String?   @db.VarChar(50)
+  isDefault     Boolean   @default(false)
+  isVerified    Boolean   @default(false)
+  verifiedAt    DateTime?
+  createdAt     DateTime  @default(now())
+
+  wallet         ExpertWalletAccount   @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  payoutRequests ExpertPayoutRequest[]
+
+  @@index([walletId, isVerified])
+}
+
+model ExpertPayoutRequest {
+  id              String       @id @default(uuid()) @db.Uuid
+  payoutAccountId String       @db.Uuid
+  amount          Decimal      @db.Decimal(12, 2)
+  status          PayoutStatus @default(PENDING)
+  requestedAt     DateTime     @default(now())
+  processedAt     DateTime?
+  completedAt     DateTime?
+  failureReason   String?      @db.Text
+  referenceId     String?      @db.VarChar(100)
+
+  payoutAccount ExpertPayoutAccount @relation(fields: [payoutAccountId], references: [id], onDelete: Cascade)
+
+  @@index([status, requestedAt])
+  @@index([payoutAccountId])
 }
 
 enum CourseStatus {
