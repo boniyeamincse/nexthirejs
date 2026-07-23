@@ -107,39 +107,71 @@ const sections = [
   },
 ];
 
+function sectionContainsActivePath(section: (typeof sections)[number], pathname: string): boolean {
+  return section.links.some((link) =>
+    link.href === '/admin' ? pathname === '/admin' : pathname.startsWith(link.href),
+  );
+}
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [openTitle, setOpenTitle] = useState<string | null>(
+    () => sections.find((section) => sectionContainsActivePath(section, pathname))?.title ??
+      sections[0]?.title ??
+      null,
+  );
 
   const isActive = (href: string) => {
     if (href === '/admin') return pathname === '/admin';
     return pathname.startsWith(href);
   };
 
+  const toggleSection = (title: string) => {
+    setOpenTitle((prev) => (prev === title ? null : title));
+  };
+
   return (
     <div className={styles.layout}>
       <aside className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
         <div className={styles.sidebarTitle}>SuperAdmin Panel</div>
-        {sections.map((section) => (
-          <div key={section.title} className={styles.sidebarSection}>
-            <div className={styles.sidebarSectionHeader}>
-              {section.title}
-            </div>
-            <div className={styles.sidebarSubLinks}>
-              {section.links.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`${styles.sidebarSubLink} ${isActive(link.href) ? styles.sidebarSubLinkActive : ''}`}
-                  onClick={() => setSidebarOpen(false)}
+        {sections.map((section) => {
+          const isOpen = openTitle === section.title;
+          return (
+            <div key={section.title} className={styles.sidebarSection}>
+              <button
+                type="button"
+                className={styles.sidebarSectionHeader}
+                onClick={() => toggleSection(section.title)}
+                aria-expanded={isOpen}
+              >
+                <span>{section.title}</span>
+                <span
+                  className={styles.sidebarSectionChevron}
+                  style={{ transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}
+                  aria-hidden="true"
                 >
-                  <span>{link.icon}</span>
-                  <span>{link.label}</span>
-                </Link>
-              ))}
+                  ›
+                </span>
+              </button>
+              {isOpen && (
+                <div className={styles.sidebarSubLinks}>
+                  {section.links.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className={`${styles.sidebarSubLink} ${isActive(link.href) ? styles.sidebarSubLinkActive : ''}`}
+                      onClick={() => setSidebarOpen(false)}
+                    >
+                      <span>{link.icon}</span>
+                      <span>{link.label}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </aside>
 
       <main className={styles.main}>

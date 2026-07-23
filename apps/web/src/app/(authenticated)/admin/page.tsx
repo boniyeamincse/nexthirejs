@@ -7,7 +7,7 @@ import {
   getAdminActivity,
   getAdminAlerts,
 } from '@/lib/api-client';
-import dashboardStyles from '@/app/(authenticated)/dashboard/dashboard.module.css';
+import adminStyles from './admin.module.css';
 import Link from 'next/link';
 
 export default function AdminDashboardPage() {
@@ -44,11 +44,11 @@ export default function AdminDashboardPage() {
 
   if (loading) {
     return (
-      <div className={dashboardStyles.page}>
-        <div className={dashboardStyles.bgGlow}></div>
-        <div className={dashboardStyles.container}>
-          <div className={dashboardStyles.card} style={{ textAlign: 'center', padding: '4rem' }}>
-            <p className={dashboardStyles.cardTitle}>Loading Admin Dashboard...</p>
+      <div className={adminStyles.page}>
+        <div className={adminStyles.bgGlow}></div>
+        <div className={adminStyles.container}>
+          <div className={adminStyles.loadingState}>
+            Loading Platform Overview...
           </div>
         </div>
       </div>
@@ -56,26 +56,24 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className={dashboardStyles.page}>
-      <div className={dashboardStyles.bgGlow}></div>
-      <div className={dashboardStyles.container}>
-        <div className={dashboardStyles.hero}>
-          <h1 className={dashboardStyles.greeting}>SuperAdmin Dashboard</h1>
-          <p className={dashboardStyles.statsText}>
-            Platform Overview: KPI metrics and activity.
+    <div className={adminStyles.page}>
+      <div className={adminStyles.bgGlow}></div>
+      <div className={adminStyles.container}>
+        <div className={adminStyles.hero}>
+          <h1 className={adminStyles.greeting}>SuperAdmin Dashboard</h1>
+          <p className={adminStyles.statsText}>
+            A complete overview of platform health, core KPI metrics, and recent activity.
           </p>
-          <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+          <div className={adminStyles.actions}>
             <Link
               href="/admin/analytics/growth"
-              className={dashboardStyles.retryBtn}
-              style={{ textDecoration: 'none' }}
+              className={adminStyles.btnPrimary}
             >
               Growth Analytics →
             </Link>
             <Link
               href="/admin/analytics/revenue"
-              className={dashboardStyles.retryBtn}
-              style={{ textDecoration: 'none', background: 'rgba(74, 222, 128, 0.1)', color: '#4ade80', border: '1px solid rgba(74, 222, 128, 0.3)' }}
+              className={adminStyles.btnSecondary}
             >
               Revenue Analytics →
             </Link>
@@ -83,181 +81,83 @@ export default function AdminDashboardPage() {
         </div>
 
         {errorMsg && (
-          <div
-            style={{
-              background: 'rgba(239, 68, 68, 0.1)',
-              color: '#ef4444',
-              padding: '1rem',
-              borderRadius: '8px',
-              marginBottom: '2rem',
-            }}
-          >
-            {errorMsg}
+          <div className={adminStyles.errorState}>
+            <span>⚠️</span>
+            <span>{errorMsg}</span>
           </div>
         )}
 
         {stats && (
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-              gap: '1.5rem',
-              marginBottom: '2rem',
-            }}
-          >
-            <div className={dashboardStyles.card} style={{ padding: '1.5rem' }}>
-              <h3
-                className={dashboardStyles.cardTitle}
-                style={{ fontSize: '0.9rem', color: '#94a3b8' }}
-              >
-                Total Users
-              </h3>
-              <p
-                style={{
-                  fontSize: '2rem',
-                  fontWeight: 'bold',
-                  color: '#f8fafc',
-                  margin: '0.5rem 0',
-                }}
-              >
-                {stats.totalUsers}
-              </p>
+          <div className={adminStyles.kpiGrid}>
+            <div className={adminStyles.kpiCard}>
+              <h3 className={adminStyles.kpiTitle}>Total Users</h3>
+              <p className={adminStyles.kpiValue}>{stats.totalUsers}</p>
             </div>
-            <div className={dashboardStyles.card} style={{ padding: '1.5rem' }}>
-              <h3
-                className={dashboardStyles.cardTitle}
-                style={{ fontSize: '0.9rem', color: '#94a3b8' }}
-              >
-                Active Users (30d)
-              </h3>
-              <p
-                style={{
-                  fontSize: '2rem',
-                  fontWeight: 'bold',
-                  color: '#f8fafc',
-                  margin: '0.5rem 0',
-                }}
-              >
-                {stats.activeUsers}
-              </p>
+            <div className={adminStyles.kpiCard}>
+              <h3 className={adminStyles.kpiTitle}>Active Users (30d)</h3>
+              <p className={adminStyles.kpiValue}>{stats.activeUsers}</p>
             </div>
-            <div className={dashboardStyles.card} style={{ padding: '1.5rem' }}>
-              <h3
-                className={dashboardStyles.cardTitle}
-                style={{ fontSize: '0.9rem', color: '#94a3b8' }}
-              >
-                Total Revenue (30d)
-              </h3>
-              <p
-                style={{
-                  fontSize: '2rem',
-                  fontWeight: 'bold',
-                  color: '#4ade80',
-                  margin: '0.5rem 0',
-                }}
-              >
+            <div className={adminStyles.kpiCard}>
+              <h3 className={adminStyles.kpiTitle}>Total Revenue (30d)</h3>
+              <p className={`${adminStyles.kpiValue} ${adminStyles.success}`}>
                 ${stats.totalRevenue}
               </p>
             </div>
-            <div className={dashboardStyles.card} style={{ padding: '1.5rem' }}>
-              <h3
-                className={dashboardStyles.cardTitle}
-                style={{ fontSize: '0.9rem', color: '#94a3b8' }}
-              >
-                Pending Verifications
-              </h3>
-              <p
-                style={{
-                  fontSize: '2rem',
-                  fontWeight: 'bold',
-                  color: stats.pendingVerifications > 0 ? '#fbbf24' : '#f8fafc',
-                  margin: '0.5rem 0',
-                }}
-              >
+            <div className={adminStyles.kpiCard}>
+              <h3 className={adminStyles.kpiTitle}>Pending Verifications</h3>
+              <p className={`${adminStyles.kpiValue} ${stats.pendingVerifications > 0 ? adminStyles.warning : ''}`}>
                 {stats.pendingVerifications}
               </p>
             </div>
           </div>
         )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-          <div className={dashboardStyles.card}>
-            <div className={dashboardStyles.cardHeader}>
-              <h2 className={dashboardStyles.cardTitle}>Recent Activity</h2>
+        <div className={adminStyles.twoColGrid}>
+          <div className={adminStyles.panel}>
+            <div className={adminStyles.panelHeader}>
+              <h2 className={adminStyles.panelTitle}>Recent Activity</h2>
             </div>
-            <div
-              style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}
-            >
+            <div className={adminStyles.panelBody}>
               {activity.map((act) => (
-                <div
-                  key={act.id}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    borderBottom: '1px solid rgba(255,255,255,0.1)',
-                    paddingBottom: '0.75rem',
-                  }}
-                >
+                <div key={act.id} className={adminStyles.activityItem}>
                   <div>
-                    <p style={{ margin: 0, color: '#f8fafc', fontWeight: 500 }}>{act.type}</p>
-                    <p
-                      style={{
-                        margin: 0,
-                        color: '#94a3b8',
-                        fontSize: '0.85rem',
-                        marginTop: '0.25rem',
-                      }}
-                    >
-                      {act.description}
-                    </p>
+                    <p className={adminStyles.activityType}>{act.type}</p>
+                    <p className={adminStyles.activityDesc}>{act.description}</p>
                   </div>
-                  <span style={{ color: '#64748b', fontSize: '0.8rem' }}>
+                  <span className={adminStyles.activityTime}>
                     {new Date(act.timestamp).toLocaleDateString()}
                   </span>
                 </div>
               ))}
-              {activity.length === 0 && <p style={{ color: '#94a3b8' }}>No recent activity.</p>}
+              {activity.length === 0 && (
+                <p className={adminStyles.emptyState}>No recent activity.</p>
+              )}
             </div>
           </div>
 
-          <div className={dashboardStyles.card}>
-            <div className={dashboardStyles.cardHeader}>
-              <h2 className={dashboardStyles.cardTitle}>System Alerts</h2>
+          <div className={adminStyles.panel}>
+            <div className={adminStyles.panelHeader}>
+              <h2 className={adminStyles.panelTitle}>System Alerts</h2>
             </div>
-            <div
-              style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}
-            >
+            <div className={adminStyles.panelBody}>
               {alerts.map((alert) => (
                 <div
                   key={alert.id}
-                  style={{
-                    padding: '1rem',
-                    borderRadius: '8px',
-                    background:
-                      alert.type === 'warning'
-                        ? 'rgba(245, 158, 11, 0.1)'
-                        : 'rgba(34, 197, 94, 0.1)',
-                    border: `1px solid ${alert.type === 'warning' ? 'rgba(245, 158, 11, 0.3)' : 'rgba(34, 197, 94, 0.3)'}`,
-                    color: alert.type === 'warning' ? '#fcd34d' : '#4ade80',
-                  }}
+                  className={`${adminStyles.alertItem} ${
+                    alert.type === 'warning' ? adminStyles.alertWarning : adminStyles.alertSuccess
+                  }`}
                 >
-                  <p style={{ margin: 0 }}>{alert.message}</p>
+                  <p className={adminStyles.alertText}>{alert.message}</p>
                   {alert.actionUrl && (
-                    <a
-                      href={alert.actionUrl}
-                      style={{
-                        color: '#fff',
-                        fontSize: '0.85rem',
-                        display: 'inline-block',
-                        marginTop: '0.5rem',
-                        textDecoration: 'underline',
-                      }}
-                    >
+                    <a href={alert.actionUrl} className={adminStyles.alertAction}>
                       Take Action
                     </a>
                   )}
                 </div>
               ))}
+              {alerts.length === 0 && (
+                <p className={adminStyles.emptyState}>All systems operate normally.</p>
+              )}
             </div>
           </div>
         </div>

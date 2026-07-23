@@ -214,7 +214,7 @@ export default function PerformanceAnalyticsPage() {
                   </span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: '#94a3b8' }}>Slow Queries (>{'>'}1s)</span>
+                  <span style={{ color: '#94a3b8' }}>Slow Queries ({'>'}1s)</span>
                   <span style={{ color: (dbData?.slowQueries ?? 0) > 0 ? '#ef4444' : '#4ade80', fontWeight: 600 }}>{dbData?.slowQueries ?? '-'}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
