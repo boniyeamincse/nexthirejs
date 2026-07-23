@@ -21,6 +21,7 @@ import { ExpertsModule } from './modules/experts/experts.module';
 import { CvModule } from './modules/cv/cv.module';
 import { ProjectModule } from './modules/projects/project.module';
 import { SkillModule } from './modules/skills/skill.module';
+import { TrainerModule } from './modules/trainers/trainer.module';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { SkillModule } from './modules/skills/skill.module';
     CvModule,
     ProjectModule,
     SkillModule,
+    TrainerModule,
   ],
   controllers: [AppController],
   providers: [

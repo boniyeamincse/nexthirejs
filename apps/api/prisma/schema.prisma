@@ -71,6 +71,8 @@ model User {
   candidatePreference     CandidatePreference?
   cvs                     Cv[]
   projects                Project[]
+  trainerProfile          TrainerProfile?
+  bookingsAsCandidate     Booking[]
   educationRecords        EducationRecord[]
   workExperienceRecords   WorkExperienceRecord[]
   skills                  CandidateSkill[]
@@ -659,6 +661,152 @@ model ProjectReport {
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@index([projectId, status])
+}
+
+enum TrainerVerificationStatus {
+  PENDING_REVIEW
+  VERIFIED
+  REJECTED
+  SUSPENDED
+}
+
+enum BookingStatus {
+  DRAFT
+  PENDING_PAYMENT
+  PAYMENT_PROCESSING
+  CONFIRMED
+  RESCHEDULED
+  CANCELLED
+  NO_SHOW
+  COMPLETED
+  DISPUTED
+}
+
+model TrainerProfile {
+  id                  String                    @id @default(uuid()) @db.Uuid
+  userId              String                    @unique @db.Uuid
+  headline            String                    @db.VarChar(160)
+  bio                 String?                   @db.Text
+  profileImage        String?                   @db.VarChar(500)
+  verificationStatus  TrainerVerificationStatus @default(PENDING_REVIEW)
+  verifiedAt          DateTime?
+  responseTimeMinutes Int                       @default(24)
+  averageRating       Decimal                   @default(0) @db.Decimal(3, 2)
+  totalSessions       Int                       @default(0)
+  createdAt           DateTime                  @default(now())
+  updatedAt           DateTime                  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  services   TrainerService[]
+  packages   TrainerPackage[]
+  availability AvailabilityRule[]
+  bookings   Booking[]
+  evaluations Evaluation[]
+
+  @@index([verificationStatus])
+  @@index([averageRating])
+}
+
+model TrainerService {
+  id          String   @id @default(uuid()) @db.Uuid
+  trainerId   String   @db.Uuid
+  name        String   @db.VarChar(100)
+  description String?  @db.Text
+  category    String   @db.VarChar(50)
+  basePrice   Decimal  @db.Decimal(10, 2)
+  currency    String   @db.Char(3) @default("USD")
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  trainer TrainerProfile @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  packages TrainerPackage[]
+
+  @@index([trainerId])
+  @@index([category])
+}
+
+model TrainerPackage {
+  id              String   @id @default(uuid()) @db.Uuid
+  trainerId       String   @db.Uuid
+  serviceId       String   @db.Uuid
+  title           String   @db.VarChar(200)
+  description     String?  @db.Text
+  numSessions     Int
+  duration        Int
+  price           Decimal  @db.Decimal(10, 2)
+  currency        String   @db.Char(3) @default("USD")
+  includesReview  Boolean  @default(false)
+  includesReport  Boolean  @default(false)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+
+  trainer TrainerProfile @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  service TrainerService @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  bookings Booking[]
+
+  @@index([trainerId])
+  @@index([serviceId])
+}
+
+model AvailabilityRule {
+  id           String   @id @default(uuid()) @db.Uuid
+  trainerId    String   @db.Uuid
+  dayOfWeek    Int
+  startTime    String   @db.VarChar(5)
+  endTime      String   @db.VarChar(5)
+  timezone     String   @db.VarChar(50)
+  isRecurring  Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  trainer TrainerProfile @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+
+  @@index([trainerId, dayOfWeek])
+}
+
+model Booking {
+  id              String          @id @default(uuid()) @db.Uuid
+  trainerId       String          @db.Uuid
+  packageId       String          @db.Uuid
+  candidateId     String          @db.Uuid
+  status          BookingStatus   @default(PENDING_PAYMENT)
+  scheduledAt     DateTime
+  endTime         DateTime
+  meetingUrl      String?         @db.VarChar(500)
+  notes           String?         @db.Text
+  recordingUrl    String?         @db.VarChar(500)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  trainer TrainerProfile @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  package TrainerPackage @relation(fields: [packageId], references: [id], onDelete: Restrict)
+  candidate User @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  evaluation Evaluation?
+
+  @@index([trainerId, status])
+  @@index([candidateId])
+  @@index([scheduledAt])
+}
+
+model Evaluation {
+  id              String   @id @default(uuid()) @db.Uuid
+  bookingId       String   @unique @db.Uuid
+  trainerId       String   @db.Uuid
+  communication   Int
+  technicalKnowledge Int
+  confidence      Int
+  problemSolving  Int
+  overallScore    Int
+  strengths       String?  @db.Text
+  improvements    String?  @db.Text
+  nextSteps       String?  @db.Text
+  submittedAt     DateTime
+  createdAt       DateTime @default(now())
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  trainer TrainerProfile @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+
+  @@index([trainerId])
 }
 
 model CandidateAchievement {
