@@ -21,6 +21,7 @@ import { AuthGuard } from '../../auth/auth.guard';
 import type { AuthenticatedRequest } from '../../auth/auth.guard';
 import { RolesGuard } from '../../../common/guards/roles.guard';
 import { RequireRoles } from '../../../common/decorators/roles.decorator';
+import { MfaRequiredGuard } from '../../auth/mfa/mfa-required.guard';
 import { ExpertApplicationReviewService } from '../services/expert-application-review.service';
 import { resolveClientIp } from '../shared/client-ip.util';
 import { EXPERT_RATE_LIMITS } from '@nexthire/constants';
@@ -30,7 +31,7 @@ const HOUR_MS = 3_600_000;
 @ApiTags('Expert Application Review')
 @ApiBearerAuth('access-token')
 @Controller('v1/manage/experts')
-@UseGuards(AuthGuard, RolesGuard)
+@UseGuards(AuthGuard, RolesGuard, MfaRequiredGuard)
 @RequireRoles('expert_application_reviewer')
 export class ExpertApplicationAdminController {
   constructor(

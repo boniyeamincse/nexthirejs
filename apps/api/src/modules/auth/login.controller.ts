@@ -6,7 +6,6 @@ import { Public } from './decorators/public.decorator';
 import { AllowRevokedSession } from './decorators/allow-revoked-session.decorator';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { AuthGuard } from './auth.guard';
-import type { AuthenticatedRequest } from './auth.guard';
 import { LoginService } from './login.service';
 import { SessionService } from './session.service';
 import { TokenService } from './token.service';
@@ -15,14 +14,14 @@ import { PrismaService } from '../../database/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import type { AuthenticatedPrincipal } from './interfaces/authenticated-principal.interface';
 import type {
-  CandidateLoginResult,
+  CandidateLoginResponse,
   RefreshSessionResult,
   AuthenticatedUser,
 } from '@nexthire/types';
 import { AuditActorType, AuditOutcome } from '@nexthire/types';
-import { AUTH_ERROR_CODES } from '@nexthire/constants';
 
 const REFRESH_COOKIE_NAME = 'nexthire_refresh';
+export const MFA_TRUST_COOKIE_NAME = 'nexthire_mfa_trust';
 
 @Controller('auth')
 export class LoginController {
@@ -40,7 +39,10 @@ export class LoginController {
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   @ApiOperation({ summary: 'Sign in with email and password' })
   @ApiBody({ type: LoginDto })
-  @ApiResponse({ status: 200, description: 'Login successful' })
+  @ApiResponse({
+    status: 200,
+    description: 'Login successful, or MFA challenge required (mfaRequired: true)',
+  })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
   @ApiResponse({ status: 403, description: 'Email not verified or account unavailable' })
   @ApiResponse({ status: 429, description: 'Too many attempts' })
@@ -48,13 +50,24 @@ export class LoginController {
     @Body() dto: LoginDto,
     @Res({ passthrough: true }) res: Response,
     @Req() req: Request,
-  ): Promise<CandidateLoginResult> {
+  ): Promise<CandidateLoginResponse> {
     const ip = req.ip || req.socket?.remoteAddress || undefined;
     const userAgent = req.headers['user-agent'] || undefined;
-    const result = await this.loginService.login(dto.email, dto.password, {
-      ipAddress: ip,
-      userAgent,
-    });
+    const rawTrustedDeviceToken =
+      (req.cookies as Record<string, string> | undefined)?.[MFA_TRUST_COOKIE_NAME] || undefined;
+    const result = await this.loginService.login(
+      dto.email,
+      dto.password,
+      {
+        ipAddress: ip,
+        userAgent,
+      },
+      rawTrustedDeviceToken,
+    );
+
+    if ('mfaRequired' in result && result.mfaRequired) {
+      return result;
+    }
 
     const cookieConfig = this.tokenService.getRefreshCookieConfig();
     res.cookie(REFRESH_COOKIE_NAME, result.rawRefreshToken, {
@@ -84,7 +97,9 @@ export class LoginController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ): Promise<RefreshSessionResult> {
-    const rawRefreshToken = req.cookies?.[REFRESH_COOKIE_NAME];
+    const rawRefreshToken = (req.cookies as Record<string, string> | undefined)?.[
+      REFRESH_COOKIE_NAME
+    ];
 
     try {
       const result = await this.loginService.refresh(rawRefreshToken);

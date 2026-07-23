@@ -3,3 +3,4 @@ export * from './candidate-login.js';
 export * from './candidate-registration.js';
 export * from './candidate-account-security.js';
 export * from './session-management.js';
+export * from './mfa.js';

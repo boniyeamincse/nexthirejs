@@ -1,3 +1,5 @@
+import type { MfaChallengeRequiredResult } from './mfa.js';
+
 export interface CandidateLoginInput {
   email: string;
   password: string;
@@ -15,6 +17,8 @@ export interface CandidateLoginResult {
   accessTokenExpiresAt: string;
   user: AuthenticatedUser;
 }
+
+export type CandidateLoginResponse = CandidateLoginResult | MfaChallengeRequiredResult;
 
 export interface RefreshSessionResult {
   accessToken: string;

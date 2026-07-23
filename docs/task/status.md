@@ -15,48 +15,48 @@
 
 ### Module Ledger
 
-| Order | Module ID | Module                                             | Status      | Evidence / Gap                                                                                                                                                                                                                              |
-| ----: | --------- | -------------------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-|    00 | NH-M00    | Repository Audit and Status Reconciliation         | COMPLETED   | This ledger; commit `[NH-M00]`                                                                                                                                                                                                              |
-|    01 | NH-M01    | Platform Foundation                                | COMPLETED   | Docker infra (Postgres/Redis/MinIO/Mailpit) healthy; health endpoint; Swagger; global `/api/v1` prefix; error envelope; `.github/workflows/ci.yml`; web error/loading boundaries; API+web builds pass                                       |
-|    02 | NH-M02    | Registration and Email Verification                | COMPLETED   | NH-P1-T001/T002; Argon2id; SHA-256 tokens; BullMQ/Mailpit; regression note: 9 unit specs stale (see Health)                                                                                                                                 |
-|    03 | NH-M03    | Login, Sessions, and Password Recovery             | COMPLETED   | NH-P1-T003/T004/T016; rotating refresh, sessions/revoke, forgot/reset/change password + web pages; regression note: 1 stale E2E expectation (`ACTIVE` vs new `PROFILE_SETUP`)                                                               |
-|    04 | NH-M04    | TOTP MFA, Roles, and Permissions                   | IN_PROGRESS | Only DB migration `20260722173141_add_totp_mfa` + shared types/constants exist (NH-SEC-T001). No MFA services, controllers, or frontend. RolesGuard exists; permission model and mandatory-MFA policy absent                                |
-|    05 | NH-M05    | Candidate Profile                                  | IN_PROGRESS | NH-P1-T006→T015 complete (basics, prefs, education, experience, skills, languages, certs, training, achievements, links, privacy, public profile, completion). Gap: profile photo upload absent (no photo/avatar code in candidates module) |
-|    06 | NH-M06    | CV Builder and PDF Export                          | IN_PROGRESS | Backend exists (`modules/cv`: builder, sections, export, migrations). Gap: zero frontend — no CV routes in `apps/web`, no CV methods in `api-client.ts`; async queue generation/history unverified                                          |
-|    07 | NH-M07    | Assessment and Exam Simulation                     | COMPLETED   | NH-P2-T001→T009 full stack: authoring, attempts, scoring, results, analytics, leaderboards, retakes, certificates; targeted E2E suites green per T009                                                                                       |
-|    08 | NH-M08    | Learning Content and Progress                      | NOT_STARTED | No learning/course module in API or web                                                                                                                                                                                                     |
-|    09 | NH-M09    | Candidate Dashboard                                | UNVERIFIED  | `/dashboard` page and career-passport aggregation (`career-passport.controller`) exist; aggregated summary coverage and integration not verified end-to-end                                                                                 |
-|    10 | NH-M10    | Expert Profile and Verification                    | IN_PROGRESS | Backend complete (profile, application, documents, readiness, admin review) + `become-an-expert` and `(management)/manage/experts/applications` UI; experts E2E 16/16. Gap: mandatory MFA blocked on NH-M04                                 |
-|    11 | NH-M11    | Expert Expertise, Services, and Pricing            | COMPLETED   | NH-P3-T002: catalog, service CRUD/lifecycle, 30/35/40 durations, decimal pricing, frontend pages                                                                                                                                            |
-|    12 | NH-M12    | Expert Availability and Slot Engine                | IN_PROGRESS | Availability profile/weekly/overrides + UI done (NH-P3-T002). Gap: no slot computation/preview engine (no slot code in experts module); DST-safe generation absent                                                                          |
-|    13 | NH-M13    | Expert Discovery and Public Profile                | IN_PROGRESS | `/find-expert` page and `trainers` module exist. Gap: public slug/projection/search unverified; `trainers` vs `experts` domain duplication unreconciled                                                                                     |
-|    14 | NH-M14    | Expert Booking and Scheduling                      | IN_PROGRESS | Backend-only `bookings` CRUD in `trainers` module. Gap: no frontend (zero booking methods in `api-client.ts`); no slot-engine integration, reservation/expiration unverified                                                                |
-|    15 | NH-M15    | Interview and Coaching Session                     | NOT_STARTED | No session lifecycle/join workspace code                                                                                                                                                                                                    |
-|    16 | NH-M16    | Feedback, Evaluation, Ratings, and Reviews         | IN_PROGRESS | Backend-only `evaluation.controller/service` in `trainers`. Gap: no frontend, eligibility/aggregates unverified                                                                                                                             |
-|    17 | NH-M17    | Expert Earnings, Wallet, and Payout                | IN_PROGRESS | Backend `wallet` controller (initialize, payout accounts/requests). Gap: zero frontend; commission/reconciliation unverified                                                                                                                |
-|    18 | NH-M18    | Expert Dashboard and Reports                       | NOT_STARTED | No aggregate endpoints or dashboard UI                                                                                                                                                                                                      |
-|    19 | NH-M19    | Company Profile and Verification                   | NOT_STARTED | No company module anywhere                                                                                                                                                                                                                  |
-|    20 | NH-M20    | Company Team and Permissions                       | NOT_STARTED | —                                                                                                                                                                                                                                           |
-|    21 | NH-M21    | Company Candidate Search                           | NOT_STARTED | —                                                                                                                                                                                                                                           |
-|    22 | NH-M22    | Shortlists and Talent Pipeline                     | NOT_STARTED | —                                                                                                                                                                                                                                           |
-|    23 | NH-M23    | Candidate Contact, Email, SMS, and Consent         | NOT_STARTED | —                                                                                                                                                                                                                                           |
-|    24 | NH-M24    | Job Posting and Public Job Board                   | NOT_STARTED | —                                                                                                                                                                                                                                           |
-|    25 | NH-M25    | Job Applications and Applicant Tracking            | NOT_STARTED | —                                                                                                                                                                                                                                           |
-|    26 | NH-M26    | Company Dashboard and Analytics                    | NOT_STARTED | —                                                                                                                                                                                                                                           |
-|    27 | NH-M27    | Messaging and Realtime Conversations               | NOT_STARTED | No Socket.IO/conversation code                                                                                                                                                                                                              |
-|    28 | NH-M28    | Notifications and Preferences                      | NOT_STARTED | —                                                                                                                                                                                                                                           |
-|    29 | NH-M29    | Payments, Refunds, and Commission                  | NOT_STARTED | Wallet ledger exists (M17) but no provider abstraction/intent/webhook                                                                                                                                                                       |
-|    30 | NH-M30    | Secure File and Media Management                   | IN_PROGRESS | Per-feature secure storage exists (expert documents, certificate storage, MinIO infra). Gap: no unified upload/presign module or reusable frontend uploader                                                                                 |
-|    31 | NH-M31    | Users, Roles, and Permissions (Admin)              | NOT_STARTED | No admin user-management module                                                                                                                                                                                                             |
-|    32 | NH-M32    | Verification and Moderation Center                 | IN_PROGRESS | Expert application review queue + admin UI exist (part of M10). Gap: no unified center, no company queue, no moderation                                                                                                                     |
-|    33 | NH-M33    | Catalog and Content Management                     | IN_PROGRESS | Assessment category/question management + expertise-area catalog exist. Gap: no unified admin catalog UI (countries/languages/skills/currencies/templates)                                                                                  |
-|    34 | NH-M34    | Finance Operations                                 | NOT_STARTED | —                                                                                                                                                                                                                                           |
-|    35 | NH-M35    | Audit, Security Events, and Support                | IN_PROGRESS | Audit foundation module + events exist across features. Gap: no admin search/detail UI, no security-event dashboard                                                                                                                         |
-|    36 | NH-M36    | Settings and Feature Flags                         | NOT_STARTED | —                                                                                                                                                                                                                                           |
-|    37 | NH-M37    | SuperAdmin Dashboard and Reports                   | NOT_STARTED | —                                                                                                                                                                                                                                           |
-|    38 | NH-M38    | End-to-End Integration                             | NOT_STARTED | —                                                                                                                                                                                                                                           |
-|    39 | NH-M39    | Security, Performance, Accessibility, Release Gate | NOT_STARTED | —                                                                                                                                                                                                                                           |
+| Order | Module ID | Module                                             | Status      | Evidence / Gap                                                                                                                                                                                                                                                                    |
+| ----: | --------- | -------------------------------------------------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|    00 | NH-M00    | Repository Audit and Status Reconciliation         | COMPLETED   | This ledger; commit `[NH-M00]`                                                                                                                                                                                                                                                    |
+|    01 | NH-M01    | Platform Foundation                                | COMPLETED   | Docker infra (Postgres/Redis/MinIO/Mailpit) healthy; health endpoint; Swagger; global `/api/v1` prefix; error envelope; `.github/workflows/ci.yml`; web error/loading boundaries; API+web builds pass                                                                             |
+|    02 | NH-M02    | Registration and Email Verification                | COMPLETED   | NH-P1-T001/T002; Argon2id; SHA-256 tokens; BullMQ/Mailpit; regression note: 9 unit specs stale (see Health)                                                                                                                                                                       |
+|    03 | NH-M03    | Login, Sessions, and Password Recovery             | COMPLETED   | NH-P1-T003/T004/T016; rotating refresh, sessions/revoke, forgot/reset/change password + web pages; regression note: 1 stale E2E expectation (`ACTIVE` vs new `PROFILE_SETUP`)                                                                                                     |
+|    04 | NH-M04    | TOTP MFA, Roles, and Permissions                   | COMPLETED   | Full stack 2026-07-23: TOTP enroll/confirm/disable, AES-256-GCM secret encryption, recovery codes, login challenge flow, trusted devices, mandatory-MFA policy + guard, settings UI + login challenge UI; 23 E2E + 12 unit + 16 frontend + 16 validation tests. Commit `[NH-M04]` |
+|    05 | NH-M05    | Candidate Profile                                  | IN_PROGRESS | NH-P1-T006→T015 complete (basics, prefs, education, experience, skills, languages, certs, training, achievements, links, privacy, public profile, completion). Gap: profile photo upload absent (no photo/avatar code in candidates module)                                       |
+|    06 | NH-M06    | CV Builder and PDF Export                          | IN_PROGRESS | Backend exists (`modules/cv`: builder, sections, export, migrations). Gap: zero frontend — no CV routes in `apps/web`, no CV methods in `api-client.ts`; async queue generation/history unverified                                                                                |
+|    07 | NH-M07    | Assessment and Exam Simulation                     | COMPLETED   | NH-P2-T001→T009 full stack: authoring, attempts, scoring, results, analytics, leaderboards, retakes, certificates; targeted E2E suites green per T009                                                                                                                             |
+|    08 | NH-M08    | Learning Content and Progress                      | NOT_STARTED | No learning/course module in API or web                                                                                                                                                                                                                                           |
+|    09 | NH-M09    | Candidate Dashboard                                | UNVERIFIED  | `/dashboard` page and career-passport aggregation (`career-passport.controller`) exist; aggregated summary coverage and integration not verified end-to-end                                                                                                                       |
+|    10 | NH-M10    | Expert Profile and Verification                    | IN_PROGRESS | Backend complete (profile, application, documents, readiness, admin review) + `become-an-expert` and `(management)/manage/experts/applications` UI; experts E2E 16/16. MFA guard now applied to review controller (NH-M04); remaining verification pass pending                   |
+|    11 | NH-M11    | Expert Expertise, Services, and Pricing            | COMPLETED   | NH-P3-T002: catalog, service CRUD/lifecycle, 30/35/40 durations, decimal pricing, frontend pages                                                                                                                                                                                  |
+|    12 | NH-M12    | Expert Availability and Slot Engine                | IN_PROGRESS | Availability profile/weekly/overrides + UI done (NH-P3-T002). Gap: no slot computation/preview engine (no slot code in experts module); DST-safe generation absent                                                                                                                |
+|    13 | NH-M13    | Expert Discovery and Public Profile                | IN_PROGRESS | `/find-expert` page and `trainers` module exist. Gap: public slug/projection/search unverified; `trainers` vs `experts` domain duplication unreconciled                                                                                                                           |
+|    14 | NH-M14    | Expert Booking and Scheduling                      | IN_PROGRESS | Backend-only `bookings` CRUD in `trainers` module. Gap: no frontend (zero booking methods in `api-client.ts`); no slot-engine integration, reservation/expiration unverified                                                                                                      |
+|    15 | NH-M15    | Interview and Coaching Session                     | NOT_STARTED | No session lifecycle/join workspace code                                                                                                                                                                                                                                          |
+|    16 | NH-M16    | Feedback, Evaluation, Ratings, and Reviews         | IN_PROGRESS | Backend-only `evaluation.controller/service` in `trainers`. Gap: no frontend, eligibility/aggregates unverified                                                                                                                                                                   |
+|    17 | NH-M17    | Expert Earnings, Wallet, and Payout                | IN_PROGRESS | Backend `wallet` controller (initialize, payout accounts/requests). Gap: zero frontend; commission/reconciliation unverified                                                                                                                                                      |
+|    18 | NH-M18    | Expert Dashboard and Reports                       | NOT_STARTED | No aggregate endpoints or dashboard UI                                                                                                                                                                                                                                            |
+|    19 | NH-M19    | Company Profile and Verification                   | NOT_STARTED | No company module anywhere                                                                                                                                                                                                                                                        |
+|    20 | NH-M20    | Company Team and Permissions                       | NOT_STARTED | —                                                                                                                                                                                                                                                                                 |
+|    21 | NH-M21    | Company Candidate Search                           | NOT_STARTED | —                                                                                                                                                                                                                                                                                 |
+|    22 | NH-M22    | Shortlists and Talent Pipeline                     | NOT_STARTED | —                                                                                                                                                                                                                                                                                 |
+|    23 | NH-M23    | Candidate Contact, Email, SMS, and Consent         | NOT_STARTED | —                                                                                                                                                                                                                                                                                 |
+|    24 | NH-M24    | Job Posting and Public Job Board                   | NOT_STARTED | —                                                                                                                                                                                                                                                                                 |
+|    25 | NH-M25    | Job Applications and Applicant Tracking            | NOT_STARTED | —                                                                                                                                                                                                                                                                                 |
+|    26 | NH-M26    | Company Dashboard and Analytics                    | NOT_STARTED | —                                                                                                                                                                                                                                                                                 |
+|    27 | NH-M27    | Messaging and Realtime Conversations               | NOT_STARTED | No Socket.IO/conversation code                                                                                                                                                                                                                                                    |
+|    28 | NH-M28    | Notifications and Preferences                      | NOT_STARTED | —                                                                                                                                                                                                                                                                                 |
+|    29 | NH-M29    | Payments, Refunds, and Commission                  | NOT_STARTED | Wallet ledger exists (M17) but no provider abstraction/intent/webhook                                                                                                                                                                                                             |
+|    30 | NH-M30    | Secure File and Media Management                   | IN_PROGRESS | Per-feature secure storage exists (expert documents, certificate storage, MinIO infra). Gap: no unified upload/presign module or reusable frontend uploader                                                                                                                       |
+|    31 | NH-M31    | Users, Roles, and Permissions (Admin)              | NOT_STARTED | No admin user-management module                                                                                                                                                                                                                                                   |
+|    32 | NH-M32    | Verification and Moderation Center                 | IN_PROGRESS | Expert application review queue + admin UI exist (part of M10). Gap: no unified center, no company queue, no moderation                                                                                                                                                           |
+|    33 | NH-M33    | Catalog and Content Management                     | IN_PROGRESS | Assessment category/question management + expertise-area catalog exist. Gap: no unified admin catalog UI (countries/languages/skills/currencies/templates)                                                                                                                        |
+|    34 | NH-M34    | Finance Operations                                 | NOT_STARTED | —                                                                                                                                                                                                                                                                                 |
+|    35 | NH-M35    | Audit, Security Events, and Support                | IN_PROGRESS | Audit foundation module + events exist across features. Gap: no admin search/detail UI, no security-event dashboard                                                                                                                                                               |
+|    36 | NH-M36    | Settings and Feature Flags                         | NOT_STARTED | —                                                                                                                                                                                                                                                                                 |
+|    37 | NH-M37    | SuperAdmin Dashboard and Reports                   | NOT_STARTED | —                                                                                                                                                                                                                                                                                 |
+|    38 | NH-M38    | End-to-End Integration                             | NOT_STARTED | —                                                                                                                                                                                                                                                                                 |
+|    39 | NH-M39    | Security, Performance, Accessibility, Release Gate | NOT_STARTED | —                                                                                                                                                                                                                                                                                 |
 
 ### Build and Test Health (2026-07-23 baseline)
 
@@ -81,23 +81,73 @@
 ### Current Module
 
 ```yaml
-module_id: NH-M00
-title: Repository Audit and Status Reconciliation
+module_id: NH-M04
+title: TOTP MFA, Roles, and Permissions
 status: COMPLETED
-started_at: 2026-07-23T10:00:00Z
-completed_at: 2026-07-23T10:45:00Z
-dependencies: []
+started_at: 2026-07-23T10:50:00Z
+completed_at: 2026-07-23T11:30:00Z
+dependencies:
+  - NH-M03
 blockers: []
 git_commit:
   hash: pending
-  message: 'chore(project): reconcile repository module status [NH-M00]'
+  message: 'feat(auth): implement MFA and role access controls [NH-M04]'
 next_module:
-  module_id: NH-M04
-  title: TOTP MFA, Roles, and Permissions
-  reason: First roadmap module not verified complete; NH-M01–M03 verified COMPLETED; NH-M04 has DB foundation only (NH-SEC-T001 stalled) and blocks mandatory-MFA requirements in NH-M10/M19/M31
+  module_id: NH-M05
+  title: Candidate Profile
+  reason: Next roadmap module not fully verified - implemented across NH-P1-T006-T015 but profile photo upload is missing; verify, close the gap, and mark VERIFIED
 ```
 
+Previous module: NH-M00 completed as `6db275f`.
+
 ---
+
+## Task Update — NH-M04
+
+- Status: COMPLETED
+- Started At: 2026-07-23T10:50:00Z
+- Completed At: 2026-07-23T11:30:00Z
+- Summary: Implemented TOTP two-factor authentication end-to-end (module NH-M04, completing stalled NH-SEC-T001). Backend: AES-256-GCM secret encryption service, MFA core service (enroll/confirm/disable/recovery codes), login challenge service with atomic single-use consumption and 5-attempt lockout, trusted-device service (30-day HttpOnly cookie), mandatory-MFA policy service + MfaRequiredGuard, MFA controller (9 endpoints), login flow integration returning a challenge instead of tokens when MFA is enabled. Frontend: two-step login challenge UI (TOTP/recovery code, trust device), MfaSettingsPanel on /settings/security (setup wizard with QR + manual key, one-time recovery code display, regenerate, disable, trusted device management). Shared Zod schemas, types, constants. Docs, tests, one commit.
+- Files Added:
+  - `apps/api/src/modules/auth/mfa/` — encryption, core, challenge, trusted-device, policy services; controller; MfaRequiredGuard; 2 unit spec files
+  - `apps/api/test/mfa.e2e-spec.ts` — 23 E2E tests (enrollment, challenge, trusted devices incl. IDOR, regeneration, disable, policy guard)
+  - `packages/validation/src/auth/mfa.ts` + `packages/validation/tests/auth-mfa.test.ts` (16 tests)
+  - `apps/web/src/features/account-security/MfaSettingsPanel.tsx` + `__tests__/mfa-settings.test.tsx` (9 tests)
+  - `apps/web/tests/login-mfa-challenge.test.tsx` (7 tests)
+  - `docs/security/mfa.md`, `docs/api/mfa.md`
+- Files Modified:
+  - `apps/api/src/modules/auth/login.service.ts` — challenge branch, completeMfaLogin, trusted-device skip
+  - `apps/api/src/modules/auth/login.controller.ts` — union response, trust-cookie read, lint cleanup
+  - `apps/api/src/modules/auth/auth.module.ts` — MFA providers/controller/exports
+  - `apps/api/src/modules/experts/controllers/expert-application-admin.controller.ts` — MfaRequiredGuard applied
+  - `apps/web/src/lib/api-client.ts` — login response union + 9 MFA methods
+  - `apps/web/src/providers/auth-context.tsx` — login outcome union, completeMfaChallenge
+  - `apps/web/src/app/(auth)/login/page.tsx` — challenge step UI
+  - `apps/web/src/app/(authenticated)/settings/security/page.tsx` — mounted MfaSettingsPanel
+  - `packages/constants/src/auth/mfa.ts` — MFA_REQUIRED_ROLE_CODES + error codes
+  - `packages/types/src/auth/mfa.ts`, `candidate-login.ts`, index files — contracts + exports
+  - `apps/api/package.json` — added otplib@12, qrcode
+  - `.env.example` — MFA_SECRET_ENCRYPTION_KEY
+- Database Changes: None new (uses existing migration `20260722173141_add_totp_mfa`).
+- API Changes: `GET /auth/mfa/status`, `POST /auth/mfa/enrollment`, `POST /auth/mfa/enrollment/confirm`, `POST /auth/mfa/disable`, `POST /auth/mfa/recovery-codes/regenerate`, `GET/DELETE /auth/mfa/trusted-devices[/:id]`, `POST /auth/mfa/challenge/verify` (public). `POST /auth/login` now returns `{ mfaRequired: true, challengeToken, expiresAt, allowedMethods }` when MFA is enabled and no valid trust cookie is presented.
+- Test Result:
+  - `pnpm --filter @nexthire/validation test` — 175 pass, 1 pre-existing currency failure (16 new MFA tests pass)
+  - `pnpm --filter @nexthire/api test` — 153 pass, 9 pre-existing failures in registration/email-verification specs (12 new MFA tests pass)
+  - `pnpm --filter @nexthire/api test:e2e -- --testPathPattern test/mfa.e2e` — 23/23
+  - auth 13/14 (pre-existing PROFILE_SETUP expectation), session 10/10, experts 16/16, account-security 15/21 (all 6 failures confirmed pre-existing via stash baseline)
+  - `pnpm --filter @nexthire/api typecheck` / `build` — pass
+  - `pnpm --filter @nexthire/web typecheck` / `build` — pass
+  - Web tests: 227 pass / 18 fail vs baseline 210 pass / 19 fail (no new failures; 16 new MFA tests pass)
+  - ESLint: 0 errors in all module files (repo-wide baseline unchanged)
+- Blockers: None
+- Decisions:
+  - Recovery codes stored as SHA-256 (not Argon2id as NH-SEC-T001 sketched): the schema's unique codeHash lookup requires a deterministic hash; entropy (31^12) plus challenge attempt limits make this safe. Documented in docs/security/mfa.md.
+  - otplib pinned to v12 (v13 is ESM-only with a breaking API; incompatible with the CJS Jest/Nest toolchain).
+  - Challenge verify per-IP throttle set to 30/min; the effective brute-force bound is the per-challenge 5-failed-attempt lockout.
+  - MFA_SECRET_ENCRYPTION_KEY optional in dev (key derived from AUTH_ACCESS_TOKEN_SECRET with warning); must be set in production.
+  - MfaRequiredGuard applied to expert application review as the first mandatory-MFA workflow; future sensitive controllers must add it.
+  - `apps/web/src/lib/api-client.ts` was committed with only MFA hunks staged; unrelated in-progress lint fixes in that file remain unstaged in the working tree.
+- Next Task: NH-M05 — Candidate Profile (verify + close profile photo gap)
 
 ## Task Update — NH-P2-T008
 
@@ -229,7 +279,7 @@ next_module:
 
 ## Task Update — NH-SEC-T001
 
-- Status: IN_PROGRESS (BLOCKED)
+- Status: COMPLETED (superseded by NH-M04 — full MFA implementation delivered 2026-07-23, see Task Update — NH-M04)
 - Started At: 2026-07-22T23:00:00Z
 - Summary: Initiated TOTP 2FA implementation. Added Prisma database models (UserMfa, MfaRecoveryCode, MfaChallenge, MfaTrustedDevice) with migration 20260722173141_add_totp_mfa. Created MFA types (MfaSecurityStatus, enrollment/challenge/trust-device contracts) and constants in shared packages. Fixed ESLint v9+ infrastructure blocker by adding root eslint.config.mjs. Pre-commit hooks operational.
 - Files Added:

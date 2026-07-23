@@ -25,6 +25,13 @@ import { PasswordResetController } from './password-reset.controller';
 import { PasswordResetService } from './password-reset.service';
 import { OnboardingController } from './onboarding.controller';
 import { OnboardingService } from './onboarding.service';
+import { MfaController } from './mfa/mfa.controller';
+import { MfaService } from './mfa/mfa.service';
+import { MfaChallengeService } from './mfa/mfa-challenge.service';
+import { MfaTrustedDeviceService } from './mfa/mfa-trusted-device.service';
+import { MfaEncryptionService } from './mfa/mfa-encryption.service';
+import { MfaPolicyService } from './mfa/mfa-policy.service';
+import { MfaRequiredGuard } from './mfa/mfa-required.guard';
 
 @Module({
   imports: [DatabaseModule, AuditModule, EmailModule],
@@ -38,6 +45,7 @@ import { OnboardingService } from './onboarding.service';
     ChangePasswordController,
     PasswordResetController,
     OnboardingController,
+    MfaController,
   ],
   providers: [
     PasswordHashingService,
@@ -53,11 +61,24 @@ import { OnboardingService } from './onboarding.service';
     ChangePasswordService,
     PasswordResetService,
     OnboardingService,
+    MfaService,
+    MfaChallengeService,
+    MfaTrustedDeviceService,
+    MfaEncryptionService,
+    MfaPolicyService,
+    MfaRequiredGuard,
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
   ],
-  exports: [PasswordHashingService, VerificationTokenService, TokenService, SessionService],
+  exports: [
+    PasswordHashingService,
+    VerificationTokenService,
+    TokenService,
+    SessionService,
+    MfaPolicyService,
+    MfaRequiredGuard,
+  ],
 })
 export class AuthModule {}

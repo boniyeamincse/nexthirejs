@@ -30,6 +30,20 @@ export interface ConfirmMfaEnrollmentResult {
   enabledAt: string;
 }
 
+export interface DisableMfaInput {
+  currentPassword: string;
+  code: string;
+}
+
+export interface RegenerateMfaRecoveryCodesInput {
+  code: string;
+}
+
+export interface RegenerateMfaRecoveryCodesResult {
+  recoveryCodes: string[];
+  generatedAt: string;
+}
+
 export interface VerifyMfaChallengeInput {
   challengeToken: string;
   method: MfaChallengeMethod;
@@ -45,6 +59,10 @@ export interface MfaTrustedDeviceSummary {
   trustedAt: string;
   lastUsedAt: string | null;
   expiresAt: string;
+}
+
+export interface MfaTrustedDeviceListResult {
+  devices: MfaTrustedDeviceSummary[];
 }
 
 export interface MfaChallengeRequiredResult {

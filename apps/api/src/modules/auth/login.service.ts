@@ -5,16 +5,21 @@ import { TokenService } from './token.service';
 import { SessionService } from './session.service';
 import type { CreateSessionMetadata } from './session.service';
 import { AuditService } from '../audit/audit.service';
+import { MfaChallengeService } from './mfa/mfa-challenge.service';
+import { MfaTrustedDeviceService } from './mfa/mfa-trusted-device.service';
 import { AuditActorType, AuditOutcome } from '@nexthire/types';
-import type { AuthenticatedUser } from '@nexthire/types';
+import type { AuthenticatedUser, MfaChallengeRequiredResult } from '@nexthire/types';
 import { AUTH_ERROR_CODES } from '@nexthire/constants';
 
 export interface LoginResult {
+  mfaRequired?: false;
   accessToken: string;
   accessTokenExpiresAt: string;
   user: AuthenticatedUser;
   rawRefreshToken: string;
 }
+
+export type LoginOutcome = LoginResult | MfaChallengeRequiredResult;
 
 export interface RefreshResult {
   accessToken: string;
@@ -32,13 +37,16 @@ export class LoginService {
     private readonly tokenService: TokenService,
     private readonly sessionService: SessionService,
     private readonly auditService: AuditService,
+    private readonly mfaChallengeService: MfaChallengeService,
+    private readonly mfaTrustedDeviceService: MfaTrustedDeviceService,
   ) {}
 
   async login(
     email: string,
     password: string,
     metadata?: CreateSessionMetadata,
-  ): Promise<LoginResult> {
+    rawTrustedDeviceToken?: string,
+  ): Promise<LoginOutcome> {
     const normalizedEmail = email.trim().toLowerCase();
 
     const user = await this.prisma.user.findUnique({
@@ -95,6 +103,29 @@ export class LoginService {
 
     const roleCodes = user.roles.map((ur) => ur.role.code);
 
+    const mfa = await this.prisma.userMfa.findUnique({
+      where: { userId: user.id },
+      select: { status: true },
+    });
+
+    if (mfa?.status === 'ENABLED') {
+      const deviceTrusted = rawTrustedDeviceToken
+        ? await this.mfaTrustedDeviceService.isDeviceTrusted(user.id, rawTrustedDeviceToken)
+        : false;
+
+      if (!deviceTrusted) {
+        await this.auditService.recordBestEffort({
+          action: 'auth.login.mfa_challenge_required',
+          actorType: AuditActorType.USER,
+          actorUserId: user.id,
+          targetType: 'user',
+          targetId: user.id,
+          outcome: AuditOutcome.SUCCESS,
+        });
+        return this.mfaChallengeService.createChallenge(user.id);
+      }
+    }
+
     const session = await this.sessionService.createSession(user.id, metadata);
 
     const { token: accessToken, expiresAt } = this.tokenService.signAccessToken(
@@ -121,12 +152,58 @@ export class LoginService {
         email: user.email,
         status: 'ACTIVE',
         roleCodes,
-      } as AuthenticatedUser,
+      },
       rawRefreshToken: session.rawRefreshToken,
     };
   }
 
-  async refresh(rawRefreshToken: string): Promise<RefreshResult> {
+  /**
+   * Completes a login after a successful MFA challenge verification.
+   * Assumes the user's password and account status were validated when the
+   * challenge was created; account status is re-checked defensively.
+   */
+  async completeMfaLogin(userId: string, metadata?: CreateSessionMetadata): Promise<LoginResult> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { roles: { include: { role: true } } },
+    });
+
+    if (!user || user.status === 'SUSPENDED' || user.status === 'DELETED') {
+      throw new ForbiddenException(AUTH_ERROR_CODES.ACCOUNT_UNAVAILABLE);
+    }
+
+    const roleCodes = user.roles.map((ur) => ur.role.code);
+    const session = await this.sessionService.createSession(user.id, metadata);
+    const { token: accessToken, expiresAt } = this.tokenService.signAccessToken(
+      user.id,
+      session.id,
+      roleCodes,
+    );
+
+    await this.auditService.recordBestEffort({
+      action: 'auth.login.succeeded',
+      actorType: AuditActorType.USER,
+      actorUserId: user.id,
+      targetType: 'user',
+      targetId: user.id,
+      outcome: AuditOutcome.SUCCESS,
+      metadata: { roleCodes, mfaVerified: true },
+    });
+
+    return {
+      accessToken,
+      accessTokenExpiresAt: expiresAt,
+      user: {
+        id: user.id,
+        email: user.email,
+        status: 'ACTIVE',
+        roleCodes,
+      },
+      rawRefreshToken: session.rawRefreshToken,
+    };
+  }
+
+  async refresh(rawRefreshToken: string | undefined): Promise<RefreshResult> {
     if (!rawRefreshToken) {
       throw new UnauthorizedException(AUTH_ERROR_CODES.REFRESH_TOKEN_MISSING);
     }

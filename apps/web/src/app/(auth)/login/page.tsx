@@ -13,15 +13,27 @@ interface FieldErrors {
   password?: string;
 }
 
+interface MfaChallengeState {
+  challengeToken: string;
+  expiresAt: string;
+  allowedMethods: ('TOTP' | 'RECOVERY_CODE')[];
+}
+
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, completeMfaChallenge } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [serverError, setServerError] = useState<ReactNode>(null);
   const [isPending, setIsPending] = useState(false);
+  const [mfaChallenge, setMfaChallenge] = useState<MfaChallengeState | null>(null);
+  const [mfaMethod, setMfaMethod] = useState<'TOTP' | 'RECOVERY_CODE'>('TOTP');
+  const [mfaCode, setMfaCode] = useState('');
+  const [trustDevice, setTrustDevice] = useState(false);
+  const [mfaError, setMfaError] = useState<string | null>(null);
+  const [mfaPending, setMfaPending] = useState(false);
 
   const validateField = useCallback(
     (field: string, value: string) => {
@@ -64,7 +76,18 @@ export default function LoginPage() {
     setIsPending(true);
 
     try {
-      await login(data);
+      const outcome = await login(data);
+      if (outcome.mfaRequired) {
+        setMfaChallenge({
+          challengeToken: outcome.challengeToken,
+          expiresAt: outcome.expiresAt,
+          allowedMethods: outcome.allowedMethods,
+        });
+        setMfaMethod('TOTP');
+        setMfaCode('');
+        setMfaError(null);
+        return;
+      }
       router.push('/app');
     } catch (error) {
       if (error instanceof ApiClientError) {
@@ -96,6 +119,158 @@ export default function LoginPage() {
     } finally {
       setIsPending(false);
     }
+  }
+
+  async function handleMfaSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (!mfaChallenge) {
+      return;
+    }
+    setMfaError(null);
+
+    const trimmed = mfaCode.trim();
+    if (mfaMethod === 'TOTP' && !/^[0-9]{6}$/.test(trimmed)) {
+      setMfaError('Enter the 6-digit code from your authenticator app.');
+      return;
+    }
+    if (mfaMethod === 'RECOVERY_CODE' && trimmed.replace(/[\s-]/g, '').length !== 12) {
+      setMfaError('Recovery codes are 12 letters and numbers.');
+      return;
+    }
+
+    setMfaPending(true);
+    try {
+      await completeMfaChallenge({
+        challengeToken: mfaChallenge.challengeToken,
+        method: mfaMethod,
+        code: trimmed,
+        trustDevice: trustDevice || undefined,
+      });
+      router.push('/app');
+    } catch (error) {
+      if (error instanceof ApiClientError) {
+        const msg = error.message;
+        if (msg === 'MFA_CHALLENGE_EXPIRED') {
+          setServerError('This verification session has expired. Please sign in again.');
+          setMfaChallenge(null);
+        } else if (msg === 'MFA_CHALLENGE_ATTEMPTS_EXCEEDED') {
+          setServerError('Too many incorrect codes. Please sign in again.');
+          setMfaChallenge(null);
+        } else if (msg === 'MFA_CHALLENGE_CONSUMED' || msg === 'MFA_CHALLENGE_INVALID') {
+          setServerError('This verification session is no longer valid. Please sign in again.');
+          setMfaChallenge(null);
+        } else if (error.statusCode === 429) {
+          setMfaError('Too many attempts. Please wait a minute and try again.');
+        } else {
+          setMfaError(
+            mfaMethod === 'TOTP'
+              ? 'That code is incorrect. Please try again.'
+              : 'That recovery code is incorrect or already used.',
+          );
+        }
+      } else {
+        setMfaError('Unable to verify the code right now. Please try again.');
+      }
+    } finally {
+      setMfaPending(false);
+    }
+  }
+
+  if (mfaChallenge) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.background}></div>
+        <div className={styles.glassCard}>
+          <div className={styles.header}>
+            <h1 className={styles.title}>Two-Factor Verification</h1>
+            <p className={styles.subtitle}>
+              {mfaMethod === 'TOTP'
+                ? 'Enter the 6-digit code from your authenticator app.'
+                : 'Enter one of your saved recovery codes.'}
+            </p>
+          </div>
+
+          {mfaError && (
+            <div className={styles.alertError} role="alert">
+              {mfaError}
+            </div>
+          )}
+
+          <form onSubmit={handleMfaSubmit} noValidate className={styles.form}>
+            <div className={styles.inputGroup}>
+              <label htmlFor="mfa-code" className={styles.label}>
+                {mfaMethod === 'TOTP' ? 'Authentication code' : 'Recovery code'}
+              </label>
+              <div className={styles.inputWrapper}>
+                <input
+                  id="mfa-code"
+                  type="text"
+                  inputMode={mfaMethod === 'TOTP' ? 'numeric' : 'text'}
+                  autoComplete="one-time-code"
+                  autoFocus
+                  required
+                  value={mfaCode}
+                  onChange={(e) => setMfaCode(e.target.value)}
+                  className={styles.input}
+                  placeholder={mfaMethod === 'TOTP' ? '123456' : 'ABCD-1234-EFGH'}
+                  aria-describedby="mfa-code-hint"
+                />
+              </div>
+              <p id="mfa-code-hint" className={styles.subtitle}>
+                {mfaMethod === 'TOTP'
+                  ? 'The code refreshes every 30 seconds.'
+                  : 'Each recovery code can be used only once.'}
+              </p>
+            </div>
+
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>
+                <input
+                  type="checkbox"
+                  checked={trustDevice}
+                  onChange={(e) => setTrustDevice(e.target.checked)}
+                />{' '}
+                Trust this device for 30 days
+              </label>
+            </div>
+
+            <button type="submit" disabled={mfaPending} className={styles.submitButton}>
+              {mfaPending ? 'Verifying...' : 'Verify and sign in'}
+            </button>
+          </form>
+
+          <div className={styles.footer}>
+            {mfaChallenge.allowedMethods.includes('RECOVERY_CODE') && (
+              <button
+                type="button"
+                className={styles.link}
+                style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+                onClick={() => {
+                  setMfaMethod((prev) => (prev === 'TOTP' ? 'RECOVERY_CODE' : 'TOTP'));
+                  setMfaCode('');
+                  setMfaError(null);
+                }}
+              >
+                {mfaMethod === 'TOTP' ? 'Use a recovery code instead' : 'Use authenticator code'}
+              </button>
+            )}{' '}
+            <button
+              type="button"
+              className={styles.link}
+              style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+              onClick={() => {
+                setMfaChallenge(null);
+                setMfaCode('');
+                setMfaError(null);
+                setPassword('');
+              }}
+            >
+              Back to sign in
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

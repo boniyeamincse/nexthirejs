@@ -9,8 +9,20 @@ import {
   useRef,
   type ReactNode,
 } from 'react';
-import { loginCandidate, getCurrentUser, refreshSession, logoutCandidate } from '@/lib/api-client';
-import type { LoginCandidatePayload, AuthenticatedUserData } from '@/lib/api-client';
+import {
+  loginCandidate,
+  getCurrentUser,
+  refreshSession,
+  logoutCandidate,
+  verifyMfaChallenge,
+  isMfaChallenge,
+} from '@/lib/api-client';
+import type {
+  LoginCandidatePayload,
+  AuthenticatedUserData,
+  LoginMfaChallengeResult,
+  VerifyMfaChallengePayload,
+} from '@/lib/api-client';
 import { candidateLoginSchema } from '@nexthire/validation';
 
 interface AuthState {
@@ -19,8 +31,11 @@ interface AuthState {
   accessToken: string | null;
 }
 
+export type LoginOutcome = { mfaRequired: false } | LoginMfaChallengeResult;
+
 interface AuthContextValue extends AuthState {
-  login: (payload: LoginCandidatePayload) => Promise<void>;
+  login: (payload: LoginCandidatePayload) => Promise<LoginOutcome>;
+  completeMfaChallenge: (payload: VerifyMfaChallengePayload) => Promise<void>;
   logout: () => Promise<void>;
   getAccessToken: () => string | null;
 }
@@ -92,7 +107,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [bootstrap]);
 
   const login = useCallback(
-    async (payload: LoginCandidatePayload) => {
+    async (payload: LoginCandidatePayload): Promise<LoginOutcome> => {
       const validation = candidateLoginSchema.safeParse(payload);
       if (!validation.success) {
         const err = validation.error.flatten().fieldErrors;
@@ -101,9 +116,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       setState((prev) => ({ ...prev, status: 'loading' }));
 
-      const result = await loginCandidate(payload);
-      setAccessToken(result.accessToken);
+      let result;
+      try {
+        result = await loginCandidate(payload);
+      } catch (error) {
+        setState((prev) => ({
+          ...prev,
+          status: prev.user ? 'authenticated' : 'unauthenticated',
+        }));
+        throw error;
+      }
 
+      if (isMfaChallenge(result)) {
+        setState((prev) => ({
+          ...prev,
+          status: prev.user ? 'authenticated' : 'unauthenticated',
+        }));
+        return result;
+      }
+
+      setAccessToken(result.accessToken);
+      setState({
+        status: 'authenticated',
+        user: result.user,
+        accessToken: result.accessToken,
+      });
+      return { mfaRequired: false };
+    },
+    [setAccessToken],
+  );
+
+  const completeMfaChallenge = useCallback(
+    async (payload: VerifyMfaChallengePayload) => {
+      const result = await verifyMfaChallenge(payload);
+      setAccessToken(result.accessToken);
       setState({
         status: 'authenticated',
         user: result.user,
@@ -131,7 +177,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [setAccessToken]);
 
   return (
-    <AuthContext.Provider value={{ ...state, login, logout, getAccessToken }}>
+    <AuthContext.Provider value={{ ...state, login, completeMfaChallenge, logout, getAccessToken }}>
       {children}
     </AuthContext.Provider>
   );

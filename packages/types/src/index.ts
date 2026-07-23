@@ -14,6 +14,7 @@ export * from './auth/candidate-login.js';
 export * from './auth/account-state.js';
 export * from './auth/session-management.js';
 export * from './auth/candidate-account-security.js';
+export * from './auth/mfa.js';
 export * from './audit.js';
 export * from './candidates/index.js';
 export * from './assessments/index.js';

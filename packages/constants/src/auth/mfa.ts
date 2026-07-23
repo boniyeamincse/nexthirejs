@@ -10,7 +10,23 @@ export const MFA_ERROR_CODES = {
   ENROLLMENT_NOT_STARTED: 'MFA_ENROLLMENT_NOT_STARTED',
   NOT_ENABLED: 'MFA_NOT_ENABLED',
   RATE_LIMITED: 'MFA_RATE_LIMITED',
+  PASSWORD_INVALID: 'MFA_PASSWORD_INVALID',
+  CHALLENGE_ATTEMPTS_EXCEEDED: 'MFA_CHALLENGE_ATTEMPTS_EXCEEDED',
+  TRUSTED_DEVICE_NOT_FOUND: 'MFA_TRUSTED_DEVICE_NOT_FOUND',
 } as const;
+
+/**
+ * Roles for which MFA is mandatory for sensitive workflows.
+ * Candidate MFA remains optional.
+ */
+export const MFA_REQUIRED_ROLE_CODES = [
+  'expert',
+  'expert_application_reviewer',
+  'assessment_manager',
+  'company_owner',
+  'company_admin',
+  'superadmin',
+] as const;
 
 export const MFA_RECOVERY_CODE_COUNT = 10;
 export const MFA_RECOVERY_CODE_LENGTH = 12;

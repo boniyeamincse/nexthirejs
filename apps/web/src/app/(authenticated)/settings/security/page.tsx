@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useAuth } from '@/providers/auth-context';
 import { getMyAccountSecuritySummary, changePassword, ApiClientError } from '@/lib/api-client';
 import type { CandidateAccountSecuritySummary } from '@/lib/api-client';
+import { MfaSettingsPanel } from '@/features/account-security/MfaSettingsPanel';
 import styles from '@/app/(auth)/auth.module.css';
 
 export default function AccountSecurityPage() {
@@ -445,6 +446,8 @@ export default function AccountSecurityPage() {
                 </Link>
               </div>
             </section>
+
+            <MfaSettingsPanel getAccessToken={getAccessToken} />
 
             <section>
               <h2

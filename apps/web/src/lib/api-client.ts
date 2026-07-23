@@ -121,17 +121,31 @@ export interface LoginCandidateResult {
   };
 }
 
+export interface LoginMfaChallengeResult {
+  mfaRequired: true;
+  challengeToken: string;
+  expiresAt: string;
+  allowedMethods: ('TOTP' | 'RECOVERY_CODE')[];
+}
+
+export type LoginCandidateResponse = LoginCandidateResult | LoginMfaChallengeResult;
+
+export function isMfaChallenge(result: LoginCandidateResponse): result is LoginMfaChallengeResult {
+  return 'mfaRequired' in result && result.mfaRequired === true;
+}
+
 export async function loginCandidate(
   payload: LoginCandidatePayload,
-): Promise<LoginCandidateResult> {
+): Promise<LoginCandidateResponse> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/auth/login`, {
     method: 'POST',
+    credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   });
 
   if (response.ok) {
-    return response.json() as Promise<LoginCandidateResult>;
+    return response.json() as Promise<LoginCandidateResponse>;
   }
 
   let errorBody: ApiErrorResponse | null = null;
@@ -3168,4 +3182,182 @@ export async function deleteMyAvailabilityOverride(accessToken: string, id: stri
     return;
   }
   throw await parseApiError(response, 'Failed to delete availability override');
+}
+
+// --- MFA (two-factor authentication) ---
+
+export interface MfaSecurityStatusResult {
+  status: 'DISABLED' | 'PENDING' | 'ENABLED';
+  requiredByPolicy: boolean;
+  enabledAt: string | null;
+  recoveryCodesRemaining: number;
+  trustedDeviceCount: number;
+  currentDeviceTrusted: boolean;
+  enrollmentExpiresAt: string | null;
+}
+
+export interface BeginMfaEnrollmentResult {
+  qrDataUrl: string;
+  manualSecret: string;
+  enrollmentExpiresAt: string;
+}
+
+export interface ConfirmMfaEnrollmentResult {
+  recoveryCodes: string[];
+  enabledAt: string;
+}
+
+export interface RegenerateMfaRecoveryCodesResult {
+  recoveryCodes: string[];
+  generatedAt: string;
+}
+
+export interface MfaTrustedDeviceSummary {
+  id: string;
+  deviceName: string | null;
+  browserSummary: string | null;
+  trustedAt: string;
+  lastUsedAt: string | null;
+  expiresAt: string;
+}
+
+export interface VerifyMfaChallengePayload {
+  challengeToken: string;
+  method: 'TOTP' | 'RECOVERY_CODE';
+  code: string;
+  trustDevice?: boolean;
+  deviceName?: string;
+}
+
+function mfaAuthHeaders(accessToken: string): Record<string, string> {
+  return {
+    Authorization: `Bearer ${accessToken}`,
+    'Content-Type': 'application/json',
+  };
+}
+
+export async function getMfaStatus(accessToken: string): Promise<MfaSecurityStatusResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/auth/mfa/status`, {
+    credentials: 'include',
+    headers: mfaAuthHeaders(accessToken),
+  });
+  if (response.ok) {
+    return response.json() as Promise<MfaSecurityStatusResult>;
+  }
+  throw await parseApiError(response, 'Failed to load two-factor status');
+}
+
+export async function beginMfaEnrollment(
+  accessToken: string,
+  currentPassword: string,
+): Promise<BeginMfaEnrollmentResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/auth/mfa/enrollment`, {
+    method: 'POST',
+    headers: mfaAuthHeaders(accessToken),
+    body: JSON.stringify({ currentPassword }),
+  });
+  if (response.ok) {
+    return response.json() as Promise<BeginMfaEnrollmentResult>;
+  }
+  throw await parseApiError(response, 'Failed to start two-factor setup');
+}
+
+export async function confirmMfaEnrollment(
+  accessToken: string,
+  code: string,
+): Promise<ConfirmMfaEnrollmentResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/auth/mfa/enrollment/confirm`, {
+    method: 'POST',
+    headers: mfaAuthHeaders(accessToken),
+    body: JSON.stringify({ code }),
+  });
+  if (response.ok) {
+    return response.json() as Promise<ConfirmMfaEnrollmentResult>;
+  }
+  throw await parseApiError(response, 'Failed to confirm two-factor setup');
+}
+
+export async function disableMfa(
+  accessToken: string,
+  currentPassword: string,
+  code: string,
+): Promise<void> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/auth/mfa/disable`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: mfaAuthHeaders(accessToken),
+    body: JSON.stringify({ currentPassword, code }),
+  });
+  if (response.ok || response.status === 204) {
+    return;
+  }
+  throw await parseApiError(response, 'Failed to disable two-factor authentication');
+}
+
+export async function regenerateMfaRecoveryCodes(
+  accessToken: string,
+  code: string,
+): Promise<RegenerateMfaRecoveryCodesResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/auth/mfa/recovery-codes/regenerate`, {
+    method: 'POST',
+    headers: mfaAuthHeaders(accessToken),
+    body: JSON.stringify({ code }),
+  });
+  if (response.ok) {
+    return response.json() as Promise<RegenerateMfaRecoveryCodesResult>;
+  }
+  throw await parseApiError(response, 'Failed to regenerate recovery codes');
+}
+
+export async function listMfaTrustedDevices(
+  accessToken: string,
+): Promise<{ devices: MfaTrustedDeviceSummary[] }> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/auth/mfa/trusted-devices`, {
+    headers: mfaAuthHeaders(accessToken),
+  });
+  if (response.ok) {
+    return response.json() as Promise<{ devices: MfaTrustedDeviceSummary[] }>;
+  }
+  throw await parseApiError(response, 'Failed to load trusted devices');
+}
+
+export async function revokeMfaTrustedDevice(accessToken: string, deviceId: string): Promise<void> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/auth/mfa/trusted-devices/${encodeURIComponent(deviceId)}`,
+    {
+      method: 'DELETE',
+      headers: mfaAuthHeaders(accessToken),
+    },
+  );
+  if (response.ok || response.status === 204) {
+    return;
+  }
+  throw await parseApiError(response, 'Failed to revoke trusted device');
+}
+
+export async function revokeAllMfaTrustedDevices(accessToken: string): Promise<void> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/auth/mfa/trusted-devices`, {
+    method: 'DELETE',
+    credentials: 'include',
+    headers: mfaAuthHeaders(accessToken),
+  });
+  if (response.ok || response.status === 204) {
+    return;
+  }
+  throw await parseApiError(response, 'Failed to revoke trusted devices');
+}
+
+export async function verifyMfaChallenge(
+  payload: VerifyMfaChallengePayload,
+): Promise<LoginCandidateResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/auth/mfa/challenge/verify`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (response.ok) {
+    return response.json() as Promise<LoginCandidateResult>;
+  }
+  throw await parseApiError(response, 'Verification failed');
 }
