@@ -9,9 +9,12 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  Res,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
+import type { Response } from 'express';
 import { CvService, CvResponse } from './cv.service';
+import { CvExportService } from './cv-export.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { AuthenticatedPrincipal } from '../auth/interfaces/authenticated-principal.interface';
@@ -24,7 +27,10 @@ import { DuplicateCvDto } from './dto/duplicate-cv.dto';
 @UseGuards(AuthGuard)
 @ApiBearerAuth()
 export class CvController {
-  constructor(private readonly cvService: CvService) {}
+  constructor(
+    private readonly cvService: CvService,
+    private readonly cvExportService: CvExportService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a new CV' })
@@ -95,5 +101,18 @@ export class CvController {
     @Param('cvId') cvId: string,
   ): Promise<void> {
     return this.cvService.deleteCv(user.userId, cvId);
+  }
+
+  @Get(':cvId/export/html')
+  @ApiOperation({ summary: 'Export CV as HTML (for PDF generation)' })
+  @ApiResponse({ status: 200, description: 'HTML exported' })
+  async exportCvHtml(
+    @CurrentUser() user: AuthenticatedPrincipal,
+    @Param('cvId') cvId: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    const html = await this.cvExportService.generatePdfHtml(user.userId, cvId);
+    res.type('text/html');
+    res.send(html);
   }
 }
