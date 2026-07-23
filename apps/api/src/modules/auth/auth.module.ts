@@ -8,6 +8,8 @@ import { RegistrationService } from './registration.service';
 import { RegistrationController } from './registration.controller';
 import { EmailVerificationService } from './email-verification.service';
 import { EmailVerificationController } from './email-verification.controller';
+import { PhoneVerificationService } from './phone-verification.service';
+import { PhoneVerificationController } from './phone-verification.controller';
 import { VerificationTokenService } from './verification-token.service';
 import { LoginService } from './login.service';
 import { LoginController } from './login.controller';
@@ -27,6 +29,7 @@ import { PasswordResetService } from './password-reset.service';
   controllers: [
     RegistrationController,
     EmailVerificationController,
+    PhoneVerificationController,
     LoginController,
     SessionController,
     AccountSecurityController,
@@ -38,6 +41,7 @@ import { PasswordResetService } from './password-reset.service';
     RegistrationService,
     VerificationTokenService,
     EmailVerificationService,
+    PhoneVerificationService,
     LoginService,
     TokenService,
     SessionService,

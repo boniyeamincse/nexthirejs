@@ -29,6 +29,7 @@ export class RegistrationService {
 
   async register(dto: RegisterCandidateDto): Promise<RegistrationResult> {
     const normalizedEmail = dto.email.trim().toLowerCase();
+    const normalizedPhone = dto.phone?.trim();
 
     if (dto.password !== dto.confirmPassword) {
       throw new BadRequestException('Passwords must match');
@@ -42,13 +43,18 @@ export class RegistrationService {
       throw new BadRequestException('You must accept the terms and conditions');
     }
 
-    const existing = await this.prisma.user.findUnique({
-      where: { email: normalizedEmail },
-      select: { id: true },
+    const existing = await this.prisma.user.findFirst({
+      where: {
+        OR: [{ email: normalizedEmail }, ...(normalizedPhone ? [{ phone: normalizedPhone }] : [])],
+      },
+      select: { id: true, email: true },
     });
 
     if (existing) {
-      throw new ConflictException('AUTH_EMAIL_ALREADY_REGISTERED');
+      if (existing.email === normalizedEmail) {
+        throw new ConflictException('AUTH_EMAIL_ALREADY_REGISTERED');
+      }
+      throw new ConflictException('AUTH_PHONE_ALREADY_REGISTERED');
     }
 
     const passwordHash = await this.passwordHashingService.hash(dto.password);
@@ -69,6 +75,7 @@ export class RegistrationService {
         const created = await tx.user.create({
           data: {
             email: normalizedEmail,
+            phone: normalizedPhone || null,
             passwordHash,
             status: 'PENDING_VERIFICATION',
           },

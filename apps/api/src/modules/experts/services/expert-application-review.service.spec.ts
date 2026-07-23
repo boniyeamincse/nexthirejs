@@ -183,8 +183,9 @@ describe('ExpertApplicationReviewService', () => {
 
       const result = await service.list({ page: 1, pageSize: 20 });
       expect(result.pagination.total).toBe(1);
-      expect(result.data[0].documentCount).toBe(3);
-      expect(result.data[0].profile.professionalTitle).toBe('Engineer');
+      const first = result.data[0]!;
+      expect(first.documentCount).toBe(3);
+      expect(first.profile.professionalTitle).toBe('Engineer');
     });
   });
 });

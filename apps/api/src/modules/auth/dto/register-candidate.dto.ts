@@ -1,4 +1,12 @@
-import { IsEmail, IsString, MinLength, MaxLength, Matches, IsBoolean } from 'class-validator';
+import {
+  IsEmail,
+  IsString,
+  MinLength,
+  MaxLength,
+  Matches,
+  IsBoolean,
+  IsOptional,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class RegisterCandidateDto {
@@ -10,6 +18,14 @@ export class RegisterCandidateDto {
   @IsEmail({}, { message: 'Invalid email format' })
   @MaxLength(320, { message: 'Email must not exceed 320 characters' })
   email!: string;
+
+  @ApiProperty({
+    description: 'Phone number in international format (optional)',
+    example: '+8801700000000',
+  })
+  @IsOptional()
+  @IsString()
+  phone?: string;
 
   @ApiProperty({
     description:

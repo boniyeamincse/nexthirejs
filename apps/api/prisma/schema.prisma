@@ -50,9 +50,11 @@ enum UserStatus {
 model User {
   id                 String     @id @default(uuid()) @db.Uuid
   email              String     @unique @db.VarChar(320)
+  phone              String?    @db.VarChar(20)
   passwordHash       String
   status             UserStatus @default(PENDING_VERIFICATION)
   emailVerifiedAt    DateTime?
+  phoneVerifiedAt    DateTime?
   passwordChangedAt  DateTime?
   deactivatedAt      DateTime?
   deactivationReason String?    @db.VarChar(100)
@@ -62,6 +64,7 @@ model User {
   roles                   UserRole[]
   sessions                UserSession[]
   emailVerificationTokens EmailVerificationToken[]
+  phoneVerificationOtps   PhoneVerificationOtp[]
   passwordResetTokens     PasswordResetToken[]
   candidateProfile        CandidateProfile?
   candidatePreference     CandidatePreference?
@@ -154,6 +157,23 @@ model EmailVerificationToken {
 
   @@unique([tokenHash])
   @@index([userId])
+  @@index([expiresAt])
+}
+
+model PhoneVerificationOtp {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
+  phone     String    @db.VarChar(20)
+  otpHash   String    @db.VarChar(64)
+  expiresAt DateTime
+  consumedAt DateTime?
+  attemptCount Int    @default(0)
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([phone, expiresAt])
   @@index([expiresAt])
 }
 
