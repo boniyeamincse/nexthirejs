@@ -6,11 +6,15 @@ describe('ExpertPublicDirectoryService', () => {
   const repo = {
     listPublic: jest.fn(),
     findPublicBySlug: jest.fn(),
+    findPublicServiceBySlug: jest.fn(),
+  };
+  const slotService = {
+    previewSlots: jest.fn(),
   };
 
   beforeEach(() => {
     jest.resetAllMocks();
-    service = new ExpertPublicDirectoryService(repo as never);
+    service = new ExpertPublicDirectoryService(repo as never, slotService as never);
   });
 
   describe('list', () => {
@@ -111,7 +115,12 @@ describe('ExpertPublicDirectoryService', () => {
 
       expect(result.publicSlug).toBe('senior-backend-engineer-abc123ef');
       expect(result.expertise).toEqual([
-        { areaName: 'Backend Development', areaSlug: 'backend-development', level: 'EXPERT', isPrimary: true },
+        {
+          areaName: 'Backend Development',
+          areaSlug: 'backend-development',
+          level: 'EXPERT',
+          isPrimary: true,
+        },
       ]);
       expect(result.services).toEqual([
         {
@@ -133,6 +142,49 @@ describe('ExpertPublicDirectoryService', () => {
     it('404s for a malformed slug without querying the repository', async () => {
       await expect(service.getBySlug('has spaces!!')).rejects.toBeInstanceOf(NotFoundException);
       expect(repo.findPublicBySlug).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('getServiceSlots', () => {
+    it('previews slots for the resolved expert using the service duration', async () => {
+      repo.findPublicServiceBySlug.mockResolvedValue({
+        expertUserId: 'expert-1',
+        service: { durationMinutes: 30 },
+      });
+      slotService.previewSlots.mockResolvedValue({
+        timezone: 'UTC',
+        durationMinutes: 30,
+        slots: [],
+      });
+
+      await service.getServiceSlots('senior-backend-engineer-abc123ef', 'service-1', {
+        from: '2026-08-01',
+        to: '2026-08-07',
+      });
+
+      expect(repo.findPublicServiceBySlug).toHaveBeenCalledWith(
+        'senior-backend-engineer-abc123ef',
+        'service-1',
+      );
+      expect(slotService.previewSlots).toHaveBeenCalledWith('expert-1', {
+        from: '2026-08-01',
+        to: '2026-08-07',
+        durationMinutes: 30,
+      });
+    });
+
+    it('404s when the service/slug combination does not resolve', async () => {
+      repo.findPublicServiceBySlug.mockResolvedValue(null);
+      await expect(
+        service.getServiceSlots('some-slug', 'service-1', { from: '2026-08-01', to: '2026-08-07' }),
+      ).rejects.toBeInstanceOf(NotFoundException);
+    });
+
+    it('rejects a malformed date range without querying the repository', async () => {
+      await expect(
+        service.getServiceSlots('some-slug', 'service-1', { from: 'not-a-date', to: '2026-08-07' }),
+      ).rejects.toBeInstanceOf(BadRequestException);
+      expect(repo.findPublicServiceBySlug).not.toHaveBeenCalled();
     });
   });
 });

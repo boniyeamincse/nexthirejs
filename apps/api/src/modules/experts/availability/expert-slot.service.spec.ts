@@ -5,11 +5,13 @@ describe('ExpertSlotService', () => {
   let service: ExpertSlotService;
   const prisma = {
     expertAvailabilityProfile: { findUnique: jest.fn() },
+    expertBooking: { findMany: jest.fn() },
   };
 
   beforeEach(() => {
     jest.resetAllMocks();
     jest.useFakeTimers().setSystemTime(new Date('2026-07-01T00:00:00.000Z'));
+    prisma.expertBooking.findMany.mockResolvedValue([]);
     service = new ExpertSlotService(prisma as never);
   });
 
@@ -286,6 +288,65 @@ describe('ExpertSlotService', () => {
       // Phoenix is fixed UTC-7 year-round: 01:00 local -> 08:00Z on both dates.
       expect(spring.slots[0]!.startUtc).toBe('2026-03-08T08:00:00.000Z');
       expect(fall.slots[0]!.startUtc).toBe('2026-11-01T08:00:00.000Z');
+    });
+  });
+
+  describe('booking conflict exclusion (NH-M14)', () => {
+    it('excludes a slot that overlaps an active (HELD/CONFIRMED) ExpertBooking', async () => {
+      mockProfile({ weekly: [{ dayOfWeek: 0, startLocalTime: '09:00', endLocalTime: '10:00' }] });
+      prisma.expertBooking.findMany.mockResolvedValue([
+        {
+          slotStartUtc: new Date('2026-07-20T09:00:00.000Z'),
+          slotEndUtc: new Date('2026-07-20T09:30:00.000Z'),
+        },
+      ]);
+      const result = await service.previewSlots('u1', {
+        from: '2026-07-20',
+        to: '2026-07-20',
+        durationMinutes: 30,
+      });
+      expect(result.slots).toEqual([
+        {
+          startUtc: '2026-07-20T09:30:00.000Z',
+          endUtc: '2026-07-20T10:00:00.000Z',
+          localDate: '2026-07-20',
+          startLocalTime: '09:30',
+          endLocalTime: '10:00',
+        },
+      ]);
+    });
+
+    it('only queries bookings for this expert, filtered to HELD/CONFIRMED', async () => {
+      mockProfile({ weekly: [{ dayOfWeek: 0, startLocalTime: '09:00', endLocalTime: '10:00' }] });
+      await service.previewSlots('u1', {
+        from: '2026-07-20',
+        to: '2026-07-20',
+        durationMinutes: 30,
+      });
+      expect(prisma.expertBooking.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            expertUserId: 'u1',
+            status: { in: ['HELD', 'CONFIRMED'] },
+          }),
+        }),
+      );
+    });
+
+    it('does not exclude a slot when no booking overlaps it', async () => {
+      mockProfile({ weekly: [{ dayOfWeek: 0, startLocalTime: '09:00', endLocalTime: '10:00' }] });
+      prisma.expertBooking.findMany.mockResolvedValue([
+        {
+          slotStartUtc: new Date('2026-07-21T09:00:00.000Z'),
+          slotEndUtc: new Date('2026-07-21T09:30:00.000Z'),
+        },
+      ]);
+      const result = await service.previewSlots('u1', {
+        from: '2026-07-20',
+        to: '2026-07-20',
+        durationMinutes: 30,
+      });
+      expect(result.slots).toHaveLength(2);
     });
   });
 });

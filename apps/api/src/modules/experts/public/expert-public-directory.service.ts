@@ -1,8 +1,14 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { ExpertPublicDirectoryRepository } from '../repositories/expert-public-directory.repository';
-import { publicExpertListQuerySchema, publicExpertSlugParamSchema } from '@nexthire/validation';
-import { EXPERT_ERROR_CODES } from '@nexthire/constants';
+import { ExpertSlotService } from '../availability/expert-slot.service';
+import {
+  publicExpertListQuerySchema,
+  publicExpertSlugParamSchema,
+  publicExpertServiceSlotQuerySchema,
+} from '@nexthire/validation';
+import { EXPERT_ERROR_CODES, EXPERT_BOOKING_ERROR_CODES } from '@nexthire/constants';
 import type {
+  ExpertAvailabilitySlotPreviewResult,
   ExpertExpertiseLevel,
   ExpertServiceType,
   PaginatedPublicExpertResult,
@@ -49,7 +55,10 @@ interface DirectoryDetailUser {
 
 @Injectable()
 export class ExpertPublicDirectoryService {
-  constructor(private readonly repository: ExpertPublicDirectoryRepository) {}
+  constructor(
+    private readonly repository: ExpertPublicDirectoryRepository,
+    private readonly slotService: ExpertSlotService,
+  ) {}
 
   async list(query: unknown): Promise<PaginatedPublicExpertResult> {
     const parsed = publicExpertListQuerySchema.safeParse(query ?? {});
@@ -137,5 +146,38 @@ export class ExpertPublicDirectoryService {
         price: { amount: s.priceAmount.toString(), currency: s.priceCurrency },
       })),
     };
+  }
+
+  async getServiceSlots(
+    rawSlug: string,
+    serviceId: string,
+    query: unknown,
+  ): Promise<ExpertAvailabilitySlotPreviewResult> {
+    const parsedSlug = publicExpertSlugParamSchema.safeParse(rawSlug);
+    if (!parsedSlug.success) {
+      throw new NotFoundException(EXPERT_BOOKING_ERROR_CODES.SERVICE_NOT_BOOKABLE);
+    }
+
+    const parsedQuery = publicExpertServiceSlotQuerySchema.safeParse(query ?? {});
+    if (!parsedQuery.success) {
+      throw new BadRequestException({
+        code: EXPERT_BOOKING_ERROR_CODES.VALIDATION_FAILED,
+        details: parsedQuery.error.issues.map((i) => ({
+          field: i.path.join('.'),
+          message: i.message,
+        })),
+      });
+    }
+
+    const found = await this.repository.findPublicServiceBySlug(parsedSlug.data, serviceId);
+    if (!found) {
+      throw new NotFoundException(EXPERT_BOOKING_ERROR_CODES.SERVICE_NOT_BOOKABLE);
+    }
+
+    return this.slotService.previewSlots(found.expertUserId, {
+      from: parsedQuery.data.from,
+      to: parsedQuery.data.to,
+      durationMinutes: found.service.durationMinutes,
+    });
   }
 }

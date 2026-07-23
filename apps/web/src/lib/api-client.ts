@@ -31,6 +31,9 @@ import type {
   PublicExpertListQuery,
   PaginatedPublicExpertResult,
   PublicExpertProfileDetail,
+  CreateExpertBookingInput,
+  ExpertBookingResult,
+  UpdateExpertBookingByExpertInput,
 } from '@nexthire/types';
 
 interface ApiErrorDetail {
@@ -2757,13 +2760,123 @@ export async function getPublicExperts(
 }
 
 export async function getPublicExpertProfile(slug: string): Promise<PublicExpertProfileDetail> {
-  const response = await fetch(
-    `${publicEnv.apiBaseUrl}/expert/public/${encodeURIComponent(slug)}`,
-  );
+  const response = await fetch(`${publicEnv.apiBaseUrl}/expert/public/${encodeURIComponent(slug)}`);
   if (response.ok) {
     return response.json() as Promise<PublicExpertProfileDetail>;
   }
   throw await parseApiError(response, 'Failed to load expert profile');
+}
+
+export async function getPublicExpertServiceSlots(
+  slug: string,
+  serviceId: string,
+  params: { from: string; to: string },
+): Promise<ExpertAvailabilitySlotPreviewResult> {
+  const query = new URLSearchParams({ from: params.from, to: params.to });
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/expert/public/${encodeURIComponent(slug)}/services/${encodeURIComponent(serviceId)}/slots?${query.toString()}`,
+  );
+  if (response.ok) {
+    return response.json() as Promise<ExpertAvailabilitySlotPreviewResult>;
+  }
+  throw await parseApiError(response, 'Failed to load available slots');
+}
+
+// --- Candidate: Expert bookings ---
+
+export async function createMyExpertBooking(
+  accessToken: string,
+  input: CreateExpertBookingInput,
+): Promise<ExpertBookingResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/bookings`, {
+    method: 'POST',
+    headers: expertAuthHeaders(accessToken),
+    body: JSON.stringify(input),
+  });
+  if (response.ok) {
+    return response.json() as Promise<ExpertBookingResult>;
+  }
+  throw await parseApiError(response, 'Failed to reserve this slot');
+}
+
+export async function listMyExpertBookings(
+  accessToken: string,
+  status?: string,
+): Promise<ExpertBookingResult[]> {
+  const params = status ? `?status=${encodeURIComponent(status)}` : '';
+  const response = await fetch(`${publicEnv.apiBaseUrl}/candidates/me/bookings${params}`, {
+    headers: expertAuthHeaders(accessToken),
+  });
+  if (response.ok) {
+    return response.json() as Promise<ExpertBookingResult[]>;
+  }
+  throw await parseApiError(response, 'Failed to load your bookings');
+}
+
+export async function confirmMyExpertBooking(
+  accessToken: string,
+  id: string,
+): Promise<ExpertBookingResult> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/candidates/me/bookings/${encodeURIComponent(id)}/confirm`,
+    { method: 'POST', headers: expertAuthHeaders(accessToken) },
+  );
+  if (response.ok) {
+    return response.json() as Promise<ExpertBookingResult>;
+  }
+  throw await parseApiError(response, 'Failed to confirm booking');
+}
+
+export async function cancelMyExpertBooking(
+  accessToken: string,
+  id: string,
+): Promise<ExpertBookingResult> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/candidates/me/bookings/${encodeURIComponent(id)}`,
+    {
+      method: 'DELETE',
+      headers: expertAuthHeaders(accessToken),
+    },
+  );
+  if (response.ok) {
+    return response.json() as Promise<ExpertBookingResult>;
+  }
+  throw await parseApiError(response, 'Failed to cancel booking');
+}
+
+// --- Expert: Received bookings ---
+
+export async function listReceivedExpertBookings(
+  accessToken: string,
+  status?: string,
+): Promise<ExpertBookingResult[]> {
+  const params = status ? `?status=${encodeURIComponent(status)}` : '';
+  const response = await fetch(`${publicEnv.apiBaseUrl}/expert/bookings${params}`, {
+    headers: expertAuthHeaders(accessToken),
+  });
+  if (response.ok) {
+    return response.json() as Promise<ExpertBookingResult[]>;
+  }
+  throw await parseApiError(response, 'Failed to load received bookings');
+}
+
+export async function updateReceivedExpertBooking(
+  accessToken: string,
+  id: string,
+  input: UpdateExpertBookingByExpertInput,
+): Promise<ExpertBookingResult> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/expert/bookings/${encodeURIComponent(id)}`,
+    {
+      method: 'PATCH',
+      headers: expertAuthHeaders(accessToken),
+      body: JSON.stringify(input),
+    },
+  );
+  if (response.ok) {
+    return response.json() as Promise<ExpertBookingResult>;
+  }
+  throw await parseApiError(response, 'Failed to update booking');
 }
 
 // --- Applicant: Expert application ---
@@ -3889,63 +4002,93 @@ export async function getAdminRevenueTrends(token: string) {
 }
 
 export async function getAdminGrowthRoles(token: string) {
-  return fetchApi('/admin/analytics/growth/roles', { headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi('/admin/analytics/growth/roles', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function getAdminGrowthCountries(token: string) {
-  return fetchApi('/admin/analytics/growth/countries', { headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi('/admin/analytics/growth/countries', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function getAdminGrowthRetention(token: string) {
-  return fetchApi('/admin/analytics/growth/retention', { headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi('/admin/analytics/growth/retention', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function getAdminGrowthFunnel(token: string) {
-  return fetchApi('/admin/analytics/growth/funnel', { headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi('/admin/analytics/growth/funnel', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function getAdminRevenueSources(token: string) {
-  return fetchApi('/admin/analytics/revenue/sources', { headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi('/admin/analytics/revenue/sources', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function getAdminRevenueCountries(token: string) {
-  return fetchApi('/admin/analytics/revenue/countries', { headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi('/admin/analytics/revenue/countries', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function getAdminRevenuePayments(token: string) {
-  return fetchApi('/admin/analytics/revenue/payments', { headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi('/admin/analytics/revenue/payments', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function getAdminRevenueCommission(token: string) {
-  return fetchApi('/admin/analytics/revenue/commission', { headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi('/admin/analytics/revenue/commission', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function getAdminRevenueRefunds(token: string) {
-  return fetchApi('/admin/analytics/revenue/refunds', { headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi('/admin/analytics/revenue/refunds', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function getAdminPerformanceApi(token: string) {
-  return fetchApi('/admin/analytics/performance/api', { headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi('/admin/analytics/performance/api', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function getAdminPerformanceQueue(token: string) {
-  return fetchApi('/admin/analytics/performance/queue', { headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi('/admin/analytics/performance/queue', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function getAdminPerformanceErrors(token: string) {
-  return fetchApi('/admin/analytics/performance/errors', { headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi('/admin/analytics/performance/errors', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function getAdminPerformanceSystem(token: string) {
-  return fetchApi('/admin/analytics/performance/system', { headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi('/admin/analytics/performance/system', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function getAdminPerformanceDatabase(token: string) {
-  return fetchApi('/admin/analytics/performance/database', { headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi('/admin/analytics/performance/database', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function getAdminPerformanceUptime(token: string) {
-  return fetchApi('/admin/analytics/performance/uptime', { headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi('/admin/analytics/performance/uptime', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function getAdminUsers(token: string, params?: Record<string, string>) {
@@ -3957,7 +4100,12 @@ export async function getAdminUser(token: string, id: string) {
   return fetchApi(`/admin/users/${id}`, { headers: { Authorization: `Bearer ${token}` } });
 }
 
-export async function updateAdminUserStatus(token: string, id: string, status: string, reason?: string) {
+export async function updateAdminUserStatus(
+  token: string,
+  id: string,
+  status: string,
+  reason?: string,
+) {
   return fetchApi(`/admin/users/${id}/status`, {
     method: 'PUT',
     headers: { Authorization: `Bearer ${token}` },
@@ -3973,11 +4121,16 @@ export async function forceAdminUserLogout(token: string, id: string) {
 }
 
 export async function deleteAdminUser(token: string, id: string) {
-  return fetchApi(`/admin/users/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi(`/admin/users/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function getAdminSuspendedUsers(token: string, page = '1', limit = '20') {
-  return fetchApi(`/admin/users/suspended?page=${page}&limit=${limit}`, { headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi(`/admin/users/suspended?page=${page}&limit=${limit}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function activateAdminSuspendedUser(token: string, id: string) {
@@ -3988,11 +4141,15 @@ export async function activateAdminSuspendedUser(token: string, id: string) {
 }
 
 export async function getAdminPendingVerifications(token: string, page = '1', limit = '20') {
-  return fetchApi(`/admin/users/verification/pending?page=${page}&limit=${limit}`, { headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi(`/admin/users/verification/pending?page=${page}&limit=${limit}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function getAdminVerifiedAccounts(token: string, page = '1', limit = '20') {
-  return fetchApi(`/admin/users/verification/verified?page=${page}&limit=${limit}`, { headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi(`/admin/users/verification/verified?page=${page}&limit=${limit}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function verifyAdminUser(token: string, id: string) {
@@ -4013,7 +4170,10 @@ export async function getAdminRoles(token: string) {
   return fetchApi('/admin/roles', { headers: { Authorization: `Bearer ${token}` } });
 }
 
-export async function createAdminRole(token: string, data: { code: string; name: string; description?: string }) {
+export async function createAdminRole(
+  token: string,
+  data: { code: string; name: string; description?: string },
+) {
   return fetchApi('/admin/roles', {
     method: 'POST',
     headers: { Authorization: `Bearer ${token}` },
@@ -4026,7 +4186,10 @@ export async function getAdminRole(token: string, id: string) {
 }
 
 export async function deleteAdminRole(token: string, id: string) {
-  return fetchApi(`/admin/roles/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi(`/admin/roles/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function assignAdminUserRole(token: string, userId: string, roleCode: string) {
@@ -4054,27 +4217,39 @@ export async function getAdminCandidate(token: string, id: string) {
 }
 
 export async function getAdminCandidateProfile(token: string, id: string) {
-  return fetchApi(`/admin/candidates/${id}/profile`, { headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi(`/admin/candidates/${id}/profile`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function getAdminCandidatePassport(token: string, id: string) {
-  return fetchApi(`/admin/candidates/${id}/passport`, { headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi(`/admin/candidates/${id}/passport`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function getAdminCandidateAssessments(token: string, id: string) {
-  return fetchApi(`/admin/candidates/${id}/assessments`, { headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi(`/admin/candidates/${id}/assessments`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function getAdminCandidateActivity(token: string, id: string) {
-  return fetchApi(`/admin/candidates/${id}/activity`, { headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi(`/admin/candidates/${id}/activity`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function getAdminCandidateProjects(token: string, id: string) {
-  return fetchApi(`/admin/candidates/${id}/projects`, { headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi(`/admin/candidates/${id}/projects`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function getAdminCandidateSkillsPending(token: string) {
-  return fetchApi('/admin/candidates/skills/pending', { headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi('/admin/candidates/skills/pending', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function verifyAdminCandidateSkill(token: string, id: string) {
@@ -4085,15 +4260,45 @@ export async function verifyAdminCandidateSkill(token: string, id: string) {
 }
 
 export async function getAdminCandidateReadiness(token: string) {
-  return fetchApi('/admin/candidates/readiness/distribution', { headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi('/admin/candidates/readiness/distribution', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function getAdminCandidateReportsRegistration(token: string) {
-  return fetchApi('/admin/candidates/reports/registration', { headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi('/admin/candidates/reports/registration', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export async function getAdminCandidateReportsCompletion(token: string) {
+  return fetchApi('/admin/candidates/reports/completion', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export async function getAdminCandidateReportsReadiness(token: string) {
+  return fetchApi('/admin/candidates/reports/readiness', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function getAdminCandidateReportsCountries(token: string) {
-  return fetchApi('/admin/candidates/reports/countries', { headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi('/admin/candidates/reports/countries', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export async function getAdminCandidateReportsSkills(token: string) {
+  return fetchApi('/admin/candidates/reports/skills', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export async function getAdminCandidateReportsExport(token: string, format = 'csv') {
+  return fetchApi(`/admin/candidates/reports/export?format=${format}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function getAdminExperts(token: string, params?: Record<string, string>) {
@@ -4106,23 +4311,33 @@ export async function getAdminExpert(token: string, id: string) {
 }
 
 export async function getAdminExpertProfile(token: string, id: string) {
-  return fetchApi(`/admin/experts/${id}/profile`, { headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi(`/admin/experts/${id}/profile`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function getAdminExpertServices(token: string, id: string) {
-  return fetchApi(`/admin/experts/${id}/services`, { headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi(`/admin/experts/${id}/services`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function getAdminExpertBookings(token: string, id: string) {
-  return fetchApi(`/admin/experts/${id}/bookings`, { headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi(`/admin/experts/${id}/bookings`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function getAdminExpertVerificationPending(token: string, page = '1', limit = '20') {
-  return fetchApi(`/admin/experts/verification/pending?page=${page}&limit=${limit}`, { headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi(`/admin/experts/verification/pending?page=${page}&limit=${limit}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function getAdminExpertVerificationDetail(token: string, id: string) {
-  return fetchApi(`/admin/experts/verification/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi(`/admin/experts/verification/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function approveAdminExpertVerification(token: string, id: string, note?: string) {
@@ -4142,15 +4357,21 @@ export async function rejectAdminExpertVerification(token: string, id: string, r
 }
 
 export async function getAdminExpertTop(token: string, limit = '10') {
-  return fetchApi(`/admin/experts/performance/top?limit=${limit}`, { headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi(`/admin/experts/performance/top?limit=${limit}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function getAdminExpertComplaints(token: string, page = '1', limit = '20') {
-  return fetchApi(`/admin/experts/complaints?page=${page}&limit=${limit}`, { headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi(`/admin/experts/complaints?page=${page}&limit=${limit}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function getAdminExpertReportsRegistration(token: string) {
-  return fetchApi('/admin/experts/reports/registration', { headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi('/admin/experts/reports/registration', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function getAdminLogs(token: string, params?: Record<string, string>) {
@@ -4159,7 +4380,9 @@ export async function getAdminLogs(token: string, params?: Record<string, string
 }
 
 export async function getAdminErrorLogs(token: string, page = '1', limit = '50') {
-  return fetchApi(`/admin/logs/errors?page=${page}&limit=${limit}`, { headers: { Authorization: `Bearer ${token}` } });
+  return fetchApi(`/admin/logs/errors?page=${page}&limit=${limit}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export async function getAdminAccessLogs(token: string, page = '1', limit = '50', userId?: string) {
@@ -4172,3 +4395,85 @@ export async function getAdminLogDetail(token: string, id: string) {
   return fetchApi(`/admin/logs/${id}`, { headers: { Authorization: `Bearer ${token}` } });
 }
 
+export async function getAdminAuditStats(token: string) {
+  return fetchApi('/admin/logs/audit/stats', { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminAuditActionTypes(token: string) {
+  return fetchApi('/admin/logs/audit/action-types', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export async function getAdminAuditExport(token: string, params?: Record<string, string>) {
+  const qs = params ? '?' + new URLSearchParams(params).toString() : '';
+  return fetchApi(`/admin/logs/audit/export${qs}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export async function getAdminMaintenanceStatus(token: string) {
+  return fetchApi('/admin/maintenance/status', { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminMaintenanceHealth(token: string) {
+  return fetchApi('/admin/maintenance/health', { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminMaintenanceHistory(token: string) {
+  return fetchApi('/admin/maintenance/history', { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function toggleAdminMaintenanceMode(
+  token: string,
+  enabled: boolean,
+  message?: string,
+) {
+  return fetchApi('/admin/maintenance/mode', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ enabled, message }),
+  });
+}
+
+export async function getAdminSecurityOverview(token: string) {
+  return fetchApi('/admin/security/overview', { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminSecuritySuspicious(token: string) {
+  return fetchApi('/admin/security/suspicious', { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminSecuritySessions(token: string, page = '1', limit = '20') {
+  return fetchApi(`/admin/security/sessions?page=${page}&limit=${limit}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export async function getAdminSecurityPolicies(token: string) {
+  return fetchApi('/admin/security/policies', { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function updateAdminSecurityPolicies(token: string, policies: any) {
+  return fetchApi('/admin/security/policies', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(policies),
+  });
+}
+
+export async function getAdminSettings(token: string) {
+  return fetchApi('/admin/settings', { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminSettingsGroup(token: string, group: string) {
+  return fetchApi(`/admin/settings/${group}`, { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function updateAdminSettingsGroup(token: string, group: string, data: any) {
+  return fetchApi(`/admin/settings/${group}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(data),
+  });
+}

@@ -97,6 +97,37 @@ describe('Experts (e2e)', () => {
       http().delete('/api/v1/experts/me/application/documents/some-id').expect(401));
   });
 
+  describe('bookings (candidate)', () => {
+    it('GET /api/v1/candidates/me/bookings requires auth', () =>
+      http().get('/api/v1/candidates/me/bookings').expect(401));
+
+    it('POST /api/v1/candidates/me/bookings requires auth', () =>
+      http().post('/api/v1/candidates/me/bookings').send({}).expect(401));
+
+    it('POST /api/v1/candidates/me/bookings/:id/confirm requires auth', () =>
+      http().post('/api/v1/candidates/me/bookings/some-id/confirm').send({}).expect(401));
+
+    it('DELETE /api/v1/candidates/me/bookings/:id requires auth', () =>
+      http().delete('/api/v1/candidates/me/bookings/some-id').expect(401));
+  });
+
+  describe('bookings (expert)', () => {
+    it('GET /api/v1/expert/bookings requires auth', () =>
+      http().get('/api/v1/expert/bookings').expect(401));
+
+    it('PATCH /api/v1/expert/bookings/:id requires auth', () =>
+      http().patch('/api/v1/expert/bookings/some-id').send({}).expect(401));
+  });
+
+  describe('public service slot preview', () => {
+    it('GET /api/v1/expert/public/:slug/services/:serviceId/slots 404s for an unknown slug without auth', () =>
+      http()
+        .get(
+          '/api/v1/expert/public/does-not-exist-00000000/services/00000000-0000-0000-0000-000000000000/slots?from=2026-08-01&to=2026-08-07',
+        )
+        .expect(404));
+  });
+
   describe('admin review', () => {
     it('GET queue requires auth', () =>
       http().get('/api/v1/manage/experts/applications').expect(401));

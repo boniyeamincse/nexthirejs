@@ -9,6 +9,7 @@ import {
   DATA_EXPORT_QUEUE,
   CERTIFICATE_QUEUE,
   CV_EXPORT_QUEUE,
+  EXPERT_BOOKING_HOLD_QUEUE,
 } from './queue.constants';
 
 @Module({
@@ -48,6 +49,9 @@ import {
     }),
     BullModule.registerQueue({
       name: CV_EXPORT_QUEUE,
+    }),
+    BullModule.registerQueue({
+      name: EXPERT_BOOKING_HOLD_QUEUE,
     }),
   ],
   providers: [QueueService, SystemHealthProcessor],

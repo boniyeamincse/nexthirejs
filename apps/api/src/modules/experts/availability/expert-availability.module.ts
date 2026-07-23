@@ -9,5 +9,6 @@ import { ExpertSlotService } from './expert-slot.service';
   imports: [DatabaseModule, AuditModule, AuthModule],
   controllers: [ExpertAvailabilityController],
   providers: [ExpertSlotService],
+  exports: [ExpertSlotService],
 })
 export class ExpertAvailabilityModule {}

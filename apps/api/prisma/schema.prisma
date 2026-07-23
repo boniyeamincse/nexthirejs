@@ -97,6 +97,8 @@ model User {
   expertAvailabilityProfile ExpertAvailabilityProfile?
   expertProfile             ExpertProfile?
   expertApplications        ExpertApplication[]
+  expertBookingsAsExpert    ExpertBooking[]            @relation("ExpertBookingExpert")
+  expertBookingsAsCandidate ExpertBooking[]            @relation("ExpertBookingCandidate")
 }
 
 model Role {
@@ -1718,6 +1720,7 @@ model ExpertService {
 
   user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   expertiseArea ExpertiseArea @relation(fields: [expertiseAreaId], references: [id], onDelete: Restrict)
+  bookings      ExpertBooking[]
 
   @@index([userId, status])
   @@index([expertiseAreaId, status])
@@ -1773,6 +1776,46 @@ model ExpertAvailabilityOverride {
 
   @@unique([availabilityProfileId, localDate])
   @@index([availabilityProfileId, localDate])
+}
+
+enum ExpertBookingStatus {
+  HELD
+  CONFIRMED
+  CANCELLED
+  EXPIRED
+  COMPLETED
+}
+
+/// A reservation of a computed ExpertSlotService slot against an ExpertService.
+/// Created as HELD with a holdExpiresAt while the candidate finalizes the
+/// booking (payment is not yet implemented, NH-M29 — confirm() stands in for
+/// that step for now); a delayed BullMQ job expires unconfirmed holds so the
+/// slot is released. A partial unique index (see migration SQL) on
+/// (expertUserId, slotStartUtc) where status is HELD/CONFIRMED is the
+/// authoritative race guard against double-booking the same slot.
+model ExpertBooking {
+  id              String              @id @default(uuid()) @db.Uuid
+  expertUserId    String              @db.Uuid
+  expertServiceId String              @db.Uuid
+  candidateId     String              @db.Uuid
+  status          ExpertBookingStatus @default(HELD)
+  slotStartUtc    DateTime
+  slotEndUtc      DateTime
+  holdExpiresAt   DateTime?
+  meetingUrl      String?             @db.VarChar(500)
+  notes           String?             @db.Text
+  cancelledAt     DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  expertUser    User          @relation("ExpertBookingExpert", fields: [expertUserId], references: [id], onDelete: Cascade)
+  expertService ExpertService @relation(fields: [expertServiceId], references: [id], onDelete: Restrict)
+  candidate     User          @relation("ExpertBookingCandidate", fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@index([expertUserId, status])
+  @@index([candidateId, status])
+  @@index([slotStartUtc])
 }
 
 enum CourseStatus {

@@ -24,4 +24,17 @@ export class ExpertPublicController {
   async detail(@Param('slug') slug: string) {
     return this.directoryService.getBySlug(slug);
   }
+
+  @Public()
+  @Get(':slug/services/:serviceId/slots')
+  @ApiOperation({ summary: "Preview bookable slots for one of a public expert's services" })
+  @ApiResponse({ status: 200, description: 'Computed slot preview, conflicts excluded' })
+  @ApiResponse({ status: 404, description: 'EXPERT_BOOKING_SERVICE_NOT_BOOKABLE' })
+  async serviceSlots(
+    @Param('slug') slug: string,
+    @Param('serviceId') serviceId: string,
+    @Query() query: unknown,
+  ) {
+    return this.directoryService.getServiceSlots(slug, serviceId, query);
+  }
 }

@@ -29,10 +29,10 @@ function mapOverrideWindows(windows: unknown): LocalWindow[] {
 
 /**
  * Computes concrete bookable slot instances from an expert's recurring weekly
- * windows and per-date overrides. Does NOT check the Booking table — Booking
- * currently belongs to the separate `trainers` domain (TrainerProfile), not
- * ExpertProfile, so conflict exclusion is out of scope here (see the
- * trainers/experts reconciliation flagged for NH-M13/M14).
+ * windows and per-date overrides, excluding any slot that overlaps an active
+ * (HELD/CONFIRMED) `ExpertBooking` for that expert (NH-M14). The legacy
+ * `trainers` domain's `Booking` table is unrelated and still unreconciled —
+ * see the trainers/experts reconciliation flagged since NH-M00.
  *
  * DST correctness: each window's start/end wall-clock time is resolved once
  * per calendar date via `DateTime.fromObject({ ...date, hour, minute }, {
@@ -93,6 +93,24 @@ export class ExpertSlotService {
 
     const overridesByDate = new Map(profile.overrides.map((o) => [o.localDate, o]));
 
+    // Slots overlapping an active (HELD/CONFIRMED) ExpertBooking are excluded
+    // below. Widened to the full [now, bookableUntil] range rather than just
+    // the requested from/to so the result is correct regardless of how the
+    // caller clamped the request.
+    const bookedRows = await this.prisma.expertBooking.findMany({
+      where: {
+        expertUserId: userId,
+        status: { in: ['HELD', 'CONFIRMED'] },
+        slotStartUtc: { lt: bookableUntil.toJSDate() },
+        slotEndUtc: { gt: now.toJSDate() },
+      },
+      select: { slotStartUtc: true, slotEndUtc: true },
+    });
+    const bookedIntervals = bookedRows.map((b) => ({
+      startMs: b.slotStartUtc.getTime(),
+      endMs: b.slotEndUtc.getTime(),
+    }));
+
     const slots: ExpertAvailabilitySlotPreviewResult['slots'] = [];
 
     let cursor = rangeStartUtc.setZone(zone, { keepLocalTime: true }).startOf('day');
@@ -149,7 +167,11 @@ export class ExpertSlotService {
           const slotEndLocal = cursorLocal.plus({ minutes: params.durationMinutes });
           if (slotEndLocal > windowEndLocal) break;
 
-          if (cursorLocal >= earliestBookable && cursorLocal <= bookableUntil) {
+          const startMs = cursorLocal.toUTC().toMillis();
+          const endMs = slotEndLocal.toUTC().toMillis();
+          const isBooked = bookedIntervals.some((b) => startMs < b.endMs && b.startMs < endMs);
+
+          if (cursorLocal >= earliestBookable && cursorLocal <= bookableUntil && !isBooked) {
             slots.push({
               startUtc: cursorLocal.toUTC().toISO()!,
               endUtc: slotEndLocal.toUTC().toISO()!,

@@ -6,3 +6,5 @@ export const CERTIFICATE_QUEUE = 'assessment-certificates';
 export const GENERATE_CERTIFICATE_JOB = 'assessment.generate_certificate';
 export const CV_EXPORT_QUEUE = 'cv-exports';
 export const GENERATE_CV_EXPORT_JOB = 'cv.generate_export';
+export const EXPERT_BOOKING_HOLD_QUEUE = 'expert-booking-holds';
+export const EXPIRE_EXPERT_BOOKING_HOLD_JOB = 'expert.booking.expire_hold';

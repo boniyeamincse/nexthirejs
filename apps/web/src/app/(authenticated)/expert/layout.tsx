@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   { label: 'Expertise', href: '/expert/expertise' },
   { label: 'Services', href: '/expert/services' },
   { label: 'Availability', href: '/expert/availability' },
+  { label: 'Bookings', href: '/expert/bookings' },
 ] as const;
 
 const PAGE_TITLES: Record<string, string> = {
@@ -16,6 +17,7 @@ const PAGE_TITLES: Record<string, string> = {
   '/expert/services': 'Services',
   '/expert/services/new': 'New Service',
   '/expert/availability': 'Availability',
+  '/expert/bookings': 'Bookings',
 };
 
 /**

@@ -165,3 +165,49 @@ export interface ExpertServiceLifecycleTransition {
   from: ExpertServiceStatus;
   to: ExpertServiceStatus;
 }
+
+export type ExpertBookingStatus = 'HELD' | 'CONFIRMED' | 'CANCELLED' | 'EXPIRED' | 'COMPLETED';
+
+export interface CreateExpertBookingInput {
+  expertServiceId: string;
+  slotStartUtc: string;
+}
+
+export interface ExpertBookingResult {
+  id: string;
+  expertUserId: string;
+  expertServiceId: string;
+  candidateId: string;
+  status: ExpertBookingStatus;
+  slotStartUtc: string;
+  slotEndUtc: string;
+  holdExpiresAt: string | null;
+  meetingUrl: string | null;
+  notes: string | null;
+  cancelledAt: string | null;
+  completedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  service: {
+    id: string;
+    title: string;
+    type: ExpertServiceType;
+    durationMinutes: number;
+    price: MoneyAmount;
+  };
+  counterparty: {
+    id: string;
+    displayName: string;
+  };
+}
+
+export interface UpdateExpertBookingByExpertInput {
+  meetingUrl?: string | null;
+  notes?: string | null;
+  action?: 'complete' | 'cancel';
+}
+
+export interface PublicExpertServiceSlotQuery {
+  from: string;
+  to: string;
+}

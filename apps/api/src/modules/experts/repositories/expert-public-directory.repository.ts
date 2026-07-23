@@ -15,7 +15,8 @@ export class ExpertPublicDirectoryRepository {
 
     const profileFilter: Record<string, unknown> = { isPublic: true, publicSlug: { not: null } };
     if (query.country) profileFilter.countryId = query.country;
-    if (query.search) profileFilter.professionalTitle = { contains: query.search, mode: 'insensitive' };
+    if (query.search)
+      profileFilter.professionalTitle = { contains: query.search, mode: 'insensitive' };
 
     const where: Record<string, unknown> = {
       ...EXPERT_ROLE_FILTER,
@@ -73,5 +74,21 @@ export class ExpertPublicDirectoryRepository {
     }
 
     return { profile, user };
+  }
+
+  async findPublicServiceBySlug(slug: string, serviceId: string) {
+    const profile = await this.prisma.expertProfile.findUnique({
+      where: { publicSlug: slug },
+    });
+    if (!profile || !profile.isPublic) {
+      return null;
+    }
+
+    const service = await this.prisma.expertService.findUnique({ where: { id: serviceId } });
+    if (!service || service.userId !== profile.userId || service.status !== 'ACTIVE') {
+      return null;
+    }
+
+    return { expertUserId: profile.userId, service };
   }
 }
