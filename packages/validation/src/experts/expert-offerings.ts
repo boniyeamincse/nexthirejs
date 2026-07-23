@@ -5,8 +5,8 @@ import {
   EXPERT_EXPERTISE_LEVELS,
   EXPERT_AVAILABILITY_OVERRIDE_TYPES,
   EXPERT_OFFERING_LIMITS,
+  SUPPORTED_CURRENCIES,
 } from '@nexthire/constants';
-import { SUPPORTED_CURRENCIES } from '@nexthire/constants/currencies.js';
 
 const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
 

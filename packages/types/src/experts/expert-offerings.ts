@@ -1,16 +1,18 @@
-import type {
-  EXPERT_SERVICE_TYPES,
-  EXPERT_SERVICE_STATUSES,
-  EXPERT_EXPERTISE_LEVELS,
-  EXPERT_AVAILABILITY_OVERRIDE_TYPES,
-} from '@nexthire/constants';
-import type { SUPPORTED_CURRENCIES } from '@nexthire/constants/currencies.js';
+export type ExpertServiceType =
+  | 'MOCK_INTERVIEW'
+  | 'CV_REVIEW'
+  | 'CAREER_COACHING'
+  | 'TECHNICAL_INTERVIEW_PREPARATION'
+  | 'BEHAVIORAL_INTERVIEW_PREPARATION'
+  | 'PORTFOLIO_REVIEW';
 
-export type ExpertServiceType = (typeof EXPERT_SERVICE_TYPES)[number];
-export type ExpertServiceStatus = (typeof EXPERT_SERVICE_STATUSES)[number];
-export type ExpertExpertiseLevel = (typeof EXPERT_EXPERTISE_LEVELS)[number];
-export type ExpertAvailabilityOverrideType = (typeof EXPERT_AVAILABILITY_OVERRIDE_TYPES)[number];
-export type SupportedCurrency = (typeof SUPPORTED_CURRENCIES)[number];
+export type ExpertServiceStatus = 'DRAFT' | 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
+
+export type ExpertExpertiseLevel = 'INTERMEDIATE' | 'ADVANCED' | 'EXPERT';
+
+export type ExpertAvailabilityOverrideType = 'UNAVAILABLE' | 'CUSTOM_HOURS';
+
+export type SupportedCurrency = 'USD' | 'EUR' | 'GBP' | 'BDT' | 'INR' | 'PKR';
 
 export interface ExpertiseAreaResult {
   id: string;

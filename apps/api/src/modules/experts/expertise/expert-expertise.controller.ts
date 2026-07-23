@@ -12,7 +12,8 @@ import {
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { AuthGuard, AuthenticatedRequest } from '../../../modules/auth/auth.guard';
+import { AuthGuard } from '../../../modules/auth/auth.guard';
+import type { AuthenticatedRequest } from '../../../modules/auth/auth.guard';
 import { RolesGuard } from '../../../common/guards/roles.guard';
 import { RequireRoles } from '../../../common/decorators/roles.decorator';
 import { ExpertEligibilityGuard } from '../shared/expert-eligibility.guard';
@@ -69,7 +70,7 @@ export class ExpertExpertiseController {
     if (!parsed.success) {
       throw new BadRequestException({
         code: 'EXPERT_EXPERTISE_VALIDATION_FAILED',
-        details: parsed.error.issues.map((i) => ({
+        details: parsed.error.issues.map((i: { path: (string | number)[]; message: string }) => ({
           field: i.path.join('.'),
           message: i.message,
         })),
@@ -83,13 +84,20 @@ export class ExpertExpertiseController {
 
       if (parsed.data.items.length > 0) {
         await tx.expertExpertise.createMany({
-          data: parsed.data.items.map((item) => ({
-            userId,
-            expertiseAreaId: item.expertiseAreaId,
-            level: item.level,
-            yearsExperience: item.yearsExperience ?? null,
-            isPrimary: item.isPrimary ?? false,
-          })),
+          data: parsed.data.items.map(
+            (item: {
+              expertiseAreaId: string;
+              level: string;
+              yearsExperience?: number | null;
+              isPrimary?: boolean;
+            }) => ({
+              userId,
+              expertiseAreaId: item.expertiseAreaId,
+              level: item.level as 'INTERMEDIATE' | 'ADVANCED' | 'EXPERT',
+              yearsExperience: item.yearsExperience ?? null,
+              isPrimary: item.isPrimary ?? false,
+            }),
+          ),
         });
       }
     });

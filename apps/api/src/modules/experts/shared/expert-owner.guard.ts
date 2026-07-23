@@ -50,7 +50,7 @@ export class ExpertOwnerGuard implements CanActivate {
       throw new NotFoundException('Resource identifier missing');
     }
 
-    const prismaModel = (this.prisma as Record<string, unknown>)[metadata.model];
+    const prismaModel = (this.prisma as unknown as Record<string, unknown>)[metadata.model];
 
     if (!prismaModel || typeof prismaModel !== 'object') {
       throw new ForbiddenException('Access denied');

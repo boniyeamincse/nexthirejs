@@ -14,7 +14,8 @@ import {
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { AuthGuard, AuthenticatedRequest } from '../../../modules/auth/auth.guard';
+import { AuthGuard } from '../../../modules/auth/auth.guard';
+import type { AuthenticatedRequest } from '../../../modules/auth/auth.guard';
 import { RolesGuard } from '../../../common/guards/roles.guard';
 import { RequireRoles } from '../../../common/decorators/roles.decorator';
 import { ExpertEligibilityGuard } from '../shared/expert-eligibility.guard';
@@ -22,7 +23,7 @@ import { PrismaService } from '../../../database/prisma.service';
 import { AuditService } from '../../../modules/audit/audit.service';
 import { AuditActorType, AuditOutcome } from '@nexthire/types';
 import { expertServiceSchema, serviceLifecycleActionSchema } from '@nexthire/validation';
-import { EXPERT_OFFERING_RATE_LIMITS, EXPERT_SERVICE_STATUSES } from '@nexthire/constants';
+import { EXPERT_OFFERING_RATE_LIMITS } from '@nexthire/constants';
 
 const HOUR_MS = 3_600_000;
 
@@ -33,10 +34,7 @@ const VALID_TRANSITIONS: Record<string, string[]> = {
   ARCHIVED: [],
 };
 
-function parseTimeToMinutes(time: string): number {
-  const [h, m] = time.split(':').map(Number);
-  return h * 60 + m;
-}
+const VALID_STATUSES = ['DRAFT', 'ACTIVE', 'INACTIVE', 'ARCHIVED'] as const;
 
 @ApiTags('Expert Services')
 @ApiBearerAuth('access-token')
@@ -55,7 +53,7 @@ export class ExpertServiceController {
   async listServices(@Req() req: AuthenticatedRequest, @Query('status') status?: string) {
     const where: Record<string, unknown> = { userId: req.principal.userId };
     if (status) {
-      if (!EXPERT_SERVICE_STATUSES.includes(status as (typeof EXPERT_SERVICE_STATUSES)[number])) {
+      if (!(VALID_STATUSES as readonly string[]).includes(status)) {
         throw new BadRequestException({
           code: 'EXPERT_SERVICE_VALIDATION_FAILED',
           details: [{ field: 'status', message: 'Invalid status' }],
@@ -99,7 +97,7 @@ export class ExpertServiceController {
     if (!parsed.success) {
       throw new BadRequestException({
         code: 'EXPERT_SERVICE_VALIDATION_FAILED',
-        details: parsed.error.issues.map((i) => ({
+        details: parsed.error.issues.map((i: { path: (string | number)[]; message: string }) => ({
           field: i.path.join('.'),
           message: i.message,
         })),
@@ -217,7 +215,7 @@ export class ExpertServiceController {
     if (!parsed.success) {
       throw new BadRequestException({
         code: 'EXPERT_SERVICE_VALIDATION_FAILED',
-        details: parsed.error.issues.map((i) => ({
+        details: parsed.error.issues.map((i: { path: (string | number)[]; message: string }) => ({
           field: i.path.join('.'),
           message: i.message,
         })),
@@ -283,7 +281,7 @@ export class ExpertServiceController {
     if (!parsed.success) {
       throw new BadRequestException({
         code: 'EXPERT_SERVICE_VALIDATION_FAILED',
-        details: parsed.error.issues.map((i) => ({
+        details: parsed.error.issues.map((i: { path: (string | number)[]; message: string }) => ({
           field: i.path.join('.'),
           message: i.message,
         })),
@@ -304,10 +302,10 @@ export class ExpertServiceController {
       archive: 'ARCHIVED',
     };
 
-    const newStatus = targetStatus[action];
-    const allowed = VALID_TRANSITIONS[existing.status];
+    const newStatus = action ? targetStatus[action] : undefined;
+    const allowed = existing.status ? VALID_TRANSITIONS[existing.status] : undefined;
 
-    if (!allowed || !allowed.includes(newStatus)) {
+    if (!allowed || !newStatus || !allowed.includes(newStatus)) {
       throw new BadRequestException({
         code: 'EXPERT_SERVICE_TRANSITION_INVALID',
         details: [

@@ -14,7 +14,8 @@ import {
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { AuthGuard, AuthenticatedRequest } from '../../../modules/auth/auth.guard';
+import { AuthGuard } from '../../../modules/auth/auth.guard';
+import type { AuthenticatedRequest } from '../../../modules/auth/auth.guard';
 import { RolesGuard } from '../../../common/guards/roles.guard';
 import { RequireRoles } from '../../../common/decorators/roles.decorator';
 import { ExpertEligibilityGuard } from '../shared/expert-eligibility.guard';
@@ -31,13 +32,21 @@ import { EXPERT_OFFERING_RATE_LIMITS } from '@nexthire/constants';
 const HOUR_MS = 3_600_000;
 
 function parseTimeToMinutes(time: string): number {
-  const [h, m] = time.split(':').map(Number);
+  const [h = 0, m = 0] = time.split(':').map(Number);
   return h * 60 + m;
 }
 
 interface OverrideWindow {
   startLocalTime: string;
   endLocalTime: string;
+}
+
+function mapWindows(windows: unknown): { startLocalMinutes: number; endLocalMinutes: number }[] {
+  if (!Array.isArray(windows)) return [];
+  return (windows as OverrideWindow[]).map((w) => ({
+    startLocalMinutes: parseTimeToMinutes(w.startLocalTime),
+    endLocalMinutes: parseTimeToMinutes(w.endLocalTime),
+  }));
 }
 
 @ApiTags('Expert Availability')
@@ -58,9 +67,7 @@ export class ExpertAvailabilityController {
     const userId = req.principal.userId;
     const profile = await this.prisma.expertAvailabilityProfile.findUnique({ where: { userId } });
 
-    if (!profile) {
-      return null;
-    }
+    if (!profile) return null;
 
     return {
       id: profile.id,
@@ -86,7 +93,7 @@ export class ExpertAvailabilityController {
     if (!parsed.success) {
       throw new BadRequestException({
         code: 'EXPERT_AVAILABILITY_VALIDATION_FAILED',
-        details: parsed.error.issues.map((i) => ({
+        details: parsed.error.issues.map((i: { path: (string | number)[]; message: string }) => ({
           field: i.path.join('.'),
           message: i.message,
         })),
@@ -172,7 +179,7 @@ export class ExpertAvailabilityController {
     if (!parsed.success) {
       throw new BadRequestException({
         code: 'EXPERT_AVAILABILITY_VALIDATION_FAILED',
-        details: parsed.error.issues.map((i) => ({
+        details: parsed.error.issues.map((i: { path: (string | number)[]; message: string }) => ({
           field: i.path.join('.'),
           message: i.message,
         })),
@@ -180,8 +187,11 @@ export class ExpertAvailabilityController {
     }
 
     const userId = req.principal.userId;
-
-    const windows = parsed.data.windows;
+    const windows = parsed.data.windows as Array<{
+      dayOfWeek: number;
+      startLocalTime: string;
+      endLocalTime: string;
+    }>;
 
     for (const day of new Set(windows.map((w) => w.dayOfWeek))) {
       const dayWindows = windows.filter((w) => w.dayOfWeek === day);
@@ -189,6 +199,7 @@ export class ExpertAvailabilityController {
         for (let j = i + 1; j < dayWindows.length; j++) {
           const a = dayWindows[i];
           const b = dayWindows[j];
+          if (!a || !b) continue;
           const aStart = parseTimeToMinutes(a.startLocalTime);
           const aEnd = parseTimeToMinutes(a.endLocalTime);
           const bStart = parseTimeToMinutes(b.startLocalTime);
@@ -264,9 +275,7 @@ export class ExpertAvailabilityController {
     const userId = req.principal.userId;
     const profile = await this.prisma.expertAvailabilityProfile.findUnique({ where: { userId } });
 
-    if (!profile) {
-      return [];
-    }
+    if (!profile) return [];
 
     const where: Record<string, unknown> = { availabilityProfileId: profile.id };
 
@@ -287,10 +296,7 @@ export class ExpertAvailabilityController {
       localDate: o.localDate,
       type: o.type,
       reason: o.reason,
-      windows: ((o.windows ?? []) as OverrideWindow[]).map((w) => ({
-        startLocalMinutes: parseTimeToMinutes(w.startLocalTime),
-        endLocalMinutes: parseTimeToMinutes(w.endLocalTime),
-      })),
+      windows: mapWindows(o.windows),
     }));
   }
 
@@ -305,7 +311,7 @@ export class ExpertAvailabilityController {
     if (!parsed.success) {
       throw new BadRequestException({
         code: 'EXPERT_AVAILABILITY_VALIDATION_FAILED',
-        details: parsed.error.issues.map((i) => ({
+        details: parsed.error.issues.map((i: { path: (string | number)[]; message: string }) => ({
           field: i.path.join('.'),
           message: i.message,
         })),
@@ -343,7 +349,7 @@ export class ExpertAvailabilityController {
         localDate: parsed.data.localDate,
         type: parsed.data.type,
         reason: parsed.data.reason ?? null,
-        windows: parsed.data.windows ?? null,
+        windows: (parsed.data.windows ?? null) as unknown as any,
       },
     });
 
@@ -362,10 +368,7 @@ export class ExpertAvailabilityController {
       localDate: override.localDate,
       type: override.type,
       reason: override.reason,
-      windows: ((override.windows ?? []) as OverrideWindow[]).map((w) => ({
-        startLocalMinutes: parseTimeToMinutes(w.startLocalTime),
-        endLocalMinutes: parseTimeToMinutes(w.endLocalTime),
-      })),
+      windows: mapWindows(override.windows),
     };
   }
 

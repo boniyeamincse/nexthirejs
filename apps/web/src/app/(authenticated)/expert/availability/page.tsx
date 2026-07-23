@@ -31,7 +31,7 @@ function minutesToTime(minutes: number): string {
 }
 
 function timeToMinutes(time: string): number {
-  const [h, m] = time.split(':').map(Number);
+  const [h = 0, m = 0] = time.split(':').map(Number);
   return h * 60 + m;
 }
 
@@ -94,11 +94,14 @@ export default function AvailabilityPage() {
         for (const w of weekly.windows) {
           const start = minutesToTime(w.startLocalMinutes);
           const end = minutesToTime(w.endLocalMinutes);
-          windowsByDay[w.dayOfWeek].push({
-            dayOfWeek: w.dayOfWeek,
-            startLocalTime: start,
-            endLocalTime: end,
-          });
+          const dayWindows = windowsByDay[w.dayOfWeek];
+          if (dayWindows) {
+            dayWindows.push({
+              dayOfWeek: w.dayOfWeek,
+              startLocalTime: start,
+              endLocalTime: end,
+            });
+          }
         }
         setWeeklyWindows(windowsByDay);
       }
@@ -168,8 +171,9 @@ export default function AvailabilityPage() {
 
   function addWindow(dayIndex: number) {
     const updated = [...weeklyWindows];
+    const existing = updated[dayIndex] ?? [];
     updated[dayIndex] = [
-      ...updated[dayIndex],
+      ...existing,
       { dayOfWeek: dayIndex, startLocalTime: '09:00', endLocalTime: '10:00' },
     ];
     setWeeklyWindows(updated);
@@ -177,8 +181,11 @@ export default function AvailabilityPage() {
 
   function removeWindow(dayIndex: number, windowIndex: number) {
     const updated = [...weeklyWindows];
-    updated[dayIndex] = updated[dayIndex].filter((_, i) => i !== windowIndex);
-    setWeeklyWindows(updated);
+    const existing = updated[dayIndex];
+    if (existing) {
+      updated[dayIndex] = existing.filter((_, i) => i !== windowIndex);
+      setWeeklyWindows(updated);
+    }
   }
 
   function updateWindow(
@@ -188,10 +195,13 @@ export default function AvailabilityPage() {
     value: string,
   ) {
     const updated = [...weeklyWindows];
-    updated[dayIndex] = updated[dayIndex].map((w, i) =>
-      i === windowIndex ? { ...w, [field]: value } : w,
-    );
-    setWeeklyWindows(updated);
+    const existing = updated[dayIndex];
+    if (existing) {
+      updated[dayIndex] = existing.map((w, i) =>
+        i === windowIndex ? { ...w, [field]: value } : w,
+      );
+      setWeeklyWindows(updated);
+    }
   }
 
   async function handleAddOverride(e: React.FormEvent) {
@@ -444,7 +454,7 @@ export default function AvailabilityPage() {
                 </span>
               </div>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                {weeklyWindows[dayIndex].map((w, wIdx) => (
+                {(weeklyWindows[dayIndex] ?? []).map((w, wIdx) => (
                   <div key={wIdx} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                     <input
                       type="time"
@@ -667,7 +677,8 @@ export default function AvailabilityPage() {
                       value={w.startLocalTime}
                       onChange={(e) => {
                         const updated = [...overrideWindows];
-                        updated[i] = { ...updated[i], startLocalTime: e.target.value };
+                        const existing = updated[i] ?? { startLocalTime: '', endLocalTime: '' };
+                        updated[i] = { ...existing, startLocalTime: e.target.value };
                         setOverrideWindows(updated);
                       }}
                       style={{ ...inputSx, width: 'auto' }}
@@ -678,7 +689,8 @@ export default function AvailabilityPage() {
                       value={w.endLocalTime}
                       onChange={(e) => {
                         const updated = [...overrideWindows];
-                        updated[i] = { ...updated[i], endLocalTime: e.target.value };
+                        const existing = updated[i] ?? { startLocalTime: '', endLocalTime: '' };
+                        updated[i] = { ...existing, endLocalTime: e.target.value };
                         setOverrideWindows(updated);
                       }}
                       style={{ ...inputSx, width: 'auto' }}

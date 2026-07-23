@@ -67,6 +67,74 @@
   - Signed URLs valid for 5 minutes; never persisted.
   - Rate limits: eligibility 60/min, policy update 30/min, certificate list 60/min, download 10/hour, retry 3/day, verification 30/min.
 
+## Task Update — NH-P3-T002
+
+- Status: COMPLETED
+- Started At: 2026-07-23T02:00:00Z
+- Completed At: 2026-07-23T03:30:00Z
+- Summary: Implemented Expert expertise areas, interview-preparation services with 30–40-minute session durations, exact decimal pricing, recurring weekly availability, date-specific overrides, and timezone/DST handling. Built shared contracts (constants/types/validation), Prisma schema (ExpertiseArea, ExpertExpertise, ExpertService, ExpertAvailabilityProfile, ExpertWeeklyAvailability, ExpertAvailabilityOverride), migration, seed data, backend controllers (expertise area catalog, expert-expertise CRUD, service CRUD/lifecycle/readiness, availability profile/weekly/override management), frontend pages (/expert/expertise, /expert/services, /expert/new, /expert/[serviceId]/edit, /expert/availability), API client methods, and status documentation.
+- Files Added:
+  - `packages/constants/src/experts/expert-offerings.ts` — service types, statuses, expertise levels, override types, allowed durations, limits, rate limits, error codes, seed data
+  - `packages/types/src/experts/expert-offerings.ts` — interfaces for expertise, services, pricing, availability
+  - `packages/validation/src/experts/expert-offerings.ts` — Zod schemas for expertise, service, availability profile, weekly windows, overrides, lifecycle actions
+  - `apps/api/prisma/migrations/20260723021536_add_expert_offerings/` — migration for new models
+  - `apps/api/src/modules/experts/expertise/expertise-area.controller.ts` — public expertise area catalog endpoint
+  - `apps/api/src/modules/experts/expertise/expert-expertise.controller.ts` — expert own-expertise CRUD
+  - `apps/api/src/modules/experts/expertise/expertise.module.ts`
+  - `apps/api/src/modules/experts/services/expert-service.controller.ts` — service CRUD + lifecycle + readiness
+  - `apps/api/src/modules/experts/services/expert-service.module.ts`
+  - `apps/api/src/modules/experts/availability/expert-availability.controller.ts` — profile, weekly, override management
+  - `apps/api/src/modules/experts/availability/expert-availability.module.ts`
+  - `apps/api/src/modules/experts/shared/expert-eligibility.guard.ts` — role guard for expert endpoints
+  - `apps/api/src/modules/experts/shared/expert-eligibility.service.ts` — approved-expert verification
+  - `apps/api/src/modules/experts/shared/expert-owner.guard.ts` — owner-only resource guard
+  - `apps/web/src/app/(authenticated)/expert/layout.tsx` — expert section layout with sidebar
+  - `apps/web/src/app/(authenticated)/expert/expertise/page.tsx`
+  - `apps/web/src/app/(authenticated)/expert/services/page.tsx`
+  - `apps/web/src/app/(authenticated)/expert/services/new/page.tsx`
+  - `apps/web/src/app/(authenticated)/expert/services/[serviceId]/edit/page.tsx`
+  - `apps/web/src/app/(authenticated)/expert/availability/page.tsx`
+- Files Modified:
+  - `apps/api/prisma/schema.prisma` — added ExpertiseArea, ExpertExpertise, ExpertService, ExpertAvailabilityProfile, ExpertWeeklyAvailability, ExpertAvailabilityOverride models and User relations
+  - `apps/api/prisma/seed.ts` — added 19 expertise area catalog entries
+  - `apps/api/src/modules/experts/experts.module.ts` — imported three new sub-modules
+  - `packages/constants/src/index.ts` — added expert-offerings exports
+  - `packages/constants/src/currencies.ts` — added EUR, GBP to supported currencies
+  - `packages/types/src/experts/index.ts` — added expert-offerings re-export
+  - `packages/validation/src/experts/index.ts` — added expert-offerings re-export
+  - `apps/web/src/lib/api-client.ts` — added 17 API methods for expertise, services, availability
+- Database Changes: Migration `20260723021536_add_expert_offerings` — Added ExpertiseArea (catalog), ExpertExpertise (user-expertise bridge with level/isPrimary), ExpertService (with price/decimal/currency/lifecycle timestamps), ExpertAvailabilityProfile (timezone/buffers/notice/window), ExpertWeeklyAvailability (recurring time windows), ExpertAvailabilityOverride (UNAVAILABLE/CUSTOM_HOURS per date with JSON windows).
+- API Changes:
+  - `GET /expert/expertise-areas` (public) — list active expertise catalog
+  - `GET/PUT /expert/expertise` — get/set own expertise areas
+  - `DELETE /expert/expertise/:id` — remove expertise entry
+  - `GET /expert/services` — list own services (?status filter)
+  - `POST /expert/services` — create service
+  - `GET /expert/services/:id` — service detail
+  - `PATCH /expert/services/:id` — update (DRAFT/INACTIVE only)
+  - `POST /expert/services/:id/lifecycle` — activate/deactivate/archive
+  - `GET /expert/services/:id/readiness` — readiness check
+  - `GET/PUT /expert/availability/profile` — availability profile upsert
+  - `GET/PUT /expert/availability/weekly` — weekly windows management
+  - `GET /expert/availability/overrides` — list overrides (date range)
+  - `POST /expert/availability/overrides` — create override
+  - `DELETE /expert/availability/overrides/:id` — delete override
+- Test Result:
+  - `pnpm --filter @nexthire/api typecheck` ✅ (new code only, pre-existing assessment/leaderboard errors unchanged)
+  - `pnpm --filter @nexthire/web typecheck` ✅
+  - Seed executed successfully ✅
+  - Pre-existing build/test issues in unrelated modules unchanged
+- Blockers: None
+- Decisions:
+  - Duration limited to exact 30/35/40 minutes via array membership check, not range.
+  - Price stored as DECIMAL(12,2) in DB, transmitted as string for precision.
+  - Weekly windows validated for overlap and minimum 30-minute duration.
+  - Availability overrides use JSON column for custom hours (prisma Json type).
+  - Lifecycle transitions enforced server-side: DRAFT→ACTIVE, ACTIVE→INACTIVE/ARCHIVED, INACTIVE→ACTIVE/ARCHIVED, ARCHIVED terminal.
+  - Controller-level auth uses AuthGuard + RolesGuard + ExpertEligibilityGuard chain.
+  - Owner-only checks use ExpertOwnerGuard with dynamic Prisma model access.
+- Next Task: NH-P3-T003 — Candidate Booking Flow
+
 ## Task Update — NH-SEC-T001
 
 - Status: IN_PROGRESS (BLOCKED)

@@ -80,6 +80,7 @@ model User {
   certifications            CandidateCertification[]
   training                  CandidateTraining[]
   achievements              CandidateAchievement[]
+  careerPassport            CareerPassport?
   professionalLinks         CandidateProfessionalLink[]
   profilePrivacy            CandidateProfilePrivacy?
   shareToken                CandidateProfileShareToken?
@@ -923,6 +924,66 @@ model PayoutRequest {
 
   @@index([status, requestedAt])
   @@index([payoutAccountId])
+}
+
+enum PassportStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+  RESTRICTED
+}
+
+model CareerPassport {
+  id              String         @id @default(uuid()) @db.Uuid
+  userId          String         @unique @db.Uuid
+  status          PassportStatus @default(DRAFT)
+  headline        String?        @db.VarChar(200)
+  summary         String?        @db.Text
+  publicProfile   Boolean        @default(false)
+  profileUrl      String?        @db.VarChar(500)
+  lastPublishedAt DateTime?
+  viewCount       Int            @default(0)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  sections PassportSection[]
+  views    PassportView[]
+
+  @@index([status])
+  @@index([publicProfile])
+  @@index([userId, updatedAt])
+}
+
+model PassportSection {
+  id         String   @id @default(uuid()) @db.Uuid
+  passportId String   @db.Uuid
+  type       String   @db.VarChar(50)
+  title      String   @db.VarChar(100)
+  sortOrder  Int      @default(0)
+  isVisible  Boolean  @default(true)
+  content    Json?
+  createdAt  DateTime @default(now())
+
+  passport CareerPassport @relation(fields: [passportId], references: [id], onDelete: Cascade)
+
+  @@index([passportId, sortOrder])
+  @@index([type])
+}
+
+model PassportView {
+  id         String   @id @default(uuid()) @db.Uuid
+  passportId String   @db.Uuid
+  viewedBy   String?  @db.Uuid
+  viewedAt   DateTime @default(now())
+  ipAddress  String?  @db.VarChar(45)
+  userAgent  String?  @db.Text
+
+  passport CareerPassport @relation(fields: [passportId], references: [id], onDelete: Cascade)
+
+  @@index([passportId, viewedAt])
+  @@index([viewedBy])
 }
 
 model CandidateAchievement {
