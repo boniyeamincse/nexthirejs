@@ -249,7 +249,7 @@ model CandidatePreference {
   userId                   String           @unique @db.Uuid
   countryId                String           @db.Uuid
   careerGoalId             String?          @db.Uuid
-  currentCity              String?          @db.VarChar(100)
+  currentCity              String           @db.VarChar(100)
   preferredJobRoles        String[]
   preferredWorkModes       WorkMode[]
   preferredEmploymentTypes EmploymentType[]

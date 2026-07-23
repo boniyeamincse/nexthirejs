@@ -58,7 +58,7 @@ export class OnboardingService {
         where: { userId },
         data: {
           countryId: dto.countryId,
-          currentCity: dto.currentCity || existing.currentCity,
+          ...(dto.currentCity && { currentCity: dto.currentCity }),
         },
       });
     } else {
@@ -66,7 +66,7 @@ export class OnboardingService {
         data: {
           userId,
           countryId: dto.countryId,
-          currentCity: dto.currentCity || '',
+          currentCity: dto.currentCity || 'Not specified',
         },
       });
     }
