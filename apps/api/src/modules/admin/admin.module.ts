@@ -5,11 +5,14 @@ import { AdminUsersController } from './controllers/admin-users.controller';
 import { AdminRolesController } from './controllers/admin-roles.controller';
 import { AdminCandidatesController } from './controllers/admin-candidates.controller';
 import { AdminExpertsController } from './controllers/admin-experts.controller';
+import { AdminLogsController } from './controllers/admin-logs.controller';
+import { AdminMaintenanceController } from './controllers/admin-maintenance.controller';
 import { AdminDashboardService } from './services/admin-dashboard.service';
 import { AdminUsersService } from './services/admin-users.service';
 import { AdminRolesService } from './services/admin-roles.service';
 import { AdminCandidatesService } from './services/admin-candidates.service';
 import { AdminExpertsService } from './services/admin-experts.service';
+import { AdminLogsService } from './services/admin-logs.service';
 import { DatabaseModule } from '../../database/database.module';
 import { AuthModule } from '../auth/auth.module';
 
@@ -22,6 +25,7 @@ import { AuthModule } from '../auth/auth.module';
     AdminRolesController,
     AdminCandidatesController,
     AdminExpertsController,
+    AdminLogsController,
   ],
   providers: [
     AdminDashboardService,
@@ -29,6 +33,7 @@ import { AuthModule } from '../auth/auth.module';
     AdminRolesService,
     AdminCandidatesService,
     AdminExpertsService,
+    AdminLogsService,
   ],
 })
 export class AdminModule {}

@@ -4153,3 +4153,22 @@ export async function getAdminExpertReportsRegistration(token: string) {
   return fetchApi('/admin/experts/reports/registration', { headers: { Authorization: `Bearer ${token}` } });
 }
 
+export async function getAdminLogs(token: string, params?: Record<string, string>) {
+  const qs = params ? '?' + new URLSearchParams(params).toString() : '';
+  return fetchApi(`/admin/logs${qs}`, { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminErrorLogs(token: string, page = '1', limit = '50') {
+  return fetchApi(`/admin/logs/errors?page=${page}&limit=${limit}`, { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminAccessLogs(token: string, page = '1', limit = '50', userId?: string) {
+  let qs = `page=${page}&limit=${limit}`;
+  if (userId) qs += `&userId=${userId}`;
+  return fetchApi(`/admin/logs/access?${qs}`, { headers: { Authorization: `Bearer ${token}` } });
+}
+
+export async function getAdminLogDetail(token: string, id: string) {
+  return fetchApi(`/admin/logs/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+}
+
