@@ -57,7 +57,7 @@ export class EmailVerificationService {
       throw new Error('INTERNAL_SERVER_ERROR');
     }
 
-    if (user.status === 'ACTIVE') {
+    if (user.status !== 'PENDING_VERIFICATION') {
       throw new ConflictException('Email already verified');
     }
 
@@ -65,7 +65,7 @@ export class EmailVerificationService {
     await this.prisma.user.update({
       where: { id: userId },
       data: {
-        status: 'ACTIVE',
+        status: 'PROFILE_SETUP',
         emailVerifiedAt: now,
       },
     });
@@ -101,7 +101,7 @@ export class EmailVerificationService {
       throw new NotFoundException('No account found with this email address');
     }
 
-    if (user.status === 'ACTIVE') {
+    if (user.status === 'ACTIVE' || user.status === 'PROFILE_SETUP') {
       throw new ConflictException('Email already verified');
     }
 

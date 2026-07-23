@@ -23,6 +23,8 @@ import { ChangePasswordController } from './account-security/change-password.con
 import { ChangePasswordService } from './account-security/change-password.service';
 import { PasswordResetController } from './password-reset.controller';
 import { PasswordResetService } from './password-reset.service';
+import { OnboardingController } from './onboarding.controller';
+import { OnboardingService } from './onboarding.service';
 
 @Module({
   imports: [DatabaseModule, AuditModule, EmailModule],
@@ -35,6 +37,7 @@ import { PasswordResetService } from './password-reset.service';
     AccountSecurityController,
     ChangePasswordController,
     PasswordResetController,
+    OnboardingController,
   ],
   providers: [
     PasswordHashingService,
@@ -49,6 +52,7 @@ import { PasswordResetService } from './password-reset.service';
     AccountSecurityService,
     ChangePasswordService,
     PasswordResetService,
+    OnboardingService,
     {
       provide: APP_GUARD,
       useClass: AuthGuard,

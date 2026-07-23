@@ -42,6 +42,7 @@ model AuditLog {
 
 enum UserStatus {
   PENDING_VERIFICATION
+  PROFILE_SETUP
   ACTIVE
   SUSPENDED
   DELETED
@@ -211,6 +212,22 @@ model Country {
   @@index([isActive, sortOrder])
 }
 
+model CareerGoal {
+  id          String   @id @default(uuid()) @db.Uuid
+  code        String   @unique @db.VarChar(50)
+  name        String   @db.VarChar(100)
+  description String?  @db.Text
+  icon        String?  @db.VarChar(50)
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  candidatePreferences CandidatePreference[]
+
+  @@index([isActive, sortOrder])
+}
+
 enum WorkMode {
   ONSITE
   HYBRID
@@ -229,17 +246,20 @@ model CandidatePreference {
   id                       String           @id @default(uuid()) @db.Uuid
   userId                   String           @unique @db.Uuid
   countryId                String           @db.Uuid
-  currentCity              String           @db.VarChar(100)
+  careerGoalId             String?          @db.Uuid
+  currentCity              String?          @db.VarChar(100)
   preferredJobRoles        String[]
   preferredWorkModes       WorkMode[]
   preferredEmploymentTypes EmploymentType[]
   createdAt                DateTime         @default(now())
   updatedAt                DateTime         @updatedAt
 
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  country Country @relation(fields: [countryId], references: [id], onDelete: Restrict)
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  country    Country     @relation(fields: [countryId], references: [id], onDelete: Restrict)
+  careerGoal CareerGoal? @relation(fields: [careerGoalId], references: [id], onDelete: SetNull)
 
   @@index([countryId])
+  @@index([careerGoalId])
 }
 
 enum EducationLevel {
