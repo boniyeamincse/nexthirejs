@@ -19,6 +19,8 @@ import { PublicModule } from './modules/public/public.module';
 import { AssessmentsModule } from './modules/assessments/assessments.module';
 import { ExpertsModule } from './modules/experts/experts.module';
 import { CvModule } from './modules/cv/cv.module';
+import { ProjectModule } from './modules/projects/project.module';
+import { SkillModule } from './modules/skills/skill.module';
 
 @Module({
   imports: [
@@ -48,6 +50,8 @@ import { CvModule } from './modules/cv/cv.module';
     AssessmentsModule,
     ExpertsModule,
     CvModule,
+    ProjectModule,
+    SkillModule,
   ],
   controllers: [AppController],
   providers: [

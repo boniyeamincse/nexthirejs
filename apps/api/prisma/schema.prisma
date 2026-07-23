@@ -70,6 +70,7 @@ model User {
   candidateProfile        CandidateProfile?
   candidatePreference     CandidatePreference?
   cvs                     Cv[]
+  projects                Project[]
   educationRecords        EducationRecord[]
   workExperienceRecords   WorkExperienceRecord[]
   skills                  CandidateSkill[]
@@ -543,6 +544,121 @@ model CvVersion {
   cv Cv @relation(fields: [cvId], references: [id], onDelete: Cascade)
 
   @@index([cvId, versionNumber])
+}
+
+enum ProjectStatus {
+  IN_PROGRESS
+  COMPLETED
+  ON_HOLD
+  ABANDONED
+}
+
+enum ProjectVerificationLevel {
+  SELF_SUBMITTED
+  IDENTITY_CONFIRMED
+  TRAINER_REVIEWED
+  EXPERT_VERIFIED
+  COMPANY_REVIEWED
+  FEATURED
+}
+
+enum ProjectVisibility {
+  PRIVATE
+  TRAINER_ONLY
+  COMPANIES_ONLY
+  PUBLIC
+}
+
+model Project {
+  id                  String                   @id @default(uuid()) @db.Uuid
+  userId              String                   @db.Uuid
+  title               String                   @db.VarChar(200)
+  summary             String                   @db.VarChar(500)
+  description         String                   @db.Text
+  problemStatement    String?                  @db.Text
+  solution            String?                  @db.Text
+  candidateContribution String?                @db.Text
+  status              ProjectStatus            @default(IN_PROGRESS)
+  visibility          ProjectVisibility        @default(PRIVATE)
+  verificationLevel   ProjectVerificationLevel @default(SELF_SUBMITTED)
+  startDate           DateTime?                @db.Date
+  completionDate      DateTime?                @db.Date
+  teamSize            Int?
+  roleInProject       String?                  @db.VarChar(100)
+  githubUrl           String?                  @db.VarChar(500)
+  liveUrl             String?                  @db.VarChar(500)
+  documentationUrl    String?                  @db.VarChar(500)
+  challenges          String?                  @db.Text
+  lessonsLearned      String?                  @db.Text
+  futureImprovements  String?                  @db.Text
+  completionScore     Int                      @default(0)
+  createdAt           DateTime                 @default(now())
+  updatedAt           DateTime                 @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  technologies ProjectTechnology[]
+  media        ProjectMedia[]
+  verifications ProjectVerification[]
+  reports      ProjectReport[]
+
+  @@index([userId, visibility])
+  @@index([verificationLevel])
+  @@index([createdAt])
+}
+
+model ProjectTechnology {
+  id        String @id @default(uuid()) @db.Uuid
+  projectId String @db.Uuid
+  name      String @db.VarChar(100)
+  category  String @db.VarChar(50)
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@unique([projectId, name])
+}
+
+model ProjectMedia {
+  id        String   @id @default(uuid()) @db.Uuid
+  projectId String   @db.Uuid
+  type      String   @db.VarChar(20)
+  url       String   @db.VarChar(500)
+  caption   String?  @db.VarChar(200)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, sortOrder])
+}
+
+model ProjectVerification {
+  id                String   @id @default(uuid()) @db.Uuid
+  projectId         String   @db.Uuid
+  verifiedBy        String?  @db.Uuid
+  verificationLevel String   @db.VarChar(50)
+  verifiedAt        DateTime?
+  comment           String?  @db.Text
+  createdAt         DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, verificationLevel])
+}
+
+model ProjectReport {
+  id        String   @id @default(uuid()) @db.Uuid
+  projectId String   @db.Uuid
+  reason    String   @db.VarChar(200)
+  details   String?  @db.Text
+  reportedBy String  @db.Uuid
+  status    String   @db.VarChar(20) @default("PENDING")
+  createdAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, status])
 }
 
 model CandidateAchievement {
