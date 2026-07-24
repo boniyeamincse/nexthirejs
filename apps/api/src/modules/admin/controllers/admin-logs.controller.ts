@@ -1,5 +1,5 @@
 import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { AuthGuard } from '../../../modules/auth/auth.guard';
 import { RolesGuard } from '../../../common/guards/roles.guard';
 import { RequireRoles } from '../../../common/decorators/roles.decorator';
@@ -56,6 +56,35 @@ export class AdminLogsController {
     @Query('userId') userId?: string,
   ) {
     return this.logsService.getAccessLogs(parseInt(page), Math.min(parseInt(limit), 200), userId);
+  }
+
+  @Get('audit/stats')
+  @ApiOperation({ summary: 'Get audit summary statistics' })
+  async getAuditStats() {
+    return this.logsService.getAuditStats();
+  }
+
+  @Get('audit/action-types')
+  @ApiOperation({ summary: 'Get distinct action types with counts' })
+  async getAuditActionTypes() {
+    return this.logsService.getAuditActionTypes();
+  }
+
+  @Get('audit/export')
+  @ApiOperation({ summary: 'Export audit logs as CSV' })
+  @ApiQuery({ name: 'startDate', required: false })
+  @ApiQuery({ name: 'endDate', required: false })
+  @ApiQuery({ name: 'action', required: false })
+  @ApiQuery({ name: 'actorType', required: false })
+  @ApiQuery({ name: 'outcome', required: false })
+  async getAuditExport(
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+    @Query('action') action?: string,
+    @Query('actorType') actorType?: string,
+    @Query('outcome') outcome?: string,
+  ) {
+    return this.logsService.getAuditExport({ startDate, endDate, action, actorType, outcome });
   }
 
   @Get(':id')

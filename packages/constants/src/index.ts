@@ -18,3 +18,4 @@ export * from './experts/expert-errors.js';
 export * from './experts/expert-offerings.js';
 export * from './experts/expert-feedback.js';
 export * from './experts/expert-wallet.js';
+export * from './companies/company-errors.js';

@@ -104,6 +104,7 @@ model User {
   expertReviewsReceived     ExpertReview[]             @relation("ExpertReviewExpert")
   expertReviewsGiven        ExpertReview[]             @relation("ExpertReviewCandidate")
   expertWallet              ExpertWalletAccount?
+  company                   Company?
 }
 
 model Role {
@@ -2111,4 +2112,91 @@ model LessonProgress {
   @@unique([enrollmentId, lessonId])
   @@index([enrollmentId])
   @@index([lessonId])
+}
+
+// ============================================================================
+// Company Modules (NH-M19 — Company Profile and Verification)
+// ============================================================================
+
+enum CompanyVerificationStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  CHANGES_REQUESTED
+  APPROVED
+  REJECTED
+  WITHDRAWN
+}
+
+enum CompanyDocumentType {
+  BUSINESS_REGISTRATION
+  TAX_CERTIFICATE
+  AUTHORIZATION_LETTER
+  OTHER_SUPPORTING_DOCUMENT
+}
+
+/// NH-M19: one company per owning user for now — team/multi-member support
+/// (invites, additional member roles) is NH-M20's scope, not built here.
+model Company {
+  id                    String   @id @default(uuid()) @db.Uuid
+  ownerUserId           String   @unique @db.Uuid
+  name                  String   @db.VarChar(200)
+  legalName             String?  @db.VarChar(200)
+  website               String?  @db.VarChar(500)
+  industry              String?  @db.VarChar(150)
+  companySize           String?  @db.VarChar(50)
+  headquartersCountryId String   @db.Uuid
+  headquartersCity      String?  @db.VarChar(120)
+  description           String   @db.Text
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  owner       User                            @relation(fields: [ownerUserId], references: [id], onDelete: Cascade)
+  application CompanyVerificationApplication?
+
+  @@index([ownerUserId])
+}
+
+model CompanyVerificationApplication {
+  id                 String                    @id @default(uuid()) @db.Uuid
+  companyId          String                    @unique @db.Uuid
+  status             CompanyVerificationStatus @default(DRAFT)
+  submissionVersion  Int                       @default(0)
+  submittedAt        DateTime?
+  reviewStartedAt    DateTime?
+  reviewedAt         DateTime?
+  reviewedById       String?                   @db.Uuid
+  decisionReasonCode String?                   @db.VarChar(100)
+  reviewerNote       String?                   @db.Text
+  applicantResponse  String?                   @db.Text
+  approvedAt         DateTime?
+  rejectedAt         DateTime?
+  withdrawnAt        DateTime?
+  createdAt          DateTime                  @default(now())
+  updatedAt          DateTime                  @updatedAt
+
+  company   Company                       @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  documents CompanyVerificationDocument[]
+
+  @@index([status, submittedAt])
+  @@index([reviewedById, reviewedAt])
+}
+
+model CompanyVerificationDocument {
+  id               String              @id @default(uuid()) @db.Uuid
+  applicationId    String              @db.Uuid
+  type             CompanyDocumentType
+  storageKey       String              @unique @db.VarChar(500)
+  originalFileName String              @db.VarChar(255)
+  mimeType         String              @db.VarChar(120)
+  sizeBytes        BigInt
+  checksumSha256   String              @db.VarChar(64)
+  uploadedAt       DateTime            @default(now())
+  removedAt        DateTime?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+
+  application CompanyVerificationApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId, type, removedAt])
 }

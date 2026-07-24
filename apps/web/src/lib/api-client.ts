@@ -3349,6 +3349,282 @@ export async function getExpertVerificationDocumentAccess(
   throw await parseApiError(response, 'Failed to obtain document access');
 }
 
+// ---------------------------------------------------------------------------
+// Company Profile & Verification (NH-M19)
+// ---------------------------------------------------------------------------
+
+import type {
+  CompanyProfileInput,
+  CompanyProfileResult,
+  CompanyApplicationDetail,
+  CompanyApplicationReadiness,
+  CompanyVerificationDocumentResult,
+  CompanyDocumentTypeValue,
+  SubmitCompanyApplicationInput,
+  ReviewCompanyApplicationInput,
+  CompanyApplicationListQuery,
+  PaginatedCompanyApplicationResult,
+  CompanyApplicationReviewDetail,
+} from '@nexthire/types';
+
+function companyAuthHeaders(accessToken: string): Record<string, string> {
+  return {
+    Authorization: `Bearer ${accessToken}`,
+    'Content-Type': 'application/json',
+  };
+}
+
+// --- Applicant: Company profile ---
+
+export async function getMyCompanyProfile(accessToken: string): Promise<CompanyProfileResult | null> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/companies/me/profile`, {
+    headers: companyAuthHeaders(accessToken),
+  });
+  if (response.ok) {
+    const body = (await response.json()) as { profile: CompanyProfileResult | null };
+    return body.profile;
+  }
+  throw await parseApiError(response, 'Failed to load company profile');
+}
+
+export async function updateMyCompanyProfile(
+  accessToken: string,
+  input: CompanyProfileInput,
+): Promise<CompanyProfileResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/companies/me/profile`, {
+    method: 'PUT',
+    headers: companyAuthHeaders(accessToken),
+    body: JSON.stringify(input),
+  });
+  if (response.ok) {
+    return response.json() as Promise<CompanyProfileResult>;
+  }
+  throw await parseApiError(response, 'Failed to save company profile');
+}
+
+// --- Applicant: Company verification application ---
+
+export interface CompanyApplicationWithReadiness {
+  application: CompanyApplicationDetail | null;
+  documents: CompanyVerificationDocumentResult[];
+  readiness: CompanyApplicationReadiness | null;
+}
+
+export async function getMyCompanyApplication(
+  accessToken: string,
+): Promise<CompanyApplicationWithReadiness> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/companies/me/application`, {
+    headers: companyAuthHeaders(accessToken),
+  });
+  if (response.ok) {
+    return response.json() as Promise<CompanyApplicationWithReadiness>;
+  }
+  throw await parseApiError(response, 'Failed to load company application');
+}
+
+export async function createMyCompanyApplication(
+  accessToken: string,
+): Promise<CompanyApplicationWithReadiness> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/companies/me/application`, {
+    method: 'POST',
+    headers: companyAuthHeaders(accessToken),
+  });
+  if (response.ok) {
+    return response.json() as Promise<CompanyApplicationWithReadiness>;
+  }
+  throw await parseApiError(response, 'Failed to start company application');
+}
+
+export async function getMyCompanyApplicationReadiness(
+  accessToken: string,
+): Promise<CompanyApplicationReadiness> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/companies/me/application/readiness`, {
+    headers: companyAuthHeaders(accessToken),
+  });
+  if (response.ok) {
+    return response.json() as Promise<CompanyApplicationReadiness>;
+  }
+  throw await parseApiError(response, 'Failed to check application readiness');
+}
+
+export async function submitMyCompanyApplication(
+  accessToken: string,
+  input?: SubmitCompanyApplicationInput,
+): Promise<CompanyApplicationWithReadiness> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/companies/me/application/submit`, {
+    method: 'POST',
+    headers: companyAuthHeaders(accessToken),
+    body: JSON.stringify(input ?? {}),
+  });
+  if (response.ok) {
+    return response.json() as Promise<CompanyApplicationWithReadiness>;
+  }
+  throw await parseApiError(response, 'Failed to submit application');
+}
+
+export async function withdrawMyCompanyApplication(
+  accessToken: string,
+): Promise<CompanyApplicationWithReadiness> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/companies/me/application/withdraw`, {
+    method: 'POST',
+    headers: companyAuthHeaders(accessToken),
+  });
+  if (response.ok) {
+    return response.json() as Promise<CompanyApplicationWithReadiness>;
+  }
+  throw await parseApiError(response, 'Failed to withdraw application');
+}
+
+// --- Applicant: Company verification documents ---
+
+export interface UploadCompanyVerificationDocumentInput {
+  type: CompanyDocumentTypeValue;
+  file: File;
+}
+
+export async function listMyCompanyVerificationDocuments(
+  accessToken: string,
+): Promise<CompanyVerificationDocumentResult[]> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/companies/me/application/documents`, {
+    headers: companyAuthHeaders(accessToken),
+  });
+  if (response.ok) {
+    return response.json() as Promise<CompanyVerificationDocumentResult[]>;
+  }
+  throw await parseApiError(response, 'Failed to load verification documents');
+}
+
+export async function uploadCompanyVerificationDocument(
+  accessToken: string,
+  input: UploadCompanyVerificationDocumentInput,
+): Promise<CompanyVerificationDocumentResult> {
+  const formData = new FormData();
+  formData.append('type', input.type);
+  formData.append('file', input.file, input.file.name);
+
+  const response = await fetch(`${publicEnv.apiBaseUrl}/companies/me/application/documents`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${accessToken}` },
+    body: formData,
+  });
+  if (response.ok) {
+    return response.json() as Promise<CompanyVerificationDocumentResult>;
+  }
+  throw await parseApiError(response, 'Failed to upload document');
+}
+
+export async function removeCompanyVerificationDocument(
+  accessToken: string,
+  documentId: string,
+): Promise<void> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/companies/me/application/documents/${encodeURIComponent(documentId)}`,
+    { method: 'DELETE', headers: companyAuthHeaders(accessToken) },
+  );
+  if (response.ok || response.status === 204) {
+    return;
+  }
+  throw await parseApiError(response, 'Failed to remove document');
+}
+
+// --- Admin: Company application review ---
+
+export async function listCompanyApplications(
+  accessToken: string,
+  query: CompanyApplicationListQuery = {},
+): Promise<PaginatedCompanyApplicationResult> {
+  const params = new URLSearchParams();
+  if (query.page) params.set('page', String(query.page));
+  if (query.pageSize) params.set('pageSize', String(query.pageSize));
+  if (query.search) params.set('search', query.search);
+  if (query.status) params.set('status', query.status);
+  if (query.submittedFrom) params.set('submittedFrom', query.submittedFrom);
+  if (query.submittedTo) params.set('submittedTo', query.submittedTo);
+
+  const qs = params.toString();
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/manage/companies/applications${qs ? `?${qs}` : ''}`,
+    { headers: companyAuthHeaders(accessToken) },
+  );
+  if (response.ok) {
+    return response.json() as Promise<PaginatedCompanyApplicationResult>;
+  }
+  throw await parseApiError(response, 'Failed to load applications');
+}
+
+export async function getCompanyApplicationForReview(
+  accessToken: string,
+  applicationId: string,
+): Promise<CompanyApplicationReviewDetail> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/manage/companies/applications/${encodeURIComponent(applicationId)}`,
+    { headers: companyAuthHeaders(accessToken) },
+  );
+  if (response.ok) {
+    return response.json() as Promise<CompanyApplicationReviewDetail>;
+  }
+  throw await parseApiError(response, 'Failed to load application');
+}
+
+export async function startCompanyApplicationReview(
+  accessToken: string,
+  applicationId: string,
+): Promise<CompanyApplicationReviewDetail> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/manage/companies/applications/${encodeURIComponent(applicationId)}/start-review`,
+    { method: 'POST', headers: companyAuthHeaders(accessToken) },
+  );
+  if (response.ok) {
+    return response.json() as Promise<CompanyApplicationReviewDetail>;
+  }
+  throw await parseApiError(response, 'Failed to start review');
+}
+
+export async function approveCompanyApplication(
+  accessToken: string,
+  applicationId: string,
+  input: { reviewerNote?: string },
+): Promise<CompanyApplicationReviewDetail> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/manage/companies/applications/${encodeURIComponent(applicationId)}/approve`,
+    { method: 'POST', headers: companyAuthHeaders(accessToken), body: JSON.stringify(input) },
+  );
+  if (response.ok) {
+    return response.json() as Promise<CompanyApplicationReviewDetail>;
+  }
+  throw await parseApiError(response, 'Failed to approve application');
+}
+
+export async function rejectCompanyApplication(
+  accessToken: string,
+  applicationId: string,
+  input: ReviewCompanyApplicationInput,
+): Promise<CompanyApplicationReviewDetail> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/manage/companies/applications/${encodeURIComponent(applicationId)}/reject`,
+    { method: 'POST', headers: companyAuthHeaders(accessToken), body: JSON.stringify(input) },
+  );
+  if (response.ok) {
+    return response.json() as Promise<CompanyApplicationReviewDetail>;
+  }
+  throw await parseApiError(response, 'Failed to reject application');
+}
+
+export async function requestCompanyApplicationChanges(
+  accessToken: string,
+  applicationId: string,
+  input: { reviewerNote: string },
+): Promise<CompanyApplicationReviewDetail> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/manage/companies/applications/${encodeURIComponent(applicationId)}/request-changes`,
+    { method: 'POST', headers: companyAuthHeaders(accessToken), body: JSON.stringify(input) },
+  );
+  if (response.ok) {
+    return response.json() as Promise<CompanyApplicationReviewDetail>;
+  }
+  throw await parseApiError(response, 'Failed to request changes');
+}
+
 // --- Expert: Expertise areas ---
 
 export async function getExpertiseAreas(): Promise<ExpertiseAreaResult[]> {

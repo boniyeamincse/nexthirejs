@@ -9,6 +9,17 @@ if (!connectionString) {
 const adapter = new PrismaPg(connectionString);
 const prisma = new PrismaClient({ adapter });
 
+/**
+ * Shared test password for every seeded account: Password123!
+ * All test-account upserts below force this hash (and ACTIVE/verified status)
+ * on `update` too, not just `create` — otherwise a row created earlier by a
+ * stale/partial seed run (different hash) silently never gets corrected on
+ * re-seed, which is exactly what caused admin@nexthire.com to be unable to
+ * log in with the password documented in the README.
+ */
+const TEST_PASSWORD_HASH =
+  '$argon2id$v=19$m=65536,p=4,t=3$iY1KhtmOrBMJuGNqRFyPmQ$e07Yj840R2y+CDoXmSTmlmSoDBDDoHQvfNztpbLqu5A';
+
 async function main() {
   const candidateRole = await prisma.role.upsert({
     where: { code: 'candidate' },
@@ -25,11 +36,10 @@ async function main() {
 
   const testCandidate = await prisma.user.upsert({
     where: { email: 'candidate@example.com' },
-    update: {},
+    update: { passwordHash: TEST_PASSWORD_HASH, status: 'ACTIVE', emailVerifiedAt: new Date() },
     create: {
       email: 'candidate@example.com',
-      passwordHash:
-        '$argon2id$v=19$m=65536,p=4,t=3$iY1KhtmOrBMJuGNqRFyPmQ$e07Yj840R2y+CDoXmSTmlmSoDBDDoHQvfNztpbLqu5A',
+      passwordHash: TEST_PASSWORD_HASH,
       status: 'ACTIVE',
       emailVerifiedAt: new Date(),
       roles: {
@@ -57,11 +67,10 @@ async function main() {
 
   const testManager = await prisma.user.upsert({
     where: { email: 'manager@example.com' },
-    update: {},
+    update: { passwordHash: TEST_PASSWORD_HASH, status: 'ACTIVE', emailVerifiedAt: new Date() },
     create: {
       email: 'manager@example.com',
-      passwordHash:
-        '$argon2id$v=19$m=65536,p=4,t=3$iY1KhtmOrBMJuGNqRFyPmQ$e07Yj840R2y+CDoXmSTmlmSoDBDDoHQvfNztpbLqu5A', // same as candidate
+      passwordHash: TEST_PASSWORD_HASH,
       status: 'ACTIVE',
       emailVerifiedAt: new Date(),
       roles: {
@@ -102,11 +111,10 @@ async function main() {
 
   const testReviewer = await prisma.user.upsert({
     where: { email: 'expert-reviewer@example.com' },
-    update: {},
+    update: { passwordHash: TEST_PASSWORD_HASH, status: 'ACTIVE', emailVerifiedAt: new Date() },
     create: {
       email: 'expert-reviewer@example.com',
-      passwordHash:
-        '$argon2id$v=19$m=65536,p=4,t=3$iY1KhtmOrBMJuGNqRFyPmQ$e07Yj840R2y+CDoXmSTmlmSoDBDDoHQvfNztpbLqu5A',
+      passwordHash: TEST_PASSWORD_HASH,
       status: 'ACTIVE',
       emailVerifiedAt: new Date(),
       roles: {
@@ -118,6 +126,57 @@ async function main() {
   });
 
   console.log(`Seeded test expert reviewer: ${testReviewer.email}`);
+
+  const candidateRoleForExpert = await prisma.role.upsert({
+    where: { code: 'candidate' },
+    update: {},
+    create: { code: 'candidate', name: 'Candidate', isSystem: true },
+  });
+
+  const testExpert = await prisma.user.upsert({
+    where: { email: 'expert@example.com' },
+    update: { passwordHash: TEST_PASSWORD_HASH, status: 'ACTIVE', emailVerifiedAt: new Date() },
+    create: {
+      email: 'expert@example.com',
+      passwordHash: TEST_PASSWORD_HASH,
+      status: 'ACTIVE',
+      emailVerifiedAt: new Date(),
+      roles: {
+        create: [{ roleId: candidateRoleForExpert.id }, { roleId: expertRole.id }],
+      },
+    },
+  });
+
+  console.log(`Seeded test expert (approved, candidate+expert roles): ${testExpert.email}`);
+
+  const companyRole = await prisma.role.upsert({
+    where: { code: 'company' },
+    update: {},
+    create: {
+      code: 'company',
+      name: 'Company',
+      description: 'Verified company/recruiter account (granted on NH-M19 application approval)',
+      isSystem: true,
+    },
+  });
+
+  console.log(`Seeded role: ${companyRole.code} (${companyRole.id})`);
+
+  const testCompany = await prisma.user.upsert({
+    where: { email: 'company@example.com' },
+    update: { passwordHash: TEST_PASSWORD_HASH, status: 'ACTIVE', emailVerifiedAt: new Date() },
+    create: {
+      email: 'company@example.com',
+      passwordHash: TEST_PASSWORD_HASH,
+      status: 'ACTIVE',
+      emailVerifiedAt: new Date(),
+      roles: {
+        create: { roleId: companyRole.id },
+      },
+    },
+  });
+
+  console.log(`Seeded test company: ${testCompany.email}`);
 
   const superAdminRole = await prisma.role.upsert({
     where: { code: 'super_admin' },
@@ -134,11 +193,10 @@ async function main() {
 
   const testSuperAdmin = await prisma.user.upsert({
     where: { email: 'admin@nexthire.com' },
-    update: {},
+    update: { passwordHash: TEST_PASSWORD_HASH, status: 'ACTIVE', emailVerifiedAt: new Date() },
     create: {
       email: 'admin@nexthire.com',
-      passwordHash:
-        '$argon2id$v=19$m=65536,p=4,t=3$iY1KhtmOrBMJuGNqRFyPmQ$e07Yj840R2y+CDoXmSTmlmSoDBDDoHQvfNztpbLqu5A',
+      passwordHash: TEST_PASSWORD_HASH,
       status: 'ACTIVE',
       emailVerifiedAt: new Date(),
       roles: {

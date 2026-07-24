@@ -34,3 +34,4 @@ export * from './learning/catalog.js';
 export * from './learning/authoring.js';
 export * from './learning/enrollment.js';
 export * from './experts/index.js';
+export * from './companies/index.js';

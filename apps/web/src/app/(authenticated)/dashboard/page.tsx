@@ -42,6 +42,12 @@ export default function DashboardPage() {
     };
   }, [avatarUrl]);
 
+  useEffect(() => {
+    if (user?.roleCodes?.includes('super_admin') || user?.roleCodes?.includes('admin')) {
+      router.replace('/admin');
+    }
+  }, [user, router]);
+
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
   };
@@ -89,6 +95,10 @@ export default function DashboardPage() {
       if (err instanceof ApiClientError && err.statusCode === 401) {
         await logout();
         router.push('/login');
+        return;
+      }
+      if (err instanceof ApiClientError && err.statusCode === 403) {
+        setPageError('This dashboard requires a candidate profile. If you are an admin, visit the Admin Dashboard instead.');
         return;
       }
       setPageError('Dashboard is temporarily unavailable. Please try again later.');
@@ -142,9 +152,14 @@ export default function DashboardPage() {
     return (
       <div className={`${styles.centerState} ${styles.centerStateColumn}`} aria-live="polite">
         <p style={{ color: '#ef4444' }}>{pageError}</p>
-        <button className={styles.retryBtn} onClick={() => void fetchDashboard()}>
-          Try again
-        </button>
+        <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.75rem' }}>
+          <button className={styles.retryBtn} onClick={() => void fetchDashboard()}>
+            Try again
+          </button>
+          <Link href="/admin" className={styles.retryBtn} style={{ textDecoration: 'none' }}>
+            Admin Dashboard
+          </Link>
+        </div>
       </div>
     );
   }

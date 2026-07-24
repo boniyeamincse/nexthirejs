@@ -4,7 +4,7 @@
 To access the SuperAdmin Dashboard and perform administrative tasks, please use the following seeded credentials:
 
 - **Email:** `admin@nexthire.com`
-- **Password:** `Password123`
+- **Password:** `Password123!`
 
 ## Quick Links
 - **Platform Overview:** [http://localhost:3000/admin](http://localhost:3000/admin)

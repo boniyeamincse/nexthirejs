@@ -22,6 +22,7 @@ import { CvModule } from './modules/cv/cv.module';
 import { ProjectModule } from './modules/projects/project.module';
 import { SkillModule } from './modules/skills/skill.module';
 import { TrainerModule } from './modules/trainers/trainer.module';
+import { CompaniesModule } from './modules/companies/companies.module';
 
 import { AdminModule } from './modules/admin/admin.module';
 
@@ -56,6 +57,7 @@ import { AdminModule } from './modules/admin/admin.module';
     ProjectModule,
     SkillModule,
     TrainerModule,
+    CompaniesModule,
     AdminModule,
   ],
   controllers: [AppController],
