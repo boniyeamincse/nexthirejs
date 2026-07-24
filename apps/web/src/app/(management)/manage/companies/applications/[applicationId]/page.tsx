@@ -167,7 +167,14 @@ export default function CompanyApplicationReviewDetailPage() {
         ← Back to queue
       </Link>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0.75rem 0 1.25rem' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          margin: '0.75rem 0 1.25rem',
+        }}
+      >
         <h1 style={{ margin: 0, color: '#f1f5f9', fontSize: '1.5rem', fontWeight: 700 }}>
           {detail.company.name}
         </h1>
@@ -196,7 +203,14 @@ export default function CompanyApplicationReviewDetailPage() {
         <p style={{ margin: '0.2rem 0', color: '#cbd5e1', fontSize: '0.88rem' }}>
           HQ: {detail.company.headquartersCity ?? '—'}
         </p>
-        <p style={{ margin: '0.5rem 0 0', color: '#94a3b8', fontSize: '0.85rem', whiteSpace: 'pre-wrap' }}>
+        <p
+          style={{
+            margin: '0.5rem 0 0',
+            color: '#94a3b8',
+            fontSize: '0.85rem',
+            whiteSpace: 'pre-wrap',
+          }}
+        >
           {detail.company.description}
         </p>
       </div>
@@ -255,7 +269,9 @@ export default function CompanyApplicationReviewDetailPage() {
       {(canStartReview || canDecide) && (
         <div style={cardStyle}>
           <h2 style={{ margin: '0 0 0.75rem', color: '#f1f5f9', fontSize: '1.05rem' }}>Actions</h2>
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+          <div
+            style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}
+          >
             {canStartReview && (
               <button
                 onClick={handleStartReview}
@@ -322,10 +338,24 @@ export default function CompanyApplicationReviewDetailPage() {
           </div>
 
           {openDecision && (
-            <div style={{ padding: '0.85rem', background: '#0f172a', border: '1px solid #334155', borderRadius: '0.5rem' }}>
+            <div
+              style={{
+                padding: '0.85rem',
+                background: '#0f172a',
+                border: '1px solid #334155',
+                borderRadius: '0.5rem',
+              }}
+            >
               {openDecision === 'reject' && (
                 <>
-                  <label style={{ display: 'block', color: '#cbd5e1', fontSize: '0.85rem', marginBottom: '0.3rem' }}>
+                  <label
+                    style={{
+                      display: 'block',
+                      color: '#cbd5e1',
+                      fontSize: '0.85rem',
+                      marginBottom: '0.3rem',
+                    }}
+                  >
                     Reason
                   </label>
                   <select
@@ -349,7 +379,14 @@ export default function CompanyApplicationReviewDetailPage() {
                   </select>
                 </>
               )}
-              <label style={{ display: 'block', color: '#cbd5e1', fontSize: '0.85rem', marginBottom: '0.3rem' }}>
+              <label
+                style={{
+                  display: 'block',
+                  color: '#cbd5e1',
+                  fontSize: '0.85rem',
+                  marginBottom: '0.3rem',
+                }}
+              >
                 Reviewer note{openDecision === 'approve' ? ' (optional)' : ''}
               </label>
               <textarea

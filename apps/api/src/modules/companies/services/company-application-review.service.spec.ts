@@ -59,7 +59,11 @@ describe('CompanyApplicationReviewService', () => {
       const result = await service.list({ page: 1, pageSize: 20 });
 
       expect(result.data[0]).toEqual(
-        expect.objectContaining({ id: 'app-1', documentCount: 2, company: expect.objectContaining({ name: 'Acme' }) }),
+        expect.objectContaining({
+          id: 'app-1',
+          documentCount: 2,
+          company: expect.objectContaining({ name: 'Acme' }),
+        }),
       );
     });
   });
@@ -67,7 +71,9 @@ describe('CompanyApplicationReviewService', () => {
   describe('getDetail / startReview', () => {
     it('404s when the application does not exist', async () => {
       applicationRepository.findByIdWithCompany.mockResolvedValue(null);
-      await expect(service.getDetail('reviewer-1', 'app-1')).rejects.toBeInstanceOf(NotFoundException);
+      await expect(service.getDetail('reviewer-1', 'app-1')).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
     });
 
     it('rejects starting review on a non-SUBMITTED application', async () => {
@@ -116,7 +122,9 @@ describe('CompanyApplicationReviewService', () => {
       applicationRepository.findByIdWithCompany
         .mockResolvedValueOnce(SUBMITTED_APPLICATION)
         .mockResolvedValueOnce({ ...SUBMITTED_APPLICATION, status: 'APPROVED' });
-      applicationRepository.approveWithRoleAssignment.mockResolvedValue({ roleNewlyAssigned: true });
+      applicationRepository.approveWithRoleAssignment.mockResolvedValue({
+        roleNewlyAssigned: true,
+      });
 
       const result = await service.approve('reviewer-1', 'app-1', {});
 

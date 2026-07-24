@@ -3376,7 +3376,9 @@ function companyAuthHeaders(accessToken: string): Record<string, string> {
 
 // --- Applicant: Company profile ---
 
-export async function getMyCompanyProfile(accessToken: string): Promise<CompanyProfileResult | null> {
+export async function getMyCompanyProfile(
+  accessToken: string,
+): Promise<CompanyProfileResult | null> {
   const response = await fetch(`${publicEnv.apiBaseUrl}/companies/me/profile`, {
     headers: companyAuthHeaders(accessToken),
   });

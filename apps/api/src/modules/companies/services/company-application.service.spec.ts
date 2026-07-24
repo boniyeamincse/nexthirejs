@@ -1,4 +1,9 @@
-import { BadRequestException, ConflictException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CompanyApplicationService } from './company-application.service';
 
 describe('CompanyApplicationService', () => {
@@ -47,7 +52,10 @@ describe('CompanyApplicationService', () => {
       const result = await service.getMyApplication('u1');
 
       expect(result.application).toBeNull();
-      expect(readinessService.evaluate).toHaveBeenCalledWith({ ownerUserId: 'u1', applicationId: null });
+      expect(readinessService.evaluate).toHaveBeenCalledWith({
+        ownerUserId: 'u1',
+        applicationId: null,
+      });
     });
 
     it('returns the mapped application when one is active', async () => {
@@ -95,7 +103,10 @@ describe('CompanyApplicationService', () => {
 
     it('rejects submitting from a non-submittable status', async () => {
       companyRepository.findByOwnerUserId.mockResolvedValue({ id: 'c1' });
-      repository.findActiveByCompanyId.mockResolvedValue({ ...DRAFT_APPLICATION, status: 'SUBMITTED' });
+      repository.findActiveByCompanyId.mockResolvedValue({
+        ...DRAFT_APPLICATION,
+        status: 'SUBMITTED',
+      });
       await expect(service.submit('u1', {})).rejects.toBeInstanceOf(ConflictException);
     });
 
@@ -111,7 +122,11 @@ describe('CompanyApplicationService', () => {
       companyRepository.findByOwnerUserId.mockResolvedValue({ id: 'c1' });
       repository.findActiveByCompanyId.mockResolvedValue(DRAFT_APPLICATION);
       readinessService.isMfaEnabled.mockResolvedValue(true);
-      readinessService.evaluate.mockResolvedValue({ ready: false, blockers: [{ code: 'X' }], summary: {} });
+      readinessService.evaluate.mockResolvedValue({
+        ready: false,
+        blockers: [{ code: 'X' }],
+        summary: {},
+      });
 
       await expect(service.submit('u1', {})).rejects.toBeInstanceOf(BadRequestException);
     });

@@ -91,7 +91,10 @@ export class CompanyApplicationAdminController {
   @ApiOperation({ summary: 'Move a submitted application into under-review' })
   @ApiResponse({ status: 200, description: 'Review started' })
   @ApiResponse({ status: 409, description: 'Invalid transition' })
-  async startReview(@Req() req: AuthenticatedRequest, @Param('applicationId') applicationId: string) {
+  async startReview(
+    @Req() req: AuthenticatedRequest,
+    @Param('applicationId') applicationId: string,
+  ) {
     return this.reviewService.startReview(req.principal.userId, applicationId);
   }
 

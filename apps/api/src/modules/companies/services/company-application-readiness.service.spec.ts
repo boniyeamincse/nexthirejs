@@ -23,7 +23,11 @@ describe('CompanyApplicationReadinessService', () => {
 
     expect(result.ready).toBe(false);
     expect(result.blockers.map((b) => b.code)).toEqual(
-      expect.arrayContaining(['PROFILE_INCOMPLETE', 'MISSING_BUSINESS_REGISTRATION', 'MFA_REQUIRED_BY_POLICY']),
+      expect.arrayContaining([
+        'PROFILE_INCOMPLETE',
+        'MISSING_BUSINESS_REGISTRATION',
+        'MFA_REQUIRED_BY_POLICY',
+      ]),
     );
     expect(result.summary).toEqual({
       profileComplete: false,

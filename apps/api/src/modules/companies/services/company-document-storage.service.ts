@@ -81,7 +81,10 @@ export class CompanyDocumentStorageService {
     }
   }
 
-  createSignedUrl(storageKey: string, expiresInSeconds: number): { url: string; expiresAt: string } {
+  createSignedUrl(
+    storageKey: string,
+    expiresInSeconds: number,
+  ): { url: string; expiresAt: string } {
     const expiresAtEpoch = Math.floor(Date.now() / 1000) + expiresInSeconds;
     const signature = this.sign(storageKey, expiresAtEpoch);
     const params = new URLSearchParams({

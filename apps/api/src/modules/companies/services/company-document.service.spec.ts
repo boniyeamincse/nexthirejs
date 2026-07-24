@@ -70,7 +70,12 @@ describe('CompanyDocumentService', () => {
   });
 
   describe('upload', () => {
-    const file = { buffer: PDF_BUFFER, mimetype: 'application/pdf', originalname: 'reg.pdf', size: PDF_BUFFER.length };
+    const file = {
+      buffer: PDF_BUFFER,
+      mimetype: 'application/pdf',
+      originalname: 'reg.pdf',
+      size: PDF_BUFFER.length,
+    };
 
     beforeEach(() => {
       companyRepository.findByOwnerUserId.mockResolvedValue({ id: 'c1' });
@@ -78,7 +83,10 @@ describe('CompanyDocumentService', () => {
     });
 
     it('rejects when the application is not editable', async () => {
-      applicationRepository.findActiveByCompanyId.mockResolvedValue({ id: 'app-1', status: 'SUBMITTED' });
+      applicationRepository.findActiveByCompanyId.mockResolvedValue({
+        id: 'app-1',
+        status: 'SUBMITTED',
+      });
       await expect(
         service.upload('u1', { type: 'BUSINESS_REGISTRATION' }, file),
       ).rejects.toBeInstanceOf(ConflictException);
@@ -111,7 +119,11 @@ describe('CompanyDocumentService', () => {
 
     it('rejects a file whose magic bytes do not match the declared MIME type', async () => {
       documentRepository.countActive.mockResolvedValue(0);
-      const fakeFile = { ...file, buffer: Buffer.from('not a real pdf'), mimetype: 'application/pdf' };
+      const fakeFile = {
+        ...file,
+        buffer: Buffer.from('not a real pdf'),
+        mimetype: 'application/pdf',
+      };
       await expect(
         service.upload('u1', { type: 'BUSINESS_REGISTRATION' }, fakeFile),
       ).rejects.toBeInstanceOf(UnsupportedMediaTypeException);

@@ -26,7 +26,10 @@ export class CompanyApplicationReadinessService {
   ) {}
 
   async isMfaEnabled(userId: string): Promise<boolean> {
-    const mfa = await this.prisma.userMfa.findUnique({ where: { userId }, select: { status: true } });
+    const mfa = await this.prisma.userMfa.findUnique({
+      where: { userId },
+      select: { status: true },
+    });
     return mfa?.status === 'ENABLED';
   }
 

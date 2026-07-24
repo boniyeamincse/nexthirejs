@@ -29,14 +29,7 @@ export const COMPANY_LIMITS = {
   MAX_APPLICANT_RESPONSE: 2000,
 } as const;
 
-export const COMPANY_SIZES = [
-  '1-10',
-  '11-50',
-  '51-200',
-  '201-500',
-  '501-1000',
-  '1000+',
-] as const;
+export const COMPANY_SIZES = ['1-10', '11-50', '51-200', '201-500', '501-1000', '1000+'] as const;
 
 export const COMPANY_DOCUMENT_TYPES = [
   'BUSINESS_REGISTRATION',

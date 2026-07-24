@@ -98,7 +98,10 @@ export default function BecomeACompanyPage() {
     setLoading(true);
     setPageError(null);
     try {
-      const [p, a] = await Promise.all([getMyCompanyProfile(token), getMyCompanyApplication(token)]);
+      const [p, a] = await Promise.all([
+        getMyCompanyProfile(token),
+        getMyCompanyApplication(token),
+      ]);
       setProfile(p);
       if (p) {
         setForm({
@@ -219,7 +222,9 @@ export default function BecomeACompanyPage() {
       await withdrawMyCompanyApplication(token);
       await load();
     } catch (err) {
-      setActionError(err instanceof ApiClientError ? err.message : 'Failed to withdraw application.');
+      setActionError(
+        err instanceof ApiClientError ? err.message : 'Failed to withdraw application.',
+      );
     }
   }
 
@@ -316,9 +321,14 @@ export default function BecomeACompanyPage() {
       )}
 
       <div style={cardStyle}>
-        <h2 style={{ margin: '0 0 0.75rem', color: '#f1f5f9', fontSize: '1.1rem' }}>Company profile</h2>
+        <h2 style={{ margin: '0 0 0.75rem', color: '#f1f5f9', fontSize: '1.1rem' }}>
+          Company profile
+        </h2>
         <form onSubmit={handleSaveProfile}>
-          <fieldset disabled={!canEditProfileAndDocs} style={{ border: 'none', padding: 0, margin: 0 }}>
+          <fieldset
+            disabled={!canEditProfileAndDocs}
+            style={{ border: 'none', padding: 0, margin: 0 }}
+          >
             <label style={labelStyle}>Company name</label>
             <input
               style={inputStyle}
@@ -436,7 +446,14 @@ export default function BecomeACompanyPage() {
               No documents uploaded yet.
             </p>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginBottom: '0.75rem' }}>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.4rem',
+                marginBottom: '0.75rem',
+              }}
+            >
               {documents.map((doc) => (
                 <div
                   key={doc.id}
@@ -524,7 +541,14 @@ export default function BecomeACompanyPage() {
                   Submit for review
                 </button>
               ) : (
-                <ul style={{ margin: 0, paddingLeft: '1.1rem', color: '#fcd34d', fontSize: '0.83rem' }}>
+                <ul
+                  style={{
+                    margin: 0,
+                    paddingLeft: '1.1rem',
+                    color: '#fcd34d',
+                    fontSize: '0.83rem',
+                  }}
+                >
                   {readiness.blockers.map((b) => (
                     <li key={b.code}>{b.message}</li>
                   ))}

@@ -1,4 +1,9 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CompanyApplicationRepository } from '../repositories/company-application.repository';
 import { CompanyDocumentRepository } from '../repositories/company-document.repository';
 import { CompanyDocumentStorageService } from './company-document-storage.service';
@@ -11,7 +16,10 @@ import {
 } from '@nexthire/validation';
 import { COMPANY_ERROR_CODES } from '@nexthire/constants';
 import { AuditActorType, AuditOutcome } from '@nexthire/types';
-import type { CompanyApplicationListQuery, PaginatedCompanyApplicationResult } from '@nexthire/types';
+import type {
+  CompanyApplicationListQuery,
+  PaginatedCompanyApplicationResult,
+} from '@nexthire/types';
 import { mapCompanyApplicationDetail, mapCompanyDocument } from '../shared/company-mappers';
 
 const REVIEWABLE_STATUSES = ['SUBMITTED', 'UNDER_REVIEW'];

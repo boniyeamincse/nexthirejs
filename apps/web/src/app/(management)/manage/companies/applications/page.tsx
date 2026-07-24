@@ -158,7 +158,9 @@ export default function CompanyApplicationsQueuePage() {
               <p style={{ margin: '0.3rem 0 0', color: '#64748b', fontSize: '0.8rem' }}>
                 {row.company.industry ?? 'Unspecified industry'} · {row.documentCount} document
                 {row.documentCount === 1 ? '' : 's'}
-                {row.submittedAt ? ` · submitted ${new Date(row.submittedAt).toLocaleDateString()}` : ''}
+                {row.submittedAt
+                  ? ` · submitted ${new Date(row.submittedAt).toLocaleDateString()}`
+                  : ''}
               </p>
             </Link>
           ))}
@@ -180,7 +182,10 @@ export default function CompanyApplicationsQueuePage() {
           <button
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page >= totalPages}
-            style={{ padding: '0.3rem 0.7rem', cursor: page >= totalPages ? 'not-allowed' : 'pointer' }}
+            style={{
+              padding: '0.3rem 0.7rem',
+              cursor: page >= totalPages ? 'not-allowed' : 'pointer',
+            }}
           >
             Next
           </button>

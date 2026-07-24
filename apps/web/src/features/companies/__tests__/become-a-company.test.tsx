@@ -45,8 +45,18 @@ const draftApplication: CompanyApplicationDetail = {
 
 const notReadyReadiness: CompanyApplicationReadiness = {
   ready: false,
-  blockers: [{ code: 'MISSING_BUSINESS_REGISTRATION', message: 'A business registration document is required.' }],
-  summary: { profileComplete: true, requiredDocumentsPresent: false, mfaEnabled: true, documentCount: 0 },
+  blockers: [
+    {
+      code: 'MISSING_BUSINESS_REGISTRATION',
+      message: 'A business registration document is required.',
+    },
+  ],
+  summary: {
+    profileComplete: true,
+    requiredDocumentsPresent: false,
+    mfaEnabled: true,
+    documentCount: 0,
+  },
 };
 
 beforeEach(() => {
@@ -104,9 +114,7 @@ describe('BecomeACompanyPage', () => {
     render(<BecomeACompanyPage />);
 
     await waitFor(() => {
-      expect(
-        screen.getByText('A business registration document is required.'),
-      ).toBeInTheDocument();
+      expect(screen.getByText('A business registration document is required.')).toBeInTheDocument();
     });
     expect(screen.queryByText('Submit for review')).not.toBeInTheDocument();
   });
