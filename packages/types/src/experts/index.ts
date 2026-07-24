@@ -17,6 +17,7 @@ export type ExpertVerificationDocumentTypeValue =
 export * from './expert-offerings.js';
 export * from './expert-feedback.js';
 export * from './expert-wallet.js';
+export * from './expert-dashboard.js';
 export interface ExpertProfileInput {
   professionalTitle: string;
   professionalSummary: string;

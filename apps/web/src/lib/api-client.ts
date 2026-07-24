@@ -44,6 +44,7 @@ import type {
   ExpertPayoutAccountResult,
   CreateExpertPayoutRequestInput,
   ExpertPayoutRequestResult,
+  ExpertDashboardResult,
 } from '@nexthire/types';
 
 interface ApiErrorDetail {
@@ -3083,6 +3084,18 @@ export async function listMyExpertPayoutRequests(
     return response.json() as Promise<ExpertPayoutRequestResult[]>;
   }
   throw await parseApiError(response, 'Failed to load payout requests');
+}
+
+// --- Expert: Dashboard ---
+
+export async function getMyExpertDashboard(accessToken: string): Promise<ExpertDashboardResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/expert/dashboard`, {
+    headers: expertAuthHeaders(accessToken),
+  });
+  if (response.ok) {
+    return response.json() as Promise<ExpertDashboardResult>;
+  }
+  throw await parseApiError(response, 'Failed to load dashboard');
 }
 
 // --- Applicant: Expert application ---

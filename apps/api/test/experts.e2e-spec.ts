@@ -189,6 +189,11 @@ describe('Experts (e2e)', () => {
       http().post('/api/v1/manage/experts/payout-requests/some-id/process').send({}).expect(401));
   });
 
+  describe('dashboard (expert)', () => {
+    it('GET /api/v1/expert/dashboard requires auth', () =>
+      http().get('/api/v1/expert/dashboard').expect(401));
+  });
+
   describe('public service slot preview', () => {
     it('GET /api/v1/expert/public/:slug/services/:serviceId/slots 404s for an unknown slug without auth', () =>
       http()

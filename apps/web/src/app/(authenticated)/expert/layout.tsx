@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/providers/auth-context';
 
 const NAV_ITEMS = [
+  { label: 'Dashboard', href: '/expert/dashboard' },
   { label: 'Expertise', href: '/expert/expertise' },
   { label: 'Services', href: '/expert/services' },
   { label: 'Availability', href: '/expert/availability' },
@@ -15,6 +16,7 @@ const NAV_ITEMS = [
 ] as const;
 
 const PAGE_TITLES: Record<string, string> = {
+  '/expert/dashboard': 'Dashboard',
   '/expert/expertise': 'Expertise',
   '/expert/services': 'Services',
   '/expert/services/new': 'New Service',
