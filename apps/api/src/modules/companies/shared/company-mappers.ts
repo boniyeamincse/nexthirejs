@@ -10,6 +10,12 @@ import type {
   CompanyVerificationDocumentResult,
   CompanyVerificationStatusValue,
   CompanyDocumentTypeValue,
+  CompanyMemberResult,
+  CompanyMemberRoleValue,
+  CompanyInvitationResult,
+  CompanyInvitableRoleValue,
+  CompanyInvitationStatusValue,
+  MyCompanyInvitationResult,
 } from '@nexthire/types';
 
 const iso = (d: Date | null | undefined): string | null => (d ? d.toISOString() : null);
@@ -29,6 +35,45 @@ export function mapCompanyProfile(record: any): CompanyProfileResult {
     description: record.description,
     createdAt: record.createdAt.toISOString(),
     updatedAt: record.updatedAt.toISOString(),
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function mapCompanyMember(record: any): CompanyMemberResult {
+  return {
+    id: record.id,
+    userId: record.userId,
+    role: record.role as CompanyMemberRoleValue,
+    displayName: record.user?.candidateProfile?.fullName ?? record.user?.email ?? 'Unknown',
+    email: record.user?.email ?? '',
+    joinedAt: record.joinedAt.toISOString(),
+  };
+}
+
+export function mapCompanyInvitation(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  record: any,
+  invitedByDisplayName: string,
+): CompanyInvitationResult {
+  return {
+    id: record.id,
+    email: record.email,
+    role: record.role as CompanyInvitableRoleValue,
+    status: record.status as CompanyInvitationStatusValue,
+    invitedByDisplayName,
+    expiresAt: record.expiresAt.toISOString(),
+    createdAt: record.createdAt.toISOString(),
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function mapMyCompanyInvitation(record: any): MyCompanyInvitationResult {
+  return {
+    id: record.id,
+    companyName: record.company.name,
+    role: record.role as CompanyInvitableRoleValue,
+    status: record.status as CompanyInvitationStatusValue,
+    expiresAt: record.expiresAt.toISOString(),
   };
 }
 

@@ -2,6 +2,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 
 import { useCallback, useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useAuth } from '@/providers/auth-context';
 import {
   ApiClientError,
@@ -244,12 +245,24 @@ export default function BecomeACompanyPage() {
 
   return (
     <div className="max-w-3xl mx-auto p-6">
-      <h1 style={{ color: '#f1f5f9', fontSize: '1.8rem', fontWeight: 700, margin: '0 0 0.25rem' }}>
-        Become a Company
-      </h1>
-      <p style={{ color: '#94a3b8', margin: '0 0 1.5rem' }}>
-        Set up and verify your company profile to start hiring on NextHire.
-      </p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div>
+          <h1
+            style={{ color: '#f1f5f9', fontSize: '1.8rem', fontWeight: 700, margin: '0 0 0.25rem' }}
+          >
+            Become a Company
+          </h1>
+          <p style={{ color: '#94a3b8', margin: '0 0 1.5rem' }}>
+            Set up and verify your company profile to start hiring on NextHire.
+          </p>
+        </div>
+        <Link
+          href="/company/team"
+          style={{ color: '#93c5fd', fontSize: '0.85rem', whiteSpace: 'nowrap' }}
+        >
+          Manage team →
+        </Link>
+      </div>
 
       {pageError && (
         <div role="alert" style={{ ...cardStyle, color: '#fca5a5' }}>

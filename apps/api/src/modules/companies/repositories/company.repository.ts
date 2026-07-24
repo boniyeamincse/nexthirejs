@@ -10,6 +10,10 @@ export class CompanyRepository {
     return this.prisma.company.findUnique({ where: { ownerUserId } });
   }
 
+  findById(companyId: string) {
+    return this.prisma.company.findUnique({ where: { id: companyId } });
+  }
+
   countryExists(countryId: string): Promise<boolean> {
     return this.prisma.country
       .count({ where: { id: countryId, isActive: true } })
@@ -28,10 +32,20 @@ export class CompanyRepository {
       description: data.description,
     };
 
-    return this.prisma.company.upsert({
-      where: { ownerUserId },
-      create: { ownerUserId, ...persistable },
-      update: persistable,
+    return this.prisma.$transaction(async (tx) => {
+      const existing = await tx.company.findUnique({ where: { ownerUserId } });
+
+      const company = existing
+        ? await tx.company.update({ where: { ownerUserId }, data: persistable })
+        : await tx.company.create({ data: { ownerUserId, ...persistable } });
+
+      if (!existing) {
+        await tx.companyMember.create({
+          data: { companyId: company.id, userId: ownerUserId, role: 'OWNER' },
+        });
+      }
+
+      return company;
     });
   }
 }

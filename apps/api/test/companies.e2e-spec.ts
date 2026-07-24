@@ -97,4 +97,36 @@ describe('Companies (e2e)', () => {
     it('GET signed document endpoint requires auth', () =>
       http().get('/api/v1/manage/companies/documents?key=x&expires=1&signature=y').expect(401));
   });
+
+  describe('team (NH-M20)', () => {
+    it('GET my role requires auth', () => http().get('/api/v1/companies/me/team/role').expect(401));
+
+    it('GET team roster requires auth', () => http().get('/api/v1/companies/me/team').expect(401));
+
+    it('PATCH member role requires auth', () =>
+      http().patch('/api/v1/companies/me/team/members/some-id').send({}).expect(401));
+
+    it('DELETE member requires auth', () =>
+      http().delete('/api/v1/companies/me/team/members/some-id').expect(401));
+
+    it('GET invitations requires auth', () =>
+      http().get('/api/v1/companies/me/team/invitations').expect(401));
+
+    it('POST invitation requires auth', () =>
+      http().post('/api/v1/companies/me/team/invitations').send({}).expect(401));
+
+    it('DELETE invitation requires auth', () =>
+      http().delete('/api/v1/companies/me/team/invitations/some-id').expect(401));
+  });
+
+  describe('invitations addressed to me (NH-M20)', () => {
+    it('GET my invitations requires auth', () =>
+      http().get('/api/v1/companies/invitations/me').expect(401));
+
+    it('POST accept requires auth', () =>
+      http().post('/api/v1/companies/invitations/some-id/accept').send({}).expect(401));
+
+    it('POST decline requires auth', () =>
+      http().post('/api/v1/companies/invitations/some-id/decline').send({}).expect(401));
+  });
 });

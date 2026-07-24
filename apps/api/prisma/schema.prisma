@@ -105,6 +105,7 @@ model User {
   expertReviewsGiven        ExpertReview[]             @relation("ExpertReviewCandidate")
   expertWallet              ExpertWalletAccount?
   company                   Company?
+  companyMemberships        CompanyMember[]
 }
 
 model Role {
@@ -2135,8 +2136,8 @@ enum CompanyDocumentType {
   OTHER_SUPPORTING_DOCUMENT
 }
 
-/// NH-M19: one company per owning user for now — team/multi-member support
-/// (invites, additional member roles) is NH-M20's scope, not built here.
+/// NH-M19: one company per owning user for now. NH-M20 adds team membership
+/// on top of this — ownerUserId remains the single OWNER-role member.
 model Company {
   id                    String   @id @default(uuid()) @db.Uuid
   ownerUserId           String   @unique @db.Uuid
@@ -2153,6 +2154,8 @@ model Company {
 
   owner       User                            @relation(fields: [ownerUserId], references: [id], onDelete: Cascade)
   application CompanyVerificationApplication?
+  members     CompanyMember[]
+  invitations CompanyInvitation[]
 
   @@index([ownerUserId])
 }
@@ -2199,4 +2202,72 @@ model CompanyVerificationDocument {
   application CompanyVerificationApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
 
   @@index([applicationId, type, removedAt])
+}
+
+// ============================================================================
+// Company Modules (NH-M20 — Company Team and Permissions)
+// ============================================================================
+
+enum CompanyMemberRole {
+  OWNER
+  ADMIN
+  RECRUITER
+  VIEWER
+}
+
+enum CompanyInvitationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  REVOKED
+  EXPIRED
+}
+
+/// NH-M20: one row per (company, user). The owner's row (role OWNER) is
+/// created transactionally alongside the Company itself (NH-M19's
+/// upsertProfile bootstrap path) — OWNER cannot be assigned via invitation,
+/// changed, or removed in this module; ownership transfer is not built here.
+model CompanyMember {
+  id              String            @id @default(uuid()) @db.Uuid
+  companyId       String            @db.Uuid
+  userId          String            @db.Uuid
+  role            CompanyMemberRole
+  invitedByUserId String?           @db.Uuid
+  joinedAt        DateTime          @default(now())
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, userId])
+  @@index([userId])
+}
+
+/// NH-M20: invitations target existing NextHire user accounts by email —
+/// inviting an address with no account is rejected. There is no
+/// invite-to-signup flow here (that would be NH-M23 Communication territory).
+/// NH-M20: no bearer-token accept link — companyId/id are unguessable UUIDs
+/// and the accept/decline endpoints authorize by matching the caller's own
+/// (authenticated) email against `email`, since there is no invitation-email
+/// delivery integration in this module (see CompanyInvitationService).
+model CompanyInvitation {
+  id               String                  @id @default(uuid()) @db.Uuid
+  companyId        String                  @db.Uuid
+  email            String                  @db.VarChar(255)
+  role             CompanyMemberRole
+  status           CompanyInvitationStatus @default(PENDING)
+  invitedByUserId  String                  @db.Uuid
+  acceptedByUserId String?                 @db.Uuid
+  expiresAt        DateTime
+  acceptedAt       DateTime?
+  declinedAt       DateTime?
+  revokedAt        DateTime?
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId, status])
+  @@index([email, status])
 }

@@ -3627,6 +3627,150 @@ export async function requestCompanyApplicationChanges(
   throw await parseApiError(response, 'Failed to request changes');
 }
 
+// ---------------------------------------------------------------------------
+// Company Team and Permissions (NH-M20)
+// ---------------------------------------------------------------------------
+
+import type {
+  CompanyMemberRoleValue,
+  CompanyMemberResult,
+  CompanyInvitationResult,
+  MyCompanyInvitationResult,
+  CreateCompanyInvitationInput,
+  CompanyInvitableRoleValue,
+} from '@nexthire/types';
+
+export async function getMyCompanyTeamRole(
+  accessToken: string,
+): Promise<{ role: CompanyMemberRoleValue | null }> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/companies/me/team/role`, {
+    headers: companyAuthHeaders(accessToken),
+  });
+  if (response.ok) {
+    return response.json() as Promise<{ role: CompanyMemberRoleValue | null }>;
+  }
+  throw await parseApiError(response, 'Failed to load team role');
+}
+
+export async function listMyCompanyTeam(accessToken: string): Promise<CompanyMemberResult[]> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/companies/me/team`, {
+    headers: companyAuthHeaders(accessToken),
+  });
+  if (response.ok) {
+    return response.json() as Promise<CompanyMemberResult[]>;
+  }
+  throw await parseApiError(response, 'Failed to load company team');
+}
+
+export async function updateCompanyTeamMemberRole(
+  accessToken: string,
+  memberId: string,
+  role: CompanyInvitableRoleValue,
+): Promise<CompanyMemberResult> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/companies/me/team/members/${encodeURIComponent(memberId)}`,
+    { method: 'PATCH', headers: companyAuthHeaders(accessToken), body: JSON.stringify({ role }) },
+  );
+  if (response.ok) {
+    return response.json() as Promise<CompanyMemberResult>;
+  }
+  throw await parseApiError(response, 'Failed to update member role');
+}
+
+export async function removeCompanyTeamMember(
+  accessToken: string,
+  memberId: string,
+): Promise<void> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/companies/me/team/members/${encodeURIComponent(memberId)}`,
+    { method: 'DELETE', headers: companyAuthHeaders(accessToken) },
+  );
+  if (!response.ok) {
+    throw await parseApiError(response, 'Failed to remove team member');
+  }
+}
+
+export async function listMyCompanyInvitations(
+  accessToken: string,
+): Promise<CompanyInvitationResult[]> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/companies/me/team/invitations`, {
+    headers: companyAuthHeaders(accessToken),
+  });
+  if (response.ok) {
+    return response.json() as Promise<CompanyInvitationResult[]>;
+  }
+  throw await parseApiError(response, 'Failed to load invitations');
+}
+
+export async function createCompanyInvitation(
+  accessToken: string,
+  input: CreateCompanyInvitationInput,
+): Promise<CompanyInvitationResult> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/companies/me/team/invitations`, {
+    method: 'POST',
+    headers: companyAuthHeaders(accessToken),
+    body: JSON.stringify(input),
+  });
+  if (response.ok) {
+    return response.json() as Promise<CompanyInvitationResult>;
+  }
+  throw await parseApiError(response, 'Failed to send invitation');
+}
+
+export async function revokeCompanyInvitation(
+  accessToken: string,
+  invitationId: string,
+): Promise<void> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/companies/me/team/invitations/${encodeURIComponent(invitationId)}`,
+    { method: 'DELETE', headers: companyAuthHeaders(accessToken) },
+  );
+  if (!response.ok) {
+    throw await parseApiError(response, 'Failed to revoke invitation');
+  }
+}
+
+// --- Invitations addressed to the current user ---
+
+export async function listMyPendingCompanyInvitations(
+  accessToken: string,
+): Promise<MyCompanyInvitationResult[]> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/companies/invitations/me`, {
+    headers: companyAuthHeaders(accessToken),
+  });
+  if (response.ok) {
+    return response.json() as Promise<MyCompanyInvitationResult[]>;
+  }
+  throw await parseApiError(response, 'Failed to load your invitations');
+}
+
+export async function acceptCompanyInvitation(
+  accessToken: string,
+  invitationId: string,
+): Promise<CompanyMemberResult> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/companies/invitations/${encodeURIComponent(invitationId)}/accept`,
+    { method: 'POST', headers: companyAuthHeaders(accessToken) },
+  );
+  if (response.ok) {
+    return response.json() as Promise<CompanyMemberResult>;
+  }
+  throw await parseApiError(response, 'Failed to accept invitation');
+}
+
+export async function declineCompanyInvitation(
+  accessToken: string,
+  invitationId: string,
+): Promise<void> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/companies/invitations/${encodeURIComponent(invitationId)}/decline`,
+    { method: 'POST', headers: companyAuthHeaders(accessToken) },
+  );
+  if (!response.ok) {
+    throw await parseApiError(response, 'Failed to decline invitation');
+  }
+}
+
 // --- Expert: Expertise areas ---
 
 export async function getExpertiseAreas(): Promise<ExpertiseAreaResult[]> {
