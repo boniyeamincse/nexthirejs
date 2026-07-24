@@ -213,6 +213,9 @@ export default function CompanyTeamPage() {
           Company Team
         </h1>
         <div style={{ display: 'flex', gap: '1rem' }}>
+          <Link href="/company/shortlists" style={{ color: '#93c5fd', fontSize: '0.85rem' }}>
+            Shortlists →
+          </Link>
           <Link href="/company/candidates" style={{ color: '#93c5fd', fontSize: '0.85rem' }}>
             Candidate search →
           </Link>

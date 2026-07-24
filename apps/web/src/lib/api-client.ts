@@ -3815,6 +3815,132 @@ export async function getCompanyCandidateDetail(
   throw await parseApiError(response, 'Failed to load candidate profile');
 }
 
+// ---------------------------------------------------------------------------
+// Talent Shortlists and Pipeline (NH-M22)
+// ---------------------------------------------------------------------------
+
+import type {
+  TalentShortlistSummary,
+  TalentShortlistDetail,
+  CreateTalentShortlistInput,
+  UpdateTalentShortlistInput,
+  AddTalentShortlistMemberInput,
+  UpdateTalentShortlistMemberInput,
+  TalentShortlistMemberResult,
+} from '@nexthire/types';
+
+export async function listTalentShortlists(accessToken: string): Promise<TalentShortlistSummary[]> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/companies/me/shortlists`, {
+    headers: companyAuthHeaders(accessToken),
+  });
+  if (response.ok) {
+    return response.json() as Promise<TalentShortlistSummary[]>;
+  }
+  throw await parseApiError(response, 'Failed to load shortlists');
+}
+
+export async function createTalentShortlist(
+  accessToken: string,
+  input: CreateTalentShortlistInput,
+): Promise<TalentShortlistSummary> {
+  const response = await fetch(`${publicEnv.apiBaseUrl}/companies/me/shortlists`, {
+    method: 'POST',
+    headers: companyAuthHeaders(accessToken),
+    body: JSON.stringify(input),
+  });
+  if (response.ok) {
+    return response.json() as Promise<TalentShortlistSummary>;
+  }
+  throw await parseApiError(response, 'Failed to create shortlist');
+}
+
+export async function getTalentShortlist(
+  accessToken: string,
+  shortlistId: string,
+): Promise<TalentShortlistDetail> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/companies/me/shortlists/${encodeURIComponent(shortlistId)}`,
+    { headers: companyAuthHeaders(accessToken) },
+  );
+  if (response.ok) {
+    return response.json() as Promise<TalentShortlistDetail>;
+  }
+  throw await parseApiError(response, 'Failed to load shortlist');
+}
+
+export async function updateTalentShortlist(
+  accessToken: string,
+  shortlistId: string,
+  input: UpdateTalentShortlistInput,
+): Promise<TalentShortlistSummary> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/companies/me/shortlists/${encodeURIComponent(shortlistId)}`,
+    { method: 'PATCH', headers: companyAuthHeaders(accessToken), body: JSON.stringify(input) },
+  );
+  if (response.ok) {
+    return response.json() as Promise<TalentShortlistSummary>;
+  }
+  throw await parseApiError(response, 'Failed to update shortlist');
+}
+
+export async function deleteTalentShortlist(
+  accessToken: string,
+  shortlistId: string,
+): Promise<void> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/companies/me/shortlists/${encodeURIComponent(shortlistId)}`,
+    { method: 'DELETE', headers: companyAuthHeaders(accessToken) },
+  );
+  if (!response.ok) {
+    throw await parseApiError(response, 'Failed to delete shortlist');
+  }
+}
+
+export async function addTalentShortlistMember(
+  accessToken: string,
+  shortlistId: string,
+  input: AddTalentShortlistMemberInput,
+): Promise<TalentShortlistMemberResult> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/companies/me/shortlists/${encodeURIComponent(shortlistId)}/members`,
+    { method: 'POST', headers: companyAuthHeaders(accessToken), body: JSON.stringify(input) },
+  );
+  if (response.ok) {
+    return response.json() as Promise<TalentShortlistMemberResult>;
+  }
+  throw await parseApiError(response, 'Failed to add candidate to shortlist');
+}
+
+export async function updateTalentShortlistMember(
+  accessToken: string,
+  shortlistId: string,
+  memberId: string,
+  input: UpdateTalentShortlistMemberInput,
+): Promise<TalentShortlistMemberResult> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/companies/me/shortlists/${encodeURIComponent(shortlistId)}/members/${encodeURIComponent(memberId)}`,
+    { method: 'PATCH', headers: companyAuthHeaders(accessToken), body: JSON.stringify(input) },
+  );
+  if (response.ok) {
+    return response.json() as Promise<TalentShortlistMemberResult>;
+  }
+  throw await parseApiError(response, 'Failed to update shortlist member');
+}
+
+export async function removeTalentShortlistMember(
+  accessToken: string,
+  shortlistId: string,
+  memberId: string,
+): Promise<void> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/companies/me/shortlists/${encodeURIComponent(shortlistId)}/members/${encodeURIComponent(memberId)}`,
+    { method: 'DELETE', headers: companyAuthHeaders(accessToken) },
+  );
+  if (!response.ok) {
+    throw await parseApiError(response, 'Failed to remove candidate from shortlist');
+  }
+}
+
 // --- Expert: Expertise areas ---
 
 export async function getExpertiseAreas(): Promise<ExpertiseAreaResult[]> {

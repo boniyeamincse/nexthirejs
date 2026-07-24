@@ -5,8 +5,13 @@ import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useAuth } from '@/providers/auth-context';
-import { ApiClientError, getCompanyCandidateDetail } from '@/lib/api-client';
-import type { CompanyCandidateDetail } from '@nexthire/types';
+import {
+  ApiClientError,
+  getCompanyCandidateDetail,
+  listTalentShortlists,
+  addTalentShortlistMember,
+} from '@/lib/api-client';
+import type { CompanyCandidateDetail, TalentShortlistSummary } from '@nexthire/types';
 
 const cardStyle: React.CSSProperties = {
   padding: '1.1rem',
@@ -21,6 +26,10 @@ export default function CompanyCandidateDetailPage() {
   const { getAccessToken, logout, status: authStatus } = useAuth();
 
   const [detail, setDetail] = useState<CompanyCandidateDetail | null>(null);
+  const [shortlists, setShortlists] = useState<TalentShortlistSummary[]>([]);
+  const [selectedShortlistId, setSelectedShortlistId] = useState('');
+  const [adding, setAdding] = useState(false);
+  const [addStatus, setAddStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [pageError, setPageError] = useState<string | null>(null);
   const [notVerified, setNotVerified] = useState(false);
@@ -34,8 +43,13 @@ export default function CompanyCandidateDetailPage() {
     setNotVerified(false);
     setNotFound(false);
     try {
-      const result = await getCompanyCandidateDetail(token, params.candidateId);
+      const [result, myShortlists] = await Promise.all([
+        getCompanyCandidateDetail(token, params.candidateId),
+        listTalentShortlists(token).catch(() => []),
+      ]);
       setDetail(result);
+      setShortlists(myShortlists);
+      if (myShortlists[0]) setSelectedShortlistId(myShortlists[0].id);
     } catch (err) {
       if (err instanceof ApiClientError) {
         if (err.statusCode === 401) {
@@ -64,6 +78,27 @@ export default function CompanyCandidateDetailPage() {
       setLoading(false);
     }
   }, [authStatus, load]);
+
+  async function handleAddToShortlist() {
+    const token = getAccessToken();
+    if (!token || !selectedShortlistId) return;
+    setAdding(true);
+    setAddStatus(null);
+    try {
+      await addTalentShortlistMember(token, selectedShortlistId, {
+        candidateUserId: params.candidateId,
+      });
+      const shortlistName =
+        shortlists.find((s) => s.id === selectedShortlistId)?.name ?? 'shortlist';
+      setAddStatus(`Added to ${shortlistName}.`);
+    } catch (err) {
+      setAddStatus(
+        err instanceof ApiClientError ? err.message : 'Failed to add candidate to shortlist.',
+      );
+    } finally {
+      setAdding(false);
+    }
+  }
 
   if (authStatus === 'unknown' || authStatus === 'loading' || loading) {
     return (
@@ -122,6 +157,60 @@ export default function CompanyCandidateDetailPage() {
           {[profile.location.city, profile.location.countryName].filter(Boolean).join(', ')}
         </p>
       )}
+
+      <div style={cardStyle}>
+        <h2 style={{ margin: '0 0 0.6rem', color: '#f1f5f9', fontSize: '1.05rem' }}>
+          Add to shortlist
+        </h2>
+        {shortlists.length === 0 ? (
+          <p style={{ color: '#64748b', fontSize: '0.85rem' }}>
+            <Link href="/company/shortlists" style={{ color: '#93c5fd' }}>
+              Create a shortlist
+            </Link>{' '}
+            to start tracking candidates.
+          </p>
+        ) : (
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <select
+              value={selectedShortlistId}
+              onChange={(e) => setSelectedShortlistId(e.target.value)}
+              style={{
+                padding: '0.4rem 0.6rem',
+                background: '#0f172a',
+                border: '1px solid #334155',
+                borderRadius: '0.4rem',
+                color: '#e2e8f0',
+                fontSize: '0.85rem',
+              }}
+            >
+              {shortlists.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
+            <button
+              onClick={handleAddToShortlist}
+              disabled={adding}
+              style={{
+                padding: '0.4rem 0.9rem',
+                background: '#2563eb',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '0.4rem',
+                fontSize: '0.83rem',
+                fontWeight: 600,
+                cursor: adding ? 'not-allowed' : 'pointer',
+              }}
+            >
+              {adding ? '...' : 'Add'}
+            </button>
+          </div>
+        )}
+        {addStatus && (
+          <p style={{ marginTop: '0.5rem', color: '#94a3b8', fontSize: '0.82rem' }}>{addStatus}</p>
+        )}
+      </div>
 
       {profile.professionalSummary && (
         <div style={cardStyle}>

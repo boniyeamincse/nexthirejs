@@ -106,6 +106,7 @@ model User {
   expertWallet              ExpertWalletAccount?
   company                   Company?
   companyMemberships        CompanyMember[]
+  talentShortlistEntries    TalentShortlistMember[]
 }
 
 model Role {
@@ -2156,6 +2157,7 @@ model Company {
   application CompanyVerificationApplication?
   members     CompanyMember[]
   invitations CompanyInvitation[]
+  shortlists  TalentShortlist[]
 
   @@index([ownerUserId])
 }
@@ -2270,4 +2272,59 @@ model CompanyInvitation {
 
   @@index([companyId, status])
   @@index([email, status])
+}
+
+// ============================================================================
+// Company Modules (NH-M22 — Shortlists and Talent Pipeline)
+// ============================================================================
+
+/// NH-M22: fixed stage set (no custom per-company stage names) — kept simple
+/// for v1, matching the scope-reduction pattern used across this phase.
+enum TalentPipelineStage {
+  SHORTLISTED
+  CONTACTED
+  SCREENING
+  INTERVIEWING
+  OFFER
+  HIRED
+  REJECTED
+}
+
+model TalentShortlist {
+  id              String   @id @default(uuid()) @db.Uuid
+  companyId       String   @db.Uuid
+  name            String   @db.VarChar(150)
+  description     String?  @db.Text
+  createdByUserId String   @db.Uuid
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  company Company                 @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  members TalentShortlistMember[]
+
+  @@index([companyId])
+}
+
+/// NH-M22: one row per candidate added to a shortlist. `sortOrder` is scoped
+/// per (shortlistId, stage) — reordering/moving reindexes 0..n within the
+/// destination stage (see TalentPipelineService), no drag-and-drop, no
+/// fractional-index scheme.
+model TalentShortlistMember {
+  id              String              @id @default(uuid()) @db.Uuid
+  shortlistId     String              @db.Uuid
+  candidateUserId String              @db.Uuid
+  stage           TalentPipelineStage @default(SHORTLISTED)
+  notes           String?             @db.Text
+  tags            String[]
+  sortOrder       Int                 @default(0)
+  addedByUserId   String              @db.Uuid
+  addedAt         DateTime            @default(now())
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  shortlist TalentShortlist @relation(fields: [shortlistId], references: [id], onDelete: Cascade)
+  candidate User            @relation(fields: [candidateUserId], references: [id], onDelete: Cascade)
+
+  @@unique([shortlistId, candidateUserId])
+  @@index([shortlistId, stage, sortOrder])
 }

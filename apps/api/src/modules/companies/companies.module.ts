@@ -12,6 +12,7 @@ import { CompanyApplicationAdminController } from './controllers/company-applica
 import { CompanyTeamController } from './controllers/company-team.controller';
 import { CompanyInvitationsMeController } from './controllers/company-invitations-me.controller';
 import { CompanyCandidateSearchController } from './controllers/company-candidate-search.controller';
+import { TalentPipelineController } from './controllers/talent-pipeline.controller';
 
 import { CompanyProfileService } from './services/company-profile.service';
 import { CompanyApplicationService } from './services/company-application.service';
@@ -22,12 +23,14 @@ import { CompanyDocumentStorageService } from './services/company-document-stora
 import { CompanyMembershipService } from './services/company-membership.service';
 import { CompanyInvitationService } from './services/company-invitation.service';
 import { CompanyVerifiedAccessService } from './services/company-verified-access.service';
+import { TalentPipelineService } from './services/talent-pipeline.service';
 
 import { CompanyRepository } from './repositories/company.repository';
 import { CompanyApplicationRepository } from './repositories/company-application.repository';
 import { CompanyDocumentRepository } from './repositories/company-document.repository';
 import { CompanyMemberRepository } from './repositories/company-member.repository';
 import { CompanyInvitationRepository } from './repositories/company-invitation.repository';
+import { TalentShortlistRepository } from './repositories/talent-shortlist.repository';
 
 @Module({
   imports: [ConfigModule, DatabaseModule, AuditModule, AuthModule, CandidatesModule, CvModule],
@@ -38,6 +41,7 @@ import { CompanyInvitationRepository } from './repositories/company-invitation.r
     CompanyTeamController,
     CompanyInvitationsMeController,
     CompanyCandidateSearchController,
+    TalentPipelineController,
   ],
   providers: [
     CompanyProfileService,
@@ -49,11 +53,13 @@ import { CompanyInvitationRepository } from './repositories/company-invitation.r
     CompanyMembershipService,
     CompanyInvitationService,
     CompanyVerifiedAccessService,
+    TalentPipelineService,
     CompanyRepository,
     CompanyApplicationRepository,
     CompanyDocumentRepository,
     CompanyMemberRepository,
     CompanyInvitationRepository,
+    TalentShortlistRepository,
   ],
 })
 export class CompaniesModule {}

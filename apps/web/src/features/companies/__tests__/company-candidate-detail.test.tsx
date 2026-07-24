@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import CompanyCandidateDetailPage from '@/app/(authenticated)/company/candidates/[candidateId]/page';
 import * as apiClient from '@/lib/api-client';
-import type { CompanyCandidateDetail } from '@nexthire/types';
+import type { CompanyCandidateDetail, TalentShortlistSummary } from '@nexthire/types';
 
 const mockLogout = vi.fn();
 const mockGetAccessToken = vi.fn();
@@ -51,6 +51,15 @@ const detail: CompanyCandidateDetail = {
   ],
 };
 
+const shortlist: TalentShortlistSummary = {
+  id: 's1',
+  name: 'Backend hires',
+  description: null,
+  memberCount: 1,
+  createdAt: '2026-08-01T00:00:00.000Z',
+  updatedAt: '2026-08-01T00:00:00.000Z',
+};
+
 beforeEach(() => {
   vi.clearAllMocks();
   mockGetAccessToken.mockReturnValue('test-token');
@@ -59,6 +68,7 @@ beforeEach(() => {
 describe('CompanyCandidateDetailPage', () => {
   it('renders candidate profile details and public CVs', async () => {
     vi.spyOn(apiClient, 'getCompanyCandidateDetail').mockResolvedValue(detail);
+    vi.spyOn(apiClient, 'listTalentShortlists').mockResolvedValue([]);
     render(<CompanyCandidateDetailPage />);
 
     await waitFor(() => {
@@ -98,6 +108,40 @@ describe('CompanyCandidateDetailPage', () => {
     render(<CompanyCandidateDetailPage />);
     await waitFor(() => {
       expect(mockLogout).toHaveBeenCalled();
+    });
+  });
+
+  it('prompts to create a shortlist when none exist', async () => {
+    vi.spyOn(apiClient, 'getCompanyCandidateDetail').mockResolvedValue(detail);
+    vi.spyOn(apiClient, 'listTalentShortlists').mockResolvedValue([]);
+    render(<CompanyCandidateDetailPage />);
+
+    await waitFor(() => screen.getByText('Jane Doe'));
+    expect(screen.getByText('Create a shortlist')).toBeInTheDocument();
+  });
+
+  it('adds the candidate to a shortlist', async () => {
+    vi.spyOn(apiClient, 'getCompanyCandidateDetail').mockResolvedValue(detail);
+    vi.spyOn(apiClient, 'listTalentShortlists').mockResolvedValue([shortlist]);
+    const addSpy = vi.spyOn(apiClient, 'addTalentShortlistMember').mockResolvedValue({
+      id: 'm1',
+      candidateUserId: 'u1',
+      displayName: 'Jane Doe',
+      professionalHeadline: null,
+      stage: 'SHORTLISTED',
+      notes: null,
+      tags: [],
+      sortOrder: 0,
+      addedAt: '2026-08-01T00:00:00.000Z',
+    });
+
+    render(<CompanyCandidateDetailPage />);
+    await waitFor(() => screen.getByText('Add'));
+    fireEvent.click(screen.getByText('Add'));
+
+    await waitFor(() => {
+      expect(addSpy).toHaveBeenCalledWith('test-token', 's1', { candidateUserId: 'u1' });
+      expect(screen.getByText('Added to Backend hires.')).toBeInTheDocument();
     });
   });
 });

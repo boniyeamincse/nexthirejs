@@ -137,4 +137,33 @@ describe('Companies (e2e)', () => {
     it('GET candidate detail requires auth', () =>
       http().get('/api/v1/companies/me/candidates/some-id').expect(401));
   });
+
+  describe('talent pipeline (NH-M22)', () => {
+    it('GET shortlists requires auth', () =>
+      http().get('/api/v1/companies/me/shortlists').expect(401));
+
+    it('POST shortlist requires auth', () =>
+      http().post('/api/v1/companies/me/shortlists').send({}).expect(401));
+
+    it('GET shortlist detail requires auth', () =>
+      http().get('/api/v1/companies/me/shortlists/some-id').expect(401));
+
+    it('PATCH shortlist requires auth', () =>
+      http().patch('/api/v1/companies/me/shortlists/some-id').send({}).expect(401));
+
+    it('DELETE shortlist requires auth', () =>
+      http().delete('/api/v1/companies/me/shortlists/some-id').expect(401));
+
+    it('POST shortlist member requires auth', () =>
+      http().post('/api/v1/companies/me/shortlists/some-id/members').send({}).expect(401));
+
+    it('PATCH shortlist member requires auth', () =>
+      http()
+        .patch('/api/v1/companies/me/shortlists/some-id/members/member-id')
+        .send({})
+        .expect(401));
+
+    it('DELETE shortlist member requires auth', () =>
+      http().delete('/api/v1/companies/me/shortlists/some-id/members/member-id').expect(401));
+  });
 });
