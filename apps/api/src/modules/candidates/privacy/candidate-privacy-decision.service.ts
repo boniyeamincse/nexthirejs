@@ -7,7 +7,12 @@ import type {
 } from '@nexthire/types';
 
 export type ViewerContext =
-  'OWNER' | 'PLATFORM_AUTHENTICATED' | 'LINK_HOLDER' | 'ANONYMOUS' | 'INTERNAL_SYSTEM';
+  | 'OWNER'
+  | 'PLATFORM_AUTHENTICATED'
+  | 'LINK_HOLDER'
+  | 'ANONYMOUS'
+  | 'INTERNAL_SYSTEM'
+  | 'COMPANY_VERIFIED';
 
 @Injectable()
 export class CandidatePrivacyDecisionService {
@@ -49,6 +54,10 @@ export class CandidatePrivacyDecisionService {
     }
 
     if (viewerContext === 'PLATFORM_AUTHENTICATED') {
+      return settings.overallDiscoverability === 'PLATFORM_DISCOVERABLE';
+    }
+
+    if (viewerContext === 'COMPANY_VERIFIED') {
       return settings.overallDiscoverability === 'PLATFORM_DISCOVERABLE';
     }
 

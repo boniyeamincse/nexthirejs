@@ -29,6 +29,13 @@ export class CompanyApplicationRepository {
     });
   }
 
+  /** NH-M21: a company has at most one application ever (companyId is unique). */
+  isApproved(companyId: string): Promise<boolean> {
+    return this.prisma.companyVerificationApplication
+      .count({ where: { companyId, status: 'APPROVED' } })
+      .then((n) => n > 0);
+  }
+
   findByIdWithCompany(applicationId: string) {
     return this.prisma.companyVerificationApplication.findUnique({
       where: { id: applicationId },

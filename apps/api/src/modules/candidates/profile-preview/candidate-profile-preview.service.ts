@@ -183,6 +183,48 @@ export class CandidateProfilePreviewService {
     return profile;
   }
 
+  /** NH-M21: same privacy projection as the public directory, but for an
+   * identified verified-company viewer (real audit attribution, not anonymous). */
+  async getProfileForVerifiedCompany(
+    companyUserId: string,
+    candidateUserId: string,
+  ): Promise<PublicCandidateProfile | null> {
+    const user = await this.loadUserWithStatus(candidateUserId);
+    if (!user || user.status === 'SUSPENDED' || user.status === 'DELETED') {
+      return null;
+    }
+
+    const privacyRecord = await this.prisma.candidateProfilePrivacy.findUnique({
+      where: { userId: candidateUserId },
+    });
+
+    const privacySettings = privacyRecord
+      ? this.policyService.toResult(privacyRecord)
+      : this.policyService.getDefaultSettings();
+
+    if (!this.decisionService.canPlatformDiscoverCandidate(privacySettings)) {
+      return null;
+    }
+
+    const profileData = await this.loadFullProfile(candidateUserId);
+
+    const profile = this.buildPublicProfile(user, profileData, privacySettings, 'COMPANY_VERIFIED');
+
+    this.auditService
+      .recordBestEffort({
+        actorType: AuditActorType.USER,
+        actorUserId: companyUserId,
+        action: 'candidate.profile.viewed_by_company',
+        targetType: 'CandidateProfile',
+        targetId: profileData.candidateProfile?.id ?? candidateUserId,
+        outcome: AuditOutcome.SUCCESS,
+        metadata: { viewerContext: 'COMPANY_VERIFIED', candidateUserId },
+      })
+      .catch(() => {});
+
+    return profile;
+  }
+
   async getExternalProfileByShareToken(rawToken: string): Promise<PublicCandidateProfile | null> {
     const userId = await this.shareTokenService.validateToken(rawToken);
     if (!userId) {

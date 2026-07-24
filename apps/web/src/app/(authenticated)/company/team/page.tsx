@@ -212,9 +212,14 @@ export default function CompanyTeamPage() {
         <h1 style={{ margin: 0, color: '#f1f5f9', fontSize: '1.6rem', fontWeight: 700 }}>
           Company Team
         </h1>
-        <Link href="/become-a-company" style={{ color: '#93c5fd', fontSize: '0.85rem' }}>
-          ← Company profile
-        </Link>
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <Link href="/company/candidates" style={{ color: '#93c5fd', fontSize: '0.85rem' }}>
+            Candidate search →
+          </Link>
+          <Link href="/become-a-company" style={{ color: '#93c5fd', fontSize: '0.85rem' }}>
+            ← Company profile
+          </Link>
+        </div>
       </div>
 
       {pageError && (

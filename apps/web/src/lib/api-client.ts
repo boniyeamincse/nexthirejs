@@ -3771,6 +3771,50 @@ export async function declineCompanyInvitation(
   }
 }
 
+// ---------------------------------------------------------------------------
+// Company Candidate Search (NH-M21)
+// ---------------------------------------------------------------------------
+
+import type {
+  CompanyCandidateSearchQuery,
+  PaginatedCompanyCandidateSearchResult,
+  CompanyCandidateDetail,
+} from '@nexthire/types';
+
+export async function searchCompanyCandidates(
+  accessToken: string,
+  query: CompanyCandidateSearchQuery,
+): Promise<PaginatedCompanyCandidateSearchResult> {
+  const params = new URLSearchParams();
+  if (query.page) params.set('page', String(query.page));
+  if (query.pageSize) params.set('pageSize', String(query.pageSize));
+  if (query.search) params.set('search', query.search);
+  if (query.countryId) params.set('countryId', query.countryId);
+  if (query.skill) params.set('skill', query.skill);
+
+  const response = await fetch(`${publicEnv.apiBaseUrl}/companies/me/candidates?${params}`, {
+    headers: companyAuthHeaders(accessToken),
+  });
+  if (response.ok) {
+    return response.json() as Promise<PaginatedCompanyCandidateSearchResult>;
+  }
+  throw await parseApiError(response, 'Failed to search candidates');
+}
+
+export async function getCompanyCandidateDetail(
+  accessToken: string,
+  candidateId: string,
+): Promise<CompanyCandidateDetail> {
+  const response = await fetch(
+    `${publicEnv.apiBaseUrl}/companies/me/candidates/${encodeURIComponent(candidateId)}`,
+    { headers: companyAuthHeaders(accessToken) },
+  );
+  if (response.ok) {
+    return response.json() as Promise<CompanyCandidateDetail>;
+  }
+  throw await parseApiError(response, 'Failed to load candidate profile');
+}
+
 // --- Expert: Expertise areas ---
 
 export async function getExpertiseAreas(): Promise<ExpertiseAreaResult[]> {

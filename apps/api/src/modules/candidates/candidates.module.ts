@@ -61,6 +61,8 @@ import { CandidateDataExportService } from './data-export/candidate-data-export.
 import { CandidateDataExportProcessor } from './data-export/candidate-data-export.processor';
 import { AccountDeactivationController } from './account-lifecycle/account-deactivation.controller';
 import { AccountDeactivationService } from './account-lifecycle/account-deactivation.service';
+import { CandidateSearchRepository } from './search/candidate-search.repository';
+import { CandidateSearchService } from './search/candidate-search.service';
 
 @Module({
   imports: [
@@ -129,6 +131,8 @@ import { AccountDeactivationService } from './account-lifecycle/account-deactiva
     CandidateDataExportService,
     CandidateDataExportProcessor,
     AccountDeactivationService,
+    CandidateSearchRepository,
+    CandidateSearchService,
   ],
   exports: [
     CandidateProfileCompletionService,
@@ -139,6 +143,7 @@ import { AccountDeactivationService } from './account-lifecycle/account-deactiva
     CandidateCertificationService,
     CandidateTrainingService,
     ProfileCompletionDashboardService,
+    CandidateSearchService,
   ],
 })
 export class CandidatesModule {}

@@ -140,6 +140,21 @@ export class CvService {
     return cvs.map((cv) => this.formatCvResponse(cv));
   }
 
+  /**
+   * NH-M21: read-only, cross-user — the only caller-side guard is that the
+   * candidate marked the CV `PUBLIC` themselves (CvEditor visibility select).
+   * Callers (e.g. verified-company candidate search) are responsible for
+   * their own access checks before calling this.
+   */
+  async listPublicCvsForCandidate(candidateUserId: string): Promise<CvResponse[]> {
+    const cvs = await this.prisma.cv.findMany({
+      where: { userId: candidateUserId, visibility: 'PUBLIC' },
+      orderBy: [{ isDefault: 'desc' }, { createdAt: 'desc' }],
+    });
+
+    return cvs.map((cv) => this.formatCvResponse(cv));
+  }
+
   async updateCv(userId: string, cvId: string, dto: UpdateCvDto): Promise<CvResponse> {
     const cv = await this.prisma.cv.findUnique({
       where: { id: cvId },

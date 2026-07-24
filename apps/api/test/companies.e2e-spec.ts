@@ -129,4 +129,12 @@ describe('Companies (e2e)', () => {
     it('POST decline requires auth', () =>
       http().post('/api/v1/companies/invitations/some-id/decline').send({}).expect(401));
   });
+
+  describe('candidate search (NH-M21)', () => {
+    it('GET candidate search requires auth', () =>
+      http().get('/api/v1/companies/me/candidates').expect(401));
+
+    it('GET candidate detail requires auth', () =>
+      http().get('/api/v1/companies/me/candidates/some-id').expect(401));
+  });
 });
